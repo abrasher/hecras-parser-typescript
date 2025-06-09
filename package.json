@@ -1,0 +1,26 @@
+{
+  "name": "hecras-parser-typescript",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc && vite build",
+    "preview": "vite preview",
+    "test": "vitest",
+    "test:ui": "vitest --ui",
+    "test:run": "vitest run"
+  },
+  "devDependencies": {
+    "@types/proj4": "^2.5.6",
+    "jsdom": "^26.1.0",
+    "typescript": "~5.8.3",
+    "vite": "^6.3.5",
+    "vitest": "^3.2.3"
+  },
+  "dependencies": {
+    "@types/leaflet": "^1.9.18",
+    "leaflet": "^1.9.4",
+    "proj4": "^2.17.0"
+  }
+}
