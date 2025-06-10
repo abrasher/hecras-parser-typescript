@@ -1,14 +1,14 @@
 /// <reference types="vitest" />
-import { defineConfig } from 'vite'
+import { defineConfig } from "vite"
 
 export default defineConfig({
   build: {
     lib: {
-      entry: 'src/index.ts',
-      fileName: 'index'
-    }
+      entry: "src/index.ts",
+      fileName: "index",
+    },
   },
   test: {
-    environment: 'jsdom'
-  }
+    environment: "jsdom",
+  },
 })

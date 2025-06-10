@@ -1,6 +1,7 @@
 # AGENT.md - HEC-RAS Parser TypeScript
 
 ## Build/Test/Lint Commands
+
 - `npm run dev` - Start development server (Vite)
 - `npm run build` - Build project (TypeScript compilation + Vite build)
 - `npm run preview` - Preview built project
@@ -8,6 +9,7 @@
 - No test framework configured currently
 
 ## Architecture & Structure
+
 - **Frontend**: Vite + TypeScript web app for parsing HEC-RAS geometry files
 - **Core Parser**: `HECRASGeometryParser.ts` - main parsing logic
 - **Generator**: `HECRASGeometryGenerator.ts` - file generation/recreation
@@ -17,6 +19,7 @@
 - **Entry**: `main.ts` - DOM manipulation and file handling logic
 
 ## Code Style & Conventions
+
 - ES2020+ target, ESNext modules, strict TypeScript mode
 - Import style: `import type` for types, named imports preferred
 - Naming: PascalCase for classes, camelCase for variables/functions

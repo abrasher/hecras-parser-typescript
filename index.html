@@ -1,41 +1,47 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>HEC-RAS Geometry Parser</title>
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link
+      rel="stylesheet"
+      href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+    />
     <style>
-        body { font-family: sans-serif; margin: 20px; }
-        #output { 
-            margin-top: 20px; 
-            border: 1px solid #ccc; 
-            padding: 10px; 
-            white-space: pre-wrap; 
-            max-height: 200px;
-            overflow-y: auto;
-            background-color: #f9f9f9;
-        }
-        #treeDisplay {
-            margin-top: 20px;
-            display: none;
-        }
-        #map { 
-            margin-top: 20px; 
-            height: 500px; 
-            border: 1px solid #ccc; 
-            display: none;
-        }
+      body {
+        font-family: sans-serif;
+        margin: 20px;
+      }
+      #output {
+        margin-top: 20px;
+        border: 1px solid #ccc;
+        padding: 10px;
+        white-space: pre-wrap;
+        max-height: 200px;
+        overflow-y: auto;
+        background-color: #f9f9f9;
+      }
+      #treeDisplay {
+        margin-top: 20px;
+        display: none;
+      }
+      #map {
+        margin-top: 20px;
+        height: 500px;
+        border: 1px solid #ccc;
+        display: none;
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <h1>HEC-RAS Geometry File Parser</h1>
-    <input type="file" id="fileInput" accept=".g01,.g*,.txt">
+    <input type="file" id="fileInput" accept=".g01,.g*,.txt" />
     <div id="output">Parsed data will appear here.</div>
     <div id="treeDisplay"></div>
     <div id="map"></div>
 
-    <script type="module" src="src/main.ts"></script> 
+    <script type="module" src="src/main.ts"></script>
     <!--
         NOTE: For a real project, you'd compile TypeScript to JavaScript.
         For this example, if using a simple setup, you might directly link
@@ -44,5 +50,5 @@
         and have your TS files compiled to JS in the same structure, this could work.
         Typically, you'd use a bundler like Webpack, Parcel, or Rollup.
     -->
-</body>
+  </body>
 </html>
