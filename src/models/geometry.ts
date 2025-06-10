@@ -5,10 +5,10 @@ import type { Reach } from './reach'
 
 
 export interface ViewingRectangle {
-    minX: number;
-    minY: number; // HEC-RAS often uses Y2 here (bottom)
-    maxX: number;
-    maxY: number; // HEC-RAS often uses Y1 here (top)
+    left: number;
+    right: number; // HEC-RAS often uses Y2 here (bottom)
+    top: number;
+    bottom: number; // HEC-RAS often uses Y1 here (top)
 }
 export interface GisInfo {
     rasterPath?: string;
@@ -23,9 +23,9 @@ export interface GisInfo {
 }
 
 export class HECRASGeometry {
-    title: string | null = null;
-    programVersion: string | null = null;
-    viewingRectangle: ViewingRectangle | null = null;
+    'Geom Title': string | null = null;
+    'Program Version': string | null = null;
+    'Viewing Rectangle': ViewingRectangle | null = null;
     reaches: Reach[] = [];
     storageAreas: StorageArea[] = [];
     connections: Connection[] = [];

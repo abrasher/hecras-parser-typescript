@@ -2,13 +2,30 @@ import type { Coordinate, ManningSegment, StationElevationPoint, VolumeElevation
 
 // utils.ts
 export function parseCoordinates(line: string, count: number = 1): Coordinate[] {
-    const parts = line.trim().split(/\s+/).map(parseFloat);
     const coords: Coordinate[] = [];
-    for (let i = 0; i < parts.length; i += 2) {
-        if (!isNaN(parts[i]) && !isNaN(parts[i+1])) {
-            coords.push({ x: parts[i], y: parts[i + 1] });
+    
+    // Remove all spaces and chunk into 16-character segments
+
+    const numbers: number[] = [];
+    
+    // Chunk by 16 characters, trim each chunk, and parse as float
+    for (let i = 0; i < line.length; i += 16) {
+        const chunk = line.substring(i, i + 16).trim();
+        if (chunk) {
+            const num = parseFloat(chunk);
+            if (!isNaN(num)) {
+                numbers.push(num);
+            }
         }
     }
+    
+    // Pair up numbers as x,y coordinates
+    for (let i = 0; i < numbers.length; i += 2) {
+        if (i + 1 < numbers.length) {
+            coords.push({ x: numbers[i], y: numbers[i + 1] });
+        }
+    }
+    
     return coords;
 }
 
