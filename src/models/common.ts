@@ -12,7 +12,7 @@ export interface StationElevationPoint {
 export interface ManningSegment {
   station: number
   nValue: number
-  isDummy?: boolean // For the '0' in HEC-RAS files before station
+  unknownParameter: number // For the parameter after nValue
 }
 
 export interface VolumeElevationPoint {

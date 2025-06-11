@@ -178,7 +178,7 @@ export class HecRasGeometryParser {
               xs.manningSegments.push({
                 station: values[j + 1],
                 nValue: values[j + 2],
-                isDummy: values[j] === 0,
+                unknownParameter: values[j],
               })
               k++
             }

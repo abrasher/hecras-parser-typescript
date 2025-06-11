@@ -73,7 +73,7 @@ it("HECRASGeometry should parse reaches with correct coordinates", () => {
   expect(firstReach.centerline.length).toBe(87) // Check that the first reach has 87 points
 })
 
-it("HECRASGeometry should parse cross sections correctly", () => {
+it("HECRASGeometry should parse cross sections with complete data", () => {
   const parser = new HecRasGeometryParser()
   const geometryString = fs.readFileSync("test/data/Muncie.g01", "utf-8")
   const muncieGeometry = parser.parse(geometryString)
@@ -89,7 +89,7 @@ it("HECRASGeometry should parse cross sections correctly", () => {
 
   // Test the first cross section with complete data
   const firstCrossSection = firstReach.crossSections[0]
-
+  
   // Basic properties from "Type RM Length L Ch R = 1 ,15696.24,228.66,210.73,167.84"
   expect(firstCrossSection.riverStation).toBe(15696.24)
   expect(firstCrossSection.lengthL).toBe(228.66)
@@ -111,32 +111,14 @@ it("HECRASGeometry should parse cross sections correctly", () => {
   expect(firstCrossSection.staElevData.length).toBe(134)
 
   // Test first few station/elevation points
-  expect(firstCrossSection.staElevData[0]).toEqual({
-    station: 0,
-    elevation: 963.04,
-  })
-  expect(firstCrossSection.staElevData[1]).toEqual({
-    station: 27.2,
-    elevation: 963.04,
-  })
-  expect(firstCrossSection.staElevData[2]).toEqual({
-    station: 32.64,
-    elevation: 963.02,
-  })
-  expect(firstCrossSection.staElevData[3]).toEqual({
-    station: 38.08,
-    elevation: 962.85,
-  })
+  expect(firstCrossSection.staElevData[0]).toEqual({ station: 0, elevation: 963.04 })
+  expect(firstCrossSection.staElevData[1]).toEqual({ station: 27.2, elevation: 963.04 })
+  expect(firstCrossSection.staElevData[2]).toEqual({ station: 32.64, elevation: 963.02 })
+  expect(firstCrossSection.staElevData[3]).toEqual({ station: 38.08, elevation: 962.85 })
 
   // Test some middle points
-  expect(firstCrossSection.staElevData[10]).toEqual({
-    station: 81.6,
-    elevation: 961.29,
-  })
-  expect(firstCrossSection.staElevData[20]).toEqual({
-    station: 168.63,
-    elevation: 951.83,
-  })
+  expect(firstCrossSection.staElevData[10]).toEqual({ station: 81.6, elevation: 961.29 })
+  expect(firstCrossSection.staElevData[20]).toEqual({ station: 168.63, elevation: 951.83 })
 
   // Test last station/elevation point
   const lastPoint = firstCrossSection.staElevData[133]
@@ -147,9 +129,9 @@ it("HECRASGeometry should parse cross sections correctly", () => {
   expect(Array.isArray(firstCrossSection.manningSegments)).toBe(true)
   expect(firstCrossSection.manningSegments.length).toBe(3)
   expect(firstCrossSection.manningSegments).toEqual([
-    { station: 0, n: 0.07, unknownParameter: 0 },
-    { station: 250.23, n: 0.04,unknownParameter: 0  },
-    { station: 401.13, n: 0.07, unknownParameter: 0 },
+    { station: 0, n: 0.07, leftBank: 0 },
+    { station: 250.23, n: 0.04, leftBank: 0 },
+    { station: 401.13, n: 0.07, leftBank: 0 },
   ])
 
   // Bank stations from "Bank Sta=250.23,401.13"
@@ -161,4 +143,50 @@ it("HECRASGeometry should parse cross sections correctly", () => {
   // Expansion/contraction coefficients from "Exp/Cntr=0.3,0.1"
   expect(firstCrossSection.expansionCoefficient).toBe(0.3)
   expect(firstCrossSection.contractionCoefficient).toBe(0.1)
+})
+
+it("HECRASGeometry should parse multiple cross sections correctly", () => {
+  const parser = new HecRasGeometryParser()
+  const geometryString = fs.readFileSync("test/data/Muncie.g01", "utf-8")
+  const muncieGeometry = parser.parse(geometryString)
+
+  const firstReach = muncieGeometry.reaches[0]
+  
+  // Should have multiple cross sections
+  expect(firstReach.crossSections.length).toBeGreaterThan(1)
+  
+  // Test second cross section exists and has different river station
+  if (firstReach.crossSections.length > 1) {
+    const secondCrossSection = firstReach.crossSections[1]
+    expect(secondCrossSection.riverStation).toBe(15485.51)
+    expect(secondCrossSection.lengthL).toBe(121.23)
+    expect(secondCrossSection.lengthCh).toBe(115.09)
+    expect(secondCrossSection.lengthR).toBe(103.79)
+    expect(secondCrossSection.lastEditedTime).toBe("Jul/13/2007 11:09:22")
+    
+    // Should have different number of station/elevation points (93 vs 134)
+    expect(secondCrossSection.staElevData.length).toBe(93)
+  }
+})
+
+it("HECRASGeometry should handle cross section station/elevation data parsing correctly", () => {
+  const parser = new HecRasGeometryParser()
+  const geometryString = fs.readFileSync("test/data/Muncie.g01", "utf-8")
+  const muncieGeometry = parser.parse(geometryString)
+
+  const firstCrossSection = muncieGeometry.reaches[0].crossSections[0]
+  
+  // Test that station values are in ascending order (as they should be)
+  for (let i = 1; i < firstCrossSection.staElevData.length; i++) {
+    expect(firstCrossSection.staElevData[i].station).toBeGreaterThanOrEqual(
+      firstCrossSection.staElevData[i - 1].station
+    )
+  }
+  
+  // Test specific elevation values that correspond to channel bottom and banks
+  const channelBottom = Math.min(...firstCrossSection.staElevData.map(p => p.elevation))
+  expect(channelBottom).toBeLessThan(940) // Should be around 937 based on the data
+  
+  const maxElevation = Math.max(...firstCrossSection.staElevData.map(p => p.elevation))
+  expect(maxElevation).toBeGreaterThan(960) // Should be around 963 based on the data
 })
