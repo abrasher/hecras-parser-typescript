@@ -1,4 +1,5 @@
 # AGENT.md - HEC-RAS Parser TypeScript
+This is a framework for parsing HECRAS files. Currently it supports some of geometry (.g0x files)
 
 ## Build/Test/Lint Commands
 
@@ -10,7 +11,6 @@
 
 ## Architecture & Structure
 
-- **Frontend**: Vite + TypeScript web app for parsing HEC-RAS geometry files
 - **Core Parser**: `HECRASGeometryParser.ts` - main parsing logic
 - **Generator**: `HECRASGeometryGenerator.ts` - file generation/recreation
 - **Models**: `/src/models/` - TypeScript interfaces for geometry data structures

@@ -10,7 +10,7 @@ import {
 } from "./utils"
 import { LateralStructure } from "./models/lateralStructure"
 import { StorageArea } from "./models/storageArea"
-import { Connection } from "./models/connection"
+import { SAConnection } from "./models/connection"
 
 export class HECFormatter {
   private geometry: HECRASGeometry
@@ -146,7 +146,7 @@ export class HECFormatter {
     // ... format SA properties (surface line, vol-elev, manning's)
   }
 
-  private formatConnection(output: string[], conn: Connection): void {
+  private formatConnection(output: string[], conn: SAConnection): void {
     output.push(`Connection=${conn.id},${conn.description || ""}`)
     // ... format Connection properties
   }

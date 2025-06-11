@@ -10,7 +10,7 @@ import { Reach } from "./models/reach"
 import { CrossSection } from "./models/crossSection"
 import { LateralStructure } from "./models/lateralStructure"
 import { StorageArea } from "./models/storageArea"
-import { Connection } from "./models/connection"
+import { SAConnection } from "./models/connection"
 import { IneffectiveFlowArea } from "./models/ineffectiveFlowArea"
 import {
   formatNumber,
@@ -242,7 +242,7 @@ export class HecRasFileGenerator {
     this.addLine("")
   }
 
-  private generateConnection(conn: Connection): void {
+  private generateConnection(conn: SAConnection): void {
     this.addLine(
       `Connection=${formatNumber(conn.id, 0)}             ,${conn.description || ""}`,
     )

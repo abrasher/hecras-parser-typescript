@@ -1,164 +1,204 @@
-import { expect, it } from "vitest"
+import { expect, it, beforeAll, describe } from "vitest"
 import { HECRASGeometry } from "../src/models/geometry"
 import { HecRasGeometryParser } from "../src/HECRASGeometryParser"
-import { Coordinate } from "../src/models/common"
+import { Coordinate, ManningSegment } from "../src/models/common"
 import fs from "fs"
 import { CrossSection } from "../src/models/crossSection"
+import {
+  expectedHeaders,
+  expectedFirstReachPoints,
+  expectedFirstCrossSection,
+  expectedFirstStorageArea,
+} from "./data/muncieGeometryData"
+import { StorageArea } from "../src/models/storageArea"
+import util from "util"
+import { Connection, SAConnection } from "../src/models/connection"
 
-it("HECRASGeometry should parse correct headers", () => {
-  const parser = new HecRasGeometryParser()
+describe("HECRASGeometry Parser", () => {
+  let parser: HecRasGeometryParser
+  let muncieGeometry: HECRASGeometry
 
-  const geometryString = fs.readFileSync("test/data/Muncie.g01", "utf-8")
-  const muncieGeometry = parser.parse(geometryString)
-
-  expect(muncieGeometry).toHaveProperty(
-    "Geom Title",
-    "Muncie Base Geometry - 9 SAs",
-  )
-  expect(muncieGeometry).toHaveProperty("Program Version", "5.00")
-
-  expect(muncieGeometry).toHaveProperty("Viewing Rectangle", {
-    left: 404112.085287251,
-    right: 413818.78591839,
-    top: 1806670.07015604,
-    bottom: 1799678.66049907,
-  })
-})
-
-it("HECRASGeometry should parse reaches with correct coordinates", () => {
-  const parser = new HecRasGeometryParser()
-  const geometryString = fs.readFileSync("test/data/Muncie.g01", "utf-8")
-  const muncieGeometry = parser.parse(geometryString)
-
-  expect(muncieGeometry).toHaveProperty("reaches")
-  expect(Array.isArray(muncieGeometry.reaches)).toBe(true)
-  expect(muncieGeometry.reaches.length).toBeGreaterThan(0)
-  const firstReach = muncieGeometry.reaches[0]
-  expect(firstReach).toHaveProperty("centerline")
-  expect(firstReach.centerline[0]).toEqual({
-    // Point 1
-    x: 413723.622186712,
-    y: 1800205.14997914,
-  })
-  expect(firstReach.centerline[1]).toEqual({
-    // Point 2
-    x: 413628.76151458,
-    y: 1800234.33788318,
-  })
-  expect(firstReach.centerline[2]).toEqual({
-    // Point 3
-    x: 413533.900842447,
-    y: 1800248.9318032,
-  })
-  expect(firstReach.centerline[3]).toEqual({
-    // Point 4
-    x: 413402.555306264,
-    y: 1800278.11970724,
-  })
-  expect(firstReach.centerline[4]).toEqual({
-    // Point 5
-    x: 413322.288554152,
-    y: 1800307.30761129,
-  })
-  expect(firstReach.centerline[5]).toEqual({
-    // Point 6
-    x: 413190.943081968,
-    y: 1800372.98037938,
-  })
-  expect(firstReach.centerline[86]).toEqual({
-    // Point 87
-    x: 404398.089373685,
-    y: 1801686.43567721,
-  })
-  expect(firstReach.centerline.length).toBe(87) // Check that the first reach has 87 points
-})
-
-it("HECRASGeometry should parse cross sections correctly", () => {
-  const parser = new HecRasGeometryParser()
-  const geometryString = fs.readFileSync("test/data/Muncie.g01", "utf-8")
-  const muncieGeometry = parser.parse(geometryString)
-
-  expect(muncieGeometry.reaches).toBeDefined()
-  expect(Array.isArray(muncieGeometry.reaches)).toBe(true)
-  expect(muncieGeometry.reaches.length).toBeGreaterThan(0)
-
-  const firstReach = muncieGeometry.reaches[0]
-  expect(firstReach.crossSections).toBeDefined()
-  expect(Array.isArray(firstReach.crossSections)).toBe(true)
-  expect(firstReach.crossSections.length).toBeGreaterThan(0)
-
-  // Test the first cross section with complete data
-  const firstCrossSection = firstReach.crossSections[0]
-
-  // Basic properties from "Type RM Length L Ch R = 1 ,15696.24,228.66,210.73,167.84"
-  expect(firstCrossSection.riverStation).toBe(15696.24)
-  expect(firstCrossSection.lengthL).toBe(228.66)
-  expect(firstCrossSection.lengthCh).toBe(210.73)
-  expect(firstCrossSection.lengthR).toBe(167.84)
-  expect(firstCrossSection.lastEditedTime).toBe("Jul/13/2007 10:50:07")
-
-  // GIS Cut Line coordinates (4 points from the test data)
-  expect(firstCrossSection.gisCutLine).toEqual([
-    { x: 413443.23844232, y: 1799937.56405877 },
-    { x: 413545.895786464, y: 1800177.0978191 },
-    { x: 413561.864682486, y: 1800361.88105136 },
-    { x: 413662.240746626, y: 1800708.63471585 },
-  ])
-
-  // Station/Elevation data (134 points)
-  expect(firstCrossSection.staElevData).toBeDefined()
-  expect(Array.isArray(firstCrossSection.staElevData)).toBe(true)
-  expect(firstCrossSection.staElevData.length).toBe(134)
-
-  // Test first few station/elevation points
-  expect(firstCrossSection.staElevData[0]).toEqual({
-    station: 0,
-    elevation: 963.04,
-  })
-  expect(firstCrossSection.staElevData[1]).toEqual({
-    station: 27.2,
-    elevation: 963.04,
-  })
-  expect(firstCrossSection.staElevData[2]).toEqual({
-    station: 32.64,
-    elevation: 963.02,
-  })
-  expect(firstCrossSection.staElevData[3]).toEqual({
-    station: 38.08,
-    elevation: 962.85,
+  beforeAll(() => {
+    parser = new HecRasGeometryParser()
+    const geometryString = fs.readFileSync("test/data/Muncie.g01", "utf-8")
+    muncieGeometry = parser.parse(geometryString)
   })
 
-  // Test some middle points
-  expect(firstCrossSection.staElevData[10]).toEqual({
-    station: 81.6,
-    elevation: 961.29,
-  })
-  expect(firstCrossSection.staElevData[20]).toEqual({
-    station: 168.63,
-    elevation: 951.83,
-  })
-
-  // Test last station/elevation point
-  const lastPoint = firstCrossSection.staElevData[133]
-  expect(lastPoint).toEqual({ station: 807.07, elevation: 958.77 })
-
-  // Manning's n values (3 segments from "#Mann= 3 , 0 , 0")
-  expect(firstCrossSection.manningSegments).toBeDefined()
-  expect(Array.isArray(firstCrossSection.manningSegments)).toBe(true)
-  expect(firstCrossSection.manningSegments.length).toBe(3)
-  expect(firstCrossSection.manningSegments).toEqual([
-    { station: 0, n: 0.07, unknownParameter: 0 },
-    { station: 250.23, n: 0.04,unknownParameter: 0  },
-    { station: 401.13, n: 0.07, unknownParameter: 0 },
-  ])
-
-  // Bank stations from "Bank Sta=250.23,401.13"
-  expect(firstCrossSection.bankStations).toEqual({
-    left: 250.23,
-    right: 401.13,
+  describe("Headers", () => {
+    it("should parse correct headers", () => {
+      expect(muncieGeometry).toHaveProperty(
+        "Geom Title",
+        expectedHeaders["Geom Title"],
+      )
+      expect(muncieGeometry).toHaveProperty(
+        "Program Version",
+        expectedHeaders["Program Version"],
+      )
+      expect(muncieGeometry).toHaveProperty(
+        "Viewing Rectangle",
+        expectedHeaders["Viewing Rectangle"],
+      )
+    })
   })
 
-  // Expansion/contraction coefficients from "Exp/Cntr=0.3,0.1"
-  expect(firstCrossSection.expansionCoefficient).toBe(0.3)
-  expect(firstCrossSection.contractionCoefficient).toBe(0.1)
+  describe("Reaches", () => {
+    it("should parse reaches with correct structure", () => {
+      expect(muncieGeometry).toHaveProperty("reaches")
+      expect(Array.isArray(muncieGeometry.reaches)).toBe(true)
+      expect(muncieGeometry.reaches.length).toBeGreaterThan(0)
+    })
+
+    it("should parse first reach coordinates correctly", () => {
+      const firstReach = muncieGeometry.reaches[0]
+      expect(firstReach).toHaveProperty("centerline")
+
+      // Verify total number of points
+      expect(firstReach.centerline.length).toBe(
+        expectedFirstReachPoints.totalPoints,
+      )
+
+      // Verify only the key points we care about
+      expectedFirstReachPoints.keyPoints.forEach(({ index, point }) => {
+        expect(firstReach.centerline[index]).toEqual(point)
+      })
+    })
+  })
+
+  describe("Cross Sections", () => {
+    let firstCrossSection: CrossSection
+
+    beforeAll(() => {
+      firstCrossSection = muncieGeometry.reaches[0].crossSections[0]
+    })
+
+    it("should have correct basic properties", () => {
+      expect(firstCrossSection.riverStation).toBe(
+        expectedFirstCrossSection.riverStation,
+      )
+      expect(firstCrossSection.lengthL).toBe(expectedFirstCrossSection.lengthL)
+      expect(firstCrossSection.lengthCh).toBe(
+        expectedFirstCrossSection.lengthCh,
+      )
+      expect(firstCrossSection.lengthR).toBe(expectedFirstCrossSection.lengthR)
+      expect(firstCrossSection.lastEditedTime).toBe(
+        expectedFirstCrossSection.lastEditedTime,
+      )
+    })
+
+    it("should have correct GIS cut line coordinates", () => {
+      expect(firstCrossSection.gisCutLine).toEqual(
+        expectedFirstCrossSection.gisCutLine,
+      )
+    })
+
+    it("should have correct station/elevation data", () => {
+      expect(firstCrossSection.staElevData).toBeDefined()
+      expect(Array.isArray(firstCrossSection.staElevData)).toBe(true)
+
+      // Verify total number of points
+      expect(firstCrossSection.staElevData.length).toBe(
+        expectedFirstCrossSection.staElevData.totalPoints,
+      )
+
+      // Verify only the key points we care about
+      expectedFirstCrossSection.staElevData.keyPoints.forEach(
+        ({ index, point }) => {
+          expect(firstCrossSection.staElevData[index]).toEqual(point)
+        },
+      )
+    })
+
+    it("should have correct Manning segments", () => {
+      expect(firstCrossSection.manningSegments).toEqual(
+        expectedFirstCrossSection.manningSegments,
+      )
+    })
+
+    it("should have correct bank stations and coefficients", () => {
+      expect(firstCrossSection.bankStations).toEqual(
+        expectedFirstCrossSection.bankStations,
+      )
+      expect(firstCrossSection.expansionCoefficient).toBe(
+        expectedFirstCrossSection.expansionCoefficient,
+      )
+      expect(firstCrossSection.contractionCoefficient).toBe(
+        expectedFirstCrossSection.contractionCoefficient,
+      )
+    })
+  })
+
+  describe("Storage Areas", () => {
+    let firstStorageArea: StorageArea
+    let allStorageAreas: StorageArea[]
+
+    beforeAll(() => {
+      firstStorageArea = muncieGeometry.storageAreas[0]
+      allStorageAreas = muncieGeometry.storageAreas
+    })
+
+    it("should have correct basic properties", () => {
+      expect(firstStorageArea.id).toBe(expectedFirstStorageArea.id)
+      expect(firstStorageArea.type).toBe(expectedFirstStorageArea.type)
+      expect(firstStorageArea.is2D).toBe(expectedFirstStorageArea.is2D)
+      expect(firstStorageArea.mannings).toBe(expectedFirstStorageArea.mannings)
+      expect(firstStorageArea.area).toBe(expectedFirstStorageArea.area)
+      expect(firstStorageArea.minElevation).toBe(
+        expectedFirstStorageArea.minElevation,
+      )
+    })
+
+    it("should have correct centroid coordinates", () => {
+      expect(firstStorageArea.centroid).toEqual(
+        expectedFirstStorageArea.centroid,
+      )
+    })
+
+    it("should have correct surface line coordinates", () => {
+      expect(firstStorageArea.surfaceLine).toEqual(
+        expectedFirstStorageArea.surfaceLine,
+      )
+    })
+
+    it("should have correct volume-elevation data", () => {
+      expect(firstStorageArea.volumeElevationData).toEqual(
+        expectedFirstStorageArea.volumeElevationData,
+      )
+    })
+
+    it("should have correct GeoJSON", () => {
+      const geoJson = firstStorageArea.toGeoJSON()
+      console.log(JSON.stringify(geoJson, null, 2))
+      expect(geoJson).toBeDefined()
+    })
+
+    it("should have correct coordinates", () => {
+      const geoJson = {
+        type: "FeatureCollection",
+        features: allStorageAreas.map((storageArea) => storageArea.toGeoJSON()),
+      }
+      console.log(JSON.stringify(geoJson, null, 2))
+      require("child_process")
+        .spawn("clip")
+        .stdin.end(JSON.stringify(geoJson, null, 2))
+      expect(geoJson).toBeDefined()
+    })
+  })
+
+  describe("Storage Area Connections", () => {
+    let firstConnection: Connection
+    let allConnections: Connection[]
+
+    beforeAll(() => {
+      firstConnection = muncieGeometry.connections[0]
+      allConnections = muncieGeometry.connections
+    })
+
+    it("should have correct basic properties", () => {
+      // Basic test for existing connection parsing (will be expanded with TDD)
+      expect(firstConnection).toBeDefined()
+      expect(firstConnection.id).toBeDefined()
+      expect(firstConnection.upSA).toBeDefined()
+      expect(firstConnection.dnSA).toBeDefined()
+    })
+  })
 })

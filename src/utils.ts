@@ -1,9 +1,21 @@
+import type { Position } from "geojson"
 import type {
   Coordinate,
   ManningSegment,
   StationElevationPoint,
   VolumeElevationPoint,
 } from "./models/common"
+import proj4 from "proj4"
+
+export function coordinatesToGeoJSONPoints(
+  coordinates: Coordinate[],
+): Position[] {
+  const fromProj = `PROJCS["NAD_1983_StatePlane_Indiana_East_FIPS_1301_Feet",GEOGCS["GCS_North_American_1983",DATUM["D_North_American_1983",SPHEROID["GRS_1980",6378137.0,298.257222101]],PRIMEM["Greenwich",0.0],UNIT["Degree",0.0174532925199433]],PROJECTION["Transverse_Mercator"],PARAMETER["False_Easting",328083.3333333333],PARAMETER["False_Northing",820208.3333333333],PARAMETER["Central_Meridian",-85.66666666666667],PARAMETER["Scale_Factor",0.9999666666666667],PARAMETER["Latitude_Of_Origin",37.5],UNIT["Foot_US",0.3048006096012192]]`
+
+  return coordinates.map((coord) =>
+    proj4(fromProj, "EPSG:4326", [coord.x, coord.y]),
+  )
+}
 
 // utils.ts
 export function parseCoordinates(
@@ -11,7 +23,6 @@ export function parseCoordinates(
   count: number = 1,
 ): Coordinate[] {
   const coords: Coordinate[] = []
-  
 
   // Remove all spaces and chunk into 16-character segments
 

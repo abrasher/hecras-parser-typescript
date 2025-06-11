@@ -58,6 +58,8 @@ export class HecRasGeometryParser {
         break // End of header, start of reaches
       } else if (line.startsWith("Storage Area=")) {
         break // Could start with SAs
+      } else if (line.startsWith("Connection=")) {
+        break // Could start with Connections
       }
       this.advanceLine()
       line = this.getCurrentLine()
@@ -173,12 +175,12 @@ export class HecRasGeometryParser {
             break
           const values = parseLineToNumbers(manningLine)
           for (let j = 0; j < values.length; j += 3) {
-            // 0 (dummy), station, nVal
+            // station, nVal, unknownParameter (it seems to be 0 for all cases)
             if (j + 2 < values.length) {
               xs.manningSegments.push({
-                station: values[j + 1],
-                nValue: values[j + 2],
-                unknownParameter: values[j],
+                station: values[j],
+                nValue: values[j + 1],
+                unknownParameter: values[j + 2],
               })
               k++
             }
@@ -323,7 +325,7 @@ export class HecRasGeometryParser {
           if (pointsCollected >= numPoints) break
         }
       } else if (line.startsWith("Storage Area Mannings=")) {
-        sa.manningsN = parseFloat(parseKeyValue(line)?.value || "0")
+        sa.mannings = parseFloat(parseKeyValue(line)?.value || "0")
         this.advanceLine()
       }
       // Add more SA specific parsing here
@@ -337,7 +339,26 @@ export class HecRasGeometryParser {
   private parseConnectionData(conn: Connection): void {
     let line = this.getCurrentLine()
     while (line !== null && !this.isNewSection(line)) {
-      if (line.startsWith("Connection Line=")) {
+      // Basic info and metadata
+      if (line.startsWith("Connection Desc=")) {
+        conn.description = parseKeyValue(line)?.value || null
+        this.advanceLine()
+      } else if (line.startsWith("Connection Centerline Profile=")) {
+        conn.centerlineProfile = parseInt(parseKeyValue(line)?.value || "0")
+        this.advanceLine()
+      } else if (line.startsWith("Connection Last Edited Time=")) {
+        conn.lastEditedTime = parseKeyValue(line)?.value || null
+        this.advanceLine()
+      } else if (line.startsWith("Conn CellSize Min=")) {
+        conn.cellSizeMin = parseInt(parseKeyValue(line)?.value || "0")
+        this.advanceLine()
+      } else if (line.startsWith("Conn Near Repeats=")) {
+        conn.nearRepeats = parseInt(parseKeyValue(line)?.value || "0")
+        this.advanceLine()
+      }
+      
+      // Connection line coordinates
+      else if (line.startsWith("Connection Line=")) {
         const numPoints = parseInt(parseKeyValue(line)?.value || "0")
         this.advanceLine()
         let pointsCollected = 0
@@ -358,17 +379,46 @@ export class HecRasGeometryParser {
           this.advanceLine()
           if (pointsCollected >= numPoints) break
         }
-      } else if (line.startsWith("Connection Up SA=")) {
-        conn.upSA = parseKeyValue(line)?.value || null
+      }
+      
+      // Storage area connections
+      else if (line.startsWith("Connection Up SA=")) {
+        conn.upSA = parseKeyValue(line)?.value?.trim() || null
         this.advanceLine()
       } else if (line.startsWith("Connection Dn SA=")) {
-        conn.dnSA = parseKeyValue(line)?.value || null
+        conn.dnSA = parseKeyValue(line)?.value?.trim() || null
         this.advanceLine()
-      } else if (line.startsWith("Conn Weir WD=")) {
+      }
+      
+      // Routing settings
+      else if (line.startsWith("Conn Routing Type=")) {
+        conn.routingType = parseInt(parseKeyValue(line)?.value?.trim() || "0")
+        this.advanceLine()
+      } else if (line.startsWith("Conn Use RC Family=")) {
+        const value = parseKeyValue(line)?.value?.trim().toLowerCase()
+        conn.useRCFamily = value === "true"
+        this.advanceLine()
+      } else if (line.startsWith("Conn OverFlow Method 2D=")) {
+        const value = parseKeyValue(line)?.value?.trim().toLowerCase()
+        conn.overflowMethod2D = value === "true"
+        this.advanceLine()
+      }
+      
+      // Basic weir properties
+      else if (line.startsWith("Conn Weir WD=")) {
         conn.weirWidth = parseFloat(parseKeyValue(line)?.value || "0")
         this.advanceLine()
       } else if (line.startsWith("Conn Weir Coef=")) {
         conn.weirCoefficient = parseFloat(parseKeyValue(line)?.value || "0")
+        this.advanceLine()
+      } else if (line.startsWith("Conn Weir Is Ogee=")) {
+        conn.weirIsOgee = parseInt(parseKeyValue(line)?.value?.trim() || "0")
+        this.advanceLine()
+      } else if (line.startsWith("Conn Simple Spill Pos Coef=")) {
+        conn.simpleSpillPosCoef = parseFloat(parseKeyValue(line)?.value || "0")
+        this.advanceLine()
+      } else if (line.startsWith("Conn Simple Spill Neg Coef=")) {
+        conn.simpleSpillNegCoef = parseFloat(parseKeyValue(line)?.value || "0")
         this.advanceLine()
       } else if (line.startsWith("Conn Weir SE=")) {
         const numPoints = parseInt(parseKeyValue(line)?.value || "0")
@@ -392,6 +442,19 @@ export class HecRasGeometryParser {
           if (pointsCollected >= numPoints) break
         }
       }
+      
+      // Advanced weir properties
+      else if (line.startsWith("Conn Weir Design EG=")) {
+        conn.weirDesignEG = parseFloat(parseKeyValue(line)?.value || "0")
+        this.advanceLine()
+      } else if (line.startsWith("Conn Weir Design HT=")) {
+        conn.weirDesignHT = parseFloat(parseKeyValue(line)?.value || "0")
+        this.advanceLine()
+      } else if (line.startsWith("Conn HTab HWMax=")) {
+        conn.hTabHWMax = parseFloat(parseKeyValue(line)?.value || "0")
+        this.advanceLine()
+      }
+      
       // Add more Connection specific parsing here
       else {
         this.advanceLine()
@@ -511,14 +574,16 @@ export class HecRasGeometryParser {
         this.advanceLine()
         this.parseStorageAreaData(sa)
       } else if (line.startsWith("Connection=")) {
+        console.log("Found Connection line:", line)
         const parts = parseKeyValue(line)!.value.split(",")
-        const id = parseInt(parts[0])
+        // The first part is the connection ID (could be string or number)
+        const id = parts[0].trim()
+        console.log("Connection ID:", id)
         const conn = new Connection(id)
-        // Optional description could be here
-        if (parts.length > 1 && parts[1].trim() !== "") {
-          conn.description = parts[1].trim()
-        }
+        // The remaining parts are coordinates or flags, not description
+        // Description comes from a separate "Connection Desc=" line
         this.geometry.connections.push(conn)
+        console.log("Added connection, total connections:", this.geometry.connections.length)
         this.advanceLine()
         this.parseConnectionData(conn)
       } else if (line.startsWith("Geom Raster=")) {
