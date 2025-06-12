@@ -170,18 +170,6 @@ describe("HECRASGeometry Parser", () => {
       console.log(JSON.stringify(geoJson, null, 2))
       expect(geoJson).toBeDefined()
     })
-
-    it("should have correct coordinates", () => {
-      const geoJson = {
-        type: "FeatureCollection",
-        features: allStorageAreas.map((storageArea) => storageArea.toGeoJSON()),
-      }
-      console.log(JSON.stringify(geoJson, null, 2))
-      require("child_process")
-        .spawn("clip")
-        .stdin.end(JSON.stringify(geoJson, null, 2))
-      expect(geoJson).toBeDefined()
-    })
   })
 
   describe("Storage Area Connections", () => {

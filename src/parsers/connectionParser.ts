@@ -1,6 +1,15 @@
 import { parseKeyValue, parseCoordinates, parseStaElev } from "../utils"
 import type { Connection } from "../models/connection"
 
+interface CulvertGroup {
+  name: string
+  
+}
+
+interface CulvertBarrel {
+
+}
+
 export function parseConnectionData(
   lines: string[],
   currentIndex: number,
