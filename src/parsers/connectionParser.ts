@@ -3,22 +3,19 @@ import type { Connection } from "../models/connection"
 
 interface CulvertGroup {
   name: string
-  
 }
 
-interface CulvertBarrel {
-
-}
+interface CulvertBarrel {}
 
 export function parseConnectionData(
   lines: string[],
   currentIndex: number,
   conn: Connection,
-  isNewSection: (line: string) => boolean
+  isNewSection: (line: string) => boolean,
 ): number {
   let index = currentIndex
   let line = lines[index]
-  
+
   while (line !== null && !isNewSection(line) && index < lines.length) {
     // Basic info and metadata
     if (line.startsWith("Connection Desc=")) {
@@ -37,16 +34,13 @@ export function parseConnectionData(
       conn.nearRepeats = parseInt(parseKeyValue(line)?.value || "0")
       index++
     }
-    
+
     // Connection line coordinates
     else if (line.startsWith("Connection Line=")) {
       const numPoints = parseInt(parseKeyValue(line)?.value || "0")
       index++
       let pointsCollected = 0
-      while (
-        pointsCollected < numPoints &&
-        index < lines.length
-      ) {
+      while (pointsCollected < numPoints && index < lines.length) {
         const connLine = lines[index]
         if (
           !connLine ||
@@ -61,7 +55,7 @@ export function parseConnectionData(
         if (pointsCollected >= numPoints) break
       }
     }
-    
+
     // Storage area connections
     else if (line.startsWith("Connection Up SA=")) {
       conn.upSA = parseKeyValue(line)?.value?.trim() || null
@@ -70,7 +64,7 @@ export function parseConnectionData(
       conn.dnSA = parseKeyValue(line)?.value?.trim() || null
       index++
     }
-    
+
     // Routing settings
     else if (line.startsWith("Conn Routing Type=")) {
       conn.routingType = parseInt(parseKeyValue(line)?.value?.trim() || "0")
@@ -84,7 +78,7 @@ export function parseConnectionData(
       conn.overflowMethod2D = value === "true"
       index++
     }
-    
+
     // Basic weir properties
     else if (line.startsWith("Conn Weir WD=")) {
       conn.weirWidth = parseFloat(parseKeyValue(line)?.value || "0")
@@ -105,10 +99,7 @@ export function parseConnectionData(
       const numPoints = parseInt(parseKeyValue(line)?.value || "0")
       index++
       let pointsCollected = 0
-      while (
-        pointsCollected < numPoints &&
-        index < lines.length
-      ) {
+      while (pointsCollected < numPoints && index < lines.length) {
         const seLine = lines[index]
         if (
           !seLine ||
@@ -123,7 +114,7 @@ export function parseConnectionData(
         if (pointsCollected >= numPoints) break
       }
     }
-    
+
     // Advanced weir properties
     else if (line.startsWith("Conn Weir Design EG=")) {
       conn.weirDesignEG = parseFloat(parseKeyValue(line)?.value || "0")
@@ -134,13 +125,11 @@ export function parseConnectionData(
     } else if (line.startsWith("Conn HTab HWMax=")) {
       conn.hTabHWMax = parseFloat(parseKeyValue(line)?.value || "0")
       index++
-    }
-    
-    else {
+    } else {
       index++
     }
     line = lines[index]
   }
-  
+
   return index
 }

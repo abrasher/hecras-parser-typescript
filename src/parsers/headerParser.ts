@@ -4,11 +4,11 @@ import type { HECRASGeometry, ViewingRectangle } from "../models/geometry"
 export function parseHeader(
   lines: string[],
   currentIndex: number,
-  geometry: HECRASGeometry
+  geometry: HECRASGeometry,
 ): number {
   let index = currentIndex
   let line = lines[index]
-  
+
   while (line !== null && index < lines.length) {
     if (line.startsWith("Geom Title=")) {
       geometry["Geom Title"] = parseKeyValue(line)?.value || null
@@ -24,14 +24,16 @@ export function parseHeader(
           bottom: values[3],
         }
       }
-    } else if (line.startsWith("River Reach=") ||
-               line.startsWith("Storage Area=") ||
-               line.startsWith("Connection=")) {
+    } else if (
+      line.startsWith("River Reach=") ||
+      line.startsWith("Storage Area=") ||
+      line.startsWith("Connection=")
+    ) {
       break // End of header
     }
     index++
     line = lines[index]
   }
-  
+
   return index
 }

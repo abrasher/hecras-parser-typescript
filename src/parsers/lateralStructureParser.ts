@@ -5,11 +5,11 @@ export function parseLateralStructureData(
   lines: string[],
   currentIndex: number,
   ls: LateralStructure,
-  isNewSection: (line: string) => boolean
+  isNewSection: (line: string) => boolean,
 ): number {
   let index = currentIndex
   let line = lines[index]
-  
+
   while (line !== null && !isNewSection(line) && index < lines.length) {
     if (line.startsWith("Lateral Weir WD=")) {
       ls.weirWidth = parseFloat(parseKeyValue(line)?.value || "0")
@@ -19,10 +19,7 @@ export function parseLateralStructureData(
       const numPoints = parseInt(parseKeyValue(line)?.value || "0")
       index++
       let pointsCollected = 0
-      while (
-        pointsCollected < numPoints &&
-        index < lines.length
-      ) {
+      while (pointsCollected < numPoints && index < lines.length) {
         const seLine = lines[index]
         if (
           !seLine ||
@@ -40,10 +37,10 @@ export function parseLateralStructureData(
       const parts = parseKeyValue(line)?.value.split(",")
       if (parts && parts[0]) ls.associatedRiverStation = parts[0].trim()
     }
-    
+
     index++
     line = lines[index]
   }
-  
+
   return index
 }

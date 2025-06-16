@@ -1,41 +1,47 @@
 // models/connection.ts
-import type { Coordinate, StationElevationPoint, CulvertData, CulvertBarrel, BridgeData } from "./common"
+import type {
+  Coordinate,
+  StationElevationPoint,
+  CulvertData,
+  CulvertBarrel,
+  BridgeData,
+} from "./common"
 
 export enum ConnectionType {
-  SA_2D = 'SA_2D',
-  RIVER_REACH = 'RIVER_REACH',
-  LATERAL_STRUCTURE = 'LATERAL_STRUCTURE'
+  SA_2D = "SA_2D",
+  RIVER_REACH = "RIVER_REACH",
+  LATERAL_STRUCTURE = "LATERAL_STRUCTURE",
 }
 
 export enum StructureType {
-  WEIR = 'WEIR',
-  WEIR_AND_CULVERTS = 'WEIR_AND_CULVERTS',
-  WEIR_AND_GATES = 'WEIR_AND_GATES',
-  LINEAR_ROUTING = 'LINEAR_ROUTING'
+  WEIR = "WEIR",
+  WEIR_AND_CULVERTS = "WEIR_AND_CULVERTS",
+  WEIR_AND_GATES = "WEIR_AND_GATES",
+  LINEAR_ROUTING = "LINEAR_ROUTING",
 }
 
 export enum CulvertShape {
-  CIRCULAR = 'CIRCULAR',
-  BOX = 'BOX',
-  ELLIPTICAL = 'ELLIPTICAL',
-  ARCH = 'ARCH',
-  PIPE_ARCH = 'PIPE_ARCH',
-  LOW_PROFILE_ARCH = 'LOW_PROFILE_ARCH',
-  SEMI_ELLIPTICAL = 'SEMI_ELLIPTICAL',
-  RECTANGULAR = 'RECTANGULAR',
-  TRAPEZOIDAL = 'TRAPEZOIDAL'
+  CIRCULAR = "CIRCULAR",
+  BOX = "BOX",
+  ELLIPTICAL = "ELLIPTICAL",
+  ARCH = "ARCH",
+  PIPE_ARCH = "PIPE_ARCH",
+  LOW_PROFILE_ARCH = "LOW_PROFILE_ARCH",
+  SEMI_ELLIPTICAL = "SEMI_ELLIPTICAL",
+  RECTANGULAR = "RECTANGULAR",
+  TRAPEZOIDAL = "TRAPEZOIDAL",
 }
 
 export enum FlowControlType {
-  INLET_CONTROL = 'INLET_CONTROL',
-  OUTLET_CONTROL = 'OUTLET_CONTROL',
-  FULL_FLOW = 'FULL_FLOW'
+  INLET_CONTROL = "INLET_CONTROL",
+  OUTLET_CONTROL = "OUTLET_CONTROL",
+  FULL_FLOW = "FULL_FLOW",
 }
 
 export enum VolumeDefinitionMethod {
-  FIXED_AREA = 'FIXED_AREA',
-  ELEVATION_VS_AREA = 'ELEVATION_VS_AREA',
-  ELEVATION_VS_VOLUME = 'ELEVATION_VS_VOLUME'
+  FIXED_AREA = "FIXED_AREA",
+  ELEVATION_VS_AREA = "ELEVATION_VS_AREA",
+  ELEVATION_VS_VOLUME = "ELEVATION_VS_VOLUME",
 }
 
 export interface SA2DConnectionProperties {
@@ -121,35 +127,35 @@ export class Connection {
   lastEditedTime: string | null = null
   cellSizeMin: number = 0
   nearRepeats: number = 0
-  
+
   // Connection type and structure information
   connectionType: ConnectionType | null = null
   structureType: StructureType | null = null
-  
+
   // SA/2D Connection Properties
   sa2dConnection: SA2DConnectionProperties | null = null
-  
+
   // River Reach Connection Properties
   riverReachConnection: RiverReachConnectionProperties | null = null
-  
+
   // Lateral Structure Connection Properties
   lateralStructureConnection: LateralStructureConnectionProperties | null = null
-  
+
   // Storage area connections (legacy)
   upSA: string | null = null
   dnSA: string | null = null
-  
+
   // Storage Area Volume Definition
   volumeDefinition: VolumeDefinition | null = null
-  
+
   // Enhanced culvert properties
   enhancedCulvertData: EnhancedCulvertData | null = null
-  
+
   // Routing settings
   routingType: number = 0
   useRCFamily: boolean = false
   overflowMethod2D: boolean = false
-  
+
   // Basic weir properties
   weirWidth: number = 0
   weirCoefficient: number = 0
@@ -157,17 +163,17 @@ export class Connection {
   simpleSpillPosCoef: number = 0
   simpleSpillNegCoef: number = 0
   weirStationElevation: StationElevationPoint[] = []
-  
+
   // Advanced weir properties
   weirDesignEG: number = 0
   weirDesignHT: number = 0
   hTabHWMax: number = 0
-  
+
   // Culvert data (legacy - kept for backward compatibility)
   culvertData: CulvertData | null = null
   culvertBarrels: CulvertBarrel[] = []
   culvertBottomN: number = 0
-  
+
   // Rating curve parameters
   outletRatingCurve: {
     flag: number
@@ -175,7 +181,7 @@ export class Connection {
     value1: string
     value2: string
   } | null = null
-  
+
   // Bridge data
   bridgeData: BridgeData | null = null
   bridgePressureWeir: {
@@ -224,4 +230,3 @@ export class Connection {
 
 // Legacy alias for backward compatibility
 export const SAConnection = Connection
-

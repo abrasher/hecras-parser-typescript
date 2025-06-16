@@ -1,9 +1,9 @@
-import { 
-  parseKeyValue, 
-  parseCoordinates, 
-  parseStaElev, 
-  parseCommaSeparated, 
-  parseLineToNumbers 
+import {
+  parseKeyValue,
+  parseCoordinates,
+  parseStaElev,
+  parseCommaSeparated,
+  parseLineToNumbers,
 } from "../utils"
 import type { CrossSection } from "../models/crossSection"
 import { IneffectiveFlowArea } from "../models/ineffectiveFlowArea"
@@ -12,20 +12,17 @@ export function parseCrossSectionData(
   lines: string[],
   currentIndex: number,
   xs: CrossSection,
-  isNewSection: (line: string) => boolean
+  isNewSection: (line: string) => boolean,
 ): number {
   let index = currentIndex
   let line = lines[index]
-  
+
   while (line !== null && !isNewSection(line) && index < lines.length) {
     if (line.startsWith("XS GIS Cut Line=")) {
       const numPoints = parseInt(parseKeyValue(line)?.value || "0")
       index++
       let pointsCollected = 0
-      while (
-        pointsCollected < numPoints &&
-        index < lines.length
-      ) {
+      while (pointsCollected < numPoints && index < lines.length) {
         const gisLine = lines[index]
         if (!gisLine || isNewSection(gisLine)) break
         const newCoords = parseCoordinates(gisLine)
@@ -41,10 +38,7 @@ export function parseCrossSectionData(
       const numPoints = parseInt(parseKeyValue(line)?.value || "0")
       index++
       let pointsCollected = 0
-      while (
-        pointsCollected < numPoints &&
-        index < lines.length
-      ) {
+      while (pointsCollected < numPoints && index < lines.length) {
         const staElevLine = lines[index]
         if (
           !staElevLine ||
@@ -62,10 +56,7 @@ export function parseCrossSectionData(
       const parts = parseCommaSeparated(parseKeyValue(line)?.value || "")
       const numSegments = parseInt(parts[0] || "0")
       index++
-      for (
-        let k = 0;
-        k < numSegments && index < lines.length;
-      ) {
+      for (let k = 0; k < numSegments && index < lines.length; ) {
         const manningLine = lines[index]
         if (
           !manningLine ||
@@ -106,11 +97,7 @@ export function parseCrossSectionData(
       const parts = parseKeyValue(line)!.value.split(",")
       const numIneff = parseInt(parts[0])
       index++
-      for (
-        let k = 0;
-        k < numIneff && index < lines.length;
-        k++
-      ) {
+      for (let k = 0; k < numIneff && index < lines.length; k++) {
         const ineffLine = lines[index]
         if (
           !ineffLine ||
@@ -136,6 +123,6 @@ export function parseCrossSectionData(
     }
     line = lines[index]
   }
-  
+
   return index
 }

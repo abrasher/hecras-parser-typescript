@@ -4,11 +4,11 @@ import type { HECRASGeometry } from "../models/geometry"
 export function parseGisInfo(
   lines: string[],
   currentIndex: number,
-  geometry: HECRASGeometry
+  geometry: HECRASGeometry,
 ): number {
   let index = currentIndex
   let line = lines[index]
-  
+
   while (line !== null && index < lines.length) {
     const kv = parseKeyValue(line)
     if (kv) {
@@ -54,6 +54,6 @@ export function parseGisInfo(
       break
     }
   }
-  
+
   return index
 }

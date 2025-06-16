@@ -3,7 +3,7 @@ import { coordinatesToGeoJSONPoints } from "../utils"
 import type { Coordinate, VolumeElevationPoint } from "./common"
 
 interface IStorageArea {
-  id: number
+  id: string | number
   centroid: { x: number; y: number }
   surfaceLine: Coordinate[]
   mannings: number | null
@@ -15,7 +15,7 @@ interface IStorageArea {
 }
 
 export class StorageArea {
-  id: number
+  id: string | number
   centroid: Coordinate | null = null
   surfaceLine: Coordinate[] = []
   volumeElevationData: VolumeElevationPoint[] = []
@@ -25,7 +25,7 @@ export class StorageArea {
   minElevation: number | null = null
   is2D: number = 0 // 0 or 1
 
-  constructor(id: number, centroidX?: number, centroidY?: number) {
+  constructor(id: string | number, centroidX?: number, centroidY?: number) {
     this.id = id
     if (centroidX !== undefined && centroidY !== undefined) {
       this.centroid = { x: centroidX, y: centroidY }

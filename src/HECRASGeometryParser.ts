@@ -34,11 +34,20 @@ export class HecRasGeometryParser {
   }
 
   private parseHeader(): void {
-    this.currentIndex = parseHeader(this.lines, this.currentIndex, this.geometry)
+    this.currentIndex = parseHeader(
+      this.lines,
+      this.currentIndex,
+      this.geometry,
+    )
   }
 
   private parseReachData(reach: Reach): void {
-    this.currentIndex = parseReachData(this.lines, this.currentIndex, reach, this.isNewSection.bind(this))
+    this.currentIndex = parseReachData(
+      this.lines,
+      this.currentIndex,
+      reach,
+      this.isNewSection.bind(this),
+    )
   }
 
   private isNewSection(line: string): boolean {
@@ -54,23 +63,47 @@ export class HecRasGeometryParser {
   }
 
   private parseCrossSectionData(xs: CrossSection): void {
-    this.currentIndex = parseCrossSectionData(this.lines, this.currentIndex, xs, this.isNewSection.bind(this))
+    this.currentIndex = parseCrossSectionData(
+      this.lines,
+      this.currentIndex,
+      xs,
+      this.isNewSection.bind(this),
+    )
   }
 
   private parseLateralStructureData(ls: LateralStructure): void {
-    this.currentIndex = parseLateralStructureData(this.lines, this.currentIndex, ls, this.isNewSection.bind(this))
+    this.currentIndex = parseLateralStructureData(
+      this.lines,
+      this.currentIndex,
+      ls,
+      this.isNewSection.bind(this),
+    )
   }
 
   private parseStorageAreaData(sa: StorageArea): void {
-    this.currentIndex = parseStorageAreaData(this.lines, this.currentIndex, sa, this.isNewSection.bind(this))
+    this.currentIndex = parseStorageAreaData(
+      this.lines,
+      this.currentIndex,
+      sa,
+      this.isNewSection.bind(this),
+    )
   }
 
   private parseConnectionData(conn: Connection): void {
-    this.currentIndex = parseConnectionData(this.lines, this.currentIndex, conn, this.isNewSection.bind(this))
+    this.currentIndex = parseConnectionData(
+      this.lines,
+      this.currentIndex,
+      conn,
+      this.isNewSection.bind(this),
+    )
   }
 
   private parseGisInfo(): void {
-    this.currentIndex = parseGisInfo(this.lines, this.currentIndex, this.geometry)
+    this.currentIndex = parseGisInfo(
+      this.lines,
+      this.currentIndex,
+      this.geometry,
+    )
   }
 
   public parse(fileContent: string): HECRASGeometry {
@@ -143,7 +176,10 @@ export class HecRasGeometryParser {
         // The remaining parts are coordinates or flags, not description
         // Description comes from a separate "Connection Desc=" line
         this.geometry.connections.push(conn)
-        console.log("Added connection, total connections:", this.geometry.connections.length)
+        console.log(
+          "Added connection, total connections:",
+          this.geometry.connections.length,
+        )
         this.advanceLine()
         this.parseConnectionData(conn)
       } else if (line.startsWith("Geom Raster=")) {

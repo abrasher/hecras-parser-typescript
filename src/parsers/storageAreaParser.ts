@@ -5,20 +5,17 @@ export function parseStorageAreaData(
   lines: string[],
   currentIndex: number,
   sa: StorageArea,
-  isNewSection: (line: string) => boolean
+  isNewSection: (line: string) => boolean,
 ): number {
   let index = currentIndex
   let line = lines[index]
-  
+
   while (line !== null && !isNewSection(line) && index < lines.length) {
     if (line.startsWith("Storage Area Surface Line=")) {
       const numPoints = parseInt(parseKeyValue(line)?.value || "0")
       index++
       let pointsCollected = 0
-      while (
-        pointsCollected < numPoints &&
-        index < lines.length
-      ) {
+      while (pointsCollected < numPoints && index < lines.length) {
         const surfLine = lines[index]
         if (
           !surfLine ||
@@ -36,10 +33,7 @@ export function parseStorageAreaData(
       const numPoints = parseInt(parseKeyValue(line)?.value || "0")
       index++
       let pointsCollected = 0
-      while (
-        pointsCollected < numPoints &&
-        index < lines.length
-      ) {
+      while (pointsCollected < numPoints && index < lines.length) {
         const volElevLine = lines[index]
         if (
           !volElevLine ||
@@ -61,6 +55,6 @@ export function parseStorageAreaData(
     }
     line = lines[index]
   }
-  
+
   return index
 }
