@@ -66,7 +66,7 @@ export const expectedFirstCrossSection = {
 }
 
 export const expectedFirstStorageArea = {
-  id: 146,
+  id: "146",
   centroid: { x: 412647.4244022, y: 1800849.9601867 },
   surfaceLine: [
     {

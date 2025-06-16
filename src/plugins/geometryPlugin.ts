@@ -167,6 +167,19 @@ export class GeometryParserPlugin extends BaseParserPlugin {
               currentStorageArea.is2D = parseInt(value) || 0
             } else if (key === "Storage Area Mannings" && currentStorageArea) {
               currentStorageArea.mannings = parseFloat(value) || 0
+            } else if (key === "Storage Area Vol Elev" && currentStorageArea) {
+              const count = parseInt(value)
+              // Check if this token has volume-elevation data
+              if (token.metadata.hasData && token.content.includes('\n')) {
+                const lines = token.content.split('\n').slice(1) // Skip the key=value line
+                for (const line of lines) {
+                  if (line.trim()) {
+                    const volElevResult = HECRASPrimitives.parseVolumeElevation([line])
+                    currentStorageArea.volumeElevationData.push(...volElevResult.data)
+                    warnings.push(...volElevResult.warnings)
+                  }
+                }
+              }
             }
             
             // Connection processing

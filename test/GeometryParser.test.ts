@@ -72,19 +72,18 @@ describe("HECRASGeometry Parser", () => {
       expect(firstCrossSection.riverStation).toBe(
         expectedFirstCrossSection.riverStation,
       )
-      // Note: Cross section parsing not fully implemented in new parser yet
-      // expect(firstCrossSection.cutLine).toEqual(
-      //   expectedFirstCrossSection.cutLine,
-      // )
-      // expect(firstCrossSection.surfaceLine).toEqual(
-      //   expectedFirstCrossSection.surfaceLine,
-      // )
-      // expect(firstCrossSection.stationElevationPoints).toEqual(
-      //   expectedFirstCrossSection.stationElevationPoints,
-      // )
-      // expect(firstCrossSection.manningSegments).toEqual(
-      //   expectedFirstCrossSection.manningSegments,
-      // )
+      expect(firstCrossSection.cutLine).toEqual(
+        expectedFirstCrossSection.cutLine,
+      )
+      expect(firstCrossSection.surfaceLine).toEqual(
+        expectedFirstCrossSection.surfaceLine,
+      )
+      expect(firstCrossSection.stationElevationPoints).toEqual(
+        expectedFirstCrossSection.stationElevationPoints,
+      )
+      expect(firstCrossSection.manningSegments).toEqual(
+        expectedFirstCrossSection.manningSegments,
+      )
     })
   })
 

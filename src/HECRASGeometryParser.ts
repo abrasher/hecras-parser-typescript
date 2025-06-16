@@ -159,7 +159,7 @@ export class HecRasGeometryParser {
         }
       } else if (line.startsWith("Storage Area=")) {
         const parts = parseKeyValue(line)!.value.split(",")
-        const id = parseInt(parts[0])
+        const id = parts[0].trim() // Keep as string and trim whitespace
         const x = parseFloat(parts[1])
         const y = parseFloat(parts[2])
         const sa = new StorageArea(id, x, y)
