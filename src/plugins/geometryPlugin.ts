@@ -99,19 +99,43 @@ export class GeometryParserPlugin extends BaseParserPlugin {
           }
         }
         
+        
         const result = context.metadata.universalResult
         const errors: any[] = []
         const warnings: any[] = []
 
         // Process all tokens at once
-        let currentStorageArea: any = null
-        let currentConnection: any = null
+        // Use context metadata to persist state across handler calls
+        let currentStorageArea: any = context.metadata.currentStorageArea || null
+        let currentConnection: any = context.metadata.currentConnection || null
+        let currentReach: any = context.metadata.currentReach || null
+        let currentCrossSection: any = context.metadata.currentCrossSection || null
 
 
         for (const token of tokens) {
+          let key: string | undefined
+          let value: string | undefined
+          
           if (token.type === TokenType.KEY_VALUE && token.metadata) {
-            const key = token.metadata.key
-            const value = token.metadata.value
+            key = token.metadata.key
+            value = token.metadata.value
+          } else if (token.type === TokenType.SECTION_HEADER && token.content.includes("=")) {
+            // Parse section headers that are actually key-value pairs
+            const kvResult = HECRASPrimitives.parseKeyValue(token.content)
+            if (kvResult.data) {
+              key = kvResult.data.key
+              value = kvResult.data.value
+            }
+          } else if (token.type === TokenType.COMMENT && token.content.includes("=")) {
+            // Parse comment tokens that are actually key-value pairs (like #Sta/Elev, #Mann)
+            const kvResult = HECRASPrimitives.parseKeyValue(token.content)
+            if (kvResult.data) {
+              key = kvResult.data.key
+              value = kvResult.data.value
+            }
+          }
+          
+          if (key && value) {
 
             // Header processing
             if (key === "Geom Title") {
@@ -129,6 +153,96 @@ export class GeometryParserPlugin extends BaseParserPlugin {
                 }
               }
               warnings.push(...coordResult.warnings)
+            }
+            
+            // Reach processing
+            else if (key === "River Reach") {
+              const parts = value.split(",").map((s: string) => s.trim())
+              currentReach = {
+                riverName: parts[0] || "",
+                reachName: parts[1] || "",
+                centerline: [],
+                crossSections: []
+              }
+              result.reaches.push(currentReach)
+              context.metadata.currentReach = currentReach
+            } else if (key === "Reach XY" && currentReach) {
+              const count = parseInt(value)
+              // Check if this token has coordinate data
+              if (token.metadata?.hasData && token.content.includes('\n')) {
+                const lines = token.content.split('\n').slice(1) // Skip the key=value line
+                const coordResult = HECRASPrimitives.parseMultilineCoordinates(lines)
+                currentReach.centerline.push(...coordResult.data)
+                warnings.push(...coordResult.warnings)
+              }
+            }
+            
+            // Cross Section processing
+            else if (key === "Type RM Length L Ch R" && currentReach) {
+              const parts = value.split(",").map((s: string) => s.trim())
+              currentCrossSection = {
+                type: parseInt(parts[0]) || 1,
+                riverStation: parseFloat(parts[1]) || 0,
+                lengthL: parseFloat(parts[2]) || 0,
+                lengthCh: parseFloat(parts[3]) || 0,
+                lengthR: parseFloat(parts[4]) || 0,
+                gisCutLine: [],
+                stationElevationPoints: [],
+                manningSegments: [],
+                bankStations: { left: 0, right: 0 },
+                expansionCoefficient: 0,
+                contractionCoefficient: 0,
+                lastEditedTime: null,
+                // Add undefined properties that tests expect to be undefined
+                cutLine: undefined,
+                surfaceLine: undefined
+              }
+              currentReach.crossSections.push(currentCrossSection)
+              context.metadata.currentCrossSection = currentCrossSection
+            } else if (key === "XS GIS Cut Line" && currentCrossSection) {
+              const count = parseInt(value)
+              // Check if this token has coordinate data
+              if (token.metadata?.hasData && token.content.includes('\n')) {
+                const lines = token.content.split('\n').slice(1) // Skip the key=value line
+                const coordResult = HECRASPrimitives.parseMultilineCoordinates(lines)
+                currentCrossSection.gisCutLine.push(...coordResult.data)
+                warnings.push(...coordResult.warnings)
+              }
+            } else if (key === "Node Last Edited Time" && currentCrossSection) {
+              currentCrossSection.lastEditedTime = value
+            } else if (key === "#Sta/Elev" && currentCrossSection) {
+              const count = parseInt(value)
+              // Check if this token has station/elevation data
+              if (token.metadata?.hasData && token.content.includes('\n')) {
+                const lines = token.content.split('\n').slice(1) // Skip the key=value line
+                const stationElevResult = HECRASPrimitives.parseStationElevation(lines)
+                currentCrossSection.stationElevationPoints.push(...stationElevResult.data)
+                warnings.push(...stationElevResult.warnings)
+              }
+            } else if (key === "#Mann" && currentCrossSection) {
+              const parts = value.split(",").map((s: string) => s.trim())
+              const count = parseInt(parts[0]) || 0
+              // Check if this token has manning data
+              if (token.metadata?.hasData && token.content.includes('\n')) {
+                const lines = token.content.split('\n').slice(1) // Skip the key=value line
+                const manningResult = HECRASPrimitives.parseManningData(lines)
+                currentCrossSection.manningSegments.push(...manningResult.data)
+                warnings.push(...manningResult.warnings)
+              }
+            } else if (key === "Bank Sta" && currentCrossSection) {
+              const parts = value.split(",").map((s: string) => s.trim())
+              if (parts.length >= 2) {
+                currentCrossSection.bankStations = {
+                  left: parseFloat(parts[0]) || 0,
+                  right: parseFloat(parts[1]) || 0
+                }
+              }
+            } else if (key === "Exp/Cntr" && currentCrossSection) {
+              const parts = value.split(",").map((s: string) => s.trim())
+              if (parts.length >= 2) {
+                currentCrossSection.expansionCoefficient = parseFloat(parts[0]) || 0
+                currentCrossSection.contractionCoefficient = parseFloat(parts[1]) || 0
+              }
             }
             
             // Storage Area processing
@@ -149,8 +263,9 @@ export class GeometryParserPlugin extends BaseParserPlugin {
                 is2D: 0
               }
               result.storageAreas.push(currentStorageArea)
+              context.metadata.currentStorageArea = currentStorageArea
             } else if (key === "Storage Area Surface Line" && currentStorageArea) {
-              if (token.metadata.hasData && token.content.includes('\n')) {
+              if (token.metadata?.hasData && token.content.includes('\n')) {
                 const lines = token.content.split('\n').slice(1)
                 const coordResult = HECRASPrimitives.parseMultilineCoordinates(lines)
                 currentStorageArea.surfaceLine.push(...coordResult.data)
@@ -170,7 +285,7 @@ export class GeometryParserPlugin extends BaseParserPlugin {
             } else if (key === "Storage Area Vol Elev" && currentStorageArea) {
               const count = parseInt(value)
               // Check if this token has volume-elevation data
-              if (token.metadata.hasData && token.content.includes('\n')) {
+              if (token.metadata?.hasData && token.content.includes('\n')) {
                 const lines = token.content.split('\n').slice(1) // Skip the key=value line
                 for (const line of lines) {
                   if (line.trim()) {
@@ -195,6 +310,7 @@ export class GeometryParserPlugin extends BaseParserPlugin {
                 weirStationElevation: []
               }
               result.connections.push(currentConnection)
+              context.metadata.currentConnection = currentConnection
             } else if (key === "Connection Desc" && currentConnection) {
               currentConnection.description = value
             } else if (key === "Connection Up SA" && currentConnection) {
@@ -435,7 +551,7 @@ export class GeometryParserPlugin extends BaseParserPlugin {
             ) {
               const count = parseInt(value)
               // Check if this token has coordinate data
-              if (token.metadata.hasData && token.content.includes('\n')) {
+              if (token.metadata?.hasData && token.content.includes('\n')) {
                 const lines = token.content.split('\n').slice(1) // Skip the key=value line
                 const coordResult = HECRASPrimitives.parseMultilineCoordinates(lines)
                 currentStorageArea.surfaceLine.push(...coordResult.data)
@@ -725,7 +841,7 @@ class GeometryModelBuilder extends BaseModelBuilder<any, HECRASGeometry> {
     if (input.reaches) {
       geometry.reaches = input.reaches.map((reachData: any) => {
         const reach = new Reach(reachData.riverName, reachData.reachName)
-        reach.centerline = reachData.coordinates || []
+        reach.centerline = reachData.centerline || []
         reach.crossSections = reachData.crossSections || []
         reach.lateralStructures = reachData.lateralStructures || []
         return reach

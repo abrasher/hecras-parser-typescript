@@ -352,6 +352,16 @@ export class HECRASPrimitives {
   }
 
   /**
+   * Parse Manning data - alias for parseManningSegments
+   */
+  static parseManningData(
+    lines: string[],
+    options: ParseOptions = {},
+  ): PrimitiveParseResult<ManningSegment[]> {
+    return this.parseManningSegments(lines, options)
+  }
+
+  /**
    * Parse comma-separated values with HECRAS-specific handling
    */
   static parseCommaSeparated(
