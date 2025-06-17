@@ -1,4 +1,3 @@
-// models/storageArea.ts
 import { coordinatesToGeoJSONPoints } from "../utils"
 import type { Coordinate, VolumeElevationPoint } from "./common"
 

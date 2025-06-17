@@ -1,4 +1,3 @@
-// models/crossSection.ts
 import type {
   Coordinate,
   StationElevationPoint,

@@ -1,4 +1,3 @@
-// models/geometry.ts
 import type { StorageArea } from "./storageArea"
 import type { Connection } from "./connection"
 import type { Reach } from "./reach"

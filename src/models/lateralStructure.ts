@@ -1,4 +1,3 @@
-// models/lateralStructure.ts
 import type { StationElevationPoint } from "./common"
 
 export class LateralStructure {

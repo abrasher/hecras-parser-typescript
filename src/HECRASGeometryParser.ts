@@ -1,4 +1,3 @@
-// HecRasGeometryParser.ts
 import { parseCommaSeparated, parseKeyValue } from "./utils"
 import { HECRASGeometry } from "./models/geometry"
 import { Reach } from "./models/reach"

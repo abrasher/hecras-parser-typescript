@@ -1,5 +1,3 @@
-// models/ineffectiveFlowArea.ts
-
 export class IneffectiveFlowArea {
   station: number
   elevation: number

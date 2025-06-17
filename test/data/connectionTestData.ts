@@ -1,4 +1,3 @@
-// test/data/connectionTestData.ts
 import { Connection, ConnectionType, StructureType, } from "../../src/models/connection";
 // Helper function to create test connection objects
 function createTestConnection(id: string): Connection {

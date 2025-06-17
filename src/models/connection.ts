@@ -1,4 +1,3 @@
-// models/connection.ts
 import type {
   Coordinate,
   StationElevationPoint,

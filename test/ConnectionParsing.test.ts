@@ -1,4 +1,3 @@
-// test/ConnectionParsing.test.ts
 import { describe, it, expect, beforeAll } from "vitest"
 import { HecRasGeometryParser } from "../src/HECRASGeometryParser"
 import type {

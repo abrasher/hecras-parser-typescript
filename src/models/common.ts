@@ -1,4 +1,3 @@
-// models/common.ts
 export interface Coordinate {
   x: number
   y: number
