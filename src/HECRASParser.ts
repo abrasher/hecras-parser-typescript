@@ -1,7 +1,7 @@
 // HECRAS Parser using the plugin architecture
 import { HECRASParser as BaseHECRASParser } from "./core/plugins"
 import { GeometryParserPlugin } from "./plugins/geometryPlugin"
-import { HECRASGeometry } from "./models/geometry"
+import type { HECRASGeometry } from "./models/geometry"
 
 export class HECRASParser extends BaseHECRASParser {
   constructor() {

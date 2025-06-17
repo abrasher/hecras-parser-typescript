@@ -1,5 +1,5 @@
 import { parseKeyValue } from "../utils"
-import type { HECRASGeometry, ViewingRectangle } from "../models/geometry"
+import type { HECRASGeometry } from "../models/geometry"
 
 export function parseHeader(
   lines: string[],

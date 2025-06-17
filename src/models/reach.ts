@@ -1,6 +1,6 @@
 import type { Coordinate } from "./common"
-import { CrossSection } from "./crossSection"
-import { LateralStructure } from "./lateralStructure"
+import type { CrossSection } from "./crossSection"
+import type { LateralStructure } from "./lateralStructure"
 
 export class Reach {
   riverName: string

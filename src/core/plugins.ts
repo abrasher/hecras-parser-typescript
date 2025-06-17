@@ -1,14 +1,18 @@
 // Plugin system for HECRAS file type parsers
-import {
-  ParsingPipeline,
+import type {
   ParseContext,
   ParseResult,
-  ParsedToken,
+  ParsedToken} from "./pipeline";
+import {
+  ParsingPipeline,
   TokenType,
 } from "./pipeline"
-import { HECRASTokenizer, TokenizerConfig } from "./tokenizer"
-import { DataValidator, ValidationSchema } from "./validator"
-import { ModelBuildingStage, ModelMapping } from "./modelBuilder"
+import type { TokenizerConfig } from "./tokenizer";
+import { HECRASTokenizer } from "./tokenizer"
+import type { ValidationSchema } from "./validator";
+import { DataValidator } from "./validator"
+import type { ModelMapping } from "./modelBuilder";
+import { ModelBuildingStage } from "./modelBuilder"
 
 export interface FileTypeDetector {
   canHandle(content: string, filePath?: string): boolean
@@ -285,7 +289,7 @@ export class HECRASParser {
 }
 
 // Section processing stage that delegates to section handlers
-import { PipelineStage } from "./pipeline"
+import type { PipelineStage } from "./pipeline"
 
 export class SectionProcessingStage
   implements PipelineStage<ParsedToken[], any>

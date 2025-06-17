@@ -1,5 +1,5 @@
 // Validation stage for parsed HECRAS data
-import {
+import type {
   PipelineStage,
   ParseContext,
   ParseResult,

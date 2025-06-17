@@ -1,12 +1,13 @@
 // test/ConnectionParsing.test.ts
 import { describe, it, expect, beforeAll } from "vitest"
 import { HecRasGeometryParser } from "../src/HECRASGeometryParser"
+import type {
+  Connection} from "../src/models/connection";
 import {
-  Connection,
   ConnectionType,
   StructureType,
 } from "../src/models/connection"
-import { HECRASGeometry } from "../src/models/geometry"
+import type { HECRASGeometry } from "../src/models/geometry"
 import {
   expectedConnections,
   connectionTestData,

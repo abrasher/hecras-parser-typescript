@@ -1,169 +1,112 @@
-import { expect, it, beforeAll, describe } from "vitest"
-import { HECRASGeometry } from "../src/models/geometry"
-import { HECRASParser as HecRasGeometryParser } from "../src/HECRASParser"
-import { Coordinate, ManningSegment } from "../src/models/common"
-import fs from "fs"
-import { CrossSection } from "../src/models/crossSection"
-import {
-  expectedHeaders,
-  expectedFirstReachPoints,
-  expectedFirstCrossSection,
-  expectedFirstStorageArea,
-} from "./data/muncieGeometryData"
-import { StorageArea } from "../src/models/storageArea"
-import util from "util"
-import { Connection, SAConnection } from "../src/models/connection"
-
+import { expect, it, beforeAll, describe } from "vitest";
+import type { HECRASGeometry } from "../src/models/geometry";
+import { HECRASParser as HecRasGeometryParser } from "../src/HECRASParser";
+import fs from "fs";
+import { expectedHeaders, expectedFirstReachPoints, expectedFirstCrossSection, expectedFirstStorageArea, } from "./data/muncieGeometryData";
+import type { StorageArea } from "../src/models/storageArea";
+import type { Connection } from "../src/models/connection";
 describe("HECRASGeometry Parser", () => {
-  let parser: HecRasGeometryParser
-  let muncieGeometry: HECRASGeometry
-
-  beforeAll(async () => {
-    parser = new HecRasGeometryParser()
-    const geometryString = fs.readFileSync("test/data/Muncie.g01", "utf-8")
-    muncieGeometry = await parser.parseGeometry(geometryString)
-  })
-
-  describe("Headers", () => {
-    it("should parse correct headers", () => {
-      expect(muncieGeometry).toHaveProperty(
-        "Geom Title",
-        expectedHeaders["Geom Title"],
-      )
-      expect(muncieGeometry).toHaveProperty(
-        "Program Version",
-        expectedHeaders["Program Version"],
-      )
-      expect(muncieGeometry).toHaveProperty(
-        "Viewing Rectangle",
-        expectedHeaders["Viewing Rectangle"],
-      )
-    })
-  })
-
-  describe("Reaches", () => {
-    it("should parse reaches with correct structure", () => {
-      expect(muncieGeometry).toHaveProperty("reaches")
-      expect(Array.isArray(muncieGeometry.reaches)).toBe(true)
-      expect(muncieGeometry.reaches.length).toBeGreaterThan(0)
-    })
-
-    it("should parse first reach coordinates correctly", () => {
-      const firstReach = muncieGeometry.reaches[0]
-      expect(firstReach.centerline.length).toBe(
-        expectedFirstReachPoints.totalPoints,
-      )
-
-      expectedFirstReachPoints.keyPoints.forEach(({ index, point }) => {
-        expect(firstReach.centerline[index]).toEqual(point)
-      })
-    })
-  })
-
-  describe("Cross Sections", () => {
-    it("should parse cross sections structure", () => {
-      expect(muncieGeometry.reaches[0]).toHaveProperty("crossSections")
-      expect(Array.isArray(muncieGeometry.reaches[0].crossSections)).toBe(true)
-      expect(muncieGeometry.reaches[0].crossSections.length).toBeGreaterThan(0)
-    })
-
-    it("should parse first cross section correctly", () => {
-      const firstCrossSection = muncieGeometry.reaches[0].crossSections[0]
-      expect(firstCrossSection.riverStation).toBe(
-        expectedFirstCrossSection.riverStation,
-      )
-      expect(firstCrossSection.gisCutLine).toEqual(
-        expectedFirstCrossSection.gisCutLine,
-      )
-      // expect(firstCrossSection.surfaceLine).toEqual(
-      //   expectedFirstCrossSection.surfaceLine,
-      // )
-    })
-
-    it("should parse station-elevation data correctly", () => {
-      const firstCrossSection = muncieGeometry.reaches[0].crossSections[0]
-
-      // Test that staElevData exists and is an array
-      expect(firstCrossSection.staElevData).toBeDefined()
-      expect(Array.isArray(firstCrossSection.staElevData)).toBe(true)
-
-      // Test total number of station-elevation points
-      expect(firstCrossSection.staElevData.length).toBe(
-        expectedFirstCrossSection.staElevData.totalPoints,
-      )
-
-      // Test key station-elevation points at specific indices
-      expectedFirstCrossSection.staElevData.keyPoints.forEach(
-        ({ index, point }) => {
-          expect(firstCrossSection.staElevData[index]).toEqual(point)
-        },
-      )
-      // expect(firstCrossSection.manningSegments).toEqual(
-      //   expectedFirstCrossSection.manningSegments,
-      // )
-    })
-  })
-
-  describe("Storage Areas", () => {
-    let firstStorageArea: StorageArea
-    let allStorageAreas: StorageArea[]
-
-    beforeAll(() => {
-      firstStorageArea = muncieGeometry.storageAreas[0]
-      allStorageAreas = muncieGeometry.storageAreas
-    })
-
-    it("should have correct basic properties", () => {
-      expect(firstStorageArea.id).toBe(expectedFirstStorageArea.id)
-      expect(firstStorageArea.type).toBe(expectedFirstStorageArea.type)
-      expect(firstStorageArea.is2D).toBe(expectedFirstStorageArea.is2D)
-      expect(firstStorageArea.mannings).toBe(expectedFirstStorageArea.mannings)
-      expect(firstStorageArea.area).toBe(expectedFirstStorageArea.area)
-      expect(firstStorageArea.minElevation).toBe(
-        expectedFirstStorageArea.minElevation,
-      )
-    })
-
-    it("should have correct centroid coordinates", () => {
-      expect(firstStorageArea.centroid).toEqual(
-        expectedFirstStorageArea.centroid,
-      )
-    })
-
-    it("should have correct surface line coordinates", () => {
-      expect(firstStorageArea.surfaceLine).toEqual(
-        expectedFirstStorageArea.surfaceLine,
-      )
-    })
-
-    it("should have correct volume-elevation data", () => {
-      expect(firstStorageArea.volumeElevationData).toEqual(
-        expectedFirstStorageArea.volumeElevationData,
-      )
-    })
-
-    it("should have correct GeoJSON", () => {
-      const geoJson = firstStorageArea.toGeoJSON()
-      console.log(JSON.stringify(geoJson, null, 2))
-      expect(geoJson).toBeDefined()
-    })
-  })
-
-  describe("Storage Area Connections", () => {
-    let firstConnection: Connection
-    let allConnections: Connection[]
-
-    beforeAll(() => {
-      firstConnection = muncieGeometry.connections[0]
-      allConnections = muncieGeometry.connections
-    })
-
-    it("should have correct basic properties", () => {
-      // Basic test for existing connection parsing (will be expanded with TDD)
-      expect(firstConnection).toBeDefined()
-      expect(firstConnection.id).toBeDefined()
-      expect(firstConnection.upSA).toBeDefined()
-      expect(firstConnection.dnSA).toBeDefined()
-    })
-  })
-})
+    let parser: HecRasGeometryParser;
+    let muncieGeometry: HECRASGeometry;
+    beforeAll(async () => {
+        parser = new HecRasGeometryParser();
+        const geometryString = fs.readFileSync("test/data/Muncie.g01", "utf-8");
+        muncieGeometry = await parser.parseGeometry(geometryString);
+    });
+    describe("Headers", () => {
+        it("should parse correct headers", () => {
+            expect(muncieGeometry).toHaveProperty("Geom Title", expectedHeaders["Geom Title"]);
+            expect(muncieGeometry).toHaveProperty("Program Version", expectedHeaders["Program Version"]);
+            expect(muncieGeometry).toHaveProperty("Viewing Rectangle", expectedHeaders["Viewing Rectangle"]);
+        });
+    });
+    describe("Reaches", () => {
+        it("should parse reaches with correct structure", () => {
+            expect(muncieGeometry).toHaveProperty("reaches");
+            expect(Array.isArray(muncieGeometry.reaches)).toBe(true);
+            expect(muncieGeometry.reaches.length).toBeGreaterThan(0);
+        });
+        it("should parse first reach coordinates correctly", () => {
+            const firstReach = muncieGeometry.reaches[0];
+            expect(firstReach.centerline.length).toBe(expectedFirstReachPoints.totalPoints);
+            expectedFirstReachPoints.keyPoints.forEach(({ index, point }) => {
+                expect(firstReach.centerline[index]).toEqual(point);
+            });
+        });
+    });
+    describe("Cross Sections", () => {
+        it("should parse cross sections structure", () => {
+            expect(muncieGeometry.reaches[0]).toHaveProperty("crossSections");
+            expect(Array.isArray(muncieGeometry.reaches[0].crossSections)).toBe(true);
+            expect(muncieGeometry.reaches[0].crossSections.length).toBeGreaterThan(0);
+        });
+        it("should parse first cross section correctly", () => {
+            const firstCrossSection = muncieGeometry.reaches[0].crossSections[0];
+            expect(firstCrossSection.riverStation).toBe(expectedFirstCrossSection.riverStation);
+            expect(firstCrossSection.gisCutLine).toEqual(expectedFirstCrossSection.gisCutLine);
+            // expect(firstCrossSection.surfaceLine).toEqual(
+            //   expectedFirstCrossSection.surfaceLine,
+            // )
+        });
+        it("should parse station-elevation data correctly", () => {
+            const firstCrossSection = muncieGeometry.reaches[0].crossSections[0];
+            // Test that staElevData exists and is an array
+            expect(firstCrossSection.staElevData).toBeDefined();
+            expect(Array.isArray(firstCrossSection.staElevData)).toBe(true);
+            // Test total number of station-elevation points
+            expect(firstCrossSection.staElevData.length).toBe(expectedFirstCrossSection.staElevData.totalPoints);
+            // Test key station-elevation points at specific indices
+            expectedFirstCrossSection.staElevData.keyPoints.forEach(({ index, point }) => {
+                expect(firstCrossSection.staElevData[index]).toEqual(point);
+            });
+            // expect(firstCrossSection.manningSegments).toEqual(
+            //   expectedFirstCrossSection.manningSegments,
+            // )
+        });
+    });
+    describe("Storage Areas", () => {
+        let firstStorageArea: StorageArea;
+        let allStorageAreas: StorageArea[];
+        beforeAll(() => {
+            firstStorageArea = muncieGeometry.storageAreas[0];
+            allStorageAreas = muncieGeometry.storageAreas;
+        });
+        it("should have correct basic properties", () => {
+            expect(firstStorageArea.id).toBe(expectedFirstStorageArea.id);
+            expect(firstStorageArea.type).toBe(expectedFirstStorageArea.type);
+            expect(firstStorageArea.is2D).toBe(expectedFirstStorageArea.is2D);
+            expect(firstStorageArea.mannings).toBe(expectedFirstStorageArea.mannings);
+            expect(firstStorageArea.area).toBe(expectedFirstStorageArea.area);
+            expect(firstStorageArea.minElevation).toBe(expectedFirstStorageArea.minElevation);
+        });
+        it("should have correct centroid coordinates", () => {
+            expect(firstStorageArea.centroid).toEqual(expectedFirstStorageArea.centroid);
+        });
+        it("should have correct surface line coordinates", () => {
+            expect(firstStorageArea.surfaceLine).toEqual(expectedFirstStorageArea.surfaceLine);
+        });
+        it("should have correct volume-elevation data", () => {
+            expect(firstStorageArea.volumeElevationData).toEqual(expectedFirstStorageArea.volumeElevationData);
+        });
+        it("should have correct GeoJSON", () => {
+            const geoJson = firstStorageArea.toGeoJSON();
+            console.log(JSON.stringify(geoJson, null, 2));
+            expect(geoJson).toBeDefined();
+        });
+    });
+    describe("Storage Area Connections", () => {
+        let firstConnection: Connection;
+        let allConnections: Connection[];
+        beforeAll(() => {
+            firstConnection = muncieGeometry.connections[0];
+            allConnections = muncieGeometry.connections;
+        });
+        it("should have correct basic properties", () => {
+            // Basic test for existing connection parsing (will be expanded with TDD)
+            expect(firstConnection).toBeDefined();
+            expect(firstConnection.id).toBeDefined();
+            expect(firstConnection.upSA).toBeDefined();
+            expect(firstConnection.dnSA).toBeDefined();
+        });
+    });
+});

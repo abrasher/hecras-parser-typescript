@@ -4,7 +4,7 @@ import type {
   StationElevationPoint,
   ManningSegment,
 } from "./common"
-import { IneffectiveFlowArea } from "./ineffectiveFlowArea"
+import type { IneffectiveFlowArea } from "./ineffectiveFlowArea"
 
 export class CrossSection {
   riverStation: number

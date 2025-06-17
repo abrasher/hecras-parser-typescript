@@ -1,11 +1,12 @@
 // Tokenization stage for HECRAS files
-import {
+import type {
   PipelineStage,
   ParsedToken,
-  TokenType,
   ParseContext,
   ParseResult,
-  ParseError,
+  ParseError} from "./pipeline";
+import {
+  TokenType
 } from "./pipeline"
 
 export interface TokenizerConfig {

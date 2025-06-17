@@ -1,5 +1,5 @@
 // Model building stage for converting parsed data into TypeScript models
-import {
+import type {
   PipelineStage,
   ParseContext,
   ParseResult,
