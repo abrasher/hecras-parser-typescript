@@ -7,12 +7,12 @@ export class Reach {
   reachName: string
   private _centerline: Coordinate[] = []
   coordinates: Coordinate[] = [] // Add coordinates property for compatibility
-  
+
   // Add getter for centerline to maintain backwards compatibility
   get centerline(): Coordinate[] {
     return this.coordinates.length > 0 ? this.coordinates : this._centerline
   }
-  
+
   set centerline(coords: Coordinate[]) {
     this._centerline = coords
     this.coordinates = coords

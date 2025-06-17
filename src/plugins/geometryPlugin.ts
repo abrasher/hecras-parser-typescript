@@ -46,7 +46,7 @@ export class GeometryParserPlugin extends BaseParserPlugin {
   tokenizerConfig: TokenizerConfig = {
     sectionHeaders: [
       "River Reach",
-      "Type RM Length L Ch R", 
+      "Type RM Length L Ch R",
       "BC Line Name",
       "LCMann Time",
       "Geom Raster",
@@ -57,9 +57,7 @@ export class GeometryParserPlugin extends BaseParserPlugin {
     tablePatterns: [/^\s*[\d\.\-\s,]+$/],
   }
 
-  sectionHandlers: SectionHandler[] = [
-    this.createUniversalHandler(),
-  ]
+  sectionHandlers: SectionHandler[] = [this.createUniversalHandler()]
 
   validationSchemas = new Map<string, ValidationSchema<any>>([
     ["geometry", this.createGeometryValidationSchema()],
@@ -95,38 +93,45 @@ export class GeometryParserPlugin extends BaseParserPlugin {
             reaches: [],
             storageAreas: [],
             connections: [],
-            gisInfo: {}
+            gisInfo: {},
           }
         }
-        
-        
+
         const result = context.metadata.universalResult
         const errors: any[] = []
         const warnings: any[] = []
 
         // Process all tokens at once
         // Use context metadata to persist state across handler calls
-        let currentStorageArea: any = context.metadata.currentStorageArea || null
+        let currentStorageArea: any =
+          context.metadata.currentStorageArea || null
         let currentConnection: any = context.metadata.currentConnection || null
         let currentReach: any = context.metadata.currentReach || null
-        let currentCrossSection: any = context.metadata.currentCrossSection || null
+        let currentCrossSection: any =
+          context.metadata.currentCrossSection || null
 
-
-        for (const token of tokens) {
+        for (let i = 0; i < tokens.length; i++) {
+          const token = tokens[i]
           let key: string | undefined
           let value: string | undefined
-          
+
           if (token.type === TokenType.KEY_VALUE && token.metadata) {
             key = token.metadata.key
             value = token.metadata.value
-          } else if (token.type === TokenType.SECTION_HEADER && token.content.includes("=")) {
+          } else if (
+            token.type === TokenType.SECTION_HEADER &&
+            token.content.includes("=")
+          ) {
             // Parse section headers that are actually key-value pairs
             const kvResult = HECRASPrimitives.parseKeyValue(token.content)
             if (kvResult.data) {
               key = kvResult.data.key
               value = kvResult.data.value
             }
-          } else if (token.type === TokenType.COMMENT && token.content.includes("=")) {
+          } else if (
+            token.type === TokenType.COMMENT &&
+            token.content.includes("=")
+          ) {
             // Parse comment tokens that are actually key-value pairs (like #Sta/Elev, #Mann)
             const kvResult = HECRASPrimitives.parseKeyValue(token.content)
             if (kvResult.data) {
@@ -134,9 +139,8 @@ export class GeometryParserPlugin extends BaseParserPlugin {
               value = kvResult.data.value
             }
           }
-          
-          if (key && value) {
 
+          if (key && value) {
             // Header processing
             if (key === "Geom Title") {
               result["Geom Title"] = value
@@ -154,7 +158,7 @@ export class GeometryParserPlugin extends BaseParserPlugin {
               }
               warnings.push(...coordResult.warnings)
             }
-            
+
             // Reach processing
             else if (key === "River Reach") {
               const parts = value.split(",").map((s: string) => s.trim())
@@ -162,21 +166,22 @@ export class GeometryParserPlugin extends BaseParserPlugin {
                 riverName: parts[0] || "",
                 reachName: parts[1] || "",
                 centerline: [],
-                crossSections: []
+                crossSections: [],
               }
               result.reaches.push(currentReach)
               context.metadata.currentReach = currentReach
             } else if (key === "Reach XY" && currentReach) {
               const count = parseInt(value)
               // Check if this token has coordinate data
-              if (token.metadata?.hasData && token.content.includes('\n')) {
-                const lines = token.content.split('\n').slice(1) // Skip the key=value line
-                const coordResult = HECRASPrimitives.parseMultilineCoordinates(lines)
+              if (token.metadata?.hasData && token.content.includes("\n")) {
+                const lines = token.content.split("\n").slice(1) // Skip the key=value line
+                const coordResult =
+                  HECRASPrimitives.parseMultilineCoordinates(lines)
                 currentReach.centerline.push(...coordResult.data)
                 warnings.push(...coordResult.warnings)
               }
             }
-            
+
             // Cross Section processing
             else if (key === "Type RM Length L Ch R" && currentReach) {
               const parts = value.split(",").map((s: string) => s.trim())
@@ -187,7 +192,7 @@ export class GeometryParserPlugin extends BaseParserPlugin {
                 lengthCh: parseFloat(parts[3]) || 0,
                 lengthR: parseFloat(parts[4]) || 0,
                 gisCutLine: [],
-                stationElevationPoints: [],
+                staElevData: [],
                 manningSegments: [],
                 bankStations: { left: 0, right: 0 },
                 expansionCoefficient: 0,
@@ -195,16 +200,17 @@ export class GeometryParserPlugin extends BaseParserPlugin {
                 lastEditedTime: null,
                 // Add undefined properties that tests expect to be undefined
                 cutLine: undefined,
-                surfaceLine: undefined
+                surfaceLine: undefined,
               }
               currentReach.crossSections.push(currentCrossSection)
               context.metadata.currentCrossSection = currentCrossSection
             } else if (key === "XS GIS Cut Line" && currentCrossSection) {
               const count = parseInt(value)
               // Check if this token has coordinate data
-              if (token.metadata?.hasData && token.content.includes('\n')) {
-                const lines = token.content.split('\n').slice(1) // Skip the key=value line
-                const coordResult = HECRASPrimitives.parseMultilineCoordinates(lines)
+              if (token.metadata?.hasData && token.content.includes("\n")) {
+                const lines = token.content.split("\n").slice(1) // Skip the key=value line
+                const coordResult =
+                  HECRASPrimitives.parseMultilineCoordinates(lines)
                 currentCrossSection.gisCutLine.push(...coordResult.data)
                 warnings.push(...coordResult.warnings)
               }
@@ -212,19 +218,51 @@ export class GeometryParserPlugin extends BaseParserPlugin {
               currentCrossSection.lastEditedTime = value
             } else if (key === "#Sta/Elev" && currentCrossSection) {
               const count = parseInt(value)
+
               // Check if this token has station/elevation data
-              if (token.metadata?.hasData && token.content.includes('\n')) {
-                const lines = token.content.split('\n').slice(1) // Skip the key=value line
-                const stationElevResult = HECRASPrimitives.parseStationElevation(lines)
-                currentCrossSection.stationElevationPoints.push(...stationElevResult.data)
+              if (token.metadata?.hasData && token.content.includes("\n")) {
+                const lines = token.content.split("\n").slice(1) // Skip the key=value line
+                const stationElevResult =
+                  HECRASPrimitives.parseStationElevation(lines)
+                currentCrossSection.staElevData.push(...stationElevResult.data)
                 warnings.push(...stationElevResult.warnings)
+              } else {
+                // Look ahead for numeric data tokens following this #Sta/Elev token
+                let foundData = false
+                for (let j = i + 1; j < tokens.length && !foundData; j++) {
+                  const nextToken = tokens[j]
+                  // Stop if we hit another key-value token or section header
+                  if (
+                    nextToken.type === TokenType.SECTION_HEADER ||
+                    (nextToken.type === TokenType.KEY_VALUE &&
+                      !nextToken.content.match(/^\s*[\d\.\-\s]+$/))
+                  ) {
+                    break
+                  }
+                  // Check if this token contains numeric data (station-elevation pairs)
+                  if (nextToken.content.match(/^\s*[\d\.\-\s]+$/)) {
+                    const stationElevResult =
+                      HECRASPrimitives.parseStationElevation([
+                        nextToken.content,
+                      ])
+                    currentCrossSection.staElevData.push(
+                      ...stationElevResult.data,
+                    )
+                    warnings.push(...stationElevResult.warnings)
+
+                    // If we've collected enough points, stop looking
+                    if (currentCrossSection.staElevData.length >= count) {
+                      foundData = true
+                    }
+                  }
+                }
               }
             } else if (key === "#Mann" && currentCrossSection) {
               const parts = value.split(",").map((s: string) => s.trim())
               const count = parseInt(parts[0]) || 0
               // Check if this token has manning data
-              if (token.metadata?.hasData && token.content.includes('\n')) {
-                const lines = token.content.split('\n').slice(1) // Skip the key=value line
+              if (token.metadata?.hasData && token.content.includes("\n")) {
+                const lines = token.content.split("\n").slice(1) // Skip the key=value line
                 const manningResult = HECRASPrimitives.parseManningData(lines)
                 currentCrossSection.manningSegments.push(...manningResult.data)
                 warnings.push(...manningResult.warnings)
@@ -234,17 +272,19 @@ export class GeometryParserPlugin extends BaseParserPlugin {
               if (parts.length >= 2) {
                 currentCrossSection.bankStations = {
                   left: parseFloat(parts[0]) || 0,
-                  right: parseFloat(parts[1]) || 0
+                  right: parseFloat(parts[1]) || 0,
                 }
               }
             } else if (key === "Exp/Cntr" && currentCrossSection) {
               const parts = value.split(",").map((s: string) => s.trim())
               if (parts.length >= 2) {
-                currentCrossSection.expansionCoefficient = parseFloat(parts[0]) || 0
-                currentCrossSection.contractionCoefficient = parseFloat(parts[1]) || 0
+                currentCrossSection.expansionCoefficient =
+                  parseFloat(parts[0]) || 0
+                currentCrossSection.contractionCoefficient =
+                  parseFloat(parts[1]) || 0
               }
             }
-            
+
             // Storage Area processing
             else if (key === "Storage Area") {
               const parts = value.split(",").map((s: string) => s.trim())
@@ -252,7 +292,7 @@ export class GeometryParserPlugin extends BaseParserPlugin {
                 id: parts[0] || "",
                 centroid: {
                   x: parseFloat(parts[1]) || 0,
-                  y: parseFloat(parts[2]) || 0
+                  y: parseFloat(parts[2]) || 0,
                 },
                 surfaceLine: [],
                 volumeElevationData: [],
@@ -260,14 +300,18 @@ export class GeometryParserPlugin extends BaseParserPlugin {
                 type: 1,
                 area: null,
                 minElevation: null,
-                is2D: 0
+                is2D: 0,
               }
               result.storageAreas.push(currentStorageArea)
               context.metadata.currentStorageArea = currentStorageArea
-            } else if (key === "Storage Area Surface Line" && currentStorageArea) {
-              if (token.metadata?.hasData && token.content.includes('\n')) {
-                const lines = token.content.split('\n').slice(1)
-                const coordResult = HECRASPrimitives.parseMultilineCoordinates(lines)
+            } else if (
+              key === "Storage Area Surface Line" &&
+              currentStorageArea
+            ) {
+              if (token.metadata?.hasData && token.content.includes("\n")) {
+                const lines = token.content.split("\n").slice(1)
+                const coordResult =
+                  HECRASPrimitives.parseMultilineCoordinates(lines)
                 currentStorageArea.surfaceLine.push(...coordResult.data)
                 warnings.push(...coordResult.warnings)
                 // console.log(`Added ${coordResult.data.length} surface line coordinates`)
@@ -285,29 +329,36 @@ export class GeometryParserPlugin extends BaseParserPlugin {
             } else if (key === "Storage Area Vol Elev" && currentStorageArea) {
               const count = parseInt(value)
               // Check if this token has volume-elevation data
-              if (token.metadata?.hasData && token.content.includes('\n')) {
-                const lines = token.content.split('\n').slice(1) // Skip the key=value line
+              if (token.metadata?.hasData && token.content.includes("\n")) {
+                const lines = token.content.split("\n").slice(1) // Skip the key=value line
                 for (const line of lines) {
                   if (line.trim()) {
-                    const volElevResult = HECRASPrimitives.parseVolumeElevation([line])
-                    currentStorageArea.volumeElevationData.push(...volElevResult.data)
+                    const volElevResult = HECRASPrimitives.parseVolumeElevation(
+                      [line],
+                    )
+                    currentStorageArea.volumeElevationData.push(
+                      ...volElevResult.data,
+                    )
                     warnings.push(...volElevResult.warnings)
                   }
                 }
               }
             }
-            
+
             // Connection processing
             else if (key === "Connection") {
               const parts = value.split(",").map((s: string) => s.trim())
               currentConnection = {
                 id: parts[0] || "",
-                flags: parts.slice(1).map((p) => parseFloat(p)).filter((n) => !isNaN(n)),
+                flags: parts
+                  .slice(1)
+                  .map((p) => parseFloat(p))
+                  .filter((n) => !isNaN(n)),
                 line: [],
                 description: null,
                 upSA: null,
                 dnSA: null,
-                weirStationElevation: []
+                weirStationElevation: [],
               }
               result.connections.push(currentConnection)
               context.metadata.currentConnection = currentConnection
@@ -325,7 +376,6 @@ export class GeometryParserPlugin extends BaseParserPlugin {
           }
         }
 
-
         return {
           success: errors.length === 0,
           data: result,
@@ -334,7 +384,7 @@ export class GeometryParserPlugin extends BaseParserPlugin {
         }
       },
       // Accept all tokens
-      () => true
+      () => true,
     )
   }
 
@@ -351,15 +401,22 @@ export class GeometryParserPlugin extends BaseParserPlugin {
         const warnings: any[] = []
 
         // Only process header-specific tokens, leave others for other handlers
-        const headerTokens = tokens.filter(token => 
-          token.type === TokenType.KEY_VALUE && 
-          token.metadata?.key && 
-          ["Geom Title", "Program Version", "Viewing Rectangle"].includes(token.metadata.key)
+        const headerTokens = tokens.filter(
+          (token) =>
+            token.type === TokenType.KEY_VALUE &&
+            token.metadata?.key &&
+            ["Geom Title", "Program Version", "Viewing Rectangle"].includes(
+              token.metadata.key,
+            ),
         )
-        
-        const multilineTokens = tokens.filter(token => token.type === TokenType.MULTILINE_TEXT)
 
-        console.log(`Header handler processing ${headerTokens.length} header tokens and ${multilineTokens.length} multiline tokens`)
+        const multilineTokens = tokens.filter(
+          (token) => token.type === TokenType.MULTILINE_TEXT,
+        )
+
+        console.log(
+          `Header handler processing ${headerTokens.length} header tokens and ${multilineTokens.length} multiline tokens`,
+        )
 
         for (const token of headerTokens) {
           if (token.metadata) {
@@ -374,8 +431,7 @@ export class GeometryParserPlugin extends BaseParserPlugin {
                 result["Program Version"] = value
                 break
               case "Viewing Rectangle":
-                const coordResult =
-                  HECRASPrimitives.parseCommaSeparated(value)
+                const coordResult = HECRASPrimitives.parseCommaSeparated(value)
                 if (coordResult.data.length >= 4) {
                   result["Viewing Rectangle"] = {
                     left: parseFloat(coordResult.data[0]),
@@ -389,7 +445,7 @@ export class GeometryParserPlugin extends BaseParserPlugin {
             }
           }
         }
-        
+
         for (const token of multilineTokens) {
           if (token.metadata?.blockType === "GEOM DESCRIPTION") {
             result.description = token.content
@@ -405,18 +461,21 @@ export class GeometryParserPlugin extends BaseParserPlugin {
       },
       // Custom canHandle function to check for header key-value pairs
       (tokens: ParsedToken[]) => {
-        const hasHeaderTokens = tokens.some(token => 
-          token.type === TokenType.KEY_VALUE && 
-          token.metadata?.key && 
-          ["Geom Title", "Program Version", "Viewing Rectangle"].includes(token.metadata.key)
+        const hasHeaderTokens = tokens.some(
+          (token) =>
+            token.type === TokenType.KEY_VALUE &&
+            token.metadata?.key &&
+            ["Geom Title", "Program Version", "Viewing Rectangle"].includes(
+              token.metadata.key,
+            ),
         )
-        
+
         if (hasHeaderTokens) {
           console.log(`Header handler will process ${tokens.length} tokens`)
         }
-        
+
         return hasHeaderTokens
-      }
+      },
     )
   }
 
@@ -512,9 +571,10 @@ export class GeometryParserPlugin extends BaseParserPlugin {
         let currentStorageArea: any = null
 
         // First, collect all storage area related tokens
-        const storageAreaTokens = tokens.filter(token => 
-          token.type === TokenType.KEY_VALUE && 
-          token.metadata?.key?.startsWith("Storage Area")
+        const storageAreaTokens = tokens.filter(
+          (token) =>
+            token.type === TokenType.KEY_VALUE &&
+            token.metadata?.key?.startsWith("Storage Area"),
         )
 
         console.log(`Found ${storageAreaTokens.length} storage area tokens`)
@@ -533,7 +593,7 @@ export class GeometryParserPlugin extends BaseParserPlugin {
                 id: parts[0] || "",
                 centroid: {
                   x: parseFloat(parts[1]) || 0,
-                  y: parseFloat(parts[2]) || 0
+                  y: parseFloat(parts[2]) || 0,
                 },
                 surfaceLine: [],
                 volumeElevationData: [],
@@ -541,7 +601,7 @@ export class GeometryParserPlugin extends BaseParserPlugin {
                 type: 1,
                 area: null,
                 minElevation: null,
-                is2D: 0
+                is2D: 0,
               }
               storageAreas.push(currentStorageArea)
               console.log(`Created storage area: ${currentStorageArea.id}`)
@@ -551,12 +611,15 @@ export class GeometryParserPlugin extends BaseParserPlugin {
             ) {
               const count = parseInt(value)
               // Check if this token has coordinate data
-              if (token.metadata?.hasData && token.content.includes('\n')) {
-                const lines = token.content.split('\n').slice(1) // Skip the key=value line
-                const coordResult = HECRASPrimitives.parseMultilineCoordinates(lines)
+              if (token.metadata?.hasData && token.content.includes("\n")) {
+                const lines = token.content.split("\n").slice(1) // Skip the key=value line
+                const coordResult =
+                  HECRASPrimitives.parseMultilineCoordinates(lines)
                 currentStorageArea.surfaceLine.push(...coordResult.data)
                 warnings.push(...coordResult.warnings)
-                console.log(`Added ${coordResult.data.length} surface line coordinates`)
+                console.log(
+                  `Added ${coordResult.data.length} surface line coordinates`,
+                )
               }
             } else if (key === "Storage Area Type" && currentStorageArea) {
               currentStorageArea.type = parseInt(value) || 1
@@ -571,13 +634,10 @@ export class GeometryParserPlugin extends BaseParserPlugin {
             }
           }
         }
-        
+
         // Also check for any separate coordinate data tokens
         for (const token of tokens) {
-          if (
-            token.type === TokenType.COORDINATE_DATA &&
-            currentStorageArea
-          ) {
+          if (token.type === TokenType.COORDINATE_DATA && currentStorageArea) {
             // Parse coordinate data for storage area
             const coordResult = HECRASPrimitives.parseMultilineCoordinates([
               token.content,
@@ -596,20 +656,26 @@ export class GeometryParserPlugin extends BaseParserPlugin {
       },
       // Custom canHandle function - accept all token groups that have storage area data
       (tokens: ParsedToken[]) => {
-        const kvTokens = tokens.filter(token => token.type === TokenType.KEY_VALUE)
-        const keys = kvTokens.map(token => token.metadata?.key).filter(k => k)
-        const hasStorageAreaTokens = kvTokens.some(token => 
-          token.metadata?.key?.startsWith("Storage Area")
+        const kvTokens = tokens.filter(
+          (token) => token.type === TokenType.KEY_VALUE,
         )
-        
+        const keys = kvTokens
+          .map((token) => token.metadata?.key)
+          .filter((k) => k)
+        const hasStorageAreaTokens = kvTokens.some((token) =>
+          token.metadata?.key?.startsWith("Storage Area"),
+        )
+
         if (kvTokens.length > 0) {
-          console.log(`Storage area handler canHandle: ${tokens.length} tokens, ${kvTokens.length} KV tokens`)
-          console.log(`Keys: ${keys.join(', ')}`)
+          console.log(
+            `Storage area handler canHandle: ${tokens.length} tokens, ${kvTokens.length} KV tokens`,
+          )
+          console.log(`Keys: ${keys.join(", ")}`)
           console.log(`hasStorageAreaTokens: ${hasStorageAreaTokens}`)
         }
-        
+
         return hasStorageAreaTokens
-      }
+      },
     )
   }
 
@@ -761,9 +827,13 @@ export class GeometryParserPlugin extends BaseParserPlugin {
     return {
       rules: [
         // Make validation less strict for backwards compatibility
-        CommonValidationRules.customRule("has_basic_info", "warning", (data) => {
-          return data["Geom Title"] || data["Program Version"] || true
-        }),
+        CommonValidationRules.customRule(
+          "has_basic_info",
+          "warning",
+          (data) => {
+            return data["Geom Title"] || data["Program Version"] || true
+          },
+        ),
       ],
       allowPartialValidation: true,
     }
@@ -851,7 +921,11 @@ class GeometryModelBuilder extends BaseModelBuilder<any, HECRASGeometry> {
     // Build storage areas
     if (input.storageAreas) {
       geometry.storageAreas = input.storageAreas.map((saData: any) => {
-        const sa = new StorageArea(saData.id, saData.centroid?.x, saData.centroid?.y)
+        const sa = new StorageArea(
+          saData.id,
+          saData.centroid?.x,
+          saData.centroid?.y,
+        )
         sa.surfaceLine = saData.surfaceLine || []
         sa.volumeElevationData = saData.volumeElevationData || []
         sa.mannings = saData.mannings || 0

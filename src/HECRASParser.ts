@@ -1,9 +1,9 @@
-// New HECRAS Parser using the plugin architecture
-import { HECRASParser } from "./core/plugins"
+// HECRAS Parser using the plugin architecture
+import { HECRASParser as BaseHECRASParser } from "./core/plugins"
 import { GeometryParserPlugin } from "./plugins/geometryPlugin"
 import { HECRASGeometry } from "./models/geometry"
 
-export class HECRASParserV2 extends HECRASParser {
+export class HECRASParser extends BaseHECRASParser {
   constructor() {
     super()
 
@@ -37,14 +37,10 @@ export class HECRASParserV2 extends HECRASParser {
     return result.data!
   }
 
-  // Backward compatibility method to match the old API
-  static create(): HECRASParserV2 {
-    return new HECRASParserV2()
+  static create(): HECRASParser {
+    return new HECRASParser()
   }
 }
 
-// Export for backward compatibility
-export { HECRASParserV2 as HecRasGeometryParser }
-
 // Default export
-export default HECRASParserV2
+export default HECRASParser

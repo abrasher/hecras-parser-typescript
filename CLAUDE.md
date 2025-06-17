@@ -31,9 +31,7 @@ This is a TypeScript library for parsing HEC-RAS geometry files (.g01, .g02, etc
 
 ### Core Components
 
-**Main Parser V1**: `HECRASGeometryParser.ts` - The original parser that orchestrates parsing of HEC-RAS geometry files. Uses a line-by-line parsing approach with section detection.
-
-**Main Parser V2**: `HECRASParserV2.ts` - The new plugin-based parser architecture that provides better extensibility and validation. Built on the core plugin system with modular file type support.
+**Main Parser**: `HECRASParser` (from `/src/core/plugins.ts`) - The plugin-based parser architecture that provides extensibility and validation. Built on the core plugin system with modular file type support.
 
 **Modular Parsers**: `/src/parsers/` - Specialized parsers for different geometry sections:
 
@@ -97,8 +95,8 @@ Test files use real HEC-RAS geometry data:
 
 Test suites:
 
-- `test/GeometryParser.test.ts` - Original parser tests
-- `test/HECRASParserV2.test.ts` - V2 parser tests with validation
+- `test/HECRASParser.test.ts` - Main parser tests with validation
+- `test/GeometryParser.test.ts` - Geometry parsing tests
 - `test/ConnectionParsing.test.ts` - Connection parsing tests
 
 ## HEC-RAS Format Gotchas
@@ -108,34 +106,51 @@ Test suites:
 ### Key Parsing Challenges
 
 **Fixed-Width vs Variable-Width Fields**:
+
 - Some fields are fixed-width (usually powers of 2: 2,4,8,16,32 characters)
 - Others are variable-width with limits
 - Fixed-width fields MUST preserve exact spacing, even if it looks wrong
 - Example: `Storage Area=2D_Grid         ,,` (note the trailing spaces)
 
 **Inconsistent Key Formats**:
+
 - Most keys are "Key=Value" format with sentence case
 - Some mix spaces: `Storage Area 2D PointsPerimeterTime=21May2025 13:18:09`
 - Some use colons for nesting: `Conn BR: BR SE=1,0`
 - Snake_case occasionally appears: `Is_Ogee`
 
 **Multiline Value Parsing**:
+
 - Values can span multiple lines unpredictably
 - First line often indicates count: `Storage Area Surface Line= 6`
 - Subsequent lines have no consistent spacing rules
 - Some continue mid-line: `Connection Culv=1,1.2,1.2,12.51,0.024,0.5,1,56,1,263.65,263.38, 1 ,Culvert #1  , 0 ,
-     4.1     4.1`
+   4.1     4.1`
 
 **Table-Like Data**:
+
 - Some sections store data in pseudo-table format with no clear delimiters
 - Values may be space-separated but with inconsistent spacing
 - Headers don't always align with data columns
 
 **Long Text Fields**:
+
 - Surrounded by `BEGIN PROPERTYNAME:` and `END PROPERTYNAME:` blocks
 - Can contain multiple lines and special characters
 - No apparent length limits
 
 ### Parsing Strategy
 
-Always assume the format is wrong until proven right. The V2 parser uses validation schemas to catch format inconsistencies early and provide meaningful error messages.
+Always assume the format is wrong until proven right. The parser uses validation schemas to catch format inconsistencies early and provide meaningful error messages.
+
+## Important things when Developming Parsers
+
+When writing parsing logic, populate an adjacent documentation file in the docs folder. The document will be used to reconstruct the geometry file at a later date.
+
+It should at minimum list for each property
+
+- Original Key Name in the HECRAS file
+- Key Object Path it is mapped to
+- The type of value / parsing logic required to extract it
+- Any special notes such as field lengths or other quirks
+- An example input and example output

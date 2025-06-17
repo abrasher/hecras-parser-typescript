@@ -335,7 +335,7 @@ export class HECRASPrimitives {
           segments.push({
             station: numbers[i + 1], // Skip dummy value
             nValue: numbers[i + 2],
-            unknownParameter: 0 // Add required field from ManningSegment
+            unknownParameter: 0, // Add required field from ManningSegment
           })
         } else {
           warnings.push("Incomplete Manning segment found")

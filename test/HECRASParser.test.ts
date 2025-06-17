@@ -1,23 +1,23 @@
-// Tests for the new HECRAS Parser V2
+// Tests for the HECRAS Parser
 import { describe, it, expect, beforeAll } from "vitest"
-import { HECRASParserV2 } from "../src/HECRASParserV2"
+import { HECRASParser } from "../src/HECRASParser"
 import { HECRASGeometry } from "../src/models/geometry"
 import { readFileSync } from "fs"
 import { join } from "path"
 
-describe("HECRASParserV2", () => {
-  let parser: HECRASParserV2
+describe("HECRASParser", () => {
+  let parser: HECRASParser
   let testFileContent: string
 
   beforeAll(() => {
-    parser = new HECRASParserV2()
+    parser = new HECRASParser()
     const testFilePath = join(__dirname, "data", "Dingman.g01")
     testFileContent = readFileSync(testFilePath, "utf-8")
   })
 
   describe("Basic Functionality", () => {
     it("should create parser instance", () => {
-      expect(parser).toBeInstanceOf(HECRASParserV2)
+      expect(parser).toBeInstanceOf(HECRASParser)
     })
 
     it("should detect geometry file type", async () => {
@@ -30,9 +30,9 @@ describe("HECRASParserV2", () => {
       expect(geometry).toBeInstanceOf(HECRASGeometry)
     })
 
-    it("should maintain backward compatibility with old API", () => {
-      const legacyParser = HECRASParserV2.create()
-      expect(legacyParser).toBeInstanceOf(HECRASParserV2)
+    it("should create parser with static method", () => {
+      const staticParser = HECRASParser.create()
+      expect(staticParser).toBeInstanceOf(HECRASParser)
     })
   })
 
@@ -183,11 +183,11 @@ describe("HECRASParserV2", () => {
 
 // Compatibility tests with the old parser
 describe("Backward Compatibility", () => {
-  let newParser: HECRASParserV2
+  let newParser: HECRASParser
   let testFileContent: string
 
   beforeAll(() => {
-    newParser = new HECRASParserV2()
+    newParser = new HECRASParser()
     const testFilePath = join(__dirname, "data", "Dingman.g01")
     testFileContent = readFileSync(testFilePath, "utf-8")
   })

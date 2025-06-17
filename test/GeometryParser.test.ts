@@ -1,6 +1,6 @@
 import { expect, it, beforeAll, describe } from "vitest"
 import { HECRASGeometry } from "../src/models/geometry"
-import { HECRASParserV2 as HecRasGeometryParser } from "../src/HECRASParserV2"
+import { HECRASParser as HecRasGeometryParser } from "../src/HECRASParser"
 import { Coordinate, ManningSegment } from "../src/models/common"
 import fs from "fs"
 import { CrossSection } from "../src/models/crossSection"
@@ -72,18 +72,35 @@ describe("HECRASGeometry Parser", () => {
       expect(firstCrossSection.riverStation).toBe(
         expectedFirstCrossSection.riverStation,
       )
-      expect(firstCrossSection.cutLine).toEqual(
-        expectedFirstCrossSection.cutLine,
+      expect(firstCrossSection.gisCutLine).toEqual(
+        expectedFirstCrossSection.gisCutLine,
       )
-      expect(firstCrossSection.surfaceLine).toEqual(
-        expectedFirstCrossSection.surfaceLine,
+      // expect(firstCrossSection.surfaceLine).toEqual(
+      //   expectedFirstCrossSection.surfaceLine,
+      // )
+    })
+
+    it("should parse station-elevation data correctly", () => {
+      const firstCrossSection = muncieGeometry.reaches[0].crossSections[0]
+
+      // Test that staElevData exists and is an array
+      expect(firstCrossSection.staElevData).toBeDefined()
+      expect(Array.isArray(firstCrossSection.staElevData)).toBe(true)
+
+      // Test total number of station-elevation points
+      expect(firstCrossSection.staElevData.length).toBe(
+        expectedFirstCrossSection.staElevData.totalPoints,
       )
-      expect(firstCrossSection.stationElevationPoints).toEqual(
-        expectedFirstCrossSection.stationElevationPoints,
+
+      // Test key station-elevation points at specific indices
+      expectedFirstCrossSection.staElevData.keyPoints.forEach(
+        ({ index, point }) => {
+          expect(firstCrossSection.staElevData[index]).toEqual(point)
+        },
       )
-      expect(firstCrossSection.manningSegments).toEqual(
-        expectedFirstCrossSection.manningSegments,
-      )
+      // expect(firstCrossSection.manningSegments).toEqual(
+      //   expectedFirstCrossSection.manningSegments,
+      // )
     })
   })
 

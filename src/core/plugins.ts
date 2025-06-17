@@ -285,7 +285,7 @@ export class HECRASParser {
 }
 
 // Section processing stage that delegates to section handlers
-import { PipelineStage } from './pipeline'
+import { PipelineStage } from "./pipeline"
 
 export class SectionProcessingStage
   implements PipelineStage<ParsedToken[], any>
