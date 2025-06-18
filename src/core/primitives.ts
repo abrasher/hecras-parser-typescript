@@ -496,6 +496,10 @@ export class HECRASPrimitives {
   }
 
   /**
+   * Parse 64-character wide lines into 4 numbers (16 characters each)
+   */
+
+  /**
    * Utility to determine if a line is likely to contain numeric data
    */
   static isNumericDataLine(line: string): boolean {
@@ -531,5 +535,54 @@ export class HECRASPrimitives {
     ]
 
     return sectionPatterns.some((pattern) => pattern.test(trimmed))
+  }
+}
+
+export function chunkStringToNumbers(
+  str: string,
+  chunkWidth: number,
+): PrimitiveParseResult<number[]> {
+  if (chunkWidth <= 0) {
+    throw new Error("Chunk width must be greater than 0")
+  }
+
+  const errors: string[] = []
+  const warnings: string[] = []
+  const numbers: number[] = []
+
+  if (str.length === 0) {
+    return {
+      data: [],
+      errors,
+      warnings,
+      recovered: false,
+    }
+  }
+
+  const expectedChunks = Math.ceil(str.length / chunkWidth)
+
+  for (let i = 0; i < expectedChunks; i++) {
+    const chunk = str.slice(i * chunkWidth, (i + 1) * chunkWidth)
+
+    if (chunk.trim() === "") {
+      warnings.push(`Empty chunk ${i + 1}`)
+      numbers.push(0) // Default value for empty chunk
+    } else {
+      const num = parseFloat(chunk)
+
+      if (isNaN(num)) {
+        warnings.push(`Could not parse number from chunk ${i + 1}: "${chunk}"`)
+        numbers.push(0) // Default value for failed parsing
+      } else {
+        numbers.push(num)
+      }
+    }
+  }
+
+  return {
+    data: numbers,
+    errors,
+    warnings,
+    recovered: warnings.length > 0,
   }
 }

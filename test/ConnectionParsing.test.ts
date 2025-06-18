@@ -1,16 +1,9 @@
 import { describe, it, expect, beforeAll } from "vitest"
 import { HecRasGeometryParser } from "../src/HECRASGeometryParser"
-import type {
-  Connection} from "../src/models/connection";
-import {
-  ConnectionType,
-  StructureType,
-} from "../src/models/connection"
+import type { Connection } from "../src/models/connection"
+import { ConnectionType, StructureType } from "../src/models/connection"
 import type { HECRASGeometry } from "../src/models/geometry"
-import {
-  expectedConnections,
-  connectionTestData,
-} from "./data/connectionTestData"
+import { expectedConnections, connectionTestData } from "./data/connectionTestData"
 import { readFileSync } from "fs"
 import { join } from "path"
 
@@ -212,6 +205,20 @@ describe("Connection Parsing", () => {
         expect(culv45).toBeDefined()
       })
 
+      it("should parse centerline correctly", () => {
+        console.log(culv45.line)
+        expect(culv45.line).toEqual([
+          {
+            x: 484334.57579,
+            y: 4751435.784,
+          },
+          {
+            x: 484332.77166,
+            y: 4751445.66378,
+          },
+        ])
+      })
+
       it("should parse double barrel culvert data", () => {
         expect(culv45.culvertData!.barrelCount).toBe(2)
         expect(culv45.culvertData!.diameter).toBe(1.05)
@@ -228,14 +235,26 @@ describe("Connection Parsing", () => {
         const barrel1 = culv45.culvertBarrels[0]
         const barrel2 = culv45.culvertBarrels[1]
 
-        expect(barrel1.coordinates[0]).toEqual({
-          x: 484341.38666,
-          y: 4751439.60004,
-        })
-        expect(barrel2.coordinates[0]).toEqual({
-          x: 484341.38666,
-          y: 4751440.89191,
-        })
+        expect(barrel1.coordinates).toEqual([
+          {
+            x: 484341.38666,
+            y: 4751439.60004,
+          },
+          {
+            x: 414324.294289998,
+            y: 4751439.0038,
+          },
+        ])
+        expect(barrel2.coordinates).toEqual([
+          {
+            x: 484341.38666,
+            y: 4751440.89191,
+          },
+          {
+            x: 414324.294289998,
+            y: 4751440.29566,
+          },
+        ])
       })
 
       it("should parse culvert description correctly", () => {
@@ -328,9 +347,7 @@ describe("Connection Parsing", () => {
         expect(culvertData.upstreamInvert).toBeGreaterThan(0)
         expect(culvertData.downstreamInvert).toBeGreaterThan(0)
         // Upstream should typically be higher than downstream
-        expect(culvertData.upstreamInvert).toBeGreaterThanOrEqual(
-          culvertData.downstreamInvert,
-        )
+        expect(culvertData.upstreamInvert).toBeGreaterThanOrEqual(culvertData.downstreamInvert)
       })
     })
   })
@@ -416,22 +433,14 @@ describe("Connection Parsing", () => {
       expect(culvertConnections.length).toBe(expectedConnections.length)
 
       expectedConnections.forEach((expectedConnection) => {
-        const parsedConnection = connections.find(
-          (c) => c.id === expectedConnection.id,
-        )
+        const parsedConnection = connections.find((c) => c.id === expectedConnection.id)
         expect(parsedConnection).toBeDefined()
 
         // Compare key properties
-        expect(parsedConnection!.description).toBe(
-          expectedConnection.description,
-        )
+        expect(parsedConnection!.description).toBe(expectedConnection.description)
         expect(parsedConnection!.weirWidth).toBe(expectedConnection.weirWidth)
-        expect(parsedConnection!.culvertData!.diameter).toBe(
-          expectedConnection.culvertData!.diameter,
-        )
-        expect(parsedConnection!.culvertBarrels.length).toBe(
-          expectedConnection.culvertBarrels.length,
-        )
+        expect(parsedConnection!.culvertData!.diameter).toBe(expectedConnection.culvertData!.diameter)
+        expect(parsedConnection!.culvertBarrels.length).toBe(expectedConnection.culvertBarrels.length)
       })
     })
 
@@ -445,7 +454,7 @@ describe("Connection Parsing", () => {
         expect(connection.line).toBeDefined()
         expect(connection.line.length).toBeGreaterThan(0)
       })
-      
+
       // Culvert-specific validation
       const culvertConnections = connections.filter((c) =>
         connectionTestData.expectedCulvertIds.includes(c.id as string),
