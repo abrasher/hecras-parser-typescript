@@ -150,6 +150,10 @@ It corresponds to this UI in HECRAS
 
 Like Is_Ogee now follows snakecase???
 
+Example 1 is two numbers on a line that each take up 16 characters each. The entire line is 32 characters wide. If the number is not 16 characters wide, the rest of the characters are spaces. Each line is a pair of values
+
+Example 2 is similar but instead 64 characters wide, 16 characters each, but corresponds to 2 pairs of points for four points total.
+
 Multiline text fields
 Sometimes HECRAS allows the user to enter long description fields. These are formatted differently that key=value pairs.
 

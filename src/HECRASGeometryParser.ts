@@ -166,19 +166,17 @@ export class HecRasGeometryParser {
         this.advanceLine()
         this.parseStorageAreaData(sa)
       } else if (line.startsWith("Connection=")) {
-        console.log("Found Connection line:", line)
         const parts = parseKeyValue(line)!.value.split(",")
         // The first part is the connection ID (could be string or number)
         const id = parts[0].trim()
-        console.log("Connection ID:", id)
         const conn = new Connection(id)
-        // The remaining parts are coordinates or flags, not description
-        // Description comes from a separate "Connection Desc=" line
+        
+        // Parse flags from the remaining parts
+        if (parts.length > 1) {
+          conn.flags = parts.slice(1).map(p => parseInt(p.trim()) || 0)
+        }
+        
         this.geometry.connections.push(conn)
-        console.log(
-          "Added connection, total connections:",
-          this.geometry.connections.length,
-        )
         this.advanceLine()
         this.parseConnectionData(conn)
       } else if (line.startsWith("Geom Raster=")) {

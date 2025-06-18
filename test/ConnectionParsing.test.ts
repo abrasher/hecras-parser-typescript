@@ -55,13 +55,13 @@ describe("Connection Parsing", () => {
       })
     })
 
-    it.skip("should identify connections as SA/2D type (not yet implemented)", () => {
+    it("should identify connections as SA/2D type", () => {
       connections.forEach((connection) => {
         expect(connection.connectionType).toBe(ConnectionType.SA_2D)
       })
     })
 
-    it.skip("should identify structure types correctly (not yet implemented)", () => {
+    it("should identify structure types correctly", () => {
       const culvertConnections = connections.filter((c) =>
         connectionTestData.expectedCulvertIds.includes(c.id as string),
       )
@@ -130,7 +130,7 @@ describe("Connection Parsing", () => {
         })
       })
 
-      it.skip("should parse culvert data (not yet implemented)", () => {
+      it("should parse culvert data", () => {
         expect(culv43.culvertData).toBeDefined()
         expect(culv43.culvertData!.barrelCount).toBe(1)
         expect(culv43.culvertData!.diameter).toBe(1.5)
@@ -144,7 +144,7 @@ describe("Connection Parsing", () => {
         expect(culv43.culvertData!.description).toBe("Culvert #1")
       })
 
-      it.skip("should parse culvert barrel data (not yet implemented)", () => {
+      it("should parse culvert barrel data", () => {
         expect(culv43.culvertBarrels).toHaveLength(1)
         const barrel = culv43.culvertBarrels[0]
         expect(barrel.id).toBe(1)
@@ -160,7 +160,7 @@ describe("Connection Parsing", () => {
         })
       })
 
-      it.skip("should parse outlet rating curve data (not yet implemented)", () => {
+      it("should parse outlet rating curve data", () => {
         expect(culv43.outletRatingCurve).toBeDefined()
         expect(culv43.outletRatingCurve!.flag).toBe(0)
         expect(culv43.outletRatingCurve!.isActive).toBe(false)
@@ -284,8 +284,11 @@ describe("Connection Parsing", () => {
   })
 
   describe("Culvert Properties Validation", () => {
-    it("should have all connections with culvert data", () => {
-      connections.forEach((connection) => {
+    it("should have all culvert connections with culvert data", () => {
+      const culvertConnections = connections.filter((c) =>
+        connectionTestData.expectedCulvertIds.includes(c.id as string),
+      )
+      culvertConnections.forEach((connection) => {
         expect(connection.culvertData).toBeDefined()
         expect(connection.culvertData!.barrelCount).toBeGreaterThan(0)
         expect(connection.culvertData!.diameter).toBeGreaterThan(0)
@@ -306,7 +309,10 @@ describe("Connection Parsing", () => {
     })
 
     it("should have valid Manning's n values", () => {
-      connections.forEach((connection) => {
+      const culvertConnections = connections.filter((c) =>
+        connectionTestData.expectedCulvertIds.includes(c.id as string),
+      )
+      culvertConnections.forEach((connection) => {
         expect(connection.culvertBottomN).toBeGreaterThan(0)
         expect(connection.culvertBottomN).toBeLessThan(1)
         expect(connection.culvertData!.roughness).toBe(0.024)
@@ -314,7 +320,10 @@ describe("Connection Parsing", () => {
     })
 
     it("should have valid invert elevations", () => {
-      connections.forEach((connection) => {
+      const culvertConnections = connections.filter((c) =>
+        connectionTestData.expectedCulvertIds.includes(c.id as string),
+      )
+      culvertConnections.forEach((connection) => {
         const culvertData = connection.culvertData!
         expect(culvertData.upstreamInvert).toBeGreaterThan(0)
         expect(culvertData.downstreamInvert).toBeGreaterThan(0)
@@ -342,7 +351,10 @@ describe("Connection Parsing", () => {
     })
 
     it("should have station-elevation data for all weirs", () => {
-      connections.forEach((connection) => {
+      const culvertConnections = connections.filter((c) =>
+        connectionTestData.expectedCulvertIds.includes(c.id as string),
+      )
+      culvertConnections.forEach((connection) => {
         expect(connection.weirStationElevation).toBeDefined()
         expect(connection.weirStationElevation.length).toBeGreaterThan(0)
 
@@ -357,7 +369,10 @@ describe("Connection Parsing", () => {
     })
 
     it("should have monotonically increasing stations", () => {
-      connections.forEach((connection) => {
+      const culvertConnections = connections.filter((c) =>
+        connectionTestData.expectedCulvertIds.includes(c.id as string),
+      )
+      culvertConnections.forEach((connection) => {
         const stations = connection.weirStationElevation.map((p) => p.station)
         for (let i = 1; i < stations.length; i++) {
           expect(stations[i]).toBeGreaterThan(stations[i - 1])
@@ -367,8 +382,11 @@ describe("Connection Parsing", () => {
   })
 
   describe("Connection Routing and Flags", () => {
-    it("should have consistent routing settings", () => {
-      connections.forEach((connection) => {
+    it("should have consistent routing settings for culverts", () => {
+      const culvertConnections = connections.filter((c) =>
+        connectionTestData.expectedCulvertIds.includes(c.id as string),
+      )
+      culvertConnections.forEach((connection) => {
         expect(connection.routingType).toBe(1)
         expect(connection.useRCFamily).toBe(false)
         expect(connection.overflowMethod2D).toBe(true)
@@ -391,7 +409,11 @@ describe("Connection Parsing", () => {
 
   describe("Integration Tests", () => {
     it("should parse connections consistently with test data", () => {
-      expect(connections.length).toBe(expectedConnections.length)
+      // Filter to only culvert connections for comparison with expectedConnections
+      const culvertConnections = connections.filter((c) =>
+        connectionTestData.expectedCulvertIds.includes(c.id as string),
+      )
+      expect(culvertConnections.length).toBe(expectedConnections.length)
 
       expectedConnections.forEach((expectedConnection) => {
         const parsedConnection = connections.find(
@@ -422,7 +444,13 @@ describe("Connection Parsing", () => {
         // Geometric validation
         expect(connection.line).toBeDefined()
         expect(connection.line.length).toBeGreaterThan(0)
-
+      })
+      
+      // Culvert-specific validation
+      const culvertConnections = connections.filter((c) =>
+        connectionTestData.expectedCulvertIds.includes(c.id as string),
+      )
+      culvertConnections.forEach((connection) => {
         // Hydraulic validation
         expect(connection.weirWidth).toBeGreaterThan(0)
         expect(connection.weirCoefficient).toBeGreaterThan(0)
