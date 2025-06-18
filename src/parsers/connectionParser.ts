@@ -5,7 +5,9 @@ interface CulvertGroup {
   name: string
 }
 
-interface CulvertBarrel {}
+interface CulvertBarrel {
+  
+}
 
 export function parseConnectionData(
   lines: string[],

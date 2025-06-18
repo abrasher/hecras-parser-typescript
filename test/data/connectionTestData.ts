@@ -6,7 +6,7 @@ function createTestConnection(id: string): Connection {
     connection.sa2dConnection = null;
     connection.riverReachConnection = null;
     connection.lateralStructureConnection = null;
-    connection.volumeDefinition = null;
+    connection.volumeDefinition  = null;
     connection.enhancedCulvertData = null;
     return connection;
 }
