@@ -1,7 +1,8 @@
-import { parseKeyValue, parseCoordinates, parseStaElev, parseCommaSeparated } from "../utils"
+import { parseKeyValue, parseCoordinates, parseStaElev } from "../utils"
 import type { Connection } from "../models/connection"
 import { ConnectionType, StructureType } from "../models/connection"
 import type { CulvertData, CulvertBarrel } from "../models/common"
+import { chunkStringToNumbers, numbersToCoordinates } from "../core"
 
 function isConnectionNewSection(line: string): boolean {
   const keywords = [
@@ -26,19 +27,18 @@ export function parseConnectionData(
 
   while (index < lines.length) {
     line = lines[index]
-    
+
     // Stop if we hit a new section
     if (line && isConnectionNewSection(line)) {
       break
     }
-    
+
     // Skip empty or null lines but continue parsing
     if (!line || line.trim() === "") {
       index++
       continue
     }
-    
-    
+
     // Basic info and metadata
     if (line.startsWith("Connection Desc=")) {
       conn.description = parseKeyValue(line)?.value || null
@@ -64,12 +64,7 @@ export function parseConnectionData(
       let pointsCollected = 0
       while (pointsCollected < numPoints && index < lines.length) {
         const connLine = lines[index]
-        if (
-          !connLine ||
-          isNewSection(connLine) ||
-          /^[A-Za-z#]/.test(connLine.trimStart())
-        )
-          break
+        if (!connLine || isNewSection(connLine) || /^[A-Za-z#]/.test(connLine.trimStart())) break
         const newCoords = parseCoordinates(connLine)
         conn.line.push(...newCoords)
         pointsCollected += newCoords.length
@@ -90,13 +85,13 @@ export function parseConnectionData(
     // Routing settings
     else if (line.startsWith("Conn Routing Type=")) {
       conn.routingType = parseInt(parseKeyValue(line)?.value?.trim() || "0")
-      
+
       // Detect bridge connections by routing type (32 = bridge, 1 = culvert)
       if (conn.routingType === 32) {
         conn.connectionType = ConnectionType.SA_2D
-        conn.structureType = StructureType.WEIR  // Bridges are typically just weirs
+        conn.structureType = StructureType.WEIR // Bridges are typically just weirs
       }
-      
+
       index++
     } else if (line.startsWith("Conn Use RC Family=")) {
       const value = parseKeyValue(line)?.value?.trim().toLowerCase()
@@ -130,12 +125,7 @@ export function parseConnectionData(
       let pointsCollected = 0
       while (pointsCollected < numPoints && index < lines.length) {
         const seLine = lines[index]
-        if (
-          !seLine ||
-          isNewSection(seLine) ||
-          /^[A-Za-z#]/.test(seLine.trimStart())
-        )
-          break
+        if (!seLine || isNewSection(seLine) || /^[A-Za-z#]/.test(seLine.trimStart())) break
         const newPoints = parseStaElev(seLine)
         conn.weirStationElevation.push(...newPoints)
         pointsCollected += newPoints.length
@@ -209,7 +199,7 @@ export function parseConnectionData(
 function parseCulvertData(
   line: string,
   lines: string[],
-  currentIndex: number
+  currentIndex: number,
 ): { data: CulvertData | null; nextIndex: number } {
   const keyValue = parseKeyValue(line)
   if (!keyValue?.value) {
@@ -229,8 +219,8 @@ function parseCulvertData(
     const nextLine = lines[index]?.trim()
     if (nextLine && /^\s*[\d.-]+/.test(nextLine)) {
       // This line contains coordinate data
-      const coordParts = nextLine.split(/\s+/).filter(part => part.trim())
-      coordinates = coordParts.map(part => parseFloat(part)).filter(num => !isNaN(num))
+      const coordParts = nextLine.split(/\s+/).filter((part) => part.trim())
+      coordinates = coordParts.map((part) => parseFloat(part)).filter((num) => !isNaN(num))
       index++
     }
   }
@@ -264,7 +254,7 @@ function parseCulvertData(
 function parseCulvertBarrel(
   line: string,
   lines: string[],
-  currentIndex: number
+  currentIndex: number,
 ): { barrel: CulvertBarrel | null; nextIndex: number } {
   const keyValue = parseKeyValue(line)
   if (!keyValue?.value) {
@@ -292,7 +282,7 @@ function parseCulvertBarrel(
     }
 
     // Use custom parsing for barrel coordinates due to run-together formatting
-    const newCoords = parseBarrelCoordinates(coordLine)
+    const newCoords = numbersToCoordinates(chunkStringToNumbers(coordLine, 16))
     coordinates.push(...newCoords)
     pointsCollected += newCoords.length
     index++
@@ -308,164 +298,4 @@ function parseCulvertBarrel(
   }
 
   return { barrel, nextIndex: index }
-}
-
-/**
- * Parses barrel coordinates which may have run-together numbers
- * Example: "484341.38666   4751439.60004484324.294289998    4751439.0038"
- */
-function parseBarrelCoordinates(line: string): { x: number; y: number }[] {
-  const coordinates: { x: number; y: number }[] = []
-  
-  // Remove leading/trailing whitespace
-  const trimmed = line.trim()
-  
-  // First try normal space-separated parsing
-  const spaceParts = trimmed.split(/\s+/)
-  
-  // Check each part for run-together numbers before parsing
-  const processedParts: string[] = []
-  for (const part of spaceParts) {
-    if (!part.trim()) continue
-    
-    // Check if this part contains run-together coordinates
-    // Look for pattern like "4751439.60004484324.294289998"
-    if (part.includes('.') && part.match(/\d\.\d+484\d+\.\d+/)) {
-      // This looks like run-together coordinates, split on '484'
-      const parts484 = part.split('484')
-      if (parts484.length === 2) {
-        const firstPart = parts484[0] // "4751439.60004"
-        const secondPart = '484' + parts484[1] // "484324.294289998"
-        processedParts.push(firstPart, secondPart)
-        continue
-      }
-    }
-    
-    processedParts.push(part)
-  }
-  
-  const spaceNumbers = processedParts
-    .filter(part => part.trim())
-    .map(part => parseFloat(part.trim()))
-    .filter(num => !isNaN(num))
-  
-  // If we got an even number of valid numbers, use them
-  if (spaceNumbers.length > 0 && spaceNumbers.length % 2 === 0) {
-    for (let i = 0; i < spaceNumbers.length; i += 2) {
-      coordinates.push({
-        x: spaceNumbers[i],
-        y: spaceNumbers[i + 1]
-      })
-    }
-    return coordinates
-  }
-  
-  // Otherwise, try to handle run-together numbers
-  const parts = trimmed.split(/\s+/)
-  
-  // Each part may contain multiple numbers run together
-  for (const part of parts) {
-    if (!part) continue
-    
-    // Try to split numbers in this part
-    const numbers = extractNumbersFromRunTogetherString(part)
-    
-    // Group numbers into coordinate pairs
-    for (let i = 0; i < numbers.length; i += 2) {
-      if (i + 1 < numbers.length) {
-        coordinates.push({
-          x: numbers[i],
-          y: numbers[i + 1]
-        })
-      }
-    }
-  }
-  
-  return coordinates
-}
-
-/**
- * Extracts numbers from a string where multiple numbers may be concatenated
- * Example: "4751439.60004484324.294289998" -> [4751439.60004, 484324.294289998]
- */
-function extractNumbersFromRunTogetherString(str: string): number[] {
-  const numbers: number[] = []
-  
-  // If the string contains just one valid number, return it
-  const singleNumber = parseFloat(str)
-  if (!isNaN(singleNumber) && str.includes('.') && str.split('.').length === 2) {
-    return [singleNumber]
-  }
-  
-  // For concatenated numbers like "4751439.60004484324.294289998"
-  // Look for patterns where coordinates run together
-  // Coordinates typically start with 48xxxx in our data
-  
-  let remainingStr = str
-  
-  while (remainingStr.length > 0) {
-    // Skip non-digits at the start
-    while (remainingStr.length > 0 && !/\d/.test(remainingStr[0])) {
-      remainingStr = remainingStr.substring(1)
-    }
-    
-    if (remainingStr.length === 0) break
-    
-    // Find a complete number
-    let numberEnd = 0
-    let hasDecimal = false
-    
-    // Collect digits and one decimal point
-    while (numberEnd < remainingStr.length) {
-      const char = remainingStr[numberEnd]
-      if (/\d/.test(char)) {
-        numberEnd++
-      } else if (char === '.' && !hasDecimal) {
-        hasDecimal = true
-        numberEnd++
-      } else {
-        break
-      }
-    }
-    
-    // Check if we need to handle run-together coordinates
-    if (hasDecimal && numberEnd < remainingStr.length && /\d/.test(remainingStr[numberEnd])) {
-      // We have more digits after a decimal number
-      // Look for a coordinate pattern starting at various positions after the decimal
-      const afterDecimal = remainingStr.substring(remainingStr.indexOf('.') + 1)
-      
-      // Try different split points to find valid coordinates
-      // Look for patterns like 484xxx which indicate start of new coordinate
-      let bestSplitPos = -1
-      for (let i = 1; i < afterDecimal.length - 5; i++) {
-        if (afterDecimal.substring(i, i + 3) === '484') {
-          // This looks like the start of a new coordinate (484xxxxx)
-          bestSplitPos = remainingStr.indexOf('.') + 1 + i
-          break
-        }
-      }
-      
-      if (bestSplitPos > 0) {
-        // Split here
-        const firstNumber = remainingStr.substring(0, bestSplitPos)
-        const num = parseFloat(firstNumber)
-        if (!isNaN(num)) {
-          numbers.push(num)
-        }
-        remainingStr = remainingStr.substring(bestSplitPos)
-        continue
-      }
-    }
-    
-    // Extract the complete number normally
-    const numberStr = remainingStr.substring(0, numberEnd)
-    const num = parseFloat(numberStr)
-    if (!isNaN(num)) {
-      numbers.push(num)
-    }
-    
-    remainingStr = remainingStr.substring(numberEnd)
-  }
-  
-  return numbers
 }

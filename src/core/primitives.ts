@@ -1,10 +1,5 @@
 // Standardized parsing primitives for HECRAS format quirks
-import type {
-  Coordinate,
-  StationElevationPoint,
-  VolumeElevationPoint,
-  ManningSegment,
-} from "../models/common"
+import type { Coordinate, StationElevationPoint, VolumeElevationPoint, ManningSegment } from "../models/common"
 
 export interface ParseOptions {
   strict?: boolean // Whether to fail on malformed data or attempt recovery
@@ -24,17 +19,12 @@ export class HECRASPrimitives {
    * Parse fixed-width values that HECRAS uses
    * These are typically powers of 2 (16, 32, etc.) and must maintain exact width
    */
-  static parseFixedWidth(
-    input: string,
-    expectedWidth?: number,
-  ): PrimitiveParseResult<string> {
+  static parseFixedWidth(input: string, expectedWidth?: number): PrimitiveParseResult<string> {
     const errors: string[] = []
     const warnings: string[] = []
 
     if (expectedWidth && input.length !== expectedWidth) {
-      warnings.push(
-        `Fixed-width field expected ${expectedWidth} characters, got ${input.length}`,
-      )
+      warnings.push(`Fixed-width field expected ${expectedWidth} characters, got ${input.length}`)
     }
 
     // HECRAS fixed-width fields are often padded with spaces
@@ -109,10 +99,7 @@ export class HECRASPrimitives {
    * Parse coordinate data from HECRAS format
    * Handles both fixed-width coordinate blocks and space-separated coordinates
    */
-  static parseMultilineCoordinates(
-    lines: string[],
-    options: ParseOptions = {},
-  ): PrimitiveParseResult<Coordinate[]> {
+  static parseMultilineCoordinates(lines: string[], options: ParseOptions = {}): PrimitiveParseResult<Coordinate[]> {
     const errors: string[] = []
     const warnings: string[] = []
     const coordinates: Coordinate[] = []
@@ -135,9 +122,7 @@ export class HECRASPrimitives {
         coordinates.push(...spaceResult.data)
         warnings.push(...spaceResult.warnings)
         if (spaceResult.recovered) {
-          warnings.push(
-            `Line ${i + 1}: Used space-separated coordinate parsing`,
-          )
+          warnings.push(`Line ${i + 1}: Used space-separated coordinate parsing`)
         }
         continue
       }
@@ -160,9 +145,7 @@ export class HECRASPrimitives {
   /**
    * Parse fixed-width coordinates (16 characters per number)
    */
-  private static parseFixedWidthCoordinates(
-    line: string,
-  ): PrimitiveParseResult<Coordinate[]> {
+  private static parseFixedWidthCoordinates(line: string): PrimitiveParseResult<Coordinate[]> {
     const coordinates: Coordinate[] = []
     const errors: string[] = []
     const warnings: string[] = []
@@ -197,9 +180,7 @@ export class HECRASPrimitives {
   /**
    * Parse space-separated coordinates
    */
-  private static parseSpaceSeparatedCoordinates(
-    line: string,
-  ): PrimitiveParseResult<Coordinate[]> {
+  private static parseSpaceSeparatedCoordinates(line: string): PrimitiveParseResult<Coordinate[]> {
     const coordinates: Coordinate[] = []
     const errors: string[] = []
     const warnings: string[] = []
@@ -312,10 +293,7 @@ export class HECRASPrimitives {
   /**
    * Parse Manning's roughness segments
    */
-  static parseManningSegments(
-    lines: string[],
-    options: ParseOptions = {},
-  ): PrimitiveParseResult<ManningSegment[]> {
+  static parseManningSegments(lines: string[], options: ParseOptions = {}): PrimitiveParseResult<ManningSegment[]> {
     const errors: string[] = []
     const warnings: string[] = []
     const segments: ManningSegment[] = []
@@ -354,20 +332,14 @@ export class HECRASPrimitives {
   /**
    * Parse Manning data - alias for parseManningSegments
    */
-  static parseManningData(
-    lines: string[],
-    options: ParseOptions = {},
-  ): PrimitiveParseResult<ManningSegment[]> {
+  static parseManningData(lines: string[], options: ParseOptions = {}): PrimitiveParseResult<ManningSegment[]> {
     return this.parseManningSegments(lines, options)
   }
 
   /**
    * Parse comma-separated values with HECRAS-specific handling
    */
-  static parseCommaSeparated(
-    value: string,
-    options: ParseOptions = {},
-  ): PrimitiveParseResult<string[]> {
+  static parseCommaSeparated(value: string, options: ParseOptions = {}): PrimitiveParseResult<string[]> {
     const errors: string[] = []
     const warnings: string[] = []
 
@@ -404,10 +376,7 @@ export class HECRASPrimitives {
    * Parse table-like data with irregular spacing
    * Handles the complex table formats HECRAS uses
    */
-  static parseTableData(
-    lines: string[],
-    options: ParseOptions = {},
-  ): PrimitiveParseResult<number[][]> {
+  static parseTableData(lines: string[], options: ParseOptions = {}): PrimitiveParseResult<number[][]> {
     const errors: string[] = []
     const warnings: string[] = []
     const rows: number[][] = []
@@ -449,9 +418,7 @@ export class HECRASPrimitives {
     const parts = commaResult.data
 
     if (parts.length < 11) {
-      errors.push(
-        `Culvert data requires at least 11 parts, got ${parts.length}`,
-      )
+      errors.push(`Culvert data requires at least 11 parts, got ${parts.length}`)
       return {
         data: null,
         errors,
@@ -483,9 +450,7 @@ export class HECRASPrimitives {
         recovered: false,
       }
     } catch (error) {
-      errors.push(
-        `Failed to parse culvert data: ${error instanceof Error ? error.message : String(error)}`,
-      )
+      errors.push(`Failed to parse culvert data: ${error instanceof Error ? error.message : String(error)}`)
       return {
         data: null,
         errors,
@@ -518,11 +483,7 @@ export class HECRASPrimitives {
     const trimmed = line.trim()
 
     // Check against known headers
-    if (
-      knownHeaders.some((header) =>
-        trimmed.toLowerCase().includes(header.toLowerCase()),
-      )
-    ) {
+    if (knownHeaders.some((header) => trimmed.toLowerCase().includes(header.toLowerCase()))) {
       return true
     }
 
@@ -538,51 +499,44 @@ export class HECRASPrimitives {
   }
 }
 
-export function chunkStringToNumbers(
-  str: string,
-  chunkWidth: number,
-): PrimitiveParseResult<number[]> {
+export function numbersToCoordinates(nums: number[]): { x: number; y: number }[] {
+  const coordinates: { x: number; y: number }[] = []
+
+  for (let i = 0; i < nums.length; i += 2) {
+    coordinates.push({
+      x: nums[i],
+      y: nums[i + 1],
+    })
+  }
+
+  return coordinates
+}
+
+export function chunkStringToNumbers(str: string, chunkWidth: number): number[] {
   if (chunkWidth <= 0) {
     throw new Error("Chunk width must be greater than 0")
   }
 
-  const errors: string[] = []
-  const warnings: string[] = []
-  const numbers: number[] = []
-
   if (str.length === 0) {
-    return {
-      data: [],
-      errors,
-      warnings,
-      recovered: false,
-    }
+    return []
   }
-
   const expectedChunks = Math.ceil(str.length / chunkWidth)
+
+  let numbers: number[] = []
 
   for (let i = 0; i < expectedChunks; i++) {
     const chunk = str.slice(i * chunkWidth, (i + 1) * chunkWidth)
 
     if (chunk.trim() === "") {
-      warnings.push(`Empty chunk ${i + 1}`)
       numbers.push(0) // Default value for empty chunk
     } else {
       const num = parseFloat(chunk)
 
       if (isNaN(num)) {
-        warnings.push(`Could not parse number from chunk ${i + 1}: "${chunk}"`)
-        numbers.push(0) // Default value for failed parsing
+        throw new Error(`Error Parsing ${str} at chunk index ${i}`)
       } else {
         numbers.push(num)
       }
     }
-  }
-
-  return {
-    data: numbers,
-    errors,
-    warnings,
-    recovered: warnings.length > 0,
   }
 }
