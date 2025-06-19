@@ -19,7 +19,7 @@ export function parseCulvertData(
 
   let index = currentIndex
 
-  while (lines[index].startsWith("Connection Culv=")) {
+  while (lines[index]?.startsWith("Connection Culv=")) {
     const { data, nextIndex } = parseCulvertGroup(line, lines, currentIndex)
     culvertGroups.push(data)
     index = nextIndex
@@ -69,7 +69,6 @@ export function parseCulvertGroup(
 
   for (; index < endIndex; index++) {
     const nextLine = lines[index]
-    console.log(`Next line ${nextLine}`)
     const stations = parseLineStationPairs(nextLine)
     culvertData.barrelStations.push(...stations)
   }
@@ -77,31 +76,27 @@ export function parseCulvertGroup(
   const validKeys = ["Conn Culvert Barrel", "Conn Culv Bottom n"]
 
   const isValidLine = (line: string) => {
-    return validKeys.some((key) => line.startsWith(key))
+    return validKeys.some((key) => line?.startsWith(key))
   }
 
-  console.log(`currentLine: ${lines[index]}`)
   while (isValidLine(lines[index])) {
     const currentLine = lines[index]
-    console.log(`Parsing line ${index}`)
     if (currentLine.startsWith("Conn Culvert Barrel")) {
-      const { data, nextIndex } = parseCulvertBarrel(line, lines, index)
+      const { data, nextIndex } = parseCulvertBarrel(currentLine, lines, index)
       culvertData.barrels.push(data)
       index = nextIndex
     } else if (currentLine.startsWith("Conn Culv Bottom n")) {
-      culvertData.nBottom = parseFloat(parseKeyValue(line).value)
+      culvertData.nBottom = parseFloat(parseKeyValue(currentLine).value)
       index++
     } else if (currentLine.startsWith("Conn Culv Bottom Depth")) {
-      culvertData.nBottom = parseFloat(parseKeyValue(line).value)
+      culvertData.nBottom = parseFloat(parseKeyValue(currentLine).value)
       index++
     } else if (currentLine.startsWith("Conn Culv Depth Blocked")) {
-      culvertData.nBottom = parseFloat(parseKeyValue(line).value)
+      culvertData.nBottom = parseFloat(parseKeyValue(currentLine).value)
       index++
     } else {
       break
     }
-    console.log(`Next line ${lines[index]}`)
-    console.log(`Next Index ${index}`)
   }
 
   return { data: culvertData, nextIndex: index }
@@ -130,8 +125,6 @@ function parseCulvertBarrel(line: string, lines: string[], currentIndex: number)
 
   for (; index < endIndex; index++) {
     const nextLine = lines[index]
-    console.log(`parseCulvertBarrel: Parsing index ${index}`)
-    console.log(`parseCulvertBarrel: Parsing line ${nextLine}`)
     const stations = parseLineToCoordinates(nextLine)
     barrelData.coordinates.push(...stations)
   }

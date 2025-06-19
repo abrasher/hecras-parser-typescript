@@ -1,31 +1,35 @@
-import { describe, expect } from "vitest"
+import { describe, expect, it } from "vitest"
 import { parseCulvertData } from "../../src/parsers/culvertParser"
 import type { CulvertGroupProperties } from "../../src/models/culvert"
 
 describe("Culvert Unit Tests", () => {
-  const lines = lineString2.split("\n")
+  const lines = lineString.split("\n")
 
-  console.log(lines)
-  const culvertData = parseCulvertData(lines[0], lines, 0)
-  console.log(JSON.stringify(culvertData.data, null, 2))
-  expect(culvertData.data).toEqual(testCulvertData)
+  it("input data should be correct", () => {
+    expect(lines.length).toBe(7)
+  })
+
+  it("should equal the object", () => {
+    const culvertData = parseCulvertData(lines[0], lines, 0)
+    expect(culvertData.data).toEqual(testCulvertData)
+  })
+  it("extra lines should be ignored", () => {
+    const lines2 = lineString2.split("\n")
+    const culvertData2 = parseCulvertData(lines2[0], lines2, 0)
+    expect(culvertData2.data).toEqual(testCulvertData)
+  })
 })
 
-const lineString = `Connection Culv=1,1.5,1.5,13.24,0.024,0.9,1,2,3,260.71,260.64, 1 ,Culvert #1  , 0 ,
-    3.56    4.96    6.56    9.96
-Conn Culvert Barrel=1,Barrel #01,2
-    484557.98934   4751436.44773     484544.9229   4751438.60715
-Conn Culvert Barrel=2,Barrel #02,3
-    414557.989346744151436.44773     434544.9229   4351438.60715
-     424544.9229   4251438.60715`
-const lineString2 = `Connection Culv=1,1.5,1.5,13.24,0.024,0.9,1,2,3,260.71,260.64, 1 ,Culvert #1  , 0 ,
+const lineString = `Connection Culv=1,1.5,1.5,13.24,0.024,0.9,1,2,3,260.71,260.64, 2 ,Group #1  , 0 ,
     3.56    4.96    6.56    9.96
 Conn Culvert Barrel=1,Barrel #01,2
     484557.98934   4751436.44773     484544.9229   4751438.60715
 Conn Culvert Barrel=2,Barrel #02,3
     414557.989346744151436.44773     434544.9229   4351438.60715
      424544.9229   4251438.60715
-NotString=`
+Connection Culv=1,1.5,1.5,13.24,0.024,0.9,1,2,3,260.71,260.64, 1 ,Group #2  , 0 ,
+    3.56    4.96
+Conn Culvert Barrel=1,Barrel #01,0`
 
 const testCulvertData: CulvertGroupProperties[] = [
   {
@@ -40,7 +44,7 @@ const testCulvertData: CulvertGroupProperties[] = [
     scale: 3,
     upstreamInvert: 260.71,
     downstreamInvert: 260.64,
-    numberOfBarrels: 1,
+    numberOfBarrels: 2,
     culvertGroupName: "Culvert #1",
     unknownFlag: 0,
     barrelStations: [
