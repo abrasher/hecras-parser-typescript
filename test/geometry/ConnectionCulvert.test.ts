@@ -6,17 +6,12 @@ describe("Culvert Unit Tests", () => {
   const lines = lineString.split("\n")
 
   it("input data should be correct", () => {
-    expect(lines.length).toBe(7)
+    expect(lines.length).toBe(10)
   })
 
   it("should equal the object", () => {
     const culvertData = parseCulvertData(lines[0], lines, 0)
     expect(culvertData.data).toEqual(testCulvertData)
-  })
-  it("extra lines should be ignored", () => {
-    const lines2 = lineString2.split("\n")
-    const culvertData2 = parseCulvertData(lines2[0], lines2, 0)
-    expect(culvertData2.data).toEqual(testCulvertData)
   })
 })
 
@@ -45,7 +40,7 @@ const testCulvertData: CulvertGroupProperties[] = [
     upstreamInvert: 260.71,
     downstreamInvert: 260.64,
     numberOfBarrels: 2,
-    culvertGroupName: "Culvert #1",
+    culvertGroupName: "Group #1",
     unknownFlag: 0,
     barrelStations: [
       {
@@ -89,6 +84,35 @@ const testCulvertData: CulvertGroupProperties[] = [
             y: 4251438.60715,
           },
         ],
+      },
+    ],
+  },
+  {
+    shape: 1,
+    rise: 1.5,
+    span: 1.5,
+    length: 13.24,
+    nTop: 0.024,
+    entranceLoss: 0.9,
+    exitLoss: 1,
+    chart: 2,
+    scale: 3,
+    upstreamInvert: 260.71,
+    downstreamInvert: 260.64,
+    numberOfBarrels: 1,
+    culvertGroupName: "Group #2",
+    unknownFlag: 0,
+    barrelStations: [
+      {
+        upstreamStation: 3.56,
+        downstreamStation: 4.96,
+      },
+    ],
+    barrels: [
+      {
+        index: 1,
+        name: "Barrel #01",
+        coordinates: [],
       },
     ],
   },

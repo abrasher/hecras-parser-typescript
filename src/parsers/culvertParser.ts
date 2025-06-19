@@ -15,12 +15,14 @@ export function parseCulvertData(
   lines: string[],
   currentIndex: number,
 ): { data: CulvertGroupProperties[]; nextIndex: number } {
+  if (!line.startsWith("Connection Culv=")) throw new Error(`culvertParser was given a line it can't parse: ${line}`)
+
   const culvertGroups = [] as CulvertGroupProperties[]
 
   let index = currentIndex
 
   while (lines[index]?.startsWith("Connection Culv=")) {
-    const { data, nextIndex } = parseCulvertGroup(line, lines, currentIndex)
+    const { data, nextIndex } = parseCulvertGroup(lines[index], lines, index)
     culvertGroups.push(data)
     index = nextIndex
   }
@@ -65,7 +67,6 @@ export function parseCulvertGroup(
   const numberOfStationLines = Math.ceil(culvertData.numberOfBarrels / 5)
   let index = currentIndex + 1
   const endIndex = index + numberOfStationLines
-  console.log(`Start index: ${index}, end index: ${endIndex}`)
 
   for (; index < endIndex; index++) {
     const nextLine = lines[index]
@@ -116,7 +117,7 @@ function parseCulvertBarrel(line: string, lines: string[], currentIndex: number)
 
   const pairCount = parseInt(parts[2])
 
-  if (pairCount === 0) return { data: barrelData, nextIndex: currentIndex }
+  if (pairCount === 0) return { data: barrelData, nextIndex: currentIndex + 1 }
 
   const lineCount = Math.ceil(pairCount / 2)
 
