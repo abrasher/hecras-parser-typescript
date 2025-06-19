@@ -69,12 +69,8 @@ This is a TypeScript library for parsing HEC-RAS geometry files (.g01, .g02, etc
 
 ### Parsing Strategy
 
-The parser uses a stateful, line-by-line approach:
-
-1. Detects section headers using keyword matching
-2. Delegates to specialized parsers for each section type
-3. Maintains parsing state with `currentIndex` to track position
-4. Each parser advances the index and returns the new position
+The parsing strategy should be based on the conventions in @src/parsers/culvertParser.ts
+Other parsers in the project follow a different legacy approach that should not be used
 
 ### Examples
 
@@ -124,8 +120,6 @@ Test suites:
 - Values can span multiple lines unpredictably
 - First line often indicates count: `Storage Area Surface Line= 6`
 - Subsequent lines have no consistent spacing rules
-- Some continue mid-line: `Connection Culv=1,1.2,1.2,12.51,0.024,0.5,1,56,1,263.65,263.38, 1 ,Culvert #1  , 0 ,
-   4.1     4.1`
 
 **Table-Like Data**:
 
