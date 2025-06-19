@@ -137,7 +137,7 @@ Test suites:
 
 Always assume the format is wrong until proven right. The parser uses validation schemas to catch format inconsistencies early and provide meaningful error messages.
 
-## Important things when Developming Parsers
+## Important things when Developing Parsers
 
 When writing parsing logic, populate an adjacent documentation file in the docs folder. The document will be used to reconstruct the geometry file at a later date.
 
