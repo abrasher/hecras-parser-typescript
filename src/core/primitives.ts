@@ -499,6 +499,30 @@ export class HECRASPrimitives {
   }
 }
 
+/**
+ * Convert string to coordinates by splitting into 16 wide numbers
+ * @param line
+ * @returns
+ */
+export function parseLineToCoordinates(line: string): { x: number; y: number }[] {
+  return numbersToCoordinates(chunkStringToNumbers(line, 16))
+}
+
+export function parseLineStationPairs(line: string): { upstreamStation: number; downstreamStation: number }[] {
+  const nums = chunkStringToNumbers(line, 8)
+
+  const stationPairs: { upstreamStation: number; downstreamStation: number }[] = []
+
+  for (let i = 0; i < nums.length; i += 2) {
+    stationPairs.push({
+      upstreamStation: nums[i],
+      downstreamStation: nums[i + 1],
+    })
+  }
+
+  return stationPairs
+}
+
 export function numbersToCoordinates(nums: number[]): { x: number; y: number }[] {
   const coordinates: { x: number; y: number }[] = []
 
@@ -539,4 +563,5 @@ export function chunkStringToNumbers(str: string, chunkWidth: number): number[] 
       }
     }
   }
+  return numbers
 }

@@ -2,7 +2,7 @@ import { parseKeyValue, parseCoordinates, parseStaElev } from "../utils"
 import type { Connection } from "../models/connection"
 import { ConnectionType, StructureType } from "../models/connection"
 import type { CulvertData, CulvertBarrel } from "../models/common"
-import { chunkStringToNumbers, numbersToCoordinates } from "../core"
+import { parseCulvertGroup } from "./culvertParser"
 
 function isConnectionNewSection(line: string): boolean {
   const keywords = [
@@ -15,6 +15,10 @@ function isConnectionNewSection(line: string): boolean {
   ]
   return keywords.some((kw) => line.startsWith(kw))
 }
+
+function culvertKeywords = [
+  "Conn Culv Bottom n"
+]
 
 export function parseConnectionData(
   lines: string[],
@@ -148,14 +152,9 @@ export function parseConnectionData(
 
     // Culvert data parsing
     else if (line.startsWith("Connection Culv=")) {
-      const culvertData = parseCulvertData(line, lines, index)
-      if (culvertData.data) {
-        conn.culvertData = culvertData.data
-        // Set connection and structure types for culverts
-        conn.connectionType = ConnectionType.SA_2D
-        conn.structureType = StructureType.WEIR_AND_CULVERTS
-      }
-      index = culvertData.nextIndex
+      const culvertData = parseCulvertGroup(line, lines, index)
+
+      index = culvertData.nextData
     } else if (line.startsWith("Conn Culvert Barrel=")) {
       const barrelData = parseCulvertBarrel(line, lines, index)
       if (barrelData.barrel) {
@@ -191,111 +190,16 @@ export function parseConnectionData(
   return index
 }
 
-/**
- * Parses culvert data from a "Connection Culv=" line
- * Format: Connection Culv=barrelCount,width,height,length,roughness,entranceLoss,shape,inlet,outlet,upstreamInvert,downstreamInvert,ratingFlag,description,unknownFlag,
- * Next line contains additional coordinates
- */
-function parseCulvertData(
-  line: string,
-  lines: string[],
-  currentIndex: number,
-): { data: CulvertData | null; nextIndex: number } {
-  const keyValue = parseKeyValue(line)
-  if (!keyValue?.value) {
-    return { data: null, nextIndex: currentIndex + 1 }
-  }
-
-  const parts = keyValue.value.split(",")
-  if (parts.length < 14) {
-    return { data: null, nextIndex: currentIndex + 1 }
-  }
-
-  let index = currentIndex + 1
-
-  // Parse coordinates from the next line if it exists and contains numeric data
-  let coordinates: number[] = []
-  if (index < lines.length) {
-    const nextLine = lines[index]?.trim()
-    if (nextLine && /^\s*[\d.-]+/.test(nextLine)) {
-      // This line contains coordinate data
-      const coordParts = nextLine.split(/\s+/).filter((part) => part.trim())
-      coordinates = coordParts.map((part) => parseFloat(part)).filter((num) => !isNaN(num))
-      index++
-    }
-  }
-
-  const culvertData: CulvertData = {
-    barrelCount: parseInt(parts[0]?.trim() || "0"),
-    diameter: parseFloat(parts[1]?.trim() || "0"),
-    height: parseFloat(parts[2]?.trim() || "0"),
-    length: parseFloat(parts[3]?.trim() || "0"),
-    roughness: parseFloat(parts[4]?.trim() || "0"),
-    entranceLoss: parseFloat(parts[5]?.trim() || "0"),
-    exitLoss: parseFloat(parts[6]?.trim() || "0"),
-    shape: parseInt(parts[7]?.trim() || "0"),
-    inlet: parseInt(parts[8]?.trim() || "0"),
-    upstreamInvert: parseFloat(parts[9]?.trim() || "0"),
-    downstreamInvert: parseFloat(parts[10]?.trim() || "0"),
-    ratingFlag: parseInt(parts[11]?.trim() || "0"),
-    description: parts[12]?.trim() || "",
-    unknownFlag: parseInt(parts[13]?.trim() || "0"),
-    coordinates,
-  }
-
-  return { data: culvertData, nextIndex: index }
+// for future reference
+// eslint-disable-next-line unused-imports/no-unused-vars
+const CULVERT_SHAPE = {
+  CIRCLE: 1,
+  BOX: 2,
+  PIPE_ARCH: 3,
+  ARCH: 4,
+  SEMI_CIRCLE: 5,
+  LOW_ARCH: 6,
+  HIGH_ARCH: 7,
+  CONSPAN_ARCH: 8,
 }
 
-/**
- * Parses culvert barrel data from a "Conn Culvert Barrel=" line
- * Format: Conn Culvert Barrel=id,description,pointCount
- * Followed by coordinate pairs
- */
-function parseCulvertBarrel(
-  line: string,
-  lines: string[],
-  currentIndex: number,
-): { barrel: CulvertBarrel | null; nextIndex: number } {
-  const keyValue = parseKeyValue(line)
-  if (!keyValue?.value) {
-    return { barrel: null, nextIndex: currentIndex + 1 }
-  }
-
-  const parts = keyValue.value.split(",")
-  if (parts.length < 3) {
-    return { barrel: null, nextIndex: currentIndex + 1 }
-  }
-
-  const id = parseInt(parts[0]?.trim() || "0")
-  const description = parts[1]?.trim() || ""
-  const pointCount = parseInt(parts[2]?.trim() || "0")
-
-  let index = currentIndex + 1
-  const coordinates: { x: number; y: number }[] = []
-
-  // Parse coordinate pairs from the next line(s)
-  let pointsCollected = 0
-  while (pointsCollected < pointCount && index < lines.length) {
-    const coordLine = lines[index]?.trim()
-    if (!coordLine || /^[A-Za-z#]/.test(coordLine)) {
-      break
-    }
-
-    // Use custom parsing for barrel coordinates due to run-together formatting
-    const newCoords = numbersToCoordinates(chunkStringToNumbers(coordLine, 16))
-    coordinates.push(...newCoords)
-    pointsCollected += newCoords.length
-    index++
-
-    if (pointsCollected >= pointCount) break
-  }
-
-  const barrel: CulvertBarrel = {
-    id,
-    description,
-    pointCount,
-    coordinates,
-  }
-
-  return { barrel, nextIndex: index }
-}

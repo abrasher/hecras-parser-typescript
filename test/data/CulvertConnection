@@ -1,0 +1,12 @@
+Connection Culv=1,1.05,1.05,17.1,0.024,0.9,1,2,3,260.36,259.6, 2 ,Culvert #1  , 0 ,
+    2.95    4.27    4.26    5.58
+Conn Culvert Barrel=1,Barrel #01,2
+    484341.38666   4751439.60004484324.294289998    4751439.0038
+Conn Culvert Barrel=2,Barrel #02,2
+    484341.38666   4751440.89191484324.294289998   4751440.29566
+Conn Culv Bottom n=0.024
+
+
+Connection can be a culvert
+a culvert can have multiple culvert groups
+each culvert group has multiple barrels

@@ -1,10 +1,4 @@
-import type {
-  Coordinate,
-  StationElevationPoint,
-  CulvertData,
-  CulvertBarrel,
-  BridgeData,
-} from "./common"
+import type { Coordinate, StationElevationPoint, CulvertData, CulvertBarrel, BridgeData } from "./common"
 
 export enum ConnectionType {
   SA_2D = "SA_2D",
@@ -17,18 +11,6 @@ export enum StructureType {
   WEIR_AND_CULVERTS = "WEIR_AND_CULVERTS",
   WEIR_AND_GATES = "WEIR_AND_GATES",
   LINEAR_ROUTING = "LINEAR_ROUTING",
-}
-
-export enum CulvertShape {
-  CIRCULAR = "CIRCULAR",
-  BOX = "BOX",
-  ELLIPTICAL = "ELLIPTICAL",
-  ARCH = "ARCH",
-  PIPE_ARCH = "PIPE_ARCH",
-  LOW_PROFILE_ARCH = "LOW_PROFILE_ARCH",
-  SEMI_ELLIPTICAL = "SEMI_ELLIPTICAL",
-  RECTANGULAR = "RECTANGULAR",
-  TRAPEZOIDAL = "TRAPEZOIDAL",
 }
 
 export enum FlowControlType {
@@ -59,43 +41,6 @@ export interface LateralStructureConnectionProperties {
   river: string
   reach: string
   headwaterRiverStation: number
-}
-
-export interface CulvertGeometricProperties {
-  shape: CulvertShape
-  span: number // ft or m
-  rise: number // ft or m
-  culvertLength: number // ft or m
-  upstreamInvertElevation: number // ft or m
-  downstreamInvertElevation: number // ft or m
-  barrelCenterlineStation: number // ft or m
-}
-
-export interface CulvertHydraulicProperties {
-  entranceLossCoefficient: number // 0.1 - 1.5
-  exitLossCoefficient: number // 0.3 - 1.0
-  manningsNTop: number // 0.010 - 0.035
-  manningsNBottom: number // 0.010 - 0.035
-  solutionCriteria: FlowControlType
-}
-
-export interface CulvertAdvancedFeatures {
-  fhwaChartSelection?: string
-  scaleNumber?: number
-  roadEmbankment?: string
-  depthBlocked?: number
-  barrelGISData?: any
-}
-
-export interface EnhancedCulvertData {
-  maxCulvertTypes: number // up to 10
-  maxBarrelsPerType: number // up to 25
-  culvertTypes: {
-    geometric: CulvertGeometricProperties
-    hydraulic: CulvertHydraulicProperties
-    advanced?: CulvertAdvancedFeatures
-    barrelCount: number
-  }[]
 }
 
 export interface VolumeDefinition {
