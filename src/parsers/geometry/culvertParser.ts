@@ -1,7 +1,7 @@
-import { parseLineStationPairs, parseLineToCoordinates } from "../core/primitives"
-import type { Coordinate } from "../models/common"
-import type { CulvertGroupProperties } from "../models/culvert"
-import { parseCommaSeparated, parseKeyValue } from "../utils"
+import { parseLineStationPairs, parseLineToCoordinates } from "../lineParsers"
+import type { Coordinate } from "../../models/geometry/common"
+import { parseCommaSeparated, parseKeyValue } from "../atomic"
+import type { CulvertGroupProperties } from "../../models/geometry/culvert"
 
 /**
  * Parses culvert data starting from a "Connection Culv=" line
