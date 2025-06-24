@@ -1,13 +1,17 @@
 {
   "compilerOptions": {
-    "target": "ES2020", // Or newer
-    "module": "ESNext", // For import/export and module script type
+    "target": "ES2020",
+    "module": "ESNext",
     "strict": true,
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "outDir": "./dist", // Output directory for compiled JS
-    "moduleResolution": "node" // Or "bundler" for newer TS versions
+    "outDir": "./dist",
+    "moduleResolution": "node",
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true
   },
   "exclude": ["dist"] // Assuming your TS files are in an 'src' folder
 }
