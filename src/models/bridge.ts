@@ -1,4 +1,4 @@
-import type { Coordinate, StationElevationPoint } from "./geometry/common"
+import type { StationElevationPoint } from "./geometry/common"
 
 export interface BridgeConnection {
   bridge: BridgeConfiguration
@@ -12,13 +12,17 @@ export interface BridgeConnection {
 }
 
 export interface BridgeConfiguration {
-  param1: number
-  param2: number
-  param3: number
-  param4: number
+  // -1 means enabled, 0 means disabled
+  momentumEquationAddFriction: number
+  // -1 means enabled, 0 means disabled
+  momentumEquationAddWeight: number
+  // -1 means Upstream Energy Gradeline, 0 means Upstream water surface
+  pressureFlowCriteria: number
+  // -1 means Inside Bridge at Upstream End, 0 means Inside Bridge at Downstream End
+  classBDefaults: number
   param5: number
-  param6: number
-  param7: number
+  contractionCoefficient: number
+  expansionCoefficient: number
 }
 
 export interface PressureWeirData {
@@ -89,7 +93,7 @@ export interface CrossSection {
 }
 
 export interface IneffectiveFlowArea {
-  type: 'USXS' | 'DSXS'
+  type: "USXS" | "DSXS"
   leftStation: number
   leftElevation: number
   rightStation: number

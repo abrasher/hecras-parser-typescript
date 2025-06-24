@@ -98,13 +98,13 @@ Conn BR: DSXS Ineff=11.68,252.5,30,252.5`
 
 const testBridgeData: BridgeConnection = {
   bridge: {
-    param1: -1,
-    param2: 0,
-    param3: -1,
-    param4: -1,
+    momentumEquationAddFriction: -1,
+    momentumEquationAddWeight: 0,
+    pressureFlowCriteria: -1,
+    classBDefaults: -1,
     param5: 0,
-    param6: 0.3,
-    param7: 0.5,
+    contractionCoefficient: 0.3,
+    expansionCoefficient: 0.5,
   },
   pressureWeir: {
     value1: 0.08,
