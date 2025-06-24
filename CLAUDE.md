@@ -141,43 +141,44 @@ After making changes to a parser make sure you update the documentation
 
 ## Core Philosophy
 
-**TEST-DRIVEN DEVELOPMENT IS NON-NEGOTIABLE.** Every single line of production code must be written in response to a failing test. No exceptions. This is not a suggestion or a preference - it is the fundamental practice that enables all other principles in this document.
+**PRAGMATIC PARSING IS THE PRIORITY.** This library focuses on correctly parsing complex engineering file formats where clarity, maintainability, and correctness take precedence over abstract programming principles. The code should be readable by engineers familiar with HEC-RAS formats.
 
-I follow Test-Driven Development (TDD) with a strong emphasis on behavior-driven testing and functional programming principles. All work should be done in small, incremental changes that maintain a working state throughout development.
+I follow Test-Driven Development (TDD) with an emphasis on comprehensive behavioral testing using real HEC-RAS data. All work should result in parsers that handle the full complexity of actual engineering files.
 
 ## Quick Reference
 
 **Key Principles:**
 
-- Write tests first (TDD)
-- Test behavior, not implementation
-- No `any` types or type assertions
-- Immutable data only
-- Small, pure functions
+- Write tests first (TDD) with real HEC-RAS data
+- Test complete parsing workflows, not isolated units
+- Use type assertions only when it makes code cleaner or more type-safe (never use it to broaden the type of an object)
+- Practical mutability during parsing phases
+- Functions should handle complete parsing responsibilities
 - TypeScript strict mode always
 - Use real interfaces/types in tests, never redefine them
+- Document HEC-RAS format quirks and parsing decisions
 
 **Preferred Tools:**
 
 - **Language**: TypeScript (strict mode)
 - **Testing**: Vitest for test framework
-- **State Management**: Prefer immutable patterns
+- **Parsing**: Stateful parsing with index management
 
 ## Testing Principles
 
-### Behavior-Driven Testing
+### Comprehensive Parsing Tests
 
-- **No "unit tests"** - this term is not helpful. Tests should verify expected behavior, treating implementation as a black box
-- Test through the public API exclusively - internals should be invisible to tests
-- No 1:1 mapping between test files and implementation files
-- Tests that examine internal implementation details are wasteful and should be avoided
-- **Coverage targets**: 100% coverage should be expected at all times, but these tests must ALWAYS be based on business behaviour, not implementation details
-- Tests must document expected business behaviour
+- **Test complete parsing workflows** - Tests should verify that real HEC-RAS data parses correctly into expected object structures
+- Test using actual HEC-RAS geometry file content, not simplified mock data
+- Focus on end-to-end parsing behavior rather than isolated function units
+- Tests should catch format changes and parsing regressions
+- **Coverage targets**: 100% coverage through comprehensive parsing scenarios
+- Tests should document expected parsing behavior for different HEC-RAS format variations
 
 ### Testing Tools
 
 - **Vitest** for testing framework
-- **MSW (Mock Service Worker)** for API mocking when needed
+- **Real HEC-RAS data** embedded as test strings for comprehensive format testing
 - All test code must follow the same TypeScript strict mode rules as production code
 
 ### Test Organization
@@ -187,20 +188,30 @@ src/
   parsers/
     geometry/
       culvertParser.ts
-      bridgeParser.ts
-      culvertParser.test.ts // The validation is an implementation detail. Validation is fully covered, but by testing the expected parsing behavior, treating the validation code itself as an implementation detail
+      culvertParser.test.ts // Co-located tests for domain-specific parsing logic
+test/
+  data/
+    Muncie.g01 // Real HEC-RAS files for integration testing
+    Dingman.g01 // Smaller files for focused testing
 ```
 
 ### Test Data Pattern
 
-Use factory functions with optional overrides for test data:
+Use real HEC-RAS format strings with complete expected object structures:
 
 ```typescript
-const getMockCulvertGroupProperties = (
-  overrides?: Partial<CulvertGroupProperties>
-): CulvertGroupProperties => {
-  return {
-    shape: CULVERT_SHAPE.CIRCLE,
+// Use actual HEC-RAS format strings
+const culvertTestData = `Connection Culv=1,1.5,1.5,13.24,0.024,0.9,1,2,3,260.71,260.64,2,Group #1,0,
+    3.56    4.96    6.56    9.96
+Conn Culvert Barrel=1,Barrel #01,2
+    484557.98934   4751436.44773     484544.9229   4351438.60715
+Conn Culvert Barrel=2,Barrel #02,2
+    484557.98934   4751436.44773     484544.9229   4351438.60715`
+
+// Define complete expected results
+const expectedCulvertData: CulvertGroupProperties[] = [
+  {
+    shape: 1,
     rise: 1.5,
     span: 1.5,
     length: 13.24,
@@ -214,36 +225,42 @@ const getMockCulvertGroupProperties = (
     numberOfBarrels: 2,
     culvertGroupName: "Group #1",
     unknownFlag: 0,
-    barrelStations: getMockBarrelStations(),
-    barrels: getMockCulvertBarrels(),
-    ...overrides,
-  };
-};
+    barrelStations: [
+      { upstream: 3.56, downstream: 4.96 },
+      { upstream: 6.56, downstream: 9.96 }
+    ],
+    barrels: [
+      { 
+        id: 1, 
+        name: "Barrel #01", 
+        coordinates: [
+          { x: 484557.98934, y: 4751436.44773 },
+          { x: 484544.9229, y: 4351438.60715 }
+        ]
+      },
+      // ... complete barrel data
+    ]
+  }
+]
 
-const getMockBridgeConnection = (
-  overrides?: Partial<BridgeConnection>
-): BridgeConnection => {
-  return {
-    bridge: getMockBridgeConfiguration(),
-    pressureWeir: getMockPressureWeirData(),
-    deckParameters: getMockDeckParameters(),
-    bridgeSections: [],
-    bridgeCoefficients: getMockBridgeCoefficients(),
-    bridgeSkew: 0,
-    crossSections: [],
-    ineffectiveFlowAreas: [],
-    ...overrides,
-  };
-};
+// Test complete parsing workflow
+describe("Culvert parsing", () => {
+  it("should parse complete culvert data correctly", () => {
+    const lines = culvertTestData.split('\n')
+    const result = parseCulvertData(lines[0], lines, 0)
+    
+    expect(result.data).toEqual(expectedCulvertData)
+  })
+})
 ```
 
 Key principles:
 
-- Always return complete objects with sensible defaults
-- Accept optional `Partial<T>` overrides
-- Build incrementally - extract nested object factories as needed
-- Compose factories for complex objects
-- Consider using a test data builder pattern for very complex objects
+- Use real HEC-RAS format strings as test input
+- Define complete expected object structures inline
+- Test entire parsing workflows, not individual functions
+- Validate that complex parsing produces correct structured output
+- Include format edge cases and variations found in actual files
 
 ## TypeScript Guidelines
 
@@ -271,7 +288,7 @@ Key principles:
 ```
 
 - **No `any`** - ever. Use `unknown` if type is truly unknown
-- **No type assertions** (`as SomeType`) unless absolutely necessary with clear justification
+- **Try not to use type assertions** (`as SomeType`) unless to make code cleaner or more type-safe
 - **No `@ts-ignore`** or `@ts-expect-error` without explicit explanation
 - These rules apply to test code as well as production code
 
@@ -492,72 +509,89 @@ const getMockBridgeConnection = (
 
 ## Code Style
 
-### Functional Programming
+### Pragmatic Parsing Approach
 
-I follow a "functional light" approach:
+I follow a practical approach optimized for parsing complex file formats:
 
-- **No data mutation** - work with immutable data structures
-- **Pure functions** wherever possible
-- **Composition** as the primary mechanism for code reuse
-- Avoid heavy FP abstractions (no need for complex monads or pipe/compose patterns) unless there is a clear advantage to using them
-- Use array methods (`map`, `filter`, `reduce`) over imperative loops
+- **Practical mutability** during parsing phases - parsers can build objects incrementally
+- **Stateful parsing functions** that track index position and accumulate data
+- **Direct object construction** using type assertions when building complex structures
+- **Sequential parsing logic** using while loops and if/else chains when appropriate
+- Use array methods (`map`, `filter`, `reduce`) for data transformation, but imperative loops for parsing workflows
 
-#### Examples of Functional Patterns
+#### Examples of Parsing Patterns
 
 ```typescript
-// Good - Pure function with immutable updates
-const adjustCulvertElevations = (culvert: CulvertGroupProperties, offset: number): CulvertGroupProperties => {
-  return {
-    ...culvert,
-    barrels: culvert.barrels.map((barrel) => ({
-      ...barrel,
-      coordinates: barrel.coordinates.map((coord) => ({
-        ...coord,
-        y: coord.y + offset,
-      })),
-    })),
-    upstreamInvert: culvert.upstreamInvert + offset,
-    downstreamInvert: culvert.downstreamInvert + offset,
-  };
-};
+// Good - Stateful parsing with incremental object construction
+export function parseStorageAreaData(
+  line: string,
+  lines: string[],
+  currentIndex: number,
+): { data: StorageArea; nextIndex: number } {
+  const { value } = parseKeyValue(line)
+  const parts = value.split(",")
+  
+  // Direct object construction with type assertion
+  const storageAreaData = {
+    id: parts[0].trim(),
+    surfaceLine: [],
+    mannings: null,
+    // ... more properties
+  } as StorageArea
+  
+  let index = currentIndex + 1
+  
+  // Sequential parsing with while loop and if/else chains
+  while (index < lines.length && isValidLine(lines[index])) {
+    const currentLine = lines[index]
+    
+    if (currentLine.startsWith("Storage Area Surface Line=")) {
+      // Parse surface line data
+      const { value: surfaceLineCount } = parseKeyValue(currentLine)
+      const numberOfPoints = parseInt(surfaceLineCount.trim())
+      index++
+      
+      // Accumulate coordinates into the object
+      for (let i = 0; i < numberOfPoints && index < lines.length; i++) {
+        const coordinates = parseLineToCoordinates(lines[index])
+        storageAreaData.surfaceLine.push(...coordinates)
+        index++
+      }
+      continue
+    }
+    
+    if (currentLine.startsWith("Storage Area Type=")) {
+      const { value } = parseKeyValue(currentLine)
+      storageAreaData.type = parseInt(value.trim())
+      index++
+      continue
+    }
+    
+    // ... more parsing conditions
+    break
+  }
+  
+  return { data: storageAreaData, nextIndex: index }
+}
 
-// Good - Composition over complex logic
-const processGeometryData = (rawData: string[]): ParsedGeometry => {
-  return pipe(
-    rawData,
-    validateGeometryFormat,
-    parseGeometryHeaders,
-    parseConnections,
-    validateParsedData
-  );
-};
+// Good - Domain-specific error handling
+if (!line.startsWith("Storage Area=")) {
+  throw new Error(`storageAreaParser was given a line it can't parse: ${line}`)
+}
 
-// When heavy FP abstractions ARE appropriate:
-// - Complex async flows that benefit from Task/IO types
-// - Error handling chains that benefit from Result/Either types
-// Example with Result type for complex error handling:
-type Result<T, E = Error> =
-  | { success: true; data: T }
-  | { success: false; error: E };
-
-const chainParsingOperations = (
-  geometryLines: string[]
-): Result<ParsedGeometry, ParseError> => {
-  return pipe(
-    validateGeometryFormat(geometryLines),
-    chain(parseGeometryHeaders),
-    chain(parseConnections),
-    map(buildGeometryModel)
-  );
-};
+// Good - Practical utility functions for parsing workflows
+const isValidLine = (line: string) => {
+  return validKeys.some((key) => line?.startsWith(key))
+}
 ```
 
 ### Code Structure
 
-- **No nested if/else statements** - use early returns, guard clauses, or composition
-- **Avoid deep nesting** in general (max 2 levels)
-- Keep functions small and focused on a single responsibility
-- Prefer flat, readable code over clever abstractions
+- **Sequential if/else chains are acceptable** for parsing different HEC-RAS line types
+- **Nesting is acceptable** when it serves the parsing logic (e.g., nested loops for coordinate parsing)
+- **Functions should handle complete parsing responsibilities** for their domain
+- **Prefer explicit, readable parsing logic** over abstract functional compositions
+- **Use continue statements** to manage parsing flow in long if/else chains
 
 ### Naming Conventions
 
@@ -567,240 +601,83 @@ const chainParsingOperations = (
 - **Files**: `kebab-case.ts` for all TypeScript files
 - **Test files**: `*.test.ts` or `*.spec.ts`
 
-### No Comments in Code
+### Comments and Documentation
 
-Code should be self-documenting through clear naming and structure. Comments indicate that the code itself is not clear enough.
-EXCEPTION: For anomolies or deviation from the norm, clearly document why it is not the normal
+Comments are valuable for explaining HEC-RAS format complexities and parsing decisions:
 
-```typescript
-// Avoid: Comments explaining what the code does
-const calculateDiscount = (price: number, customer: Customer): number => {
-  // Check if customer is premium
-  if (customer.tier === "premium") {
-    // Apply 20% discount for premium customers
-    return price * 0.8;
-  }
-  // Regular customers get 10% discount
-  return price * 0.9;
-};
-
-// Good: Self-documenting code with clear names
-const PREMIUM_DISCOUNT_MULTIPLIER = 0.8;
-const STANDARD_DISCOUNT_MULTIPLIER = 0.9;
-
-const isPremiumCustomer = (customer: Customer): boolean => {
-  return customer.tier === "premium";
-};
-
-const calculateDiscount = (price: number, customer: Customer): number => {
-  const discountMultiplier = isPremiumCustomer(customer)
-    ? PREMIUM_DISCOUNT_MULTIPLIER
-    : STANDARD_DISCOUNT_MULTIPLIER;
-
-  return price * discountMultiplier;
-};
-
-// Avoid: Complex logic with comments
-const processPayment = (payment: Payment): ProcessedPayment => {
-  // First validate the payment
-  if (!validatePayment(payment)) {
-    throw new Error("Invalid payment");
-  }
-
-  // Check if we need to apply 3D secure
-  if (payment.amount > 100 && payment.card.type === "credit") {
-    // Apply 3D secure for credit cards over £100
-    const securePayment = apply3DSecure(payment);
-    // Process the secure payment
-    return executePayment(securePayment);
-  }
-
-  // Process the payment
-  return executePayment(payment);
-};
-
-// Good: Extract to well-named functions
-const requires3DSecure = (payment: Payment): boolean => {
-  const SECURE_PAYMENT_THRESHOLD = 100;
-  return (
-    payment.amount > SECURE_PAYMENT_THRESHOLD && payment.card.type === "credit"
-  );
-};
-
-const processPayment = (payment: Payment): ProcessedPayment => {
-  if (!validatePayment(payment)) {
-    throw new PaymentValidationError("Invalid payment");
-  }
-
-  const securedPayment = requires3DSecure(payment)
-    ? apply3DSecure(payment)
-    : payment;
-
-  return executePayment(securedPayment);
-};
-```
-
-**Exception**: JSDoc comments for public APIs are acceptable when generating documentation, but the code should still be self-explanatory without them.
-
-### Prefer Options Objects
-
-Use options objects for function parameters as the default pattern. Only use positional parameters when there's a clear, compelling reason (e.g., single-parameter pure functions, well-established conventions like `map(item => item.value)`).
+- **Use JSDoc comments** for parser functions to explain their purpose and HEC-RAS format specifics
+- **Inline comments** are encouraged to explain format quirks and parsing logic
+- **Document HEC-RAS format patterns** that may not be obvious to future maintainers
+- **Explain parsing decisions** when the format is ambiguous or has edge cases
 
 ```typescript
-// Avoid: Multiple positional parameters
-const createPayment = (
-  amount: number,
-  currency: string,
-  cardId: string,
-  customerId: string,
-  description?: string,
-  metadata?: Record<string, unknown>,
-  idempotencyKey?: string
-): Payment => {
-  // implementation
-};
+// Good - JSDoc explaining parser purpose and HEC-RAS specifics
+/**
+ * Parses storage area data starting from a "Storage Area=" line
+ * Handles the various storage area types and 2D configuration options
+ */
+export function parseStorageAreaData(
+  line: string,
+  lines: string[],
+  currentIndex: number,
+): { data: StorageArea; nextIndex: number } {
 
-// Calling it is unclear
-const payment = createPayment(
-  100,
-  "GBP",
-  "card_123",
-  "cust_456",
-  undefined,
-  { orderId: "order_789" },
-  "key_123"
-);
+// Good - Inline comments explaining format quirks
+// Storage Area=id,,, - extract the id from the comma-separated value
+const parts = value.split(",")
+const id = parts[0].trim()
 
-// Good: Options object with clear property names
-type CreatePaymentOptions = {
-  amount: number;
-  currency: string;
-  cardId: string;
-  customerId: string;
-  description?: string;
-  metadata?: Record<string, unknown>;
-  idempotencyKey?: string;
-};
+// Good - Comments explaining parsing logic
+// Surface line coordinates follow on subsequent lines
+const coordinateLines = numberOfPoints // 1 coordinate pair per line
+index++
 
-const createPayment = (options: CreatePaymentOptions): Payment => {
-  const {
-    amount,
-    currency,
-    cardId,
-    customerId,
-    description,
-    metadata,
-    idempotencyKey,
-  } = options;
+// Good - Comments documenting HEC-RAS format patterns
+// The line is max width of 80, each number being 8 characters
+// Barrel stations are defined on the next lines after the main culvert line
 
-  // implementation
-};
-
-// Clear and readable at call site
-const payment = createPayment({
-  amount: 100,
-  currency: "GBP",
-  cardId: "card_123",
-  customerId: "cust_456",
-  metadata: { orderId: "order_789" },
-  idempotencyKey: "key_123",
-});
-
-// Avoid: Boolean flags as parameters
-const fetchCustomers = (
-  includeInactive: boolean,
-  includePending: boolean,
-  includeDeleted: boolean,
-  sortByDate: boolean
-): Customer[] => {
-  // implementation
-};
-
-// Confusing at call site
-const customers = fetchCustomers(true, false, false, true);
-
-// Good: Options object with clear intent
-type FetchCustomersOptions = {
-  includeInactive?: boolean;
-  includePending?: boolean;
-  includeDeleted?: boolean;
-  sortBy?: "date" | "name" | "value";
-};
-
-const fetchCustomers = (options: FetchCustomersOptions = {}): Customer[] => {
-  const {
-    includeInactive = false,
-    includePending = false,
-    includeDeleted = false,
-    sortBy = "name",
-  } = options;
-
-  // implementation
-};
-
-// Self-documenting at call site
-const customers = fetchCustomers({
-  includeInactive: true,
-  sortBy: "date",
-});
-
-// Good: Configuration objects for complex operations
-type ProcessOrderOptions = {
-  order: Order;
-  shipping: {
-    method: "standard" | "express" | "overnight";
-    address: Address;
-  };
-  payment: {
-    method: PaymentMethod;
-    saveForFuture?: boolean;
-  };
-  promotions?: {
-    codes?: string[];
-    autoApply?: boolean;
-  };
-};
-
-const processOrder = (options: ProcessOrderOptions): ProcessedOrder => {
-  const { order, shipping, payment, promotions = {} } = options;
-
-  // Clear access to nested options
-  const orderWithPromotions = promotions.autoApply
-    ? applyAvailablePromotions(order)
-    : order;
-
-  return executeOrder({
-    ...orderWithPromotions,
-    shippingMethod: shipping.method,
-    paymentMethod: payment.method,
-  });
-};
-
-// Acceptable: Single parameter for simple transforms
-const double = (n: number): number => n * 2;
-const getName = (user: User): string => user.name;
-
-// Acceptable: Well-established patterns
-const numbers = [1, 2, 3];
-const doubled = numbers.map((n) => n * 2);
-const users = fetchUsers();
-const names = users.map((user) => user.name);
+// Good - Comments explaining edge cases
+// HEC-RAS sometimes includes trailing commas and spaces that need trimming
+const cleanValue = value.replace(/,+$/, '').trim()
 ```
 
-**Guidelines for options objects:**
+### Parser Function Signatures
 
-- Default to options objects unless there's a specific reason not to
-- Always use for functions with optional parameters
-- Destructure options at the start of the function for clarity
-- Provide sensible defaults using destructuring
-- Keep related options grouped (e.g., all shipping options together)
-- Consider breaking very large options objects into nested groups
+Parser functions should use consistent, domain-appropriate parameter patterns:
 
-**When positional parameters are acceptable:**
+```typescript
+// Good - Standard parser function signature
+export function parseStorageAreaData(
+  line: string,           // The line being parsed
+  lines: string[],        // All geometry lines for context
+  currentIndex: number,   // Current position in the lines array
+): { data: StorageArea; nextIndex: number } {
+  // implementation
+}
 
-- Single-parameter pure functions
-- Well-established functional patterns (map, filter, reduce callbacks)
-- Mathematical operations where order is conventional
+// Good - Utility parser with simple parameters
+export const parseKeyValue = (line: string): { key: string; value: string } => {
+  // implementation
+}
+
+// Good - Line-level parser with domain-specific parameters
+export const parseLineToCoordinates = (line: string): Coordinate[] => {
+  // implementation
+}
+
+// Good - Atomic parser with focused parameters
+export const parseCommaSeparated = (value: string): string[] => {
+  // implementation
+}
+```
+
+**Guidelines for parser functions:**
+
+- **Main parsers** use `(line, lines, currentIndex)` pattern for stateful parsing
+- **Utility parsers** use simple parameters appropriate to their scope
+- **Return objects** with `{ data, nextIndex }` pattern for stateful parsers
+- **Atomic functions** can use single parameters when appropriate
+- **Index management** is handled explicitly in parser return values
 
 ## Development Workflow
 
@@ -808,546 +685,338 @@ const names = users.map((user) => user.name);
 
 **CRITICAL**: TDD is not optional. Every feature, every bug fix, every change MUST follow this process:
 
-Follow Red-Green-Refactor strictly:
+Follow Red-Green-Refactor with parsing-focused approach:
 
-1. **Red**: Write a failing test for the desired behavior. NO PRODUCTION CODE until you have a failing test.
-2. **Green**: Write the MINIMUM code to make the test pass. Resist the urge to write more than needed.
-3. **Refactor**: Assess the code for improvement opportunities. If refactoring would add value, clean up the code while keeping tests green. If the code is already clean and expressive, move on.
+1. **Red**: Write a failing test using real HEC-RAS data and expected parsed results. NO PRODUCTION CODE until you have a failing test.
+2. **Green**: Write the parsing code to make the test pass. Build complete parsing logic that handles the full complexity of the format.
+3. **Refactor**: Assess if the parsing logic can be made clearer or more maintainable. If the parser handles the format correctly and is readable, move on.
 
 **Common TDD Violations to Avoid:**
 
-- Writing production code without a failing test first
-- Writing multiple tests before making the first one pass
-- Writing more production code than needed to pass the current test
-- Skipping the refactor assessment step when code could be improved
-- Adding functionality "while you're there" without a test driving it
+- Writing parsing code without a test with real HEC-RAS data first
+- Writing multiple parsing scenarios before making the first one pass
+- Writing incomplete parsing that doesn't handle the full format complexity
+- Skipping documentation of format quirks discovered during implementation
 
-**Remember**: If you're typing production code and there isn't a failing test demanding that code, you're not doing TDD.
+**Remember**: If you're writing parsing code and there isn't a test with real HEC-RAS data demanding that code, you're not doing TDD.
 
 #### TDD Example Workflow
 
 ```typescript
-// Step 1: Red - Start with the simplest behavior
-describe("Culvert parsing", () => {
-  it("should parse basic culvert properties", () => {
-    const geometryLine = "Connection Culv=1,1.5,1.5,13.24,0.024,0.9,1,2,3,260.71,260.64,2,Group #1,0,";
+// Step 1: Red - Start with real HEC-RAS data
+describe("Storage Area parsing", () => {
+  it("should parse complete storage area data", () => {
+    const storageAreaData = `Storage Area=2D_Grid         ,,
+Storage Area Surface Line= 6
+       484549.87       4751428.51
+       484549.87       4751438.69
+       484559.91       4751438.69
+       484559.91       4751428.51
+       484549.87       4751428.51
+Storage Area Type=1
+Storage Area Is2D=1`;
 
-    const parsed = parseCulvertData(geometryLine, [geometryLine], 0);
+    const lines = storageAreaData.split('\n');
+    const result = parseStorageAreaData(lines[0], lines, 0);
 
-    expect(parsed.data[0].shape).toBe(CULVERT_SHAPE.CIRCLE);
-    expect(parsed.data[0].rise).toBe(1.5);
-    expect(parsed.data[0].span).toBe(1.5);
-    expect(parsed.data[0].culvertGroupName).toBe("Group #1");
+    expect(result.data.id).toBe("2D_Grid");
+    expect(result.data.surfaceLine).toHaveLength(5);
+    expect(result.data.type).toBe(1);
+    expect(result.data.is2D).toBe(1);
   });
 });
 
-// Step 2: Green - Minimal implementation
-const parseCulvertData = (line: string, lines: string[], index: number): { data: CulvertGroupProperties[]; nextIndex: number } => {
-  const { value } = parseKeyValue(line);
-  const parts = parseCommaSeparated(value);
+// Step 2: Green - Build complete parsing implementation
+export function parseStorageAreaData(
+  line: string,
+  lines: string[],
+  currentIndex: number,
+): { data: StorageArea; nextIndex: number } {
+  if (!line.startsWith("Storage Area=")) {
+    throw new Error(`storageAreaParser was given a line it can't parse: ${line}`)
+  }
 
-  return {
-    data: [{
-      shape: parseInt(parts[0]),
-      rise: parseFloat(parts[1]),
-      span: parseFloat(parts[2]),
-      length: parseFloat(parts[3]),
-      nTop: parseFloat(parts[4]),
-      entranceLoss: parseFloat(parts[5]),
-      exitLoss: parseFloat(parts[6]),
-      chart: parseInt(parts[7]),
-      scale: parseInt(parts[8]),
-      upstreamInvert: parseFloat(parts[9]),
-      downstreamInvert: parseFloat(parts[10]),
-      numberOfBarrels: parseInt(parts[11]),
-      culvertGroupName: parts[12].trim(),
-      unknownFlag: parseInt(parts[13]),
-      barrelStations: [],
-      barrels: [],
-    }],
-    nextIndex: index + 1,
-  };
-};
-
-// Step 3: Red - Add test for parsing barrel coordinates
-describe("Culvert parsing", () => {
-  it("should parse basic culvert properties", () => {
-    // ... existing test
-  });
-
-  it("should parse culvert barrel coordinates", () => {
-    const lines = [
-      "Connection Culv=1,1.5,1.5,13.24,0.024,0.9,1,2,3,260.71,260.64,2,Group #1,0,",
-      "    3.56    4.96    6.56    9.96",
-      "Conn Culvert Barrel=1,Barrel #01,2",
-      "    484557.98934   4751436.44773     484544.9229   4351438.60715"
-    ];
-
-    const parsed = parseCulvertData(lines[0], lines, 0);
-
-    expect(parsed.data[0].barrels).toHaveLength(1);
-    expect(parsed.data[0].barrels[0].name).toBe("Barrel #01");
-    expect(parsed.data[0].barrels[0].coordinates).toHaveLength(2);
-  });
-});
-
-// Step 4: Green - NOW we can add barrel parsing because both paths are tested
-const parseCulvertData = (line: string, lines: string[], index: number): { data: CulvertGroupProperties[]; nextIndex: number } => {
-  const { value } = parseKeyValue(line);
-  const parts = parseCommaSeparated(value);
+  const { value } = parseKeyValue(line)
+  const parts = value.split(",")
   
-  let currentIndex = index + 1;
-  
-  // Parse barrel stations if present
-  const barrelStations = [];
-  if (lines[currentIndex] && lines[currentIndex].trim().match(/^\d+/)) {
-    const stationParts = lines[currentIndex].trim().split(/\s+/);
-    for (let i = 0; i < stationParts.length; i += 2) {
-      barrelStations.push({
-        upstream: parseFloat(stationParts[i]),
-        downstream: parseFloat(stationParts[i + 1])
-      });
+  // Build storage area object with type assertion
+  const storageAreaData = {
+    id: parts[0].trim(),
+    surfaceLine: [],
+    type: 0,
+    is2D: 0,
+    // ... all other properties
+  } as StorageArea
+
+  let index = currentIndex + 1
+
+  // Parse all related lines using sequential if/else
+  while (index < lines.length && isValidLine(lines[index])) {
+    const currentLine = lines[index]
+
+    if (currentLine.startsWith("Storage Area Surface Line=")) {
+      // Parse surface line coordinates
+      const { value: surfaceLineCount } = parseKeyValue(currentLine)
+      const numberOfPoints = parseInt(surfaceLineCount.trim())
+      index++
+      
+      for (let i = 0; i < numberOfPoints && index < lines.length; i++) {
+        const coordinates = parseLineToCoordinates(lines[index])
+        storageAreaData.surfaceLine.push(...coordinates)
+        index++
+      }
+      continue
     }
-    currentIndex++;
+
+    if (currentLine.startsWith("Storage Area Type=")) {
+      const { value } = parseKeyValue(currentLine)
+      storageAreaData.type = parseInt(value.trim())
+      index++
+      continue
+    }
+
+    if (currentLine.startsWith("Storage Area Is2D=")) {
+      const { value } = parseKeyValue(currentLine)
+      storageAreaData.is2D = parseInt(value.trim())
+      index++
+      continue
+    }
+
+    // Continue for all other storage area properties...
+    break
   }
-  
-  // Parse barrels
-  const barrels = [];
-  while (lines[currentIndex]?.startsWith("Conn Culvert Barrel=")) {
-    const barrelResult = parseBarrelData(lines[currentIndex], lines, currentIndex);
-    barrels.push(barrelResult.data);
-    currentIndex = barrelResult.nextIndex;
-  }
 
-  return {
-    data: [{
-      shape: parseInt(parts[0]),
-      rise: parseFloat(parts[1]),
-      span: parseFloat(parts[2]),
-      length: parseFloat(parts[3]),
-      nTop: parseFloat(parts[4]),
-      entranceLoss: parseFloat(parts[5]),
-      exitLoss: parseFloat(parts[6]),
-      chart: parseInt(parts[7]),
-      scale: parseInt(parts[8]),
-      upstreamInvert: parseFloat(parts[9]),
-      downstreamInvert: parseFloat(parts[10]),
-      numberOfBarrels: parseInt(parts[11]),
-      culvertGroupName: parts[12].trim(),
-      unknownFlag: parseInt(parts[13]),
-      barrelStations,
-      barrels,
-    }],
-    nextIndex: currentIndex,
-  };
-};
+  return { data: storageAreaData, nextIndex: index }
+}
 
-// Step 5: Add edge case tests to ensure 100% behavior coverage
-describe("Culvert parsing", () => {
-  // ... existing tests
+// Step 3: Red - Add test for 2D properties
+describe("Storage Area parsing", () => {
+  // ... existing test
 
-  it("should handle culverts with no barrels", () => {
-    const lines = [
-      "Connection Culv=1,1.5,1.5,13.24,0.024,0.9,1,2,3,260.71,260.64,0,Group #1,0,",
-    ];
+  it("should parse 2D storage area properties", () => {
+    const storageAreaData = `Storage Area=TestArea,,
+Storage Area Is2D=1
+Storage Area 2D Points= 4
+       484549.87       4751428.51       484549.87       4751438.69
+       484559.91       4751438.69       484559.91       4751428.51`;
 
-    const parsed = parseCulvertData(lines[0], lines, 0);
+    const lines = storageAreaData.split('\n');
+    const result = parseStorageAreaData(lines[0], lines, 0);
 
-    expect(parsed.data[0].numberOfBarrels).toBe(0);
-    expect(parsed.data[0].barrels).toHaveLength(0);
+    expect(result.data.is2D).toBe(1);
+    expect(result.data.points2D).toHaveLength(4);
   });
 });
 
-// Step 6: Refactor - Extract constants and improve readability
-const CULVERT_LINE_PREFIX = "Connection Culv=";
-const BARREL_LINE_PREFIX = "Conn Culvert Barrel=";
+// Step 4: Green - Add 2D parsing logic to existing parser
+// Add the 2D points parsing logic to the if/else chain in the existing function
 
-const parseBasicCulvertProperties = (parts: string[]): Partial<CulvertGroupProperties> => {
-  return {
-    shape: parseInt(parts[0]),
-    rise: parseFloat(parts[1]),
-    span: parseFloat(parts[2]),
-    length: parseFloat(parts[3]),
-    nTop: parseFloat(parts[4]),
-    entranceLoss: parseFloat(parts[5]),
-    exitLoss: parseFloat(parts[6]),
-    chart: parseInt(parts[7]),
-    scale: parseInt(parts[8]),
-    upstreamInvert: parseFloat(parts[9]),
-    downstreamInvert: parseFloat(parts[10]),
-    numberOfBarrels: parseInt(parts[11]),
-    culvertGroupName: parts[12].trim(),
-    unknownFlag: parseInt(parts[13]),
-  };
-};
-
-const parseCulvertData = (line: string, lines: string[], index: number): { data: CulvertGroupProperties[]; nextIndex: number } => {
-  const { value } = parseKeyValue(line);
-  const parts = parseCommaSeparated(value);
-  
-  const basicProperties = parseBasicCulvertProperties(parts);
-  let currentIndex = index + 1;
-  
-  const barrelStations = parseBarrelStations(lines, currentIndex);
-  if (barrelStations.length > 0) currentIndex++;
-  
-  const barrels = parseBarrels(lines, currentIndex);
-  
-  return {
-    data: [{
-      ...basicProperties,
-      barrelStations,
-      barrels: barrels.data,
-    }],
-    nextIndex: barrels.nextIndex,
-  };
-};
+// Step 5: Refactor - Document format quirks discovered
+/**
+ * Parses storage area data starting from a "Storage Area=" line
+ * Handles both 1D and 2D storage areas with various configuration options
+ * 
+ * HEC-RAS format notes:
+ * - Surface line coordinates are 1 pair per line
+ * - 2D points are 2 pairs per line (4 coordinates total)
+ * - Trailing commas and spaces are common and need trimming
+ */
+export function parseStorageAreaData(
+  line: string,
+  lines: string[],
+  currentIndex: number,
+): { data: StorageArea; nextIndex: number } {
+  // Enhanced implementation with discovered format handling
+}
 ```
 
-### Refactoring - The Critical Third Step
+### Refactoring - Improving Parser Quality
 
-Evaluating refactoring opportunities is not optional - it's the third step in the TDD cycle. After achieving a green state and committing your work, you MUST assess whether the code can be improved. However, only refactor if there's clear value - if the code is already clean and expresses intent well, move on to the next test.
+Evaluating parser improvement opportunities is part of the TDD cycle. After achieving a green state, assess whether the parsing logic can be made clearer or more maintainable. However, parsers that correctly handle the format complexity are often good as-is.
 
-#### What is Refactoring?
+#### What is Parser Refactoring?
 
-Refactoring means changing the internal structure of code without changing its external behavior. The public API remains unchanged, all tests continue to pass, but the code becomes cleaner, more maintainable, or more efficient. Remember: only refactor when it genuinely improves the code - not all code needs refactoring.
+Parser refactoring means improving the internal structure of parsing logic without changing the parsing behavior. The parsed output remains identical, all tests continue to pass, but the parsing code becomes more readable or maintainable. 
 
-#### When to Refactor
+#### When to Refactor Parsers
 
-- **Always assess after green**: Once tests pass, before moving to the next test, evaluate if refactoring would add value
-- **When you see duplication**: But understand what duplication really means (see DRY below)
-- **When names could be clearer**: Variable names, function names, or type names that don't clearly express intent
-- **When structure could be simpler**: Complex conditional logic, deeply nested code, or long functions
-- **When patterns emerge**: After implementing several similar features, useful abstractions may become apparent
+- **Always assess after green**: Once parsing tests pass, evaluate if the parser logic could be clearer
+- **When format handling is duplicated**: Extract common parsing patterns into utility functions
+- **When comments could be replaced with better names**: Variable names that don't clearly express their HEC-RAS purpose
+- **When parsing logic is hard to follow**: But long if/else chains for different line types are often the clearest approach
+- **When new format variations emerge**: After handling several similar format patterns, shared utilities may be beneficial
 
-**Remember**: Not all code needs refactoring. If the code is already clean, expressive, and well-structured, commit and move on. Refactoring should improve the code - don't change things just for the sake of change.
+**Remember**: Parsing logic that correctly handles complex formats is often good as-is. Don't refactor working parsers just to make them shorter or more "functional".
 
 #### Refactoring Guidelines
 
+##### 0. EACH PARSER SHOULD FOLLOW THE SAME CONVENTIONS
+Do not have a different convention when parsing one type of section vs. another. A refactor must make sense across all parsers or else it should not be considered.
+
 ##### 1. Commit Before Refactoring
 
-Always commit your working code before starting any refactoring. This gives you a safe point to return to:
+Always commit your working parser before starting any refactoring. This gives you a safe point to return to:
 
 ```bash
 git add .
-git commit -m "feat: add payment validation"
+git commit -m "feat: add storage area parsing"
 # Now safe to refactor
 ```
 
-##### 2. Look for Useful Abstractions Based on Semantic Meaning
+##### 2. Extract Common Parsing Patterns
 
-Create abstractions only when code shares the same semantic meaning and purpose. Don't abstract based on structural similarity alone - **duplicate code is far cheaper than the wrong abstraction**.
-
-```typescript
-// Similar structure, DIFFERENT semantic meaning - DO NOT ABSTRACT
-const validatePaymentAmount = (amount: number): boolean => {
-  return amount > 0 && amount <= 10000;
-};
-
-const validateTransferAmount = (amount: number): boolean => {
-  return amount > 0 && amount <= 10000;
-};
-
-// These might have the same structure today, but they represent different
-// business concepts that will likely evolve independently.
-// Payment limits might change based on fraud rules.
-// Transfer limits might change based on account type.
-// Abstracting them couples unrelated business rules.
-
-// Similar structure, SAME semantic meaning - SAFE TO ABSTRACT
-const formatUserDisplayName = (firstName: string, lastName: string): string => {
-  return `${firstName} ${lastName}`.trim();
-};
-
-const formatCustomerDisplayName = (
-  firstName: string,
-  lastName: string
-): string => {
-  return `${firstName} ${lastName}`.trim();
-};
-
-const formatEmployeeDisplayName = (
-  firstName: string,
-  lastName: string
-): string => {
-  return `${firstName} ${lastName}`.trim();
-};
-
-// These all represent the same concept: "how we format a person's name for display"
-// They share semantic meaning, not just structure
-const formatPersonDisplayName = (
-  firstName: string,
-  lastName: string
-): string => {
-  return `${firstName} ${lastName}`.trim();
-};
-
-// Replace all call sites throughout the codebase:
-// Before:
-// const userLabel = formatUserDisplayName(user.firstName, user.lastName);
-// const customerName = formatCustomerDisplayName(customer.firstName, customer.lastName);
-// const employeeTag = formatEmployeeDisplayName(employee.firstName, employee.lastName);
-
-// After:
-// const userLabel = formatPersonDisplayName(user.firstName, user.lastName);
-// const customerName = formatPersonDisplayName(customer.firstName, customer.lastName);
-// const employeeTag = formatPersonDisplayName(employee.firstName, employee.lastName);
-
-// Then remove the original functions as they're no longer needed
-```
-
-**Questions to ask before abstracting:**
-
-- Do these code blocks represent the same concept or different concepts that happen to look similar?
-- If the business rules for one change, should the others change too?
-- Would a developer reading this abstraction understand why these things are grouped together?
-- Am I abstracting based on what the code IS (structure) or what it MEANS (semantics)?
-
-**Remember**: It's much easier to create an abstraction later when the semantic relationship becomes clear than to undo a bad abstraction that couples unrelated concepts.
-
-##### 3. Understanding DRY - It's About Knowledge, Not Code
-
-DRY (Don't Repeat Yourself) is about not duplicating **knowledge** in the system, not about eliminating all code that looks similar.
+Create utility functions when parsing patterns are duplicated across different parsers. Focus on HEC-RAS format patterns, not generic code structure.
 
 ```typescript
-// This is NOT a DRY violation - different knowledge despite similar code
-const validateUserAge = (age: number): boolean => {
-  return age >= 18 && age <= 100;
+// Similar parsing structure, DIFFERENT HEC-RAS components - DO NOT ABSTRACT
+const parseCulvertElevation = (line: string): number => {
+  const { value } = parseKeyValue(line);
+  return parseFloat(value.trim());
 };
 
-const validateProductRating = (rating: number): boolean => {
-  return rating >= 1 && rating <= 5;
+const parseBridgeElevation = (line: string): number => {
+  const { value } = parseKeyValue(line);
+  return parseFloat(value.trim());
 };
 
-const validateYearsOfExperience = (years: number): boolean => {
-  return years >= 0 && years <= 50;
+// These might look similar, but they represent different HEC-RAS concepts
+// Culvert elevations and bridge elevations may have different validation rules
+// or format variations as the HEC-RAS format evolves
+
+// Similar parsing, SAME format pattern - SAFE TO ABSTRACT
+const parseElevationFromLine = (line: string): number => {
+  const { value } = parseKeyValue(line);
+  return parseFloat(value.trim());
 };
 
-// These functions have similar structure (checking numeric ranges), but they
-// represent completely different business rules:
-// - User age has legal requirements (18+) and practical limits (100)
-// - Product ratings follow a 1-5 star system
-// - Years of experience starts at 0 with a reasonable upper bound
-// Abstracting them would couple unrelated business concepts and make future
-// changes harder. What if ratings change to 1-10? What if legal age changes?
-
-// Another example of code that looks similar but represents different knowledge:
-const formatUserDisplayName = (user: User): string => {
-  return `${user.firstName} ${user.lastName}`.trim();
+// Good - Extract common coordinate parsing
+const parseCoordinatePairs = (line: string): Coordinate[] => {
+  const numbers = chunkStringToNumbers(line.trim(), 2);
+  return numbers.map(chunk => ({
+    x: chunk[0],
+    y: chunk[1]
+  }));
 };
 
-const formatAddressLine = (address: Address): string => {
-  return `${address.street} ${address.number}`.trim();
-};
-
-const formatCreditCardLabel = (card: CreditCard): string => {
-  return `${card.type} ${card.lastFourDigits}`.trim();
-};
-
-// Despite the pattern "combine two strings with space and trim", these represent
-// different domain concepts with different future evolution paths
-
-// This IS a DRY violation - same knowledge in multiple places
-class Order {
-  calculateTotal(): number {
-    const itemsTotal = this.items.reduce((sum, item) => sum + item.price, 0);
-    const shippingCost = itemsTotal > 50 ? 0 : 5.99; // Knowledge duplicated!
-    return itemsTotal + shippingCost;
-  }
-}
-
-class OrderSummary {
-  getShippingCost(itemsTotal: number): number {
-    return itemsTotal > 50 ? 0 : 5.99; // Same knowledge!
-  }
-}
-
-class ShippingCalculator {
-  calculate(orderAmount: number): number {
-    if (orderAmount > 50) return 0; // Same knowledge again!
-    return 5.99;
-  }
-}
-
-// Refactored - knowledge in one place
-const FREE_SHIPPING_THRESHOLD = 50;
-const STANDARD_SHIPPING_COST = 5.99;
-
-const calculateShippingCost = (itemsTotal: number): number => {
-  return itemsTotal > FREE_SHIPPING_THRESHOLD ? 0 : STANDARD_SHIPPING_COST;
-};
-
-// Now all classes use the single source of truth
-class Order {
-  calculateTotal(): number {
-    const itemsTotal = this.items.reduce((sum, item) => sum + item.price, 0);
-    return itemsTotal + calculateShippingCost(itemsTotal);
-  }
-}
+// Used by both storage areas and culvert barrels:
+// storageAreaData.surfaceLine.push(...parseCoordinatePairs(lines[index]));
+// culvertData.barrels[0].coordinates = parseCoordinatePairs(coordinateLine);
 ```
 
-##### 4. Do not worry about external APIs During Refactoring
+**Questions to ask before abstracting parsing logic:**
 
-Refactoring can break external apis as the project is not being used yet
+- Do these parsing operations handle the same HEC-RAS format pattern?
+- If the format specification changes, should both places change identically?
+- Would an engineer familiar with HEC-RAS understand why these are grouped together?
+- Am I abstracting based on code structure or actual format similarities?
+
+**Remember**: HEC-RAS parsers often look similar but handle different engineering concepts. Extract only when the format patterns are truly identical.
+
+##### 3. Documentation and Maintainability
+
+Focus refactoring on improving parser documentation and maintainability rather than abstract code patterns.
 
 ```typescript
-// Original implementation
-export const parseGeometry = () => {
-  // old code
-  return ...
-}
-
-// GOOD Refactored - external API unchanged, internals improved
-export const parseGeometry = () => {
-  // new code
-  return ...
+// Good - Document format discoveries during parsing
+/**
+ * Parses storage area surface line coordinates
+ * HEC-RAS format: 1 coordinate pair per line for surface lines
+ * but 2 coordinate pairs per line for 2D points
+ */
+const parseSurfaceLineCoordinates = (lines: string[], startIndex: number, count: number) => {
+  const coordinates = [];
+  for (let i = 0; i < count && startIndex + i < lines.length; i++) {
+    const coordLine = lines[startIndex + i];
+    const coords = parseLineToCoordinates(coordLine);
+    coordinates.push(...coords);
+  }
+  return coordinates;
 };
 
-----
+// Good - Extract validation specific to HEC-RAS constraints
+const validateGeometryLine = (line: string, expectedPrefix: string): void => {
+  if (!line.startsWith(expectedPrefix)) {
+    throw new Error(`Expected line starting with "${expectedPrefix}", got: ${line}`);
+  }
+};
 
-// BAD Refactored - external API unchanged, internals improved
-export const parseGeometry = () => {
-  // old code
-  return ...
-}
-
-// BAD Refactored - external API unchanged, internals improved
-const parseGeometryV2 = () => {
-  // new code
-  return ...
-}
+// Usage in parsers:
+// validateGeometryLine(line, "Storage Area=");
+// validateGeometryLine(line, "Connection Culv=");
 ```
 
-##### 5. Verify and Commit After Refactoring
+##### 4. Verify and Commit After Refactoring
 
-**CRITICAL**: After every refactoring:
+**CRITICAL**: After every parser refactoring:
 
 1. Run all tests - they must pass without modification
-2. Run static analysis (linting, type checking) - must pass
+2. Run static analysis (linting, type checking) - must pass  
 3. Commit the refactoring separately from feature changes
 
 ```bash
 # After refactoring
-npm test          # All tests must pass
+npm test          # All parsing tests must pass
 npm run lint      # All linting must pass
-npm run typecheck # TypeScript must be happy
+tsc              # TypeScript must compile cleanly
 
 # Only then commit
 git add .
-git commit -m "refactor: extract payment validation helpers"
+git commit -m "refactor: extract coordinate parsing utilities"
 ```
 
-#### Refactoring Checklist
+#### Parser Refactoring Checklist
 
-Before considering refactoring complete, verify:
+Before considering parser refactoring complete, verify:
 
-- [ ] The refactoring actually improves the code (if not, don't refactor)
-- [ ] All tests still pass without modification
+- [ ] The refactoring improves parser clarity or maintainability
+- [ ] All parsing tests still pass without modification
 - [ ] All static analysis tools pass (linting, type checking)
-- [ ] No new public APIs were added (only internal ones)
-- [ ] Code is more readable than before
-- [ ] Any duplication removed was duplication of knowledge, not just code
-- [ ] No speculative abstractions were created
+- [ ] Parser output remains identical for all test cases
+- [ ] Code better expresses HEC-RAS format handling intent
+- [ ] Format quirks are better documented
 - [ ] The refactoring is committed separately from feature changes
 
-#### Example Refactoring Session
+#### Example: When NOT to Refactor
 
 ```typescript
-// After getting tests green with minimal implementation:
-describe("Order processing", () => {
-  it("calculates total with items and shipping", () => {
-    const order = { items: [{ price: 30 }, { price: 20 }], shipping: 5 };
-    expect(calculateOrderTotal(order)).toBe(55);
-  });
-
-  it("applies free shipping over £50", () => {
-    const order = { items: [{ price: 30 }, { price: 25 }], shipping: 5 };
-    expect(calculateOrderTotal(order)).toBe(55);
-  });
-});
-
-// Green implementation (minimal):
-const calculateOrderTotal = (order: Order): number => {
-  const itemsTotal = order.items.reduce((sum, item) => sum + item.price, 0);
-  const shipping = itemsTotal > 50 ? 0 : order.shipping;
-  return itemsTotal + shipping;
-};
-
-// Commit the working version
-// git commit -m "feat: implement order total calculation with free shipping"
-
-// Assess refactoring opportunities:
-// - The variable names could be clearer
-// - The free shipping threshold is a magic number
-// - The calculation logic could be extracted for clarity
-// These improvements would add value, so proceed with refactoring:
-
-const FREE_SHIPPING_THRESHOLD = 50;
-
-const calculateItemsTotal = (items: OrderItem[]): number => {
-  return items.reduce((sum, item) => sum + item.price, 0);
-};
-
-const calculateShipping = (
-  baseShipping: number,
-  itemsTotal: number
-): number => {
-  return itemsTotal > FREE_SHIPPING_THRESHOLD ? 0 : baseShipping;
-};
-
-const calculateOrderTotal = (order: Order): number => {
-  const itemsTotal = calculateItemsTotal(order.items);
-  const shipping = calculateShipping(order.shipping, itemsTotal);
-  return itemsTotal + shipping;
-};
-
-// Run tests - they still pass!
-// Run linting - all clean!
-// Run type checking - no errors!
-
-// Now commit the refactoring
-// git commit -m "refactor: extract order total calculation helpers"
-```
-
-##### Example: When NOT to Refactor
-
-```typescript
-// After getting this test green:
-describe("Discount calculation", () => {
-  it("should apply 10% discount", () => {
-    const originalPrice = 100;
-    const discountedPrice = applyDiscount(originalPrice, 0.1);
-    expect(discountedPrice).toBe(90);
+// After getting this parsing test green:
+describe("Storage Area type parsing", () => {
+  it("should parse storage area type correctly", () => {
+    const line = "Storage Area Type=1";
+    const result = parseStorageAreaType(line);
+    expect(result).toBe(1);
   });
 });
 
 // Green implementation:
-const applyDiscount = (price: number, discountRate: number): number => {
-  return price * (1 - discountRate);
+const parseStorageAreaType = (line: string): number => {
+  const { value } = parseKeyValue(line);
+  return parseInt(value.trim());
 };
 
 // Assess refactoring opportunities:
-// - Code is already simple and clear
-// - Function name clearly expresses intent
-// - Implementation is a straightforward calculation
-// - No magic numbers or unclear logic
-// Conclusion: No refactoring needed. This is fine as-is.
+// - Code correctly handles the HEC-RAS format
+// - Function name clearly expresses the parsing purpose
+// - Implementation follows established parsing patterns
+// - No complex logic or unclear behavior
+// Conclusion: No refactoring needed. This parser is effective as-is.
 
-// Commit and move to the next test
-// git commit -m "feat: add discount calculation"
+// Commit and move to the next parsing scenario
+// git commit -m "feat: add storage area type parsing"
 ```
 
 ### Commit Guidelines
 
-- Each commit should represent a complete, working change
+- Each commit should represent a complete, working parser change
 - Use conventional commits format:
   ```
-  feat: add payment validation
-  fix: correct date formatting in payment processor
-  refactor: extract payment validation logic
-  test: add edge cases for payment validation
+  feat: add storage area parsing
+  fix: correct coordinate parsing in culvert barrels
+  refactor: extract common coordinate parsing utilities
+  test: add edge cases for 2D storage area parsing
+  docs: update storage area format documentation
   ```
-- Include test changes with feature changes in the same commit
+- Include test changes with parser changes in the same commit
 
 ### Pull Request Standards
 
