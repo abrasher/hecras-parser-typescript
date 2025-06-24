@@ -1,17 +1,185 @@
-import { describe, expect, it } from "vitest"
+import { describe, expect, it, beforeAll } from "vitest"
 import { parseBridgeData } from "../../src/parsers/geometry/bridgeParser"
 import type { BridgeConnection } from "../../src/models/bridge"
 
 describe("Bridge Connection Unit Tests", () => {
   const lines = lineString.split("\n")
+  let bridgeData: ReturnType<typeof parseBridgeData>
+
+  beforeAll(() => {
+    bridgeData = parseBridgeData(lines[0], lines, 0)
+  })
 
   it("input data should be correct", () => {
     expect(lines.length).toBe(81)
   })
 
-  it("should equal the object", () => {
-    const bridgeData = parseBridgeData(lines[0], lines, 0)
-    expect(bridgeData.data).toEqual(testBridgeData)
+  describe("Bridge Basic Parameters", () => {
+    it("should parse bridge momentum and flow parameters", () => {
+      expect(bridgeData.data.bridge).toEqual({
+        momentumEquationAddFriction: -1,
+        momentumEquationAddWeight: 0,
+        pressureFlowCriteria: -1,
+        classBDefaults: -1,
+        param5: 0,
+        contractionCoefficient: 0.3,
+        expansionCoefficient: 0.5,
+      })
+    })
+
+    it("should parse pressure weir parameters", () => {
+      expect(bridgeData.data.pressureWeir).toEqual({
+        value1: 0.08,
+        value2: null,
+        value3: 0.25,
+        value4: null,
+        value5: 0.016,
+      })
+    })
+
+    it("should parse bridge coefficients", () => {
+      expect(bridgeData.data.bridgeCoefficients).toEqual({
+        coef1: -1,
+        coef2: 0,
+        coef3: 0,
+        coef4: null,
+        coef5: null,
+        coef6: null,
+        coef7: 0.8,
+        coef8: 0,
+        coef9: null,
+        coef10: 0,
+        coef11: null,
+      })
+    })
+
+    it("should parse bridge skew", () => {
+      expect(bridgeData.data.bridgeSkew).toBe(-15)
+    })
+  })
+
+  describe("Deck Parameters", () => {
+    it("should parse deck basic parameters", () => {
+      const { deckParameters } = bridgeData.data
+      expect(deckParameters.deckDistance).toBe(0.5)
+      expect(deckParameters.width).toBe(10)
+      expect(deckParameters.weirCoefficient).toBe(1.4)
+      expect(deckParameters.skew).toBe(-15)
+      expect(deckParameters.numUp).toBe(15)
+      expect(deckParameters.numDown).toBe(15)
+      expect(deckParameters.maxSubmerge).toBe(0.98)
+      expect(deckParameters.isOgee).toBe(0)
+    })
+
+    it("should parse deck coordinates", () => {
+      expect(bridgeData.data.deckParameters.coordinates).toHaveLength(30)
+      expect(bridgeData.data.deckParameters.coordinates.slice(0, 5)).toEqual([-24.11, -18.14, 3, 3.13, 10.68])
+    })
+
+    it("should parse deck elevations", () => {
+      expect(bridgeData.data.deckParameters.elevations).toHaveLength(30)
+      expect(bridgeData.data.deckParameters.elevations.slice(0, 5)).toEqual([252.82, 252.78, 252.96, 253.54, 253.6])
+    })
+
+    it("should parse deck bottom elevations", () => {
+      expect(bridgeData.data.deckParameters.bottomElevations).toHaveLength(10)
+      expect(bridgeData.data.deckParameters.bottomElevations).toEqual([
+        251.03, 251.5, 251.7, 251.57, 251.21, 251.03, 251.5, 251.7, 251.57, 251.21,
+      ])
+    })
+  })
+
+  describe("Bridge Sections", () => {
+    it("should parse correct number of bridge sections", () => {
+      expect(bridgeData.data.bridgeSections).toHaveLength(2)
+    })
+
+    it("should parse first bridge section points", () => {
+      const section1 = bridgeData.data.bridgeSections[0]
+      expect(section1.id).toBe(1)
+      expect(section1.points).toHaveLength(62)
+      expect(section1.points[0]).toEqual({ station: 0, elevation: 252.093 })
+      expect(section1.points[1]).toEqual({ station: 0.584, elevation: 252.088 })
+    })
+
+    it("should parse first bridge section bank stations", () => {
+      const section1 = bridgeData.data.bridgeSections[0]
+      expect(section1.bankStations).toEqual({
+        sectionId: 1,
+        leftBank: 7.575,
+        rightBank: 30.44,
+      })
+    })
+
+    it("should parse first bridge section manning coefficients", () => {
+      const section1 = bridgeData.data.bridgeSections[0]
+      expect(section1.manningCoefficients).toEqual({
+        sectionId: 1,
+        segments: 3,
+        values: [
+          { station: 0, nValue: 0.09 },
+          { station: 7.575, nValue: 0.035 },
+          { station: 33.923, nValue: 0.09 },
+        ],
+      })
+    })
+
+    it("should parse second bridge section", () => {
+      const section2 = bridgeData.data.bridgeSections[1]
+      expect(section2.id).toBe(2)
+      expect(section2.points).toHaveLength(38)
+      expect(section2.bankStations.leftBank).toBe(7.521)
+      expect(section2.bankStations.rightBank).toBe(29.894)
+    })
+  })
+
+  describe("Cross Sections", () => {
+    it("should parse correct number of cross sections", () => {
+      expect(bridgeData.data.crossSections).toHaveLength(2)
+    })
+
+    it("should parse first cross section", () => {
+      const xs1 = bridgeData.data.crossSections[0]
+      expect(xs1.id).toBe(1)
+      expect(xs1.points).toHaveLength(58)
+      expect(xs1.points[0]).toEqual({ station: 0, elevation: 251.968 })
+    })
+
+    it("should parse second cross section", () => {
+      const xs2 = bridgeData.data.crossSections[1]
+      expect(xs2.id).toBe(2)
+      expect(xs2.points).toHaveLength(53)
+      expect(xs2.bankStations.leftBank).toBe(7.528)
+      expect(xs2.bankStations.rightBank).toBe(30.014)
+    })
+  })
+
+  describe("Ineffective Flow Areas", () => {
+    it("should parse ineffective flow areas", () => {
+      expect(bridgeData.data.ineffectiveFlowAreas).toHaveLength(2)
+
+      expect(bridgeData.data.ineffectiveFlowAreas[0]).toEqual({
+        type: "USXS",
+        leftStation: 10.68,
+        leftElevation: 252.93,
+        rightStation: 29,
+        rightElevation: 253.8,
+      })
+
+      expect(bridgeData.data.ineffectiveFlowAreas[1]).toEqual({
+        type: "DSXS",
+        leftStation: 11.68,
+        leftElevation: 252.5,
+        rightStation: 30,
+        rightElevation: 252.5,
+      })
+    })
+  })
+
+  describe("Complete Object Validation", () => {
+    it("should equal the complete test object", () => {
+      expect(bridgeData.data).toEqual(testBridgeData)
+    })
   })
 })
 
