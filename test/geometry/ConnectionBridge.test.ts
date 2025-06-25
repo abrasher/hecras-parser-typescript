@@ -318,7 +318,7 @@ const testBridgeData: BridgeConnection = {
       { station: 73.15, highChord: 254.39, lowChord: null },
     ],
   },
-  bridgeSections: [
+  insideCrossSections: [
     {
       id: 1,
       points: [
@@ -390,15 +390,11 @@ const testBridgeData: BridgeConnection = {
         leftBank: 7.575,
         rightBank: 30.44,
       },
-      manningCoefficients: {
-        sectionId: 1,
-        segments: 3,
-        values: [
-          { station: 0, nValue: 0.09 },
-          { station: 7.575, nValue: 0.035 },
-          { station: 33.923, nValue: 0.09 },
-        ],
-      },
+      manningCoefficients: [
+        { station: 0, nValue: 0.09 },
+        { station: 7.575, nValue: 0.035 },
+        { station: 33.923, nValue: 0.09 },
+      ],
     },
     {
       id: 2,
@@ -447,14 +443,10 @@ const testBridgeData: BridgeConnection = {
         leftBank: 7.521,
         rightBank: 29.894,
       },
-      manningCoefficients: {
-        sectionId: 2,
-        segments: 2,
-        values: [
-          { station: 0, nValue: 0.09 },
-          { station: 7.521, nValue: 0.035 },
-        ],
-      },
+      manningCoefficients: [
+        { station: 0, nValue: 0.09 },
+        { station: 7.521, nValue: 0.035 },
+      ],
     },
   ],
   bridgeCoefficients: {
@@ -471,7 +463,7 @@ const testBridgeData: BridgeConnection = {
     coef11: null,
   },
   bridgeSkew: -15,
-  crossSections: [
+  externalCrossSections: [
     {
       id: 1,
       points: [
@@ -539,15 +531,11 @@ const testBridgeData: BridgeConnection = {
         leftBank: 7.237,
         rightBank: 30.193,
       },
-      manningCoefficients: {
-        sectionId: 1,
-        segments: 3,
-        values: [
-          { station: 0, nValue: 0.09 },
-          { station: 7.761, nValue: 0.035 },
-          { station: 31.855, nValue: 0.09 },
-        ],
-      },
+      manningCoefficients: [
+        { station: 0, nValue: 0.09 },
+        { station: 7.761, nValue: 0.035 },
+        { station: 31.855, nValue: 0.09 },
+      ],
     },
     {
       id: 2,
@@ -611,31 +599,23 @@ const testBridgeData: BridgeConnection = {
         leftBank: 7.528,
         rightBank: 30.014,
       },
-      manningCoefficients: {
-        sectionId: 2,
-        segments: 3,
-        values: [
-          { station: 0, nValue: 0.09 },
-          { station: 7.528, nValue: 0.035 },
-          { station: 33.193, nValue: 0.09 },
-        ],
-      },
+      manningCoefficients: [
+        { station: 0, nValue: 0.09 },
+        { station: 7.528, nValue: 0.035 },
+        { station: 33.193, nValue: 0.09 },
+      ],
     },
   ],
-  ineffectiveFlowAreas: [
-    {
-      type: "USXS",
-      leftStation: 10.68,
-      leftElevation: 252.93,
-      rightStation: 29,
-      rightElevation: 253.8,
-    },
-    {
-      type: "DSXS",
-      leftStation: 11.68,
-      leftElevation: 252.5,
-      rightStation: 30,
-      rightElevation: 252.5,
-    },
-  ],
+  upstreamIneffectiveFlowArea: {
+    leftStation: 10.68,
+    leftElevation: 252.93,
+    rightStation: 29,
+    rightElevation: 253.8,
+  },
+  downstreamIneffectiveFlowArea: {
+    leftStation: 11.68,
+    leftElevation: 252.5,
+    rightStation: 30,
+    rightElevation: 252.5,
+  },
 }

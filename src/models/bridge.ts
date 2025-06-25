@@ -10,11 +10,12 @@ export interface BridgeConnection {
   bridge: BridgeConfiguration
   pressureWeir: PressureWeirData
   deckParameters: DeckParameters
-  bridgeSections: BridgeSection[]
   bridgeCoefficients: BridgeCoefficients
   bridgeSkew: number
-  crossSections: CrossSection[]
-  ineffectiveFlowAreas: IneffectiveFlowArea[]
+  insideCrossSections: [BridgeCrossSection, BridgeCrossSection]
+  externalCrossSections: [BridgeCrossSection, BridgeCrossSection]
+  upstreamIneffectiveFlowArea: IneffectiveFlowArea
+  downstreamIneffectiveFlowArea: IneffectiveFlowArea
 }
 
 export interface BridgeConfiguration {
@@ -54,13 +55,6 @@ export interface DeckParameters {
   downstream: DeckStationing[]
 }
 
-export interface BridgeSection {
-  id: number
-  points: StationElevationPoint[]
-  bankStations: BankStations
-  manningCoefficients: ManningCoefficients
-}
-
 export interface BankStations {
   sectionId: number
   leftBank: number
@@ -68,12 +62,8 @@ export interface BankStations {
 }
 
 export interface ManningCoefficients {
-  sectionId: number
-  segments: number
-  values: Array<{
-    station: number
-    nValue: number
-  }>
+  station: number
+  nValue: number
 }
 
 export interface BridgeCoefficients {
@@ -90,15 +80,15 @@ export interface BridgeCoefficients {
   coef11: number | null
 }
 
-export interface CrossSection {
+export interface BridgeCrossSection {
+  // id of 1 is upstream, 2 is downstream
   id: number
   points: StationElevationPoint[]
   bankStations: BankStations
-  manningCoefficients: ManningCoefficients
+  manningCoefficients: ManningCoefficients[]
 }
 
 export interface IneffectiveFlowArea {
-  type: "USXS" | "DSXS"
   leftStation: number
   leftElevation: number
   rightStation: number
