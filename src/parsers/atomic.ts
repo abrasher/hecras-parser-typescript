@@ -66,6 +66,41 @@ export function chunkStringToNumbers(str: string, chunkWidth: number): number[] 
 }
 
 /**
+ * Same as chunkStringToNumbers but instead of returning for blank chunks, it returns null
+ * This is nessecary for some HECRAS formats where there are series of numbers that have null gaps (i.e. bridge deck low chord)
+ * @param str Fixed-width string to parse
+ * @param chunkWidth Width of each number field in characters
+ * @throws Error if any chunk cannot be parsed as a number
+ */
+export function chunkStringToNumbersOrNull(str: string, chunkWidth: number): (number | null)[] {
+  if (chunkWidth <= 0) {
+    throw new Error("Chunk width must be greater than 0")
+  }
+
+  if (str.length === 0) {
+    return []
+  }
+
+  const expectedChunks = Math.ceil(str.length / chunkWidth)
+  const numbers: (number | null)[] = []
+
+  for (let i = 0; i < expectedChunks; i++) {
+    const chunk = str.slice(i * chunkWidth, (i + 1) * chunkWidth)
+
+    if (chunk.trim() === "") {
+      numbers.push(null)
+    } else {
+      const num = parseFloat(chunk)
+      if (isNaN(num)) {
+        throw new Error(`Error parsing ${str} at chunk index ${i}`)
+      }
+      numbers.push(num)
+    }
+  }
+  return numbers
+}
+
+/**
  * Convert array of numbers to coordinate pairs
  * @param nums Array of numbers (must be even length)
  * @returns Array of {x, y} coordinate objects

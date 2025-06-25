@@ -1,5 +1,11 @@
 import type { StationElevationPoint } from "./geometry/common"
 
+export interface DeckStationing {
+  station: number
+  highChord: number
+  lowChord: number | null
+}
+
 export interface BridgeConnection {
   bridge: BridgeConfiguration
   pressureWeir: PressureWeirData
@@ -38,15 +44,14 @@ export interface DeckParameters {
   width: number
   weirCoefficient: number
   skew: number
-  numUp: number
-  numDown: number
+  numberOfUpstreamStations: number
+  numberOfDownstreamStations: number
   minLowCoordinate: number | null
   maxHighCoordinate: number | null
   maxSubmerge: number
   isOgee: number
-  coordinates: number[]
-  elevations: number[]
-  bottomElevations: number[]
+  upstream: DeckStationing[]
+  downstream: DeckStationing[]
 }
 
 export interface BridgeSection {
