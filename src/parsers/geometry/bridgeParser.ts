@@ -4,6 +4,7 @@ import type {
   BridgeConfiguration,
   PressureWeirData,
   DeckParameters,
+  DeckStationing,
   BridgeSection,
   BridgeCoefficients,
   CrossSection,
@@ -111,6 +112,76 @@ function parsePressureWeir(line: string): PressureWeirData {
   }
 }
 
+// Constants for deck parameter parsing
+const DECK_PARSING_CONSTANTS = {
+  WIDTH_PER_POINT: 8,
+  MAX_POINTS_PER_LINE: 10, // 80 chars / 8 chars per point
+} as const
+
+/**
+ * Parse a section of deck parameters (stations, high chords, low chords)
+ */
+function parseDeckSection(
+  lines: string[],
+  startIndex: number,
+  numberOfStations: number,
+  widthPerPoint: number,
+  maxPointsPerLine: number
+): { stations: number[]; highChords: number[]; lowChords: (number | null)[]; nextIndex: number } {
+  let index = startIndex
+
+  // Parse stations
+  const stations: number[] = []
+  const stationLines = Math.ceil(numberOfStations / maxPointsPerLine)
+  for (let i = 0; i < stationLines; i++) {
+    const stationLine = lines[index + i]
+    const stationNumbers = chunkStringToNumbers(stationLine, widthPerPoint)
+    stations.push(...stationNumbers)
+  }
+  index += stationLines
+
+  // Parse high chord elevations
+  const highChords: number[] = []
+  const highChordLines = Math.ceil(numberOfStations / maxPointsPerLine)
+  for (let i = 0; i < highChordLines; i++) {
+    const elevLine = lines[index + i]
+    const elevations = chunkStringToNumbers(elevLine, widthPerPoint)
+    highChords.push(...elevations)
+  }
+  index += highChordLines
+
+  // Parse low chord elevations (may contain nulls)
+  const lowChords: (number | null)[] = []
+  const lowChordLines = Math.ceil(numberOfStations / maxPointsPerLine)
+  for (let i = 0; i < lowChordLines; i++) {
+    const lowChordLine = lines[index + i]
+    const lowChordNumbers = chunkStringToNumbersOrNull(lowChordLine, widthPerPoint)
+    lowChords.push(...lowChordNumbers)
+  }
+  index += lowChordLines
+
+  return { stations, highChords, lowChords, nextIndex: index }
+}
+
+/**
+ * Build array of DeckStationing objects from parsed arrays
+ */
+function buildDeckStationingArray(
+  stations: number[],
+  highChords: number[],
+  lowChords: (number | null)[]
+): DeckStationing[] {
+  const result: DeckStationing[] = []
+  for (let i = 0; i < stations.length; i++) {
+    result.push({
+      station: stations[i],
+      highChord: highChords[i],
+      lowChord: lowChords[i],
+    })
+  }
+  return result
+}
+
 function parseDeckParameters(lines: string[], startIndex: number): { data: DeckParameters; nextIndex: number } {
   // Skip the header line
   let index = startIndex + 1
@@ -134,92 +205,36 @@ function parseDeckParameters(lines: string[], startIndex: number): { data: DeckP
 
   index++
 
-  // Parse upstream deck parameters
-  // Structure: stations, high chord elevations, low chord elevations
-  // Then: downstream stations, high chord elevations low chord elevations
+  // Parse upstream deck parameters using extracted utility
+  const upstreamResult = parseDeckSection(
+    lines,
+    index,
+    deckParams.numberOfUpstreamStations,
+    DECK_PARSING_CONSTANTS.WIDTH_PER_POINT,
+    DECK_PARSING_CONSTANTS.MAX_POINTS_PER_LINE
+  )
+  deckParams.upstream = buildDeckStationingArray(
+    upstreamResult.stations,
+    upstreamResult.highChords,
+    upstreamResult.lowChords
+  )
+  index = upstreamResult.nextIndex
 
-  const widthPerPoint = 8
-  const maxPointsPerLine = 10 // 80 chars / 8 chars per point
+  // Parse downstream deck parameters using extracted utility
+  const downstreamResult = parseDeckSection(
+    lines,
+    index,
+    deckParams.numberOfDownstreamStations,
+    DECK_PARSING_CONSTANTS.WIDTH_PER_POINT,
+    DECK_PARSING_CONSTANTS.MAX_POINTS_PER_LINE
+  )
+  deckParams.downstream = buildDeckStationingArray(
+    downstreamResult.stations,
+    downstreamResult.highChords,
+    downstreamResult.lowChords
+  )
 
-  // Parse upstream stations
-  const upstreamStations: number[] = []
-  const upstreamStationLines = Math.ceil(deckParams.numberOfUpstreamStations / maxPointsPerLine)
-  for (let i = 0; i < upstreamStationLines; i++) {
-    const stationLine = lines[index + i]
-    const stations = chunkStringToNumbers(stationLine, widthPerPoint)
-    upstreamStations.push(...stations)
-  }
-  index += upstreamStationLines
-
-  // Parse upstream high chord elevations
-  const upstreamHighChords: number[] = []
-  const upstreamHighChordLines = Math.ceil(deckParams.numberOfUpstreamStations / maxPointsPerLine)
-  for (let i = 0; i < upstreamHighChordLines; i++) {
-    const elevLine = lines[index + i]
-    const elevations = chunkStringToNumbers(elevLine, widthPerPoint)
-    upstreamHighChords.push(...elevations)
-  }
-  index += upstreamHighChordLines
-
-  // Parse upstream low chord elevations (may contain nulls represented as blank spaces)
-  const upstreamLowChords: (number | null)[] = []
-  const upstreamLowChordLines = Math.ceil(deckParams.numberOfUpstreamStations / maxPointsPerLine)
-  for (let i = 0; i < upstreamLowChordLines; i++) {
-    const lowChordLine = lines[index + i]
-    const lowChords = chunkStringToNumbersOrNull(lowChordLine, 8)
-    upstreamLowChords.push(...lowChords)
-  }
-  index += upstreamLowChordLines
-
-  // Build upstream DeckStationing array
-  for (let i = 0; i < deckParams.numberOfUpstreamStations; i++) {
-    deckParams.upstream.push({
-      station: upstreamStations[i],
-      highChord: upstreamHighChords[i],
-      lowChord: upstreamLowChords[i],
-    })
-  }
-
-  // Parse downstream deck parameters (same structure)
-  const downstreamStations: number[] = []
-  const downstreamStationLines = Math.ceil(deckParams.numberOfDownstreamStations / maxPointsPerLine)
-  for (let i = 0; i < downstreamStationLines; i++) {
-    const stationLine = lines[index + i]
-    const stations = chunkStringToNumbers(stationLine, widthPerPoint)
-    downstreamStations.push(...stations)
-  }
-  index += downstreamStationLines
-
-  // Parse downstream high chord elevations
-  const downstreamHighChords: number[] = []
-  const downstreamHighChordLines = Math.ceil(deckParams.numberOfDownstreamStations / maxPointsPerLine)
-  for (let i = 0; i < downstreamHighChordLines; i++) {
-    const elevLine = lines[index + i]
-    const highChords = chunkStringToNumbers(elevLine, widthPerPoint)
-    downstreamHighChords.push(...highChords)
-  }
-  index += downstreamHighChordLines
-
-  // Parse downstream low chord elevations (may contain nulls represented as blank spaces)
-  const downstreamLowChords: (number | null)[] = []
-  const downstreamLowChordLines = Math.ceil(deckParams.numberOfDownstreamStations / maxPointsPerLine)
-  for (let i = 0; i < downstreamLowChordLines; i++) {
-    const lowChordLine = lines[index + i]
-    const lowChords = chunkStringToNumbersOrNull(lowChordLine, 8)
-    downstreamLowChords.push(...lowChords)
-  }
-  index += downstreamLowChordLines
-
-  // Build downstream DeckStationing array
-  for (let i = 0; i < deckParams.numberOfDownstreamStations; i++) {
-    deckParams.downstream.push({
-      station: downstreamStations[i],
-      highChord: downstreamHighChords[i],
-      lowChord: downstreamLowChords[i],
-    })
-  }
-
-  return { data: deckParams, nextIndex: index }
+  return { data: deckParams, nextIndex: downstreamResult.nextIndex }
 }
 
 function parseBridgeSection(lines: string[], startIndex: number): { data: BridgeSection; nextIndex: number } {
