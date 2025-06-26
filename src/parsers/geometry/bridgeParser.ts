@@ -5,13 +5,12 @@ import type {
   PressureWeirData,
   DeckParameters,
   DeckStationing,
-  BridgeSection,
+  BridgeCrossSection,
   BridgeCoefficients,
-  CrossSection,
   IneffectiveFlowArea,
   BankStations,
   ManningCoefficients,
-} from "../../models/bridge"
+} from "../../models/geometry/bridge"
 import type { StationElevationPoint } from "../../models/geometry/common"
 
 /**
@@ -32,11 +31,12 @@ export function parseBridgeData(
     bridge: {} as BridgeConfiguration,
     pressureWeir: {} as PressureWeirData,
     deckParameters: {} as DeckParameters,
-    bridgeSections: [],
+    insideCrossSections: [] as BridgeCrossSection[],
+    externalCrossSections: [] as BridgeCrossSection[],
     bridgeCoefficients: {} as BridgeCoefficients,
     bridgeSkew: 0,
-    crossSections: [],
-    ineffectiveFlowAreas: [],
+    upstreamIneffectiveFlowArea: {} as IneffectiveFlowArea,
+    downstreamIneffectiveFlowArea: {} as IneffectiveFlowArea,
   } as BridgeConnection
 
   let index = currentIndex
@@ -57,7 +57,7 @@ export function parseBridgeData(
       index = nextIndex
     } else if (currentLine.startsWith("Conn BR: BR SE=")) {
       const { data, nextIndex } = parseBridgeSection(lines, index)
-      bridgeConnection.bridgeSections.push(data)
+      bridgeConnection.insideCrossSections.push(data)
       index = nextIndex
     } else if (currentLine.startsWith("Conn BR: BR Coef=")) {
       bridgeConnection.bridgeCoefficients = parseBridgeCoefficients(currentLine)
@@ -67,10 +67,13 @@ export function parseBridgeData(
       index++
     } else if (currentLine.startsWith("Conn BR: XS SE=")) {
       const { data, nextIndex } = parseCrossSection(lines, index)
-      bridgeConnection.crossSections.push(data)
+      bridgeConnection.externalCrossSections.push(data)
       index = nextIndex
-    } else if (currentLine.startsWith("Conn BR: USXS Ineff=") || currentLine.startsWith("Conn BR: DSXS Ineff=")) {
-      bridgeConnection.ineffectiveFlowAreas.push(parseIneffectiveFlowArea(currentLine))
+    } else if (currentLine.startsWith("Conn BR: USXS Ineff=")) {
+      bridgeConnection.upstreamIneffectiveFlowArea = parseIneffectiveFlowArea(currentLine)
+      index++
+    } else if (currentLine.startsWith("Conn BR: DSXS Ineff=")) {
+      bridgeConnection.downstreamIneffectiveFlowArea = parseIneffectiveFlowArea(currentLine)
       index++
     } else {
       index++
@@ -126,7 +129,7 @@ function parseDeckSection(
   startIndex: number,
   numberOfStations: number,
   widthPerPoint: number,
-  maxPointsPerLine: number
+  maxPointsPerLine: number,
 ): { stations: number[]; highChords: number[]; lowChords: (number | null)[]; nextIndex: number } {
   let index = startIndex
 
@@ -169,7 +172,7 @@ function parseDeckSection(
 function buildDeckStationingArray(
   stations: number[],
   highChords: number[],
-  lowChords: (number | null)[]
+  lowChords: (number | null)[],
 ): DeckStationing[] {
   const result: DeckStationing[] = []
   for (let i = 0; i < stations.length; i++) {
@@ -211,12 +214,12 @@ function parseDeckParameters(lines: string[], startIndex: number): { data: DeckP
     index,
     deckParams.numberOfUpstreamStations,
     DECK_PARSING_CONSTANTS.WIDTH_PER_POINT,
-    DECK_PARSING_CONSTANTS.MAX_POINTS_PER_LINE
+    DECK_PARSING_CONSTANTS.MAX_POINTS_PER_LINE,
   )
   deckParams.upstream = buildDeckStationingArray(
     upstreamResult.stations,
     upstreamResult.highChords,
-    upstreamResult.lowChords
+    upstreamResult.lowChords,
   )
   index = upstreamResult.nextIndex
 
@@ -226,18 +229,18 @@ function parseDeckParameters(lines: string[], startIndex: number): { data: DeckP
     index,
     deckParams.numberOfDownstreamStations,
     DECK_PARSING_CONSTANTS.WIDTH_PER_POINT,
-    DECK_PARSING_CONSTANTS.MAX_POINTS_PER_LINE
+    DECK_PARSING_CONSTANTS.MAX_POINTS_PER_LINE,
   )
   deckParams.downstream = buildDeckStationingArray(
     downstreamResult.stations,
     downstreamResult.highChords,
-    downstreamResult.lowChords
+    downstreamResult.lowChords,
   )
 
   return { data: deckParams, nextIndex: downstreamResult.nextIndex }
 }
 
-function parseBridgeSection(lines: string[], startIndex: number): { data: BridgeSection; nextIndex: number } {
+function parseBridgeSection(lines: string[], startIndex: number): { data: BridgeCrossSection; nextIndex: number } {
   const headerLine = lines[startIndex]
   const { value } = parseKeyValue(headerLine)
   const parts = parseCommaSeparated(value)
@@ -286,7 +289,7 @@ function parseBridgeSection(lines: string[], startIndex: number): { data: Bridge
   }
 }
 
-function parseCrossSection(lines: string[], startIndex: number): { data: CrossSection; nextIndex: number } {
+function parseCrossSection(lines: string[], startIndex: number): { data: BridgeCrossSection; nextIndex: number } {
   const headerLine = lines[startIndex]
   const { value } = parseKeyValue(headerLine)
   const parts = parseCommaSeparated(value)
@@ -349,19 +352,12 @@ function parseBankStations(line: string): BankStations {
 function parseManningCoefficients(
   lines: string[],
   startIndex: number,
-): { data: ManningCoefficients; nextIndex: number } {
-  const headerLine = lines[startIndex]
-  const { value } = parseKeyValue(headerLine)
-  const parts = parseCommaSeparated(value)
-
-  const sectionId = parseInt(parts[0])
-  const segments = parseInt(parts[1])
-
+): { data: ManningCoefficients[]; nextIndex: number } {
   let index = startIndex + 1
   const dataLine = lines[index]
   const nums = chunkStringToNumbers(dataLine, 8)
 
-  const values: Array<{ station: number; nValue: number }> = []
+  const values: ManningCoefficients[] = []
   for (let i = 0; i < nums.length; i += 2) {
     if (i + 1 < nums.length) {
       values.push({
@@ -374,11 +370,7 @@ function parseManningCoefficients(
   index++
 
   return {
-    data: {
-      sectionId,
-      segments,
-      values,
-    },
+    data: values,
     nextIndex: index,
   }
 }
@@ -394,10 +386,10 @@ function parseBridgeCoefficients(line: string): BridgeCoefficients {
     coef4: parts[3] === "" ? null : parseInt(parts[3]), // null (empty)
     coef5: parts[4] === "" ? null : parseInt(parts[4]), // null (empty)
     coef6: null, // always null based on expected
-    coef7: parts[5] === "" ? null : parseFloat(parts[5]), // 0.8 (from parts[5])
-    coef8: parts[6] === "" ? null : parseInt(parts[6]), // 0 (from parts[6])
+    coef7: parseFloat(parts[5]), // 0.8 (from parts[5])
+    coef8: parseInt(parts[6]), // 0 (from parts[6])
     coef9: parts[7] === "" ? null : parseInt(parts[7]), // null (empty)
-    coef10: parts[8] === "" ? null : parseInt(parts[8]), // 0 (from parts[8])
+    coef10: parseInt(parts[8]), // 0 (from parts[8])
     coef11: parts[9] === "" ? null : parseInt(parts[9]), // null (empty)
   }
 }
@@ -408,12 +400,10 @@ function parseBridgeSkew(line: string): number {
 }
 
 function parseIneffectiveFlowArea(line: string): IneffectiveFlowArea {
-  const type = line.startsWith("Conn BR: USXS") ? "USXS" : "DSXS"
   const { value } = parseKeyValue(line)
   const parts = parseCommaSeparated(value)
 
   return {
-    type,
     leftStation: parseFloat(parts[0]),
     leftElevation: parseFloat(parts[1]),
     rightStation: parseFloat(parts[2]),

@@ -1,4 +1,4 @@
-import type { StationElevationPoint } from "./geometry/common"
+import type { StationElevationPoint } from "./common"
 
 export interface DeckStationing {
   station: number

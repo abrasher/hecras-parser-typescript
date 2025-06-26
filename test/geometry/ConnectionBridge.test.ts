@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeAll } from "vitest"
 import { parseBridgeData } from "../../src/parsers/geometry/bridgeParser"
-import type { BridgeConnection } from "../../src/models/bridge"
+import type { BridgeConnection } from "../../src/models/geometry/bridge"
 
 describe("Bridge Connection Unit Tests", () => {
   const lines = lineString.split("\n")
@@ -82,11 +82,11 @@ describe("Bridge Connection Unit Tests", () => {
 
   describe("Bridge Sections", () => {
     it("should parse correct number of bridge sections", () => {
-      expect(bridgeData.data.bridgeSections).toHaveLength(2)
+      expect(bridgeData.data.insideCrossSections).toHaveLength(2)
     })
 
     it("should parse first bridge section points", () => {
-      const section1 = bridgeData.data.bridgeSections[0]
+      const section1 = bridgeData.data.insideCrossSections[0]
       expect(section1.id).toBe(1)
       expect(section1.points).toHaveLength(62)
       expect(section1.points[0]).toEqual({ station: 0, elevation: 252.093 })
@@ -94,7 +94,7 @@ describe("Bridge Connection Unit Tests", () => {
     })
 
     it("should parse first bridge section bank stations", () => {
-      const section1 = bridgeData.data.bridgeSections[0]
+      const section1 = bridgeData.data.insideCrossSections[0]
       expect(section1.bankStations).toEqual({
         sectionId: 1,
         leftBank: 7.575,
@@ -103,20 +103,16 @@ describe("Bridge Connection Unit Tests", () => {
     })
 
     it("should parse first bridge section manning coefficients", () => {
-      const section1 = bridgeData.data.bridgeSections[0]
-      expect(section1.manningCoefficients).toEqual({
-        sectionId: 1,
-        segments: 3,
-        values: [
-          { station: 0, nValue: 0.09 },
-          { station: 7.575, nValue: 0.035 },
-          { station: 33.923, nValue: 0.09 },
-        ],
-      })
+      const section1 = bridgeData.data.insideCrossSections[0]
+      expect(section1.manningCoefficients).toEqual([
+        { station: 0, nValue: 0.09 },
+        { station: 7.575, nValue: 0.035 },
+        { station: 33.923, nValue: 0.09 },
+      ])
     })
 
     it("should parse second bridge section", () => {
-      const section2 = bridgeData.data.bridgeSections[1]
+      const section2 = bridgeData.data.insideCrossSections[1]
       expect(section2.id).toBe(2)
       expect(section2.points).toHaveLength(38)
       expect(section2.bankStations.leftBank).toBe(7.521)
@@ -126,18 +122,18 @@ describe("Bridge Connection Unit Tests", () => {
 
   describe("Cross Sections", () => {
     it("should parse correct number of cross sections", () => {
-      expect(bridgeData.data.crossSections).toHaveLength(2)
+      expect(bridgeData.data.externalCrossSections).toHaveLength(2)
     })
 
     it("should parse first cross section", () => {
-      const xs1 = bridgeData.data.crossSections[0]
+      const xs1 = bridgeData.data.externalCrossSections[0]
       expect(xs1.id).toBe(1)
       expect(xs1.points).toHaveLength(58)
       expect(xs1.points[0]).toEqual({ station: 0, elevation: 251.968 })
     })
 
     it("should parse second cross section", () => {
-      const xs2 = bridgeData.data.crossSections[1]
+      const xs2 = bridgeData.data.externalCrossSections[1]
       expect(xs2.id).toBe(2)
       expect(xs2.points).toHaveLength(53)
       expect(xs2.bankStations.leftBank).toBe(7.528)
@@ -147,18 +143,14 @@ describe("Bridge Connection Unit Tests", () => {
 
   describe("Ineffective Flow Areas", () => {
     it("should parse ineffective flow areas", () => {
-      expect(bridgeData.data.ineffectiveFlowAreas).toHaveLength(2)
-
-      expect(bridgeData.data.ineffectiveFlowAreas[0]).toEqual({
-        type: "USXS",
+      expect(bridgeData.data.upstreamIneffectiveFlowArea).toEqual({
         leftStation: 10.68,
         leftElevation: 252.93,
         rightStation: 29,
         rightElevation: 253.8,
       })
 
-      expect(bridgeData.data.ineffectiveFlowAreas[1]).toEqual({
-        type: "DSXS",
+      expect(bridgeData.data.downstreamIneffectiveFlowArea).toEqual({
         leftStation: 11.68,
         leftElevation: 252.5,
         rightStation: 30,
