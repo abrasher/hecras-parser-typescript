@@ -1,7 +1,0 @@
-export { parseHeader } from "./headerParser"
-export { parseReachData } from "./reachParser"
-export { parseCrossSectionData } from "./crossSectionParser"
-export { parseLateralStructureData } from "./lateralStructureParser"
-export { parseStorageAreaData } from "./storageAreaParser"
-export { parseConnectionData } from "./connectionParser"
-export { parseGisInfo } from "./gisParser"

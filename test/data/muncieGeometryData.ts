@@ -1,7 +1,3 @@
-import { HECRASGeometry } from "../../src/models/geometry"
-import { ManningSegment } from "../../src/models/common"
-import { StorageArea } from "../../src/models/storageArea"
-
 export const expectedHeaders = {
   "Geom Title": "Muncie Base Geometry - 9 SAs",
   "Program Version": "5.00",
@@ -12,7 +8,6 @@ export const expectedHeaders = {
     bottom: 1799678.66049907,
   },
 }
-
 // Key points from the first reach that we want to verify
 export const expectedFirstReachPoints = {
   totalPoints: 87,
@@ -26,7 +21,6 @@ export const expectedFirstReachPoints = {
     { index: 86, point: { x: 404398.089373685, y: 1801686.43567721 } }, // Last point
   ],
 }
-
 export const expectedFirstCrossSection = {
   riverStation: 15696.24,
   lengthL: 228.66,
@@ -64,9 +58,8 @@ export const expectedFirstCrossSection = {
   expansionCoefficient: 0.3,
   contractionCoefficient: 0.1,
 }
-
 export const expectedFirstStorageArea = {
-  id: 146,
+  id: "146",
   centroid: { x: 412647.4244022, y: 1800849.9601867 },
   surfaceLine: [
     {
@@ -273,7 +266,6 @@ export const expectedFirstStorageArea = {
   is2D: 0,
   mannings: 0.06,
 }
-
 export const culvert43Connection = {
   id: "Culv_43",
   description: "Culvert 43",

@@ -1,7 +1,6 @@
-// models/geometry.ts
 import type { StorageArea } from "./storageArea"
 import type { Connection } from "./connection"
-import type { Reach } from "./reach"
+import type { BoundaryCondition } from "./boundaryCondition"
 
 export interface ViewingRectangle {
   left: number
@@ -9,7 +8,15 @@ export interface ViewingRectangle {
   top: number
   bottom: number // HEC-RAS often uses Y1 here (top)
 }
-export interface GisInfo {
+
+export interface HECRASGeometry {
+  geomTitle: string // "Geom Title="
+  programVersion: string // "Program Version"
+  viewingRectangle: ViewingRectangle // "Viewing Rectangle="
+  description?: string
+  storageAreas: StorageArea[]
+  connections: Connection[]
+  boundaryConditions: BoundaryCondition[]
   rasterPath?: string
   units?: string
   dtmType?: string
@@ -18,15 +25,4 @@ export interface GisInfo {
   xsCutLineLayer?: string
   projection?: string
   datum?: string
-  [key: string]: any // For other GIS properties
-}
-
-export class HECRASGeometry {
-  "Geom Title": string | null = null
-  "Program Version": string | null = null
-  "Viewing Rectangle": ViewingRectangle | null = null
-  reaches: Reach[] = []
-  storageAreas: StorageArea[] = []
-  connections: Connection[] = []
-  gisInfo: GisInfo = {}
 }
