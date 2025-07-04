@@ -1,18 +1,18 @@
+// @ts-check
+
 import js from "@eslint/js"
-import tseslint from "@typescript-eslint/eslint-plugin"
-import tsparser from "@typescript-eslint/parser"
+import tseslint from "typescript-eslint"
 import unusedImports from "eslint-plugin-unused-imports"
 
-export default [
+export default tseslint.config(
   js.configs.recommended,
+  ...tseslint.configs.recommended,
   {
     files: ["**/*.ts", "**/*.tsx"],
     languageOptions: {
-      parser: tsparser,
       parserOptions: {
-        ecmaVersion: "latest",
-        sourceType: "module",
-        project: "./tsconfig.json",
+        projectService: true,
+        tsconfigRootDir: import.meta.dirname,
       },
       globals: {
         console: "readonly",
@@ -22,7 +22,6 @@ export default [
       },
     },
     plugins: {
-      "@typescript-eslint": tseslint,
       "unused-imports": unusedImports,
     },
     rules: {
@@ -71,4 +70,4 @@ export default [
   {
     ignores: ["node_modules/**", "dist/**", "*.backup.*"],
   },
-]
+)

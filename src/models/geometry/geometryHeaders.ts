@@ -1,3 +1,7 @@
+import type { StorageArea } from "./storageArea"
+import type { Connection } from "./connection"
+import type { BoundaryCondition } from "./boundaryCondition"
+
 export interface ViewingRectangle {
   left: number
   right: number // HEC-RAS often uses Y2 here (bottom)
@@ -10,8 +14,9 @@ export interface HECRASGeometry {
   programVersion: string // "Program Version"
   viewingRectangle: ViewingRectangle // "Viewing Rectangle="
   description?: string
-  // storageAreas: StorageArea[] = [] // not implemented yet
-  // connections: Connection[] = [] // not implemented yet
+  storageAreas: StorageArea[]
+  connections: Connection[]
+  boundaryConditions: BoundaryCondition[]
   rasterPath?: string
   units?: string
   dtmType?: string

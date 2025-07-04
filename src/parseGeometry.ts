@@ -2,6 +2,9 @@
 
 import type { HECRASGeometry } from "./models/geometry/geometryHeaders"
 import { parseHeader } from "./parsers/geometry/headerParser"
+import { parseStorageAreaData } from "./parsers/geometry/storageAreaParser"
+import { parseConnectionData } from "./parsers/geometry/connectionParser"
+import { parseBoundaryConditionData } from "./parsers/geometry/boundaryConditionParser"
 
 /**
  * Parse a complete HEC-RAS geometry file (.g01, .g02, etc.)
@@ -11,7 +14,14 @@ import { parseHeader } from "./parsers/geometry/headerParser"
  */
 export function parseGeometry(content: string): HECRASGeometry {
   const lines = content.split(/\r\n|\r|\n/)
-  const geometry = {} as HECRASGeometry
+  const geometry = {
+    geomTitle: "",
+    programVersion: "",
+    viewingRectangle: { left: 0, right: 0, top: 0, bottom: 0 },
+    storageAreas: [],
+    connections: [],
+    boundaryConditions: [],
+  } as HECRASGeometry
 
   let index = 0
 
@@ -26,39 +36,39 @@ export function parseGeometry(content: string): HECRASGeometry {
     }
     index = headerResult.nextIndex
 
-    // // Parse main content sections
-    // while (index < lines.length) {
-    //   const line = lines[index]
+    // Parse main content sections
+    while (index < lines.length) {
+      const line = lines[index]
 
-    //   // Skip empty lines
-    //   if (!line || line.trim() === "") {
-    //     index++
-    //     continue
-    //   }
+      // Skip empty lines
+      if (!line || line.trim() === "") {
+        index++
+        continue
+      }
 
-    //   // Parse storage areas
-    //   if (line.startsWith("Storage Area=")) {
-    //     const result = parseStorageArea(line, lines, index)
-    //     geometry.storageAreas.push(result.data)
-    //     index = result.nextIndex
-    //   }
-    //   // Parse connections
-    //   else if (line.startsWith("Connection=")) {
-    //     const result = parseConnection(line, lines, index)
-    //     geometry.connections.push(result.data)
-    //     index = result.nextIndex
-    //   }
-    //   // Parse GIS information
-    //   else if (line.startsWith("GIS") || line.startsWith("Geom Raster")) {
-    //     const result = parseGISInfo(lines, index)
-    //     geometry.gisInfo = result.data
-    //     index = result.nextIndex
-    //   }
-    //   // Skip unrecognized sections for now
-    //   else {
-    //     index++
-    //   }
-    // }
+      // Parse storage areas
+      if (line.startsWith("Storage Area=")) {
+        const result = parseStorageAreaData(line, lines, index)
+        geometry.storageAreas.push(result.data)
+        index = result.nextIndex
+      }
+      // Parse connections
+      else if (line.startsWith("Connection=")) {
+        const result = parseConnectionData(line, lines, index)
+        geometry.connections.push(result.data)
+        index = result.nextIndex
+      }
+      // Parse boundary conditions
+      else if (line.startsWith("BC Line Name=")) {
+        const result = parseBoundaryConditionData(line, lines, index)
+        geometry.boundaryConditions.push(result.data)
+        index = index + result.linesConsumed
+      }
+      // Skip unrecognized sections for now
+      else {
+        index++
+      }
+    }
 
     return geometry
   } catch (error) {

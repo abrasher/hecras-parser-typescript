@@ -7,6 +7,7 @@ This document establishes the standard conventions for writing HEC-RAS file pars
 ### Why New Conventions?
 
 The original parsing approach in this codebase used object mutation patterns that are:
+
 - **Error-prone**: Modifying objects in place makes it harder to track data flow
 - **Hard to test**: Requires pre-creating objects and checking their final state
 - **Type-unsafe**: Mutation can bypass TypeScript's type checking
@@ -15,6 +16,7 @@ The original parsing approach in this codebase used object mutation patterns tha
 ### The New Approach
 
 The new conventions, exemplified by `src/parsers/culvertParser.ts`, use functional programming principles:
+
 - **Immutable**: Create and return new objects instead of mutating parameters
 - **Predictable**: Consistent function signatures and return types
 - **Type-safe**: Full TypeScript type coverage with proper validation
@@ -26,6 +28,7 @@ The new conventions, exemplified by `src/parsers/culvertParser.ts`, use function
 ### 1. Functional Programming
 
 All parsers should be pure functions that:
+
 - Take input parameters without modifying them
 - Return new data structures
 - Have no side effects (except controlled error throwing)
@@ -55,6 +58,7 @@ function parseStorageArea(lines: string[], index: number): { data: StorageArea; 
 ### 3. Type Safety
 
 Use proper TypeScript types throughout:
+
 - All function parameters and return types must be explicitly typed
 - Use union types for optional or variable data
 - Validate inputs and throw descriptive errors for invalid data
@@ -80,8 +84,8 @@ All parsing functions must return objects with this structure:
 
 ```typescript
 type ParseResult<T> = {
-  data: T;           // The parsed data structure
-  nextIndex: number; // Index of the next unparsed line
+  data: T // The parsed data structure
+  nextIndex: number // Index of the next unparsed line
 }
 ```
 
@@ -97,9 +101,9 @@ Standard parameter order for all parsers:
 
 ```typescript
 function parseXxx(
-  line: string,        // The current line being parsed (for validation)
-  lines: string[],     // The complete array of lines
-  currentIndex: number // Index of the current line
+  line: string, // The current line being parsed (for validation)
+  lines: string[], // The complete array of lines
+  currentIndex: number, // Index of the current line
 ): ParseResult<T>
 ```
 
@@ -152,7 +156,7 @@ export function parseCulvertGroup(
     shape: parseInt(parts[0]),
     rise: parseFloat(parts[1]),
     // ... other properties from the main line
-    barrels: [],        // Will be populated below
+    barrels: [], // Will be populated below
     barrelStations: [], // Will be populated below
   } as CulvertGroupProperties
 
@@ -161,7 +165,7 @@ export function parseCulvertGroup(
   // Parse fixed-format sub-data (when count is known)
   const numberOfStationLines = Math.ceil(culvertData.numberOfBarrels / 5)
   const endIndex = index + numberOfStationLines
-  
+
   for (; index < endIndex; index++) {
     const stations = parseLineStationPairs(lines[index])
     culvertData.barrelStations.push(...stations)
@@ -169,7 +173,7 @@ export function parseCulvertGroup(
 
   // Parse variable-format sub-data (until we hit something unrecognized)
   const validKeys = ["Conn Culvert Barrel", "Conn Culv Bottom n"]
-  const isValidLine = (line: string) => validKeys.some(key => line?.startsWith(key))
+  const isValidLine = (line: string) => validKeys.some((key) => line?.startsWith(key))
 
   while (isValidLine(lines[index])) {
     const currentLine = lines[index]
@@ -230,10 +234,11 @@ const lineCount = Math.ceil(numberOfCoordinatesForBarrel / 2)
 Structure parsers hierarchically for complex data:
 
 1. **Collection Level**: `parseXxxData()` - Handles multiple similar items
-2. **Group Level**: `parseXxxGroup()` - Handles one complex item with sub-components  
+2. **Group Level**: `parseXxxGroup()` - Handles one complex item with sub-components
 3. **Item Level**: `parseXxxItem()` - Handles individual sub-components
 
 Example hierarchy:
+
 - `parseCulvertData()` → multiple culvert groups
   - `parseCulvertGroup()` → one culvert group with multiple barrels
     - `parseCulvertBarrel()` → one barrel with coordinates
@@ -292,9 +297,10 @@ const lineCount = Math.ceil(numberOfCoordinatesForBarrel / 2)
 export function parseStorageAreaData(
   lines: string[],
   currentIndex: number,
-  sa: StorageArea,              // Mutating this object
+  sa: StorageArea, // Mutating this object
   isNewSection: (line: string) => boolean,
-): number {                     // Only returns index
+): number {
+  // Only returns index
   let index = currentIndex
   let line = lines[index]
 
@@ -352,14 +358,14 @@ export function parseStorageAreaGroup(
   } as StorageArea
 
   let index = currentIndex + 1
-  
+
   // Parse sub-components
   const validKeys = ["Storage Area Mannings", "Storage Area Surface Line", "Storage Area Vol Elev"]
-  const isValidLine = (line: string) => validKeys.some(key => line?.startsWith(key))
+  const isValidLine = (line: string) => validKeys.some((key) => line?.startsWith(key))
 
   while (index < lines.length && isValidLine(lines[index])) {
     const currentLine = lines[index]
-    
+
     if (currentLine.startsWith("Storage Area Mannings=")) {
       storageArea.mannings = parseFloat(parseKeyValue(currentLine).value)
       index++
@@ -388,11 +394,11 @@ Storage Area Mannings=0.035
 Storage Area Surface Line= 4
     100.0   200.0   110.0   210.0   120.0   220.0   130.0   230.0`
 
-  const lines = testData.split('\n')
+  const lines = testData.split("\n")
 
   it("should parse storage area data correctly", () => {
     const result = parseStorageAreaData(lines[0], lines, 0)
-    
+
     expect(result.data).toHaveLength(1)
     expect(result.data[0].name).toBe("Test Area")
     expect(result.data[0].mannings).toBe(0.035)
@@ -426,18 +432,21 @@ Storage Area Surface Line= 4
 When converting an existing parser to the new conventions:
 
 ### 1. Analyze Current Parser
+
 - [ ] Identify what data structures it creates
 - [ ] Map out the parsing logic flow
 - [ ] Note any special edge cases or format quirks
 - [ ] Check existing tests to understand expected behavior
 
 ### 2. Design New Structure
+
 - [ ] Define TypeScript interfaces for all data structures
 - [ ] Plan the parser hierarchy (collection → group → item)
 - [ ] Identify validation requirements
 - [ ] Design error handling strategy
 
 ### 3. Implement New Parser
+
 - [ ] Create collection-level parser (`parseXxxData`)
 - [ ] Create group-level parser if needed (`parseXxxGroup`)
 - [ ] Create item-level parsers for sub-components
@@ -445,17 +454,20 @@ When converting an existing parser to the new conventions:
 - [ ] Include detailed comments about format and logic
 
 ### 4. Update Tests
+
 - [ ] Convert mutation-based tests to return-value tests
 - [ ] Add input validation tests
 - [ ] Test edge cases and error conditions
 - [ ] Ensure test coverage of all parsing paths
 
 ### 5. Update Integration Points
+
 - [ ] Update any code that calls the old parser
 - [ ] Update import statements if function names changed
 - [ ] Verify compatibility with the broader parsing pipeline
 
 ### 6. Documentation
+
 - [ ] Update any existing format documentation
 - [ ] Add inline comments explaining HEC-RAS format quirks
 - [ ] Document any breaking changes or new requirements
@@ -463,6 +475,7 @@ When converting an existing parser to the new conventions:
 ## Common Pitfalls
 
 ### 1. Index Management
+
 Always be careful with index advancement:
 
 ```typescript
@@ -477,15 +490,16 @@ while (condition) {
   if (someCondition) {
     const { data, nextIndex } = parseSubItem(line, lines, index)
     result.push(data)
-    index = nextIndex  // Let the sub-parser handle advancement
+    index = nextIndex // Let the sub-parser handle advancement
   } else {
     // Handle simple case
-    index++           // Explicit advancement
+    index++ // Explicit advancement
   }
 }
 ```
 
 ### 2. Boundary Checking
+
 Always check array bounds:
 
 ```typescript
@@ -501,6 +515,7 @@ while (index < lines.length && lines[index]?.startsWith("Something")) {
 ```
 
 ### 3. Data Validation
+
 Handle malformed data gracefully:
 
 ```typescript
@@ -512,7 +527,7 @@ data.someNumber = numValue
 const numValue = parseInt(parts[0])
 if (isNaN(numValue)) {
   console.warn(`Invalid number in line: ${line}`)
-  data.someNumber = 0  // or throw a descriptive error
+  data.someNumber = 0 // or throw a descriptive error
 } else {
   data.someNumber = numValue
 }
@@ -521,6 +536,7 @@ if (isNaN(numValue)) {
 ## Conclusion
 
 These conventions ensure that all parsers in the codebase are:
+
 - **Consistent**: Same patterns and function signatures throughout
 - **Maintainable**: Clear, well-documented code that's easy to modify
 - **Testable**: Pure functions that are easy to test comprehensively
