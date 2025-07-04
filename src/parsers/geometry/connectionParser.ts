@@ -47,65 +47,65 @@ export function parseConnectionData(
       connection.name = parseConnectionName(currentLine)
       index++
     } else if (currentLine.startsWith("Connection Desc=")) {
-      connection.description = parseConnectionDescription(currentLine)
+      connection.description = parseKeyValue(currentLine).value.trim()
       index++
     } else if (currentLine.startsWith("Connection Line=")) {
       const { data, nextIndex } = parseConnectionLine(lines, index)
       connection.connectionLine = data
       index = nextIndex
     } else if (currentLine.startsWith("Connection Centerline Profile=")) {
-      connection.centerlineProfile = parseConnectionCenterlineProfile(currentLine)
+      connection.centerlineProfile = parseInt(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.startsWith("Connection Last Edited Time=")) {
-      connection.lastEditedTime = parseConnectionLastEditedTime(currentLine)
+      connection.lastEditedTime = parseKeyValue(currentLine).value.trim()
       index++
     } else if (currentLine.startsWith("Conn CellSize Min=")) {
-      connection.cellSizeMin = parseConnCellSizeMin(currentLine)
+      connection.cellSizeMin = parseInt(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.startsWith("Conn Near Repeats=")) {
-      connection.nearRepeats = parseConnNearRepeats(currentLine)
+      connection.nearRepeats = parseInt(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.startsWith("Connection Up SA=")) {
-      connection.upstreamStorageArea = parseConnectionUpSA(currentLine)
+      connection.upstreamStorageArea = parseKeyValue(currentLine).value.trim()
       index++
     } else if (currentLine.startsWith("Connection Dn SA=")) {
-      connection.downstreamStorageArea = parseConnectionDnSA(currentLine)
+      connection.downstreamStorageArea = parseKeyValue(currentLine).value.trim()
       index++
     } else if (currentLine.includes("Conn Routing Type=")) {
-      connection.routingType = parseConnRoutingType(currentLine)
+      connection.routingType = parseInt(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.includes("Conn Use RC Family=")) {
-      connection.useRCFamily = parseConnUseRCFamily(currentLine)
+      connection.useRCFamily = parseKeyValue(currentLine).value.trim().toLowerCase() === "true"
       index++
     } else if (currentLine.includes("Conn OverFlow Method 2D=")) {
-      connection.overflowMethod2D = parseConnOverFlowMethod2D(currentLine)
+      connection.overflowMethod2D = parseKeyValue(currentLine).value.trim().toLowerCase() === "true"
       index++
     } else if (currentLine.includes("Conn Weir WD=")) {
-      connection.weirWD = parseConnWeirWD(currentLine)
+      connection.weirWD = parseInt(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.includes("Conn Weir Coef=")) {
-      connection.weirCoefficient = parseConnWeirCoef(currentLine)
+      connection.weirCoefficient = parseFloat(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.includes("Conn Weir Is Ogee=")) {
-      connection.weirIsOgee = parseConnWeirIsOgee(currentLine)
+      connection.weirIsOgee = parseInt(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.includes("Conn Weir Design EG=")) {
-      connection.weirDesignEG = parseConnWeirDesignEG(currentLine)
+      connection.weirDesignEG = parseInt(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.includes("Conn Weir Design HT=")) {
-      connection.weirDesignHT = parseConnWeirDesignHT(currentLine)
+      connection.weirDesignHT = parseInt(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.includes("Conn Simple Spill Pos Coef=")) {
-      connection.simpleSpillPosCoef = parseConnSimpleSpillPosCoef(currentLine)
+      connection.simpleSpillPosCoef = parseFloat(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.includes("Conn Simple Spill Neg Coef=")) {
-      connection.simpleSpillNegCoef = parseConnSimpleSpillNegCoef(currentLine)
+      connection.simpleSpillNegCoef = parseFloat(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.includes("Conn Weir SE=")) {
-      connection.weirSE = parseConnWeirSE(currentLine)
+      connection.weirSE = parseInt(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.includes("Conn HTab HWMax=")) {
-      connection.hTabHWMax = parseConnHTabHWMax(currentLine)
+      connection.hTabHWMax = parseInt(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.includes("Conn Outlet Rating Curve=")) {
       connection.outletRatingCurve = parseConnOutletRatingCurve(currentLine)
@@ -143,11 +143,6 @@ function parseConnectionName(line: string): string {
   return parts[0].trim()
 }
 
-function parseConnectionDescription(line: string): string {
-  const { value } = parseKeyValue(line)
-  return value.trim()
-}
-
 function parseConnectionLine(lines: string[], startIndex: number): { data: Coordinate[]; nextIndex: number } {
   const headerLine = lines[startIndex]
   const { value } = parseKeyValue(headerLine)
@@ -159,9 +154,9 @@ function parseConnectionLine(lines: string[], startIndex: number): { data: Coord
   // Connection coordinates may not be defined, so we need to check and escape if there are none
   if (numberOfCoordinates === 0) return { data: coordinates, nextIndex: index }
 
-  // Connection coordinates are 32 characters wide, 16 characters per number, 2 coordinates per line
-  // This means we can fit 1 coordinate pair per line, so number of lines equals numberOfCoordinates
-  const lineCount = numberOfCoordinates
+  // Connection coordinates are 64 characters wide, 16 characters per number, 4 coordinates per line
+  // This means we can fit 2 coordinate pair per line, so number of lines equals numberOfCoordinates
+  const lineCount = Math.ceil(numberOfCoordinates / 2) // 64 char line, 16 per char, 2 coord per pair
 
   const endIndex = index + lineCount
 
@@ -173,98 +168,6 @@ function parseConnectionLine(lines: string[], startIndex: number): { data: Coord
   }
 
   return { data: coordinates, nextIndex: index }
-}
-
-function parseConnectionCenterlineProfile(line: string): number {
-  const { value } = parseKeyValue(line)
-  return parseInt(value.trim())
-}
-
-function parseConnectionLastEditedTime(line: string): string {
-  const { value } = parseKeyValue(line)
-  return value.trim()
-}
-
-// Computational settings parsers
-function parseConnCellSizeMin(line: string): number {
-  const { value } = parseKeyValue(line)
-  return parseInt(value.trim())
-}
-
-function parseConnNearRepeats(line: string): number {
-  const { value } = parseKeyValue(line)
-  return parseInt(value.trim())
-}
-
-function parseConnectionUpSA(line: string): string {
-  const { value } = parseKeyValue(line)
-  return value.trim()
-}
-
-function parseConnectionDnSA(line: string): string {
-  const { value } = parseKeyValue(line)
-  return value.trim()
-}
-
-function parseConnRoutingType(line: string): number {
-  const { value } = parseKeyValue(line)
-  return parseInt(value.trim())
-}
-
-function parseConnUseRCFamily(line: string): boolean {
-  const { value } = parseKeyValue(line)
-  return value.trim().toLowerCase() === "true"
-}
-
-function parseConnOverFlowMethod2D(line: string): boolean {
-  const { value } = parseKeyValue(line)
-  return value.trim().toLowerCase() === "true"
-}
-
-// Weir properties parsers
-function parseConnWeirWD(line: string): number {
-  const { value } = parseKeyValue(line)
-  return parseInt(value.trim())
-}
-
-function parseConnWeirCoef(line: string): number {
-  const { value } = parseKeyValue(line)
-  return parseFloat(value.trim())
-}
-
-function parseConnWeirIsOgee(line: string): number {
-  const { value } = parseKeyValue(line)
-  return parseInt(value.trim())
-}
-
-function parseConnWeirDesignEG(line: string): number {
-  const { value } = parseKeyValue(line)
-  return parseInt(value.trim())
-}
-
-function parseConnWeirDesignHT(line: string): number {
-  const { value } = parseKeyValue(line)
-  return parseInt(value.trim())
-}
-
-function parseConnSimpleSpillPosCoef(line: string): number {
-  const { value } = parseKeyValue(line)
-  return parseFloat(value.trim())
-}
-
-function parseConnSimpleSpillNegCoef(line: string): number {
-  const { value } = parseKeyValue(line)
-  return parseFloat(value.trim())
-}
-
-function parseConnWeirSE(line: string): number {
-  const { value } = parseKeyValue(line)
-  return parseInt(value.trim())
-}
-
-function parseConnHTabHWMax(line: string): number {
-  const { value } = parseKeyValue(line)
-  return parseInt(value.trim())
 }
 
 function parseConnOutletRatingCurve(line: string): {

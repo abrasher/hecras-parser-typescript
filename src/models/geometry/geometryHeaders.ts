@@ -5,10 +5,10 @@ export interface ViewingRectangle {
   bottom: number // HEC-RAS often uses Y1 here (top)
 }
 
-export class HECRASGeometry {
-  geomTitle: string | null = null // "Geom Title="
-  programVersion: string | null = null // "Program Version"
-  viewingRectangle: ViewingRectangle | null = null // "Viewing Rectangle="
+export interface HECRASGeometry {
+  geomTitle: string // "Geom Title="
+  programVersion: string // "Program Version"
+  viewingRectangle: ViewingRectangle // "Viewing Rectangle="
   description?: string
   // storageAreas: StorageArea[] = [] // not implemented yet
   // connections: Connection[] = [] // not implemented yet
