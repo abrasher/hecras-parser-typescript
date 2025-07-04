@@ -388,7 +388,7 @@ function parseBridgeCoefficients(line: string): BridgeCoefficients {
     coef6: null, // always null based on expected
     coef7: parseFloat(parts[5]), // 0.8 (from parts[5])
     coef8: parseInt(parts[6]), // 0 (from parts[6])
-    coef9: parts[7] === "" ? null : parseInt(parts[7]), // null (empty)
+    coef9: parts[7] === "" ? null : parseFloat(parts[7]), // 1.2
     coef10: parseInt(parts[8]), // 0 (from parts[8])
     coef11: parts[9] === "" ? null : parseInt(parts[9]), // null (empty)
   }

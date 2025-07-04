@@ -1,6 +1,7 @@
 import { describe, expect, it, beforeAll } from "vitest"
 import type { Connection } from "../../src/models/geometry/connection"
 import type { BridgeCrossSection } from "../../src/models/geometry/bridge"
+import { parseConnectionData } from "../../src/parsers/geometry/connectionParser"
 
 const lineString = `Connection=DM22-38608      ,0,0
 Connection Desc=2nd bridge downstream of Dingman Dr
@@ -98,7 +99,8 @@ describe("Connection parsing tests", () => {
 
   beforeAll(() => {
     // This would be implemented with actual connection parser
-    connectionData = parseConnectionData(lines[0], lines, 0)
+    const result = parseConnectionData(lines[0], lines, 0)
+    connectionData = result.data
   })
 
   describe("Basic Connection Properties", () => {
