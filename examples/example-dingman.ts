@@ -1,7 +1,7 @@
 #!/usr/bin/env tsx
 
 import { readFileSync } from "fs"
-import { parseGeometry } from "./src/parseGeometry"
+import { parseGeometry } from "../src/parseGeometry"
 
 /**
  * Example script demonstrating how to parse a HEC-RAS geometry file
@@ -23,9 +23,8 @@ async function main() {
 
     // Display parsing results summary
     console.log("\n=== PARSING RESULTS ===")
-    console.log(`Geometry Title: ${geometryData.geometryTitle || "Not specified"}`)
+    console.log(`Geometry Title: ${geometryData.geomTitle || "Not specified"}`)
     console.log(`Program Version: ${geometryData.programVersion || "Not specified"}`)
-    console.log(`Last Modified: ${geometryData.lastModified || "Not specified"}`)
 
     // Display parsed components
     console.log("\n=== PARSED COMPONENTS ===")
@@ -33,7 +32,7 @@ async function main() {
     if (geometryData.storageAreas) {
       console.log(`Storage Areas: ${geometryData.storageAreas.length}`)
       geometryData.storageAreas.forEach((sa, index) => {
-        console.log(`  ${index + 1}. ${sa.name} (${sa.coordinates?.length || 0} coordinates)`)
+        console.log(`  ${index + 1}. ${sa.id} (${sa.surfaceLine?.length || 0} coordinates)`)
       })
     }
 
@@ -50,10 +49,10 @@ async function main() {
         console.log(`  ${index + 1}. ${conn.name} (${type})`)
 
         if (conn.bridge) {
-          console.log(`     - Bridge: ${conn.bridge.deckStations?.length || 0} deck stations`)
+          console.log(`     - Bridge: ${conn.bridge.deckParameters?.upstream?.length || 0} deck stations`)
         }
         if (conn.culvert) {
-          console.log(`     - Culvert: ${conn.culvert.barrels?.length || 0} barrels`)
+          console.log(`     - Culvert: ${conn.culvert.length} culvert groups`)
         }
         if (conn.connectionLine) {
           console.log(`     - Connection line: ${conn.connectionLine.length} coordinates`)
@@ -62,8 +61,8 @@ async function main() {
     }
 
     // Display any additional parsed data
-    if (geometryData.manningsValues) {
-      console.log(`Manning's N Values: ${geometryData.manningsValues.length}`)
+    if (geometryData.boundaryConditions) {
+      console.log(`Boundary Conditions: ${geometryData.boundaryConditions.length}`)
     }
 
     console.log("\n=== PARSING COMPLETE ===")
@@ -81,9 +80,6 @@ async function main() {
   }
 }
 
-// Run the example if this script is executed directly
-if (import.meta.url === `file://${process.argv[1]}`) {
-  main()
-}
+main()
 
 export { main }
