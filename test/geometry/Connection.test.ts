@@ -1,3 +1,7 @@
+import { describe, expect, it, beforeAll } from "vitest"
+import type { Connection } from "../../src/models/geometry/connection"
+import type { BridgeCrossSection } from "../../src/models/geometry/bridge"
+
 const lineString = `Connection=DM22-38608      ,0,0
 Connection Desc=2nd bridge downstream of Dingman Dr
 Connection Line=2
@@ -87,3 +91,534 @@ Conn BR: XS Mann=2,3
        0     .09   3.961    .035  16.476     .09
 Conn BR: USXS Ineff=3.24,260.6,16.87,260.72
 Conn BR: DSXS Ineff=3.24,260.55,16.87,260.72`
+
+describe("Connection parsing tests", () => {
+  const lines = lineString.split("\n")
+  let connectionData: Connection
+
+  beforeAll(() => {
+    // This would be implemented with actual connection parser
+    connectionData = parseConnectionData(lines[0], lines, 0)
+  })
+
+  describe("Basic Connection Properties", () => {
+    it("should parse connection name", () => {
+      expect(connectionData.name).toBe("DM22-38608")
+    })
+
+    it("should parse connection description", () => {
+      expect(connectionData.description).toBe("2nd bridge downstream of Dingman Dr")
+    })
+
+    it("should parse connection line coordinates", () => {
+      expect(connectionData.connectionLine).toEqual([
+        { x: 483888.50815, y: 4751220.0721 },
+        { x: 483877.6897, y: 4751236.0422 },
+      ])
+    })
+
+    it("should parse centerline profile", () => {
+      expect(connectionData.centerlineProfile).toBe(0)
+    })
+
+    it("should parse last edited time", () => {
+      expect(connectionData.lastEditedTime).toBe("May-15-2025 15:58:25")
+    })
+  })
+
+  describe("Computational Settings", () => {
+    it("should parse cell size minimum", () => {
+      expect(connectionData.cellSizeMin).toBe(2)
+    })
+
+    it("should parse near repeats", () => {
+      expect(connectionData.nearRepeats).toBe(1)
+    })
+
+    it("should parse routing type", () => {
+      expect(connectionData.routingType).toBe(32)
+    })
+
+    it("should parse use RC family flag", () => {
+      expect(connectionData.useRCFamily).toBe(false)
+    })
+
+    it("should parse overflow method 2D flag", () => {
+      expect(connectionData.overflowMethod2D).toBe(true)
+    })
+  })
+
+  describe("Storage Area Connections", () => {
+    it("should parse upstream storage area", () => {
+      expect(connectionData.upstreamStorageArea).toBe("2D_Grid")
+    })
+
+    it("should parse downstream storage area", () => {
+      expect(connectionData.downstreamStorageArea).toBe("2D_Grid")
+    })
+  })
+
+  describe("Weir Properties", () => {
+    it("should parse weir width", () => {
+      expect(connectionData.weirWD).toBe(3)
+    })
+
+    it("should parse weir coefficient", () => {
+      expect(connectionData.weirCoefficient).toBe(1.4)
+    })
+
+    it("should parse weir is ogee flag", () => {
+      expect(connectionData.weirIsOgee).toBe(0)
+    })
+
+    it("should parse weir design parameters", () => {
+      expect(connectionData.weirDesignEG).toBe(0)
+      expect(connectionData.weirDesignHT).toBe(0)
+    })
+
+    it("should parse spill coefficients", () => {
+      expect(connectionData.simpleSpillPosCoef).toBe(0.05)
+      expect(connectionData.simpleSpillNegCoef).toBe(0.05)
+    })
+
+    it("should parse weir SE", () => {
+      expect(connectionData.weirSE).toBe(0)
+    })
+
+    it("should parse hydraulic table max", () => {
+      expect(connectionData.hTabHWMax).toBe(267)
+    })
+  })
+
+  describe("Outlet Rating Curve", () => {
+    it("should parse outlet rating curve parameters", () => {
+      expect(connectionData.outletRatingCurve).toEqual({
+        value: 0,
+        flag: false,
+        param3: "",
+        param4: "",
+      })
+    })
+  })
+
+  describe("Bridge Connection", () => {
+    it("should have bridge data", () => {
+      expect(connectionData.bridge).toBeDefined()
+    })
+
+    it("should parse bridge configuration", () => {
+      expect(connectionData.bridge!.bridge).toEqual({
+        momentumEquationAddFriction: -1,
+        momentumEquationAddWeight: 0,
+        pressureFlowCriteria: -1,
+        classBDefaults: -1,
+        param5: 0,
+        contractionCoefficient: 0.3,
+        expansionCoefficient: 0.5,
+      })
+    })
+
+    it("should parse pressure weir data", () => {
+      expect(connectionData.bridge!.pressureWeir).toEqual({
+        value1: 0.08,
+        value2: null,
+        value3: 0.25,
+        value4: null,
+        value5: 0.016,
+      })
+    })
+
+    it("should parse deck parameters", () => {
+      const deckParams = connectionData.bridge!.deckParameters
+      expect(deckParams.deckDistance).toBe(2)
+      expect(deckParams.width).toBe(3)
+      expect(deckParams.weirCoefficient).toBe(1.4)
+      expect(deckParams.skew).toBe(0)
+      expect(deckParams.numberOfUpstreamStations).toBe(11)
+      expect(deckParams.numberOfDownstreamStations).toBe(11)
+      expect(deckParams.maxSubmerge).toBe(0.98)
+      expect(deckParams.isOgee).toBe(0)
+    })
+
+    it("should parse bridge sections", () => {
+      expect(connectionData.bridge!.insideCrossSections).toHaveLength(2)
+
+      const section1 = connectionData.bridge!.insideCrossSections[0]
+      expect(section1.id).toBe(1)
+      expect(section1.points).toHaveLength(40)
+      expect(section1.points[0]).toEqual({ station: 0, elevation: 260.817 })
+      expect(section1.bankStations.leftBank).toBe(2.043)
+      expect(section1.bankStations.rightBank).toBe(17.92)
+    })
+
+    it("should parse bridge coefficients", () => {
+      expect(connectionData.bridge!.bridgeCoefficients).toEqual({
+        coef1: -1,
+        coef2: 0,
+        coef3: 0,
+        coef4: null,
+        coef5: null,
+        coef6: null,
+        coef7: 0.8,
+        coef8: 0,
+        coef9: 1.2,
+        coef10: 0,
+        coef11: null,
+      })
+    })
+
+    it("should parse bridge skew", () => {
+      expect(connectionData.bridge!.bridgeSkew).toBe(0)
+    })
+
+    it("should parse cross sections", () => {
+      expect(connectionData.bridge!.externalCrossSections).toHaveLength(2)
+
+      const xs1 = connectionData.bridge!.externalCrossSections[0]
+      expect(xs1.id).toBe(1)
+      expect(xs1.points).toHaveLength(32)
+      expect(xs1.points[0]).toEqual({ station: 0, elevation: 260.408 })
+    })
+
+    it("should parse ineffective flow areas", () => {
+      expect(connectionData.bridge!.upstreamIneffectiveFlowArea).toEqual({
+        leftStation: 3.24,
+        leftElevation: 260.6,
+        rightStation: 16.87,
+        rightElevation: 260.72,
+      })
+
+      expect(connectionData.bridge!.downstreamIneffectiveFlowArea).toEqual({
+        leftStation: 3.24,
+        leftElevation: 260.55,
+        rightStation: 16.87,
+        rightElevation: 260.72,
+      })
+    })
+  })
+
+  describe("Complete Object Validation", () => {
+    it("should equal the complete expected object", () => {
+      expect(connectionData).toEqual(expectedConnection)
+    })
+  })
+})
+
+const expectedConnection: Connection = {
+  name: "DM22-38608",
+  description: "2nd bridge downstream of Dingman Dr",
+  connectionLine: [
+    { x: 483888.50815, y: 4751220.0721 },
+    { x: 483877.6897, y: 4751236.0422 },
+  ],
+  centerlineProfile: 0,
+  lastEditedTime: "May-15-2025 15:58:25",
+  cellSizeMin: 2,
+  nearRepeats: 1,
+  upstreamStorageArea: "2D_Grid",
+  downstreamStorageArea: "2D_Grid",
+  routingType: 32,
+  useRCFamily: false,
+  overflowMethod2D: true,
+  weirWD: 3,
+  weirCoefficient: 1.4,
+  weirIsOgee: 0,
+  weirDesignEG: 0,
+  weirDesignHT: 0,
+  simpleSpillPosCoef: 0.05,
+  simpleSpillNegCoef: 0.05,
+  weirSE: 0,
+  hTabHWMax: 267,
+  outletRatingCurve: {
+    value: 0,
+    flag: false,
+    param3: "",
+    param4: "",
+  },
+  bridge: {
+    bridge: {
+      momentumEquationAddFriction: -1,
+      momentumEquationAddWeight: 0,
+      pressureFlowCriteria: -1,
+      classBDefaults: -1,
+      param5: 0,
+      contractionCoefficient: 0.3,
+      expansionCoefficient: 0.5,
+    },
+    pressureWeir: {
+      value1: 0.08,
+      value2: null,
+      value3: 0.25,
+      value4: null,
+      value5: 0.016,
+    },
+    deckParameters: {
+      deckDistance: 2,
+      width: 3,
+      weirCoefficient: 1.4,
+      skew: 0,
+      numberOfUpstreamStations: 11,
+      numberOfDownstreamStations: 11,
+      minLowCoordinate: null,
+      maxHighCoordinate: null,
+      maxSubmerge: 0.98,
+      isOgee: 0,
+      upstream: [
+        { station: 2, highChord: 260.83, lowChord: null },
+        { station: 2.61, highChord: 261.67, lowChord: null },
+        { station: 3.24, highChord: 261.67, lowChord: null },
+        { station: 3.24, highChord: 261.67, lowChord: 260.52 },
+        { station: 6.66, highChord: 261.7, lowChord: 260.24 },
+        { station: 13.09, highChord: 261.73, lowChord: 260.38 },
+        { station: 16.35, highChord: 261.75, lowChord: 260.71 },
+        { station: 16.87, highChord: 261.77, lowChord: 260.71 },
+        { station: 16.87, highChord: 261.77, lowChord: null },
+        { station: 17.33, highChord: 261.77, lowChord: null },
+        { station: 17.78, highChord: 261.05, lowChord: null },
+      ],
+      downstream: [
+        { station: 2, highChord: 260.83, lowChord: null },
+        { station: 2.61, highChord: 261.67, lowChord: null },
+        { station: 3.24, highChord: 261.67, lowChord: null },
+        { station: 3.24, highChord: 261.67, lowChord: 260.52 },
+        { station: 6.66, highChord: 261.7, lowChord: 260.24 },
+        { station: 13.09, highChord: 261.73, lowChord: 260.38 },
+        { station: 16.35, highChord: 261.75, lowChord: 260.71 },
+        { station: 16.87, highChord: 261.77, lowChord: 260.71 },
+        { station: 16.87, highChord: 261.77, lowChord: null },
+        { station: 17.33, highChord: 261.77, lowChord: null },
+        { station: 17.78, highChord: 261.05, lowChord: null },
+      ],
+    },
+    insideCrossSections: [
+      {
+        id: 1,
+        points: [
+          { station: 0, elevation: 260.817 },
+          { station: 0.407, elevation: 260.859 },
+          { station: 0.602, elevation: 260.838 },
+          { station: 1.011, elevation: 260.833 },
+          { station: 1.614, elevation: 260.736 },
+          { station: 2.043, elevation: 260.584 },
+          { station: 2.403, elevation: 260.492 },
+          { station: 2.822, elevation: 260.327 },
+          { station: 3.426, elevation: 259.969 },
+          { station: 3.566, elevation: 259.645 },
+          { station: 3.843, elevation: 258.84 },
+          { station: 4.03, elevation: 258.631 },
+          { station: 4.923, elevation: 258.586 },
+          { station: 5.238, elevation: 258.546 },
+          { station: 6.003, elevation: 258.389 },
+          { station: 6.363, elevation: 258.269 },
+          { station: 6.723, elevation: 258.12 },
+          { station: 7.05, elevation: 258.022 },
+          { station: 8.258, elevation: 257.839 },
+          { station: 8.915, elevation: 257.766 },
+          { station: 9.603, elevation: 257.784 },
+          { station: 11.043, elevation: 257.863 },
+          { station: 11.277, elevation: 257.884 },
+          { station: 11.763, elevation: 257.997 },
+          { station: 12.483, elevation: 258.273 },
+          { station: 12.844, elevation: 258.446 },
+          { station: 13.204, elevation: 258.717 },
+          { station: 13.373, elevation: 258.818 },
+          { station: 13.564, elevation: 258.899 },
+          { station: 13.693, elevation: 258.922 },
+          { station: 14.297, elevation: 258.929 },
+          { station: 14.644, elevation: 258.956 },
+          { station: 15.364, elevation: 259.117 },
+          { station: 15.505, elevation: 259.181 },
+          { station: 15.724, elevation: 259.337 },
+          { station: 17.316, elevation: 260.503 },
+          { station: 17.92, elevation: 260.79 },
+          { station: 18.524, elevation: 260.894 },
+          { station: 18.722, elevation: 260.901 },
+          { station: 19.289, elevation: 260.858 },
+        ],
+        bankStations: {
+          sectionId: 1,
+          leftBank: 2.043,
+          rightBank: 17.92,
+        },
+        manningCoefficients: [
+          { station: 0, nValue: 0.09 },
+          { station: 2.043, nValue: 0.035 },
+          { station: 17.92, nValue: 0.09 },
+        ],
+      },
+      {
+        id: 2,
+        points: [
+          { station: 0, elevation: 260.819 },
+          { station: 0.386, elevation: 260.77 },
+          { station: 0.746, elevation: 260.695 },
+          { station: 1.466, elevation: 260.607 },
+          { station: 1.835, elevation: 260.505 },
+          { station: 2.439, elevation: 260.32 },
+          { station: 3.266, elevation: 259.94 },
+          { station: 3.647, elevation: 259.781 },
+          { station: 4.251, elevation: 258.204 },
+          { station: 5.458, elevation: 258.127 },
+          { station: 6.062, elevation: 258.028 },
+          { station: 6.666, elevation: 257.907 },
+          { station: 7.161, elevation: 257.834 },
+          { station: 9.082, elevation: 257.709 },
+          { station: 9.686, elevation: 257.737 },
+          { station: 11.907, elevation: 258.189 },
+          { station: 12.102, elevation: 258.247 },
+          { station: 12.267, elevation: 258.331 },
+          { station: 12.706, elevation: 258.609 },
+          { station: 12.987, elevation: 258.761 },
+          { station: 13.309, elevation: 258.883 },
+          { station: 14.517, elevation: 258.855 },
+          { station: 15.121, elevation: 258.859 },
+          { station: 15.507, elevation: 259.076 },
+          { station: 15.725, elevation: 259.232 },
+          { station: 16.227, elevation: 259.547 },
+          { station: 16.587, elevation: 259.817 },
+          { station: 16.968, elevation: 260.135 },
+          { station: 17.307, elevation: 260.342 },
+          { station: 17.859, elevation: 260.711 },
+          { station: 18.027, elevation: 260.802 },
+          { station: 18.141, elevation: 260.85 },
+          { station: 18.745, elevation: 260.906 },
+          { station: 19.107, elevation: 260.858 },
+          { station: 19.289, elevation: 260.865 },
+        ],
+        bankStations: {
+          sectionId: 2,
+          leftBank: 3.647,
+          rightBank: 16.968,
+        },
+        manningCoefficients: [
+          { station: 0, nValue: 0.09 },
+          { station: 3.647, nValue: 0.035 },
+          { station: 16.968, nValue: 0.09 },
+        ],
+      },
+    ] as [BridgeCrossSection, BridgeCrossSection],
+    bridgeCoefficients: {
+      coef1: -1,
+      coef2: 0,
+      coef3: 0,
+      coef4: null,
+      coef5: null,
+      coef6: null,
+      coef7: 0.8,
+      coef8: 0,
+      coef9: 1.2,
+      coef10: 0,
+      coef11: null,
+    },
+    bridgeSkew: 0,
+    externalCrossSections: [
+      {
+        id: 1,
+        points: [
+          { station: 0, elevation: 260.408 },
+          { station: 0.278, elevation: 260.382 },
+          { station: 0.987, elevation: 260.404 },
+          { station: 1.468, elevation: 260.396 },
+          { station: 2.675, elevation: 260.318 },
+          { station: 3.279, elevation: 259.02 },
+          { station: 4.587, elevation: 258.908 },
+          { station: 4.947, elevation: 258.853 },
+          { station: 5.695, elevation: 258.709 },
+          { station: 6.027, elevation: 258.549 },
+          { station: 6.388, elevation: 258.327 },
+          { station: 6.748, elevation: 258.176 },
+          { station: 7.108, elevation: 258.085 },
+          { station: 8.111, elevation: 257.887 },
+          { station: 8.715, elevation: 257.809 },
+          { station: 10.526, elevation: 257.723 },
+          { station: 11.13, elevation: 257.739 },
+          { station: 11.867, elevation: 257.894 },
+          { station: 12.759, elevation: 258.107 },
+          { station: 13.228, elevation: 258.245 },
+          { station: 13.546, elevation: 258.314 },
+          { station: 14.15, elevation: 258.665 },
+          { station: 14.754, elevation: 259.08 },
+          { station: 15.028, elevation: 259.232 },
+          { station: 15.358, elevation: 259.357 },
+          { station: 16.108, elevation: 259.553 },
+          { station: 16.468, elevation: 259.614 },
+          { station: 16.828, elevation: 259.718 },
+          { station: 17.909, elevation: 259.939 },
+          { station: 18.108, elevation: 259.994 },
+          { station: 18.377, elevation: 260.1 },
+          { station: 19.289, elevation: 260.159 },
+        ],
+        bankStations: {
+          sectionId: 1,
+          leftBank: 2.675,
+          rightBank: 17.909,
+        },
+        manningCoefficients: [
+          { station: 0, nValue: 0.09 },
+          { station: 2.675, nValue: 0.035 },
+          { station: 17.909, nValue: 0.09 },
+        ],
+      },
+      {
+        id: 2,
+        points: [
+          { station: 0, elevation: 260.421 },
+          { station: 0.774, elevation: 260.379 },
+          { station: 1.081, elevation: 260.336 },
+          { station: 1.441, elevation: 260.26 },
+          { station: 1.982, elevation: 260.199 },
+          { station: 2.521, elevation: 260.104 },
+          { station: 3.241, elevation: 259.917 },
+          { station: 3.961, elevation: 259.643 },
+          { station: 4.398, elevation: 259.505 },
+          { station: 5.001, elevation: 257.997 },
+          { station: 6.121, elevation: 257.956 },
+          { station: 6.842, elevation: 257.844 },
+          { station: 7.202, elevation: 257.81 },
+          { station: 9.229, elevation: 257.703 },
+          { station: 9.558, elevation: 257.729 },
+          { station: 9.833, elevation: 257.769 },
+          { station: 11.882, elevation: 258.203 },
+          { station: 12.249, elevation: 258.324 },
+          { station: 12.852, elevation: 258.73 },
+          { station: 12.962, elevation: 258.781 },
+          { station: 13.456, elevation: 258.834 },
+          { station: 14.762, elevation: 258.859 },
+          { station: 15.268, elevation: 258.927 },
+          { station: 15.482, elevation: 259.036 },
+          { station: 15.798, elevation: 259.246 },
+          { station: 16.476, elevation: 259.822 },
+          { station: 16.69, elevation: 259.917 },
+          { station: 16.922, elevation: 259.989 },
+          { station: 17.282, elevation: 260.067 },
+          { station: 17.581, elevation: 260.105 },
+          { station: 18.003, elevation: 260.122 },
+          { station: 18.363, elevation: 260.131 },
+          { station: 19.289, elevation: 260.061 },
+        ],
+        bankStations: {
+          sectionId: 2,
+          leftBank: 3.961,
+          rightBank: 16.476,
+        },
+        manningCoefficients: [
+          { station: 0, nValue: 0.09 },
+          { station: 3.961, nValue: 0.035 },
+          { station: 16.476, nValue: 0.09 },
+        ],
+      },
+    ] as [BridgeCrossSection, BridgeCrossSection],
+    upstreamIneffectiveFlowArea: {
+      leftStation: 3.24,
+      leftElevation: 260.6,
+      rightStation: 16.87,
+      rightElevation: 260.72,
+    },
+    downstreamIneffectiveFlowArea: {
+      leftStation: 3.24,
+      leftElevation: 260.55,
+      rightStation: 16.87,
+      rightElevation: 260.72,
+    },
+  },
+}

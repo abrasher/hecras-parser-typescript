@@ -15,8 +15,8 @@ export interface Connection {
   nearRepeats?: number
 
   // Storage area connections
-  upstreamStorageArea?: string
-  downstreamStorageArea?: string
+  upstreamStorageArea: string
+  downstreamStorageArea: string
 
   // Routing and flow settings
   routingType?: number
