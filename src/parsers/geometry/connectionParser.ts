@@ -1,8 +1,8 @@
-import { parseKeyValue, parseCommaSeparated } from "../atomic"
+import { parseKeyValue, parseCommaSeparated, chunkStringToNumbers } from "../atomic"
 import { parseLineToCoordinates } from "../lineParsers"
 import { parseBridgeData } from "./bridgeParser"
 import type { Connection } from "../../models/geometry/connection"
-import type { Coordinate } from "../../models/geometry/common"
+import type { Coordinate, StationElevationPoint } from "../../models/geometry/common"
 
 /**
  * Parses connection data starting from a "Connection=" line
@@ -102,8 +102,9 @@ export function parseConnectionData(
       connection.simpleSpillNegCoef = parseFloat(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.includes("Conn Weir SE=")) {
-      connection.weirSE = parseInt(parseKeyValue(currentLine).value.trim())
-      index++
+      const { data, nextIndex } = parseWeirStationElevation(lines, index)
+      connection.weirSE = data
+      index = nextIndex + 1
     } else if (currentLine.includes("Conn HTab HWMax=")) {
       connection.hTabHWMax = parseInt(parseKeyValue(currentLine).value.trim())
       index++
@@ -131,7 +132,21 @@ function isConnectionLine(line: string): boolean {
     "Connection Last Edited Time=",
     "Connection Up SA=",
     "Connection Dn SA=",
-    "Conn ",
+    "Conn CellSize Min=",
+    "Conn Near Repeats=",
+    "Conn Routing Type=",
+    "Conn Use RC Family=",
+    "Conn OverFlow Method 2D=",
+    "Conn Weir WD=",
+    "Conn Weir Coef=",
+    "Conn Weir Is Ogee=",
+    "Conn Weir Design EG=",
+    "Conn Weir Design HT=",
+    "Conn Simple Spill Pos Coef=",
+    "Conn Simple Spill Neg Coef=",
+    "Conn Weir SE=",
+    "Conn HTab HWMax=",
+    "Conn Outlet Rating Curve=",
   ]
   return connectionPrefixes.some((prefix) => line?.startsWith(prefix))
 }
@@ -185,4 +200,34 @@ function parseConnOutletRatingCurve(line: string): {
     param3: parts[2] || "",
     param4: parts[3] || "",
   }
+}
+
+function parseWeirStationElevation(lines: string[], currentIndex: number) {
+  const currentLine = lines[currentIndex]
+  console.log(`FFFFFFFFFFFFFFF ${currentLine}`)
+
+  const pointCount = parseInt(parseKeyValue(currentLine).value)
+
+  let index = currentIndex + 1
+
+  // Parse station-elevation points
+  const points: StationElevationPoint[] = []
+  const pointLines = Math.ceil(pointCount / 5) // 5 pairs per line
+
+  for (let i = 0; i < pointLines; i++) {
+    const pointLine = lines[index + i]
+    const nums = chunkStringToNumbers(pointLine, 8)
+
+    for (let j = 0; j < nums.length; j += 2) {
+      if (j + 1 < nums.length) {
+        points.push({
+          station: nums[j],
+          elevation: nums[j + 1],
+        })
+      }
+    }
+  }
+  index += pointLines
+
+  return { data: points, nextIndex: index }
 }
