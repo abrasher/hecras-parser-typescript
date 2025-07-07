@@ -132,7 +132,7 @@ function plotCrossSection(points: StationElevationPoint[], title: string, filena
 async function main() {
   try {
     // Read the Dingman.g01 geometry file
-    const filePath = "./test/data/Dingman.g01"
+    const filePath = `C:\\Users\\abrasher\\OneDrive - KGS Group\\Projects - OneDrive\\Dingman\\Hydraulic Models\\Dingman 2D Model 2024-2 FINAL\\Dingman 2D Model.g02`
     console.log(`Reading HEC-RAS geometry file: ${filePath}`)
 
     const fileContent = readFileSync(filePath, "utf-8")
@@ -185,6 +185,15 @@ async function main() {
     // Display any additional parsed data
     if (geometryData.boundaryConditions) {
       console.log(`Boundary Conditions: ${geometryData.boundaryConditions.length}`)
+    }
+
+    // Save parsed geometry object to a JSON file
+    const outputJsonPath = "./parsed-geometry.json"
+    try {
+      writeFileSync(outputJsonPath, JSON.stringify(geometryData, null, 2), "utf-8")
+      console.log(`\nSaved parsed geometry to: ${outputJsonPath}`)
+    } catch (err) {
+      console.error(`Failed to save parsed geometry:`, err)
     }
 
     console.log("\n=== PARSING COMPLETE ===")
