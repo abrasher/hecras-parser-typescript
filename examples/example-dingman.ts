@@ -132,7 +132,7 @@ function plotCrossSection(points: StationElevationPoint[], title: string, filena
 async function main() {
   try {
     // Read the Dingman.g01 geometry file
-    const filePath = `C:\\Users\\abrasher\\OneDrive - KGS Group\\Projects - OneDrive\\Dingman\\Hydraulic Models\\Dingman 2D Model 2024-2 FINAL\\Dingman 2D Model.g02`
+    const filePath = "test/data/Dingman.g01"
     console.log(`Reading HEC-RAS geometry file: ${filePath}`)
 
     const fileContent = readFileSync(filePath, "utf-8")
