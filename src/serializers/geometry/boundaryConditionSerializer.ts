@@ -1,60 +1,36 @@
-// Boundary condition serializer for HEC-RAS format
-// Reverses the boundary condition parsing process to produce exact format output
-
-import type { BoundaryCondition, TextPosition } from "../../models/geometry/boundaryCondition"
-import type { Coordinate } from "../../models/geometry/common"
-import { formatKeyValue, formatCoordinateLines } from "../atomic"
+import type { BoundaryCondition } from "../../models/geometry/boundaryCondition"
+import { formatCoordinateMultipleLines } from "../utils"
 
 /**
  * Serialize boundary condition to HEC-RAS format
- * @param boundaryCondition Boundary condition properties
+ * @param bc Boundary condition properties
  * @returns Array of formatted lines
  */
-export function serializeBoundaryCondition(boundaryCondition: BoundaryCondition): string[] {
+export function serializeBoundaryCondition(bc: BoundaryCondition): string[] {
   const lines: string[] = []
 
   // BC Line Name
-  lines.push(formatKeyValue("BC Line Name", boundaryCondition.name))
+  lines.push(`BC Line Name=${bc.name.padEnd(32)}`)
 
   // BC Line Storage Area
-  lines.push(formatKeyValue("BC Line Storage Area", boundaryCondition.storageArea))
+  lines.push(`BC Line Storage Area=${bc.storageArea.padEnd(16)}`)
 
   // BC Line Start Position
-  lines.push(formatKeyValue("BC Line Start Position", formatCoordinateString(boundaryCondition.startPosition)))
+  lines.push(`BC Line Start Position= ${bc.startPosition.x} , ${bc.startPosition.y} `)
 
   // BC Line Middle Position
-  lines.push(formatKeyValue("BC Line Middle Position", formatCoordinateString(boundaryCondition.middlePosition)))
+  lines.push(`BC Line Middle Position= ${bc.middlePosition.x} , ${bc.middlePosition.y} `)
 
   // BC Line End Position
-  lines.push(formatKeyValue("BC Line End Position", formatCoordinateString(boundaryCondition.endPosition)))
+  lines.push(`BC Line End Position= ${bc.endPosition.x} , ${bc.endPosition.y} `)
 
   // BC Line Arc
-  lines.push(formatKeyValue("BC Line Arc", boundaryCondition.arc))
-
-  // Arc coordinates (if any)
-  if (boundaryCondition.arcCoordinates.length > 0) {
-    const arcCoordinateLines = formatCoordinateLines(boundaryCondition.arcCoordinates)
-    lines.push(...arcCoordinateLines)
-  }
+  lines.push(...formatCoordinateMultipleLines("BC Line Arc", bc.arcCoordinates))
 
   // BC Line Text Position
-  lines.push(formatKeyValue("BC Line Text Position", formatTextPositionString(boundaryCondition.textPosition)))
+  lines.push(`BC Line Text Position= ${bc.textPosition.x} , ${bc.textPosition.y} `)
 
   return lines
-}
-
-/**
- * Format coordinate object to string format "x , y"
- */
-function formatCoordinateString(coordinate: Coordinate): string {
-  return `${coordinate.x} , ${coordinate.y}`
-}
-
-/**
- * Format text position object to string format "x , y"
- */
-function formatTextPositionString(textPosition: TextPosition): string {
-  return `${textPosition.x} , ${textPosition.y}`
 }
 
 /**
