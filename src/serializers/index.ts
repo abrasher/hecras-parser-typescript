@@ -5,7 +5,7 @@
 export { serializeGeometry, serializeGeometryString } from "./geometrySerializer"
 
 // Individual component serializers
-export { serializeCulvert, serializeCulvertGroup, serializeCulvertGroups } from "./geometry/culvertSerializer"
+export { serializeCulvertGroup, serializeCulvertGroups } from "./geometry/culvertSerializer"
 export { serializeBridge, serializeBridgeConnection } from "./geometry/bridgeSerializer"
 export { serializeConnection, serializeConnectionString } from "./geometry/connectionSerializer"
 export { serializeStorageArea, serializeStorageAreaString } from "./geometry/storageAreaSerializer"

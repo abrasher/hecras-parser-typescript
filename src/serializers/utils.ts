@@ -1,5 +1,5 @@
 import { chunk } from "es-toolkit"
-import type { Coordinate } from "../models/geometry/common"
+import type { Coordinate, UpstreamDownstreamPair } from "../models/geometry/common"
 
 export function formatCoordinateMultipleLines(key: string, coordinates: Coordinate[]): string[] {
   const lines: string[] = []
@@ -25,4 +25,23 @@ export function toFixedWidthString(str: string, width: number): string {
     return str.slice(0, width)
   }
   return str.padStart(width, " ")
+}
+
+export function formatStationPairs(stations: UpstreamDownstreamPair[]): string[] {
+  const lines: string[] = []
+
+  // Station pairs are formatted with 8 characters per number, 5 pairs per line (80 char limit)
+  chunk(stations, 5).forEach((stationGroup) => {
+    const formattedLine = stationGroup.map((station) => stationPairToString(station)).join("")
+    lines.push(formattedLine)
+  })
+
+  return lines
+}
+
+export function stationPairToString(station: UpstreamDownstreamPair): string {
+  const upstream = toFixedWidthString(station.upstreamStation.toString(), 8)
+  const downstream = toFixedWidthString(station.downstreamStation.toString(), 8)
+
+  return `${upstream}${downstream}`
 }
