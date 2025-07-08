@@ -1,4 +1,4 @@
-import type { Coordinate } from "./common"
+import type { Coordinate, StationElevationPoint } from "./common"
 import type { BridgeConnection } from "./bridge"
 import type { CulvertGroupProperties } from "./culvert"
 
@@ -33,7 +33,7 @@ export interface Connection {
   // Spill coefficients
   simpleSpillPosCoef?: number
   simpleSpillNegCoef?: number
-  weirSE?: number
+  weirSE?: StationElevationPoint[]
 
   // Hydraulic table properties
   hTabHWMax?: number
