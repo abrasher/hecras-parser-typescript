@@ -204,8 +204,6 @@ function parseConnOutletRatingCurve(line: string): {
 
 function parseWeirStationElevation(lines: string[], currentIndex: number) {
   const currentLine = lines[currentIndex]
-  console.log(`FFFFFFFFFFFFFFF ${currentLine}`)
-
   const pointCount = parseInt(parseKeyValue(currentLine).value)
 
   let index = currentIndex + 1

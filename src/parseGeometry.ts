@@ -48,16 +48,13 @@ export function parseGeometry(content: string): HECRASGeometry {
 
       // Parse storage areas
       if (line.startsWith("Storage Area=")) {
-        console.log(`Found storage area at line ${index + 1}: ${line}`)
         const result = parseStorageAreaData(line, lines, index)
         geometry.storageAreas.push(result.data)
         index = result.nextIndex
       }
       // Parse connections
       else if (line.startsWith("Connection=")) {
-        console.log(`Found connection at line ${index + 1}: ${line}`)
         const result = parseConnectionData(line, lines, index)
-        console.log(`Parsed connection: ${result.data.name}, next index: ${result.nextIndex}`)
         geometry.connections.push(result.data)
         index = result.nextIndex
       }
