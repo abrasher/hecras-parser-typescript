@@ -329,7 +329,7 @@ const expectedConnection: Connection = {
   weirDesignHT: 0,
   simpleSpillPosCoef: 0.05,
   simpleSpillNegCoef: 0.05,
-  weirSE: 0,
+  weirSE: [],
   hTabHWMax: 267,
   outletRatingCurve: {
     value: 0,

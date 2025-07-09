@@ -147,6 +147,7 @@ function isConnectionLine(line: string): boolean {
     "Conn Weir SE=",
     "Conn HTab HWMax=",
     "Conn Outlet Rating Curve=",
+    "Conn BR:", // Add bridge connection prefix
   ]
   return connectionPrefixes.some((prefix) => line?.startsWith(prefix))
 }
@@ -205,6 +206,11 @@ function parseConnOutletRatingCurve(line: string): {
 function parseWeirStationElevation(lines: string[], currentIndex: number) {
   const currentLine = lines[currentIndex]
   const pointCount = parseInt(parseKeyValue(currentLine).value)
+
+  // If no points, return immediately without advancing index
+  if (pointCount === 0) {
+    return { data: [], nextIndex: currentIndex }
+  }
 
   let index = currentIndex + 1
 
