@@ -164,11 +164,14 @@ function formatStationValues(values: number[]): string[] {
 
 /**
  * Format numbers for bridge serialization - handles special cases like .584 instead of 0.584
+ * NOTE: This formatting (removing leading "0.") is only correct for Manning's coefficients
+ * which are always < 1.0. For other numeric values, this could produce incorrect results.
  */
 function formatBridgeNumber(value: number, width: number): string {
   let str = value.toString()
 
   // Handle numbers that start with 0. (like 0.584 -> .584)
+  // WARNING: This is only valid for Manning's coefficients (values < 1.0)
   if (str.startsWith("0.")) {
     str = str.substring(1) // Remove the leading "0"
   }

@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
-import { serializeBoundaryCondition } from "../geometry/boundaryConditionSerializer"
-import type { BoundaryCondition } from "../../models/geometry/boundaryCondition"
+import { serializeBoundaryCondition } from "../../src/serializers/geometry/boundaryConditionSerializer"
+import type { BoundaryCondition } from "../../src/models/geometry/boundaryCondition"
 
 describe("BoundaryConditionSerializer", () => {
   describe("GIVEN a boundary condition with position data", () => {

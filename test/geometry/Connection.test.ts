@@ -184,7 +184,7 @@ describe("Connection parsing tests", () => {
     })
 
     it("should parse weir SE", () => {
-      expect(connectionData.weirSE).toBe(0)
+      expect(connectionData.weirSE?.length).toBe(0)
     })
 
     it("should parse hydraulic table max", () => {
