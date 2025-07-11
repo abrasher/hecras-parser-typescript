@@ -1,7 +1,7 @@
 import type { Coordinate, VolumeElevationPoint } from "./common"
 
 export interface StorageArea {
-  id: string | number
+  id: string
   surfaceLine: Coordinate[]
   mannings: number | null
   type: number
