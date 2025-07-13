@@ -5,7 +5,7 @@ import type { Connection } from "../../src/models/geometry/connection"
 import type { BridgeCrossSection } from "../../src/models/geometry/bridge"
 
 describe("Connection Serializer Tests", () => {
-  // Test data from Connection.test.ts
+  // Test data from connection.test.ts
   const lineString = `Connection=DM22-38608      ,0,0
 Connection Desc=2nd bridge downstream of Dingman Dr
 Connection Line=2
