@@ -3,6 +3,19 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "main": "dist/hecras-parser.cjs",
+  "module": "dist/hecras-parser.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/hecras-parser.js",
+      "require": "./dist/hecras-parser.cjs"
+    }
+  },
+  "files": [
+    "dist"
+  ],
   "scripts": {
     "dev": "vite",
     "build": "tsc && vite build",
@@ -34,15 +47,7 @@
     "vitest": "^3.2.3"
   },
   "dependencies": {
-    "@types/leaflet": "^1.9.18",
-    "@types/plotly.js": "^3.0.2",
-    "canvas": "^3.1.2",
-    "es-toolkit": "^1.39.7",
-    "geojson": "^0.5.0",
-    "jiti": "^2.4.2",
-    "leaflet": "^1.9.4",
-    "plotly.js-dist-min": "^3.0.1",
-    "proj4": "^2.17.0"
+    "es-toolkit": "^1.39.7"
   },
   "lint-staged": {
     "*.{ts,tsx}": [

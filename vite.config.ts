@@ -5,7 +5,9 @@ export default defineConfig({
   build: {
     lib: {
       entry: "src/index.ts",
-      fileName: "index",
+      name: "HecrasParser",
+      fileName: "hecras-parser",
+      formats: ["es", "cjs"],
     },
   },
   test: {
