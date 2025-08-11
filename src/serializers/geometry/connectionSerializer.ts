@@ -4,6 +4,7 @@ import { serializeBridgeConnection } from "./bridgeSerializer"
 import { serializeCulvertGroups } from "./culvertSerializer"
 import { coordinatePairToString } from "../utils"
 import { chunk } from "es-toolkit"
+import { formatFixedWidth } from "../atomic"
 
 /**
  * Serialize connection to HEC-RAS format
@@ -14,7 +15,7 @@ export function serializeConnection(connection: Connection): string[] {
   const lines: string[] = []
 
   // 1. Connection name
-  lines.push(`Connection=${connection.name}      ,0,0`)
+  lines.push(`Connection=${formatFixedWidth(connection.name, 16, " ", "end")},0,0`)
 
   // 2. Connection description (optional)
   if (connection.description) {
@@ -95,10 +96,14 @@ export function serializeConnection(connection: Connection): string[] {
   // 11. Hydraulic table properties
   if (connection.hTabHWMax !== undefined) {
     lines.push(`Conn HTab HWMax=${connection.hTabHWMax}`)
+    // Add extra blank line after Conn HTab HWMax - these have an extra line, not sure if it is intentional or not.
+    lines.push("")
   }
 
-  // 12. Add empty line before outlet rating curve
-  lines.push("")
+  // 12. Add empty line before outlet rating curve (only if HTab HWMax wasn't already added)
+  if (connection.hTabHWMax === undefined) {
+    lines.push("")
+  }
 
   // 13. Outlet rating curve
   if (connection.outletRatingCurve) {

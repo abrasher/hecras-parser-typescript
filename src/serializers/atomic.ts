@@ -35,7 +35,12 @@ export function formatCommaSeparated(values: (string | number)[]): string {
  * @param padChar Character to pad with (default: space)
  * @returns Fixed-width formatted string
  */
-export function formatFixedWidth(value: number | string, width: number, padChar: string = " "): string {
+export function formatFixedWidth(
+  value: number | string,
+  width: number,
+  padChar: string = " ",
+  padPlacement: "start" | "end" = "start",
+): string {
   let str: string
   if (typeof value === "number") {
     // Format numbers with decimal place if they're whole numbers
@@ -46,6 +51,9 @@ export function formatFixedWidth(value: number | string, width: number, padChar:
 
   if (str.length >= width) {
     return str.slice(0, width)
+  }
+  if (padPlacement === "end") {
+    return str.padEnd(width, padChar)
   }
   return str.padStart(width, padChar)
 }

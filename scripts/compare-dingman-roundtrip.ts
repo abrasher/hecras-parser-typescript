@@ -107,7 +107,7 @@ function main() {
       for (let i = 0; i < samplesToShow; i++) {
         const diff = diffs[i]
         console.log(`\nLine ${diff.lineNumber}: ${diff.issue}`)
-        console.log(`  Original: "${diff.originalLine}"`)
+        console.log(`  Original:   "${diff.originalLine}"`)
         console.log(`  Serialized: "${diff.serializedLine || "<MISSING>"}"`)
       }
 

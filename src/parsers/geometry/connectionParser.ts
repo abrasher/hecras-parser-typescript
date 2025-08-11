@@ -82,7 +82,7 @@ export function parseConnectionData(
       connection.overflowMethod2D = parseKeyValue(currentLine).value.trim().toLowerCase() === "true"
       index++
     } else if (currentLine.includes("Conn Weir WD=")) {
-      connection.weirWD = parseInt(parseKeyValue(currentLine).value.trim())
+      connection.weirWD = parseFloat(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.includes("Conn Weir Coef=")) {
       connection.weirCoefficient = parseFloat(parseKeyValue(currentLine).value.trim())

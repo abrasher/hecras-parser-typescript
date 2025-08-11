@@ -72,6 +72,11 @@ export function serializeCulvertGroup(culvert: CulvertGroupProperties): string[]
     lines.push(...serializeCulvertBarrel(barrel))
   }
 
+  // Add extra blank line after culvert bottom properties - these have an extra line, not sure if it is intentional or not.
+  if (culvert.nBottom !== undefined) {
+    lines.push("")
+  }
+
   return lines
 }
 

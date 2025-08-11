@@ -123,6 +123,8 @@ export function serializeStorageArea(storageArea: StorageArea): string[] {
 
   if (storageArea.locked !== null) {
     lines.push(`2D Locked=${storageArea.locked}`)
+    // Add extra blank line after 2D Locked - these have an extra line, not sure if it is intentional or not.
+    lines.push("")
   }
 
   return lines
