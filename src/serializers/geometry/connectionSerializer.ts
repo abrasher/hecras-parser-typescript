@@ -1,6 +1,7 @@
 import type { Connection } from "../../models/geometry/connection"
 import type { Coordinate, StationElevationPoint } from "../../models/geometry/common"
 import { serializeBridgeConnection } from "./bridgeSerializer"
+import { serializeCulvertGroups } from "./culvertSerializer"
 import { coordinatePairToString } from "../utils"
 import { chunk } from "es-toolkit"
 
@@ -109,9 +110,9 @@ export function serializeConnection(connection: Connection): string[] {
     lines.push(...serializeBridgeConnection(connection.bridge))
   }
 
-  // 15. Culvert connection data (if implemented)
-  if (connection.culvert) {
-    // TODO: Implement culvert serialization when needed
+  // 15. Culvert connection data
+  if (connection.culvert && connection.culvert.length > 0) {
+    lines.push(...serializeCulvertGroups(connection.culvert))
   }
 
   return lines

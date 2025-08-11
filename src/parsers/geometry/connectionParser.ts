@@ -1,6 +1,7 @@
 import { parseKeyValue, parseCommaSeparated, chunkStringToNumbers } from "../atomic"
 import { parseLineToCoordinates } from "../lineParsers"
 import { parseBridgeData } from "./bridgeParser"
+import { parseCulvertData } from "./culvertParser"
 import type { Connection } from "../../models/geometry/connection"
 import type { Coordinate, StationElevationPoint } from "../../models/geometry/common"
 
@@ -115,6 +116,10 @@ export function parseConnectionData(
       const { data, nextIndex } = parseBridgeData(currentLine, lines, index)
       connection.bridge = data
       index = nextIndex
+    } else if (currentLine.startsWith("Connection Culv=")) {
+      const { data, nextIndex } = parseCulvertData(currentLine, lines, index)
+      connection.culvert = data
+      index = nextIndex
     } else {
       index++
     }
@@ -148,6 +153,9 @@ function isConnectionLine(line: string): boolean {
     "Conn HTab HWMax=",
     "Conn Outlet Rating Curve=",
     "Conn BR:", // Add bridge connection prefix
+    "Connection Culv=", // Add culvert connection prefix
+    "Conn Culvert Barrel=", // Add culvert barrel prefix
+    "Conn Culv Bottom n=", // Add culvert property prefixes
   ]
   return connectionPrefixes.some((prefix) => line?.startsWith(prefix))
 }
