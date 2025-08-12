@@ -100,24 +100,24 @@ export function serializeConnection(connection: Connection): string[] {
     lines.push("")
   }
 
-  // 12. Add empty line before outlet rating curve (only if HTab HWMax wasn't already added)
+  // 12. Culvert connection data (comes before outlet rating curve in HEC-RAS format)
+  if (connection.culvert && connection.culvert.length > 0) {
+    lines.push(...serializeCulvertGroups(connection.culvert))
+  }
+
+  // 13. Add empty line before outlet rating curve (only if HTab HWMax wasn't already added)
   if (connection.hTabHWMax === undefined) {
     lines.push("")
   }
 
-  // 13. Outlet rating curve
+  // 14. Outlet rating curve
   if (connection.outletRatingCurve) {
     lines.push(serializeOutletRatingCurve(connection.outletRatingCurve))
   }
 
-  // 14. Bridge connection data
+  // 15. Bridge connection data
   if (connection.bridge) {
     lines.push(...serializeBridgeConnection(connection.bridge))
-  }
-
-  // 15. Culvert connection data
-  if (connection.culvert && connection.culvert.length > 0) {
-    lines.push(...serializeCulvertGroups(connection.culvert))
   }
 
   return lines

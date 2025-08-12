@@ -90,10 +90,10 @@ export function parseCulvertGroup(
       culvertData.nBottom = parseFloat(parseKeyValue(currentLine).value)
       index++
     } else if (currentLine.startsWith("Conn Culv Bottom Depth")) {
-      culvertData.nBottom = parseFloat(parseKeyValue(currentLine).value)
+      culvertData.nBottomDepth = parseFloat(parseKeyValue(currentLine).value)
       index++
     } else if (currentLine.startsWith("Conn Culv Depth Blocked")) {
-      culvertData.nBottom = parseFloat(parseKeyValue(currentLine).value)
+      culvertData.depthBlocked = parseFloat(parseKeyValue(currentLine).value)
       index++
     } else {
       break

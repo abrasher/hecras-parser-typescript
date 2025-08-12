@@ -27,27 +27,43 @@ export function serializeCulvertGroup(culvert: CulvertGroupProperties): string[]
 
   // Main connection line with exact format from parser
   // Connection Culv=shape,rise,span,length,nTop,entranceLoss,exitLoss,chart,scale,upstreamInvert,downstreamInvert,numberOfBarrels,culvertGroupName,unknownFlag,
-  const connectionLine = [
-    "Connection Culv=",
-    culvert.shape,
-    culvert.rise,
-    culvert.span,
-    culvert.length,
-    culvert.nTop,
-    culvert.entranceLoss,
-    culvert.exitLoss,
-    culvert.chart,
-    culvert.scale,
-    culvert.upstreamInvert,
-    culvert.downstreamInvert,
-    ` ${culvert.numberOfBarrels} `, // Add spaces like in test data
-    `${culvert.culvertGroupName}  `, // Add trailing spaces like in test data
-    ` ${culvert.unknownFlag} `, // Add spaces like in test data
-  ]
-    .join(",")
-    .replace("Connection Culv=,", "Connection Culv=")
+  const connectionLine =
+    "Connection Culv=" +
+    culvert.shape +
+    "," +
+    culvert.rise +
+    "," +
+    culvert.span +
+    "," +
+    culvert.length +
+    "," +
+    culvert.nTop +
+    "," +
+    culvert.entranceLoss +
+    "," +
+    culvert.exitLoss +
+    "," +
+    culvert.chart +
+    "," +
+    culvert.scale +
+    "," +
+    culvert.upstreamInvert +
+    "," +
+    culvert.downstreamInvert +
+    "," +
+    " " +
+    culvert.numberOfBarrels +
+    " " +
+    "," +
+    culvert.culvertGroupName +
+    "  " +
+    "," +
+    " " +
+    culvert.unknownFlag +
+    " " +
+    ","
 
-  lines.push(connectionLine + ",")
+  lines.push(connectionLine)
 
   // Barrel stations - format with 8 characters per number, 5 pairs per line
   if (culvert.barrelStations.length > 0) {
@@ -57,6 +73,8 @@ export function serializeCulvertGroup(culvert: CulvertGroupProperties): string[]
   // Optional properties
   if (culvert.nBottom !== undefined) {
     lines.push(`Conn Culv Bottom n=${culvert.nBottom}`)
+    // Some reason, there is an extra line after culvert bottom n
+    lines.push(``)
   }
 
   if (culvert.nBottomDepth !== undefined) {
@@ -70,11 +88,6 @@ export function serializeCulvertGroup(culvert: CulvertGroupProperties): string[]
   // Barrel definitions
   for (const barrel of culvert.barrels) {
     lines.push(...serializeCulvertBarrel(barrel))
-  }
-
-  // Add extra blank line after culvert bottom properties - these have an extra line, not sure if it is intentional or not.
-  if (culvert.nBottom !== undefined) {
-    lines.push("")
   }
 
   return lines
