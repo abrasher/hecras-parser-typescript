@@ -44,9 +44,13 @@ export function serializeBridgeConnection(bridge: BridgeConnection): string[] {
     lines.push(...serializeBridgeCrossSection(section, "XS"))
   }
 
-  // 8. Ineffective flow areas
-  lines.push(...serializeIneffectiveFlowArea(bridge.upstreamIneffectiveFlowArea, "USXS"))
-  lines.push(...serializeIneffectiveFlowArea(bridge.downstreamIneffectiveFlowArea, "DSXS"))
+  // 8. Ineffective flow areas (only if they have valid data)
+  if (bridge.upstreamIneffectiveFlowArea.leftStation !== undefined) {
+    lines.push(...serializeIneffectiveFlowArea(bridge.upstreamIneffectiveFlowArea, "USXS"))
+  }
+  if (bridge.downstreamIneffectiveFlowArea.leftStation !== undefined) {
+    lines.push(...serializeIneffectiveFlowArea(bridge.downstreamIneffectiveFlowArea, "DSXS"))
+  }
 
   return lines
 }
@@ -216,9 +220,9 @@ export function serializeBridgeCrossSection(section: BridgeCrossSection, prefix:
   })
 
   // Bank stations
-  lines.push(
-    `Conn BR: ${prefix} Bank Stations=${section.bankStations.sectionId},${section.bankStations.leftBank},${section.bankStations.rightBank}`,
-  )
+  const leftBank = isNaN(section.bankStations.leftBank) ? "" : section.bankStations.leftBank
+  const rightBank = isNaN(section.bankStations.rightBank) ? "" : section.bankStations.rightBank
+  lines.push(`Conn BR: ${prefix} Bank Stations=${section.bankStations.sectionId},${leftBank},${rightBank}`)
 
   // Manning coefficients
   lines.push(`Conn BR: ${prefix} Mann=${section.id},${section.manningCoefficients.length}`)

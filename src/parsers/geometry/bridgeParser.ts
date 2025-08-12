@@ -344,8 +344,8 @@ function parseBankStations(line: string): BankStations {
 
   return {
     sectionId: parseInt(parts[0]),
-    leftBank: parseFloat(parts[1]),
-    rightBank: parseFloat(parts[2]),
+    leftBank: parts[1] === "" ? NaN : parseFloat(parts[1]),
+    rightBank: parts[2] === "" ? NaN : parseFloat(parts[2]),
   }
 }
 
@@ -353,6 +353,21 @@ function parseManningCoefficients(
   lines: string[],
   startIndex: number,
 ): { data: ManningCoefficients[]; nextIndex: number } {
+  // Parse the Manning's header line to get the count: "Conn BR: BR Mann=X,Y" where Y is count
+  const headerLine = lines[startIndex]
+  const { value } = parseKeyValue(headerLine)
+  const parts = parseCommaSeparated(value)
+  const coefficientCount = parseInt(parts[1])
+
+  // If count is 0, no data line follows - just return empty data
+  if (coefficientCount === 0) {
+    return {
+      data: [],
+      nextIndex: startIndex + 1, // Next line after the header
+    }
+  }
+
+  // Count > 0: parse the data line
   let index = startIndex + 1
   const dataLine = lines[index]
   const nums = chunkStringToNumbers(dataLine, 8)

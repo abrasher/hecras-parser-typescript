@@ -39,8 +39,13 @@ export function parseConnectionData(
       continue
     }
 
+    // Stop if we hit another connection (but allow the first Connection= line)
+    if (currentLine.startsWith("Connection=") && index !== currentIndex) {
+      break
+    }
+
     // Stop if we hit a non-connection line
-    if (!isConnectionLine(currentLine)) {
+    if (!isConnectionLine(currentLine) && !currentLine.startsWith("Connection=")) {
       break
     }
 
@@ -105,7 +110,7 @@ export function parseConnectionData(
     } else if (currentLine.includes("Conn Weir SE=")) {
       const { data, nextIndex } = parseWeirStationElevation(lines, index)
       connection.weirSE = data
-      index = nextIndex + 1
+      index = nextIndex
     } else if (currentLine.includes("Conn HTab HWMax=")) {
       connection.hTabHWMax = parseInt(parseKeyValue(currentLine).value.trim())
       index++
@@ -152,10 +157,8 @@ function isConnectionLine(line: string): boolean {
     "Conn Weir SE=",
     "Conn HTab HWMax=",
     "Conn Outlet Rating Curve=",
-    "Conn BR:", // Add bridge connection prefix
-    "Connection Culv=", // Add culvert connection prefix
-    "Conn Culvert Barrel=", // Add culvert barrel prefix
-    "Conn Culv Bottom n=", // Add culvert property prefixes
+    "Conn BR: Bridge=", // Only bridge start, not all bridge data
+    "Connection Culv=", // Only culvert start marker
   ]
   return connectionPrefixes.some((prefix) => line?.startsWith(prefix))
 }
@@ -215,9 +218,9 @@ function parseWeirStationElevation(lines: string[], currentIndex: number) {
   const currentLine = lines[currentIndex]
   const pointCount = parseInt(parseKeyValue(currentLine).value)
 
-  // If no points, return immediately without advancing index
+  // If no points, return immediately but advance past the header line
   if (pointCount === 0) {
-    return { data: [], nextIndex: currentIndex }
+    return { data: [], nextIndex: currentIndex + 1 }
   }
 
   let index = currentIndex + 1
