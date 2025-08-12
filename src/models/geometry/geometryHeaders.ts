@@ -25,4 +25,14 @@ export interface HECRASGeometry {
   xsCutLineLayer?: string
   projection?: string
   datum?: string
+
+  // Global settings (appear at end of file)
+  lcmannTime?: string // "LCMann Time="
+  lcmannRegionTime?: string // "LCMann Region Time="
+  lcmannTable?: number // "LCMann Table="
+  chanStopCuts?: number // "Chan Stop Cuts="
+  useUserSpecifiedReachOrder?: number // "Use User Specified Reach Order="
+  gisRatioCutsToInvert?: number // "GIS Ratio Cuts To Invert="
+  gisLimitAtBridges?: number // "GIS Limit At Bridges="
+  compositeChannelSlope?: number // "Composite Channel Slope="
 }

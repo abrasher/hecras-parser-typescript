@@ -33,6 +33,43 @@ export function serializeGeometry(geometry: HECRASGeometry): string[] {
     lines.push(...serializeBoundaryCondition(boundaryCondition))
   }
 
+  // 5. Serialize global settings (appear at end of file)
+  if (geometry.lcmannTime !== undefined) {
+    lines.push(`LCMann Time=${geometry.lcmannTime}`)
+  }
+  if (geometry.lcmannRegionTime !== undefined) {
+    lines.push(`LCMann Region Time=${geometry.lcmannRegionTime}`)
+  }
+  if (geometry.lcmannTable !== undefined) {
+    lines.push(`LCMann Table=${geometry.lcmannTable}`)
+  }
+  if (geometry.chanStopCuts !== undefined) {
+    lines.push(`Chan Stop Cuts=${geometry.chanStopCuts}`)
+  }
+
+  // Add empty lines before remaining settings (matches original format)
+  if (
+    geometry.useUserSpecifiedReachOrder !== undefined ||
+    geometry.gisRatioCutsToInvert !== undefined ||
+    geometry.gisLimitAtBridges !== undefined ||
+    geometry.compositeChannelSlope !== undefined
+  ) {
+    lines.push("", "", "")
+  }
+
+  if (geometry.useUserSpecifiedReachOrder !== undefined) {
+    lines.push(`Use User Specified Reach Order=${geometry.useUserSpecifiedReachOrder}`)
+  }
+  if (geometry.gisRatioCutsToInvert !== undefined) {
+    lines.push(`GIS Ratio Cuts To Invert=${geometry.gisRatioCutsToInvert}`)
+  }
+  if (geometry.gisLimitAtBridges !== undefined) {
+    lines.push(`GIS Limit At Bridges=${geometry.gisLimitAtBridges}`)
+  }
+  if (geometry.compositeChannelSlope !== undefined) {
+    lines.push(`Composite Channel Slope=${geometry.compositeChannelSlope}`)
+  }
+
   return lines
 }
 

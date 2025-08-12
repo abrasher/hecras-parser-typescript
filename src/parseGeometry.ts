@@ -64,6 +64,32 @@ export function parseGeometry(content: string): HECRASGeometry {
         geometry.boundaryConditions.push(result.data)
         index = index + result.linesConsumed
       }
+      // Parse global settings (appear at end of file)
+      else if (line.startsWith("LCMann Time=")) {
+        geometry.lcmannTime = line.split("=")[1]
+        index++
+      } else if (line.startsWith("LCMann Region Time=")) {
+        geometry.lcmannRegionTime = line.split("=")[1]
+        index++
+      } else if (line.startsWith("LCMann Table=")) {
+        geometry.lcmannTable = parseInt(line.split("=")[1])
+        index++
+      } else if (line.startsWith("Chan Stop Cuts=")) {
+        geometry.chanStopCuts = parseInt(line.split("=")[1])
+        index++
+      } else if (line.startsWith("Use User Specified Reach Order=")) {
+        geometry.useUserSpecifiedReachOrder = parseInt(line.split("=")[1])
+        index++
+      } else if (line.startsWith("GIS Ratio Cuts To Invert=")) {
+        geometry.gisRatioCutsToInvert = parseInt(line.split("=")[1])
+        index++
+      } else if (line.startsWith("GIS Limit At Bridges=")) {
+        geometry.gisLimitAtBridges = parseInt(line.split("=")[1])
+        index++
+      } else if (line.startsWith("Composite Channel Slope=")) {
+        geometry.compositeChannelSlope = parseInt(line.split("=")[1])
+        index++
+      }
       // Skip unrecognized sections for now
       else {
         index++
