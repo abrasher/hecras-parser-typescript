@@ -12,6 +12,7 @@ import type {
   ManningCoefficients,
 } from "../../models/geometry/bridge"
 import type { StationElevationPoint } from "../../models/geometry/common"
+import { parseMaybeFloat } from "../../serializers/atomic"
 
 /**
  * Parses bridge connection data starting from a "Conn BR: Bridge=" line
@@ -198,10 +199,14 @@ function parseDeckParameters(lines: string[], startIndex: number): { data: DeckP
     skew: parseFloat(parts[3]),
     numberOfUpstreamStations: parseInt(parts[4]),
     numberOfDownstreamStations: parseInt(parts[5]),
-    minLowCoordinate: parts[6] === "" ? null : parseFloat(parts[6]),
-    maxHighCoordinate: parts[7] === "" ? null : parseFloat(parts[7]),
+    minLowCoordinate: parseMaybeFloat(parts[6]),
+    maxHighCoordinate: parseMaybeFloat(parts[7]),
     maxSubmerge: parseFloat(parts[8]),
     isOgee: parseInt(parts[9]),
+    upstreamEmbankmentSideSlope: parseMaybeFloat(parts[10]),
+    downstreamEmbankmentSideSlope: parseMaybeFloat(parts[11]),
+    spillwayApproachHeight: parseMaybeFloat(parts[12]),
+    spillwayDesignHead: parseMaybeFloat(parts[13]),
     upstream: [],
     downstream: [],
   } as DeckParameters

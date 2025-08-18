@@ -70,6 +70,11 @@ export function serializeCulvertGroup(culvert: CulvertGroupProperties): string[]
     lines.push(...formatStationPairs(culvert.barrelStations))
   }
 
+  // Barrel definitions
+  for (const barrel of culvert.barrels) {
+    lines.push(...serializeCulvertBarrel(barrel))
+  }
+
   // Optional properties
   if (culvert.nBottom !== undefined) {
     lines.push(`Conn Culv Bottom n=${culvert.nBottom}`)
@@ -83,11 +88,6 @@ export function serializeCulvertGroup(culvert: CulvertGroupProperties): string[]
 
   if (culvert.depthBlocked !== undefined) {
     lines.push(`Conn Culv Depth Blocked=${culvert.depthBlocked}`)
-  }
-
-  // Barrel definitions
-  for (const barrel of culvert.barrels) {
-    lines.push(...serializeCulvertBarrel(barrel))
   }
 
   return lines

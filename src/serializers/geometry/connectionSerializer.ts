@@ -105,11 +105,6 @@ export function serializeConnection(connection: Connection): string[] {
     lines.push(...serializeCulvertGroups(connection.culvert))
   }
 
-  // 13. Add empty line before outlet rating curve (only if HTab HWMax wasn't already added)
-  if (connection.hTabHWMax === undefined) {
-    lines.push("")
-  }
-
   // 14. Outlet rating curve
   if (connection.outletRatingCurve) {
     lines.push(serializeOutletRatingCurve(connection.outletRatingCurve))
