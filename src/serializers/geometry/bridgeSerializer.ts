@@ -108,7 +108,10 @@ export function serializeDeckParameters(deck: DeckParameters): string[] {
     ` ${deck.maxHighCoordinate ?? ""}`, // null becomes empty string with space
     ` ${deck.maxSubmerge}`, // Add space like in test data
     ` ${deck.isOgee}`, // Add space like in test data
-    " 0,0,0,0", // Additional parameters from test data
+    ` ${deck.upstreamEmbankmentSideSlope ?? ""}`, // null becomes empty string with space
+    `${deck.downstreamEmbankmentSideSlope ?? ""}`, // null becomes empty string with space
+    `${deck.spillwayApproachHeight ?? ""}`, // null becomes empty string with space
+    `${deck.spillwayDesignHead ?? ""}`, // null becomes empty string with space
   ]
 
   lines.push(params.join(","))

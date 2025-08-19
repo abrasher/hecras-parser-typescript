@@ -51,6 +51,10 @@ export interface DeckParameters {
   maxHighCoordinate: number | null
   maxSubmerge: number
   isOgee: number
+  upstreamEmbankmentSideSlope: number | null
+  downstreamEmbankmentSideSlope: number | null
+  spillwayApproachHeight: number | null
+  spillwayDesignHead: number | null
   upstream: DeckStationing[]
   downstream: DeckStationing[]
 }

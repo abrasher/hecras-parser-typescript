@@ -5,6 +5,7 @@ import { parseHeader } from "./parsers/geometry/headerParser"
 import { parseStorageAreaData } from "./parsers/geometry/storageAreaParser"
 import { parseConnectionData } from "./parsers/geometry/connectionParser"
 import { parseBoundaryConditionData } from "./parsers/geometry/boundaryConditionParser"
+import { parseRiverReachData } from "./parsers/geometry/riverReachParser"
 
 /**
  * Parse a complete HEC-RAS geometry file (.g01, .g02, etc.)
@@ -21,6 +22,7 @@ export function parseGeometry(content: string): HECRASGeometry {
     storageAreas: [],
     connections: [],
     boundaryConditions: [],
+    riverReaches: [],
   } as HECRASGeometry
 
   let index = 0
@@ -63,6 +65,12 @@ export function parseGeometry(content: string): HECRASGeometry {
         const result = parseBoundaryConditionData(line, lines, index)
         geometry.boundaryConditions.push(result.data)
         index = index + result.linesConsumed
+      }
+      // Parse river reaches
+      else if (line.startsWith("River Reach=")) {
+        const result = parseRiverReachData(line, lines, index)
+        geometry.riverReaches.push(result.data)
+        index = result.nextIndex
       }
       // Parse global settings (appear at end of file)
       else if (line.startsWith("LCMann Time=")) {
