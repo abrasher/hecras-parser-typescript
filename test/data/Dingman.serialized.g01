@@ -339,6 +339,7 @@ Conn BR: XS Mann=2,3
 Conn BR: USXS Ineff=3.24,260.6,16.87,260.72
 Conn BR: DSXS Ineff=3.24,260.55,16.87,260.72
 Connection=DM22-38896      ,0,0
+Connection Desc=
 Connection Line=2
     484151.39641   4751311.01467484151.197359999   4751332.31308
 Connection Centerline Profile=0
@@ -415,6 +416,7 @@ Conn BR: XS Mann=2,3
 Conn BR: USXS Ineff=2.2,263.09,16.9,263.16
 Conn BR: DSXS Ineff=2.33,262,17.02,262
 Connection=DM24-39114      ,0,0
+Connection Desc=
 Connection Line=2
      484267.0788   4751453.72611    484234.83555   4751450.26195
 Connection Centerline Profile=0

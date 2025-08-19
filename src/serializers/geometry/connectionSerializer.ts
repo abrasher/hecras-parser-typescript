@@ -18,7 +18,7 @@ export function serializeConnection(connection: Connection): string[] {
   lines.push(`Connection=${formatFixedWidth(connection.name, 16, " ", "end")},0,0`)
 
   // 2. Connection description (optional)
-  if (connection.description) {
+  if (connection.description !== undefined && connection.description !== null) {
     lines.push(`Connection Desc=${connection.description}`)
   }
 
