@@ -14,6 +14,8 @@ export function serializeCulvertGroups(culvertGroups: CulvertGroupProperties[]):
     lines.push(...serializeCulvertGroup(culvertGroup))
   }
 
+  lines.push("")
+
   return lines
 }
 
@@ -78,8 +80,6 @@ export function serializeCulvertGroup(culvert: CulvertGroupProperties): string[]
   // Optional properties
   if (culvert.nBottom !== undefined) {
     lines.push(`Conn Culv Bottom n=${culvert.nBottom}`)
-    // Some reason, there is an extra line after culvert bottom n
-    lines.push(``)
   }
 
   if (culvert.nBottomDepth !== undefined) {
@@ -123,4 +123,5 @@ export function serializeCulvertBarrel(barrel: CulvertBarrelProperties): string[
  */
 export function serializeCulvertGroupsString(culvertGroups: CulvertGroupProperties[]): string {
   return serializeCulvertGroups(culvertGroups).join("\n")
+  // There is an extra new line after culvertGroups are defined
 }

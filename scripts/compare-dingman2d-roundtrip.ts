@@ -100,6 +100,10 @@ function main() {
 
     console.log(`Found ${differences.length} differences:\n`)
 
+    if (differences.length > 0) {
+      console.log(`First difference at line: ${differences[0].lineNumber}\n`)
+    }
+
     // Group differences by type for easier analysis
     const groupedDiffs: { [key: string]: LineDifference[] } = {}
     differences.forEach((diff) => {

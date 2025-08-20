@@ -17,9 +17,13 @@ export function parseStorageAreaData(
   // Storage Area=id,,, - extract the id from the comma-separated value
   const parts = value.split(",")
   const id = parts[0].trim()
+  const centroidX = parseFloat(parts[1])
+  const centroidY = parseFloat(parts[2])
 
   const storageAreaData = {
     id,
+    centroidX,
+    centroidY,
     surfaceLine: [],
     mannings: null,
     type: 0,

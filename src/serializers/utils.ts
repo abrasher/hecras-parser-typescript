@@ -33,8 +33,8 @@ export function formatCoordinateMultipleLines(
 }
 
 export function coordinatePairToString({ x, y }: Coordinate, width: number): string {
-  const x2 = toFixedWidthString(formatHecRasNumber(x), width)
-  const y2 = toFixedWidthString(formatHecRasNumber(y), width)
+  const x2 = toFixedWidthString(formatHECRASCoordinateNumber(x), width)
+  const y2 = toFixedWidthString(formatHECRASCoordinateNumber(y), width)
 
   return `${x2}${y2}`
 }
@@ -58,10 +58,17 @@ export function formatStationPairs(stations: UpstreamDownstreamPair[]): string[]
   return lines
 }
 
-export function formatHecRasNumber(num: number): string {
+export function formatHECRASCoordinateNumber(num: number): string {
   // Format numbers to match HEC-RAS conventions:
-  // 1. Remove leading zero from decimals (like "0.584" -> " .584")
-  // 2. Add trailing decimal to whole numbers (like "479942" -> "479942.")
+  // 1. 0.0 -> 0
+  // 2. Remove leading zero from decimals (like "0.584" -> " .584")
+  // 3. Add trailing decimal to whole numbers (like "479942" -> "479942.")
+
+  // Rule 1: Handle 0.0 case
+  if (num === 0) {
+    return "0"
+  }
+
   let str = num.toString()
 
   // For whole numbers, add trailing decimal to match HEC-RAS format
@@ -76,9 +83,33 @@ export function formatHecRasNumber(num: number): string {
   return str
 }
 
+export function formatHECRASStationNumber(num: number): string {
+  // Format numbers to match HEC-RAS conventions:
+  // 1. 0.0 -> 0
+  // 2. Remove leading zero from decimals (like "0.584" -> " .584" and "-0.584" -> "-.584")
+  // Does not add trailing decimal to whole numbers
+
+  // Rule 1: Handle 0.0 case
+  if (num === 0) {
+    return "0"
+  }
+
+  const str = num.toString()
+
+  if (str.startsWith("0.")) {
+    return str.replace("0.", ".")
+  }
+
+  if (str.startsWith("-0.")) {
+    return str.replace("-0.", "-.")
+  }
+
+  return str
+}
+
 export function stationPairToString(station: UpstreamDownstreamPair): string {
-  const upstream = toFixedWidthString(formatHecRasNumber(station.upstreamStation), 8)
-  const downstream = toFixedWidthString(formatHecRasNumber(station.downstreamStation), 8)
+  const upstream = toFixedWidthString(formatHECRASStationNumber(station.upstreamStation), 8)
+  const downstream = toFixedWidthString(formatHECRASStationNumber(station.downstreamStation), 8)
 
   return `${upstream}${downstream}`
 }
@@ -91,7 +122,7 @@ export function formatStationElevationPairs(stationElevationData: number[]): str
 
   // Station-elevation pairs are 8 characters each, 5 pairs per line (80 chars total)
   chunk(stationElevationData, 10).forEach((dataGroup) => {
-    const formattedLine = dataGroup.map((value) => toFixedWidthString(formatHecRasNumber(value), 8)).join("")
+    const formattedLine = dataGroup.map((value) => toFixedWidthString(formatHECRASStationNumber(value), 8)).join("")
     lines.push(formattedLine)
   })
 

@@ -2,6 +2,7 @@ import type { StorageArea } from "./storageArea"
 import type { Connection } from "./connection"
 import type { BoundaryCondition } from "./boundaryCondition"
 import type { RiverReach } from "./riverReach"
+import type { BreakLine } from "./breakLine"
 
 export interface ViewingRectangle {
   left: number
@@ -19,6 +20,7 @@ export interface HECRASGeometry {
   connections: Connection[]
   boundaryConditions: BoundaryCondition[]
   riverReaches: RiverReach[]
+  breakLines: BreakLine[]
   rasterPath?: string
   units?: string
   dtmType?: string

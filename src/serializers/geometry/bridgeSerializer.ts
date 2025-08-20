@@ -98,7 +98,7 @@ export function serializeDeckParameters(deck: DeckParameters): string[] {
 
   // Parameters line
   const params = [
-    deck.deckDistance,
+    Number.isNaN(deck.deckDistance) ? "" : deck.deckDistance,
     deck.width,
     deck.weirCoefficient,
     deck.skew,
@@ -247,8 +247,9 @@ export function serializeBridgeCrossSection(section: BridgeCrossSection, prefix:
  * Serialize bridge coefficients to HEC-RAS format
  */
 export function serializeBridgeCoefficients(coefficients: BridgeCoefficients): string[] {
+  const coef1 = coefficients.coef1 === 1 ? " 1 " : "-1 "
   const values = [
-    `${coefficients.coef1} `, // Add space after first coefficient
+    coef1, // Add space after first coefficient
     ` ${coefficients.coef2} `, // Add spaces like in test data
     ` ${coefficients.coef3} `, // Add spaces like in test data
     coefficients.coef4 ?? "", // null becomes empty string

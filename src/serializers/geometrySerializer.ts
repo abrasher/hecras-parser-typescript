@@ -6,6 +6,7 @@ import { serializeGeometryHeader } from "./geometry/geometryHeaderSerializer"
 import { serializeStorageArea } from "./geometry/storageAreaSerializer"
 import { serializeConnection } from "./geometry/connectionSerializer"
 import { serializeBoundaryCondition } from "./geometry/boundaryConditionSerializer"
+import { serializeBreakLine } from "./geometry/breakLineSerializer"
 import { appendLines } from "./utils/safeArrayUtils"
 
 /**
@@ -22,6 +23,12 @@ export function serializeGeometry(geometry: HECRASGeometry): string[] {
   // 2. Serialize storage areas in order
   for (const storageArea of geometry.storageAreas) {
     appendLines(lines, serializeStorageArea(storageArea))
+    lines.push("")
+  }
+
+  // 4. Serialize break lines in order
+  for (const breakLine of geometry.breakLines) {
+    appendLines(lines, serializeBreakLine(breakLine))
   }
 
   // 3. Serialize connections in order
@@ -29,12 +36,12 @@ export function serializeGeometry(geometry: HECRASGeometry): string[] {
     appendLines(lines, serializeConnection(connection))
   }
 
-  // 4. Serialize boundary conditions in order
+  // 5. Serialize boundary conditions in order
   for (const boundaryCondition of geometry.boundaryConditions) {
     appendLines(lines, serializeBoundaryCondition(boundaryCondition))
   }
 
-  // 5. Serialize global settings (appear at end of file)
+  // 6. Serialize global settings (appear at end of file)
   if (geometry.lcmannTime !== undefined) {
     lines.push(`LCMann Time=${geometry.lcmannTime}`)
   }

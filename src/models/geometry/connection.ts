@@ -5,13 +5,16 @@ import type { CulvertGroupProperties } from "./culvert"
 export interface Connection {
   // Basic connection properties
   name: string
+  centroidX: number | null
+  centroidY: number | null
   description?: string
   connectionLine: Coordinate[]
-  centerlineProfile: number
+  centerlineProfile: StationElevationPoint[]
   lastEditedTime?: string
 
   // Cell and computational settings
   cellSizeMin?: number
+  cellSizeMax?: number
   nearRepeats?: number
 
   // Storage area connections

@@ -22,9 +22,11 @@ export function parseConnectionData(
   const connection = {
     name: "",
     connectionLine: [],
-    centerlineProfile: 0,
+    centerlineProfile: [],
     upstreamStorageArea: "",
     downstreamStorageArea: "",
+    centroidX: null,
+    centroidY: null,
   } as Connection
 
   let index = currentIndex
@@ -50,7 +52,12 @@ export function parseConnectionData(
     }
 
     if (currentLine.startsWith("Connection=")) {
-      connection.name = parseConnectionName(currentLine)
+      const { name, centroidX, centroidY } = parseConnectionDefinition(currentLine)
+
+      connection.name = name
+      connection.centroidX = centroidX
+      connection.centroidY = centroidY
+
       index++
     } else if (currentLine.startsWith("Connection Desc=")) {
       connection.description = parseKeyValue(currentLine).value.trim()
@@ -60,13 +67,19 @@ export function parseConnectionData(
       connection.connectionLine = data
       index = nextIndex
     } else if (currentLine.startsWith("Connection Centerline Profile=")) {
-      connection.centerlineProfile = parseInt(parseKeyValue(currentLine).value.trim())
-      index++
+      const { data, nextIndex } = parseConnectionCenterlineProfile(lines, index)
+
+      connection.centerlineProfile = data
+
+      index = nextIndex
     } else if (currentLine.startsWith("Connection Last Edited Time=")) {
       connection.lastEditedTime = parseKeyValue(currentLine).value.trim()
       index++
     } else if (currentLine.startsWith("Conn CellSize Min=")) {
       connection.cellSizeMin = parseInt(parseKeyValue(currentLine).value.trim())
+      index++
+    } else if (currentLine.startsWith("Conn CellSize Max=")) {
+      connection.cellSizeMax = parseInt(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.startsWith("Conn Near Repeats=")) {
       connection.nearRepeats = parseInt(parseKeyValue(currentLine).value.trim())
@@ -143,6 +156,7 @@ function isConnectionLine(line: string): boolean {
     "Connection Up SA=",
     "Connection Dn SA=",
     "Conn CellSize Min=",
+    "Conn CellSize Max=",
     "Conn Near Repeats=",
     "Conn Routing Type=",
     "Conn Use RC Family=",
@@ -164,10 +178,14 @@ function isConnectionLine(line: string): boolean {
 }
 
 // Basic connection property parsers
-function parseConnectionName(line: string): string {
+function parseConnectionDefinition(line: string): { name: string; centroidX: number; centroidY: number } {
   const { value } = parseKeyValue(line)
   const parts = parseCommaSeparated(value)
-  return parts[0].trim()
+  return {
+    name: parts[0].trim(),
+    centroidX: parseFloat(parts[1]),
+    centroidY: parseFloat(parts[2]),
+  }
 }
 
 function parseConnectionLine(lines: string[], startIndex: number): { data: Coordinate[]; nextIndex: number } {
@@ -195,6 +213,46 @@ function parseConnectionLine(lines: string[], startIndex: number): { data: Coord
   }
 
   return { data: coordinates, nextIndex: index }
+}
+
+/*************  ✨ Windsurf Command ⭐  *************/
+/**
+ * Parses connection centerline profile elevation points from a "Conn BR: Centerline Profile=" line
+ * @param lines The input lines to parse
+ * @param startIndex The index of the "Conn BR: Centerline Profile=" line
+ * @returns An object containing the parsed elevation points and the index of the next line
+ */
+/*******  c6b87a42-c35f-46a3-93da-60bd9d01bfdd  *******/ function parseConnectionCenterlineProfile(
+  lines: string[],
+  startIndex: number,
+): { data: StationElevationPoint[]; nextIndex: number } {
+  const headerLine = lines[startIndex]
+  const { value } = parseKeyValue(headerLine)
+
+  const pointCount = parseInt(value)
+
+  let index = startIndex + 1
+
+  // Parse station-elevation points
+  const points: StationElevationPoint[] = []
+  const pointLines = Math.ceil(pointCount / 5) // 5 pairs per line
+
+  for (let i = 0; i < pointLines; i++) {
+    const pointLine = lines[index + i]
+    const nums = chunkStringToNumbers(pointLine, 8)
+
+    for (let j = 0; j < nums.length; j += 2) {
+      if (j + 1 < nums.length) {
+        points.push({
+          station: nums[j],
+          elevation: nums[j + 1],
+        })
+      }
+    }
+  }
+  index += pointLines
+
+  return { data: points, nextIndex: index }
 }
 
 function parseConnOutletRatingCurve(line: string): {

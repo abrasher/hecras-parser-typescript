@@ -10,7 +10,9 @@ import { chunk } from "es-toolkit"
 export function serializeStorageArea(storageArea: StorageArea): string[] {
   const lines: string[] = []
 
-  lines.push(`Storage Area=${storageArea.id.toString().padEnd(16, " ")},,`)
+  lines.push(
+    `Storage Area=${storageArea.id.toString().padEnd(16, " ")},${storageArea.centroidX},${storageArea.centroidY}`,
+  )
 
   // Surface line coordinates
   lines.push(`Storage Area Surface Line= ${storageArea.surfaceLine.length} `)

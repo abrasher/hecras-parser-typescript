@@ -15,7 +15,9 @@ export function serializeConnection(connection: Connection): string[] {
   const lines: string[] = []
 
   // 1. Connection name
-  lines.push(`Connection=${formatFixedWidth(connection.name, 16, " ", "end")},0,0`)
+  lines.push(
+    `Connection=${formatFixedWidth(connection.name, 16, " ", "end")},${connection.centroidX ?? ""},${connection.centroidY ?? ""}`,
+  )
 
   // 2. Connection description (optional)
   if (connection.description !== undefined && connection.description !== null) {
@@ -26,7 +28,7 @@ export function serializeConnection(connection: Connection): string[] {
   lines.push(...serializeConnectionLine(connection.connectionLine))
 
   // 4. Basic connection properties
-  lines.push(`Connection Centerline Profile=${connection.centerlineProfile}`)
+  lines.push(...serializeCenterlineProfile(connection.centerlineProfile))
 
   if (connection.lastEditedTime) {
     lines.push(`Connection Last Edited Time=${connection.lastEditedTime}`)
@@ -35,6 +37,9 @@ export function serializeConnection(connection: Connection): string[] {
   // 5. Computational settings
   if (connection.cellSizeMin !== undefined) {
     lines.push(`Conn CellSize Min=${connection.cellSizeMin}`)
+  }
+  if (connection.cellSizeMax !== undefined) {
+    lines.push(`Conn CellSize Max=${connection.cellSizeMax}`)
   }
 
   if (connection.nearRepeats !== undefined) {
@@ -148,6 +153,25 @@ function serializeWeirStationElevation(weirSE: StationElevationPoint[]): string[
 
   // Header line with point count
   lines.push(`Conn Weir SE= ${weirSE.length} `)
+
+  if (weirSE.length > 0) {
+    // Convert station-elevation points to flat array of numbers
+    const stationElevationData: number[] = []
+    for (const point of weirSE) {
+      stationElevationData.push(point.station, point.elevation)
+    }
+
+    lines.push(...formatStationElevationPairs(stationElevationData))
+  }
+
+  return lines
+}
+
+function serializeCenterlineProfile(weirSE: StationElevationPoint[]): string[] {
+  const lines: string[] = []
+
+  // Header line with point count
+  lines.push(`Connection Centerline Profile=${weirSE.length}`)
 
   if (weirSE.length > 0) {
     // Convert station-elevation points to flat array of numbers
