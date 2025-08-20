@@ -25,7 +25,7 @@ export function serializeBoundaryCondition(bc: BoundaryCondition): string[] {
   lines.push(`BC Line End Position= ${bc.endPosition.x} , ${bc.endPosition.y} `)
 
   // BC Line Arc
-  lines.push(...formatCoordinateMultipleLines("BC Line Arc", bc.arcCoordinates))
+  lines.push(...formatCoordinateMultipleLines("BC Line Arc", bc.arcCoordinates, true))
 
   // BC Line Text Position
   lines.push(`BC Line Text Position= ${bc.textPosition.x} , ${bc.textPosition.y} `)

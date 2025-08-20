@@ -44,7 +44,7 @@ export function serializeGeometry(geometry: HECRASGeometry): string[] {
     lines.push(`LCMann Table=${geometry.lcmannTable}`)
   }
   if (geometry.chanStopCuts !== undefined) {
-    lines.push(`Chan Stop Cuts=${geometry.chanStopCuts}`)
+    lines.push(`Chan Stop Cuts=${geometry.chanStopCuts} `)
   }
 
   // Add empty lines before remaining settings (matches original format)
@@ -79,5 +79,5 @@ export function serializeGeometry(geometry: HECRASGeometry): string[] {
  * @returns Formatted HEC-RAS geometry file content
  */
 export function serializeGeometryString(geometry: HECRASGeometry): string {
-  return serializeGeometry(geometry).join("\n")
+  return serializeGeometry(geometry).join("\n") + "\n"
 }

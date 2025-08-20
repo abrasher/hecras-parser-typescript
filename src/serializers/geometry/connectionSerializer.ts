@@ -2,7 +2,7 @@ import type { Connection } from "../../models/geometry/connection"
 import type { Coordinate, StationElevationPoint } from "../../models/geometry/common"
 import { serializeBridgeConnection } from "./bridgeSerializer"
 import { serializeCulvertGroups } from "./culvertSerializer"
-import { coordinatePairToString } from "../utils"
+import { coordinatePairToString, formatStationElevationPairs } from "../utils"
 import { chunk } from "es-toolkit"
 import { formatFixedWidth } from "../atomic"
 
@@ -150,16 +150,13 @@ function serializeWeirStationElevation(weirSE: StationElevationPoint[]): string[
   lines.push(`Conn Weir SE= ${weirSE.length} `)
 
   if (weirSE.length > 0) {
-    // Station-elevation pairs are 8 characters each, 5 pairs per line (80 chars total)
+    // Convert station-elevation points to flat array of numbers
     const stationElevationData: number[] = []
     for (const point of weirSE) {
       stationElevationData.push(point.station, point.elevation)
     }
 
-    chunk(stationElevationData, 10).forEach((dataGroup) => {
-      const formattedLine = dataGroup.map((value) => value.toString().padStart(8, " ")).join("")
-      lines.push(formattedLine)
-    })
+    lines.push(...formatStationElevationPairs(stationElevationData))
   }
 
   return lines

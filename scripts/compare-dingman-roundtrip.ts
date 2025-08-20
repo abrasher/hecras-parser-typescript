@@ -1,11 +1,12 @@
 #!/usr/bin/env tsx
 
 /**
- * Script to compare original Dingman.g01 file with its round-trip serialized version
- * line by line, highlighting specific differences that need to be fixed.
+ * Script to compare multiple geometry files with their round-trip serialized versions
+ * and generate a consolidated report showing mismatches.
  */
 
 import { readFileSync, writeFileSync } from "fs"
+import { join } from "path"
 import { parseGeometry } from "../src/parseGeometry"
 import { serializeGeometryString } from "../src/serializers"
 
@@ -16,26 +17,34 @@ interface LineDifference {
   issue: string
 }
 
-function main() {
-  console.log("=== Dingman.g01 Round-trip Line-by-Line Comparison ===\n")
+interface FileComparisonResult {
+  fileName: string
+  differences: LineDifference[]
+  originalLineCount: number
+  serializedLineCount: number
+  serializedPath: string
+}
+
+const GEOMETRY_FILES = ["BurntIslands.g01", "Dingman 1D.g06", "Dingman 2D.g01", "Muncie.g01"]
+
+function compareFile(filePath: string): FileComparisonResult {
+  const fileName = filePath.split("/").pop() || filePath
 
   try {
     // Read and parse the original file
-    const originalContent = readFileSync("test/data/Dingman.g01", "utf-8")
+    const originalContent = readFileSync(filePath, "utf-8")
     const geometryData = parseGeometry(originalContent)
     const serializedContent = serializeGeometryString(geometryData)
 
     // Save serialized output to file for examination
-    const serializedOutputPath = "test/data/Dingman.serialized.g01"
+    const fileExtension = fileName.split(".").pop()
+    const baseName = fileName.replace(`.${fileExtension}`, "")
+    const serializedOutputPath = `test/data/${baseName}.serialized.${fileExtension}`
     writeFileSync(serializedOutputPath, serializedContent, "utf-8")
-    console.log(`Serialized output saved to: ${serializedOutputPath}\n`)
 
     // Normalize line endings and split into lines
     const originalLines = originalContent.replace(/\r\n/g, "\n").split("\n")
     const serializedLines = serializedContent.split("\n")
-
-    console.log(`Original file: ${originalLines.length} lines`)
-    console.log(`Serialized file: ${serializedLines.length} lines\n`)
 
     const differences: LineDifference[] = []
     const maxLines = Math.max(originalLines.length, serializedLines.length)
@@ -86,11 +95,41 @@ function main() {
       }
     }
 
-    console.log(`Found ${differences.length} differences:\n`)
+    return {
+      fileName,
+      differences,
+      originalLineCount: originalLines.length,
+      serializedLineCount: serializedLines.length,
+      serializedPath: serializedOutputPath,
+    }
+  } catch (error) {
+    throw new Error(`Failed to process ${fileName}: ${error}`)
+  }
+}
 
-    // Group differences by type for easier analysis
+function generateReport(results: FileComparisonResult[]): string {
+  let report = "HEC-RAS Geometry Files Round-trip Comparison Report\n"
+  report += "=".repeat(60) + "\n\n"
+  report += `Generated: ${new Date().toISOString()}\n\n`
+
+  results.forEach((result) => {
+    report += `File: ${result.fileName}\n`
+    report += "-".repeat(40) + "\n"
+
+    if (result.differences.length === 0) {
+      report += "Status: ALL PASS - No mismatches found\n"
+      report += `Lines: ${result.originalLineCount} original, ${result.serializedLineCount} serialized\n`
+      report += `Serialized output: ${result.serializedPath}\n\n`
+      return
+    }
+
+    report += `Status: ${result.differences.length} differences found\n`
+    report += `Lines: ${result.originalLineCount} original, ${result.serializedLineCount} serialized\n`
+    report += `Serialized output: ${result.serializedPath}\n\n`
+
+    // Group differences by type
     const groupedDiffs: { [key: string]: LineDifference[] } = {}
-    differences.forEach((diff) => {
+    result.differences.forEach((diff) => {
       const issueType = diff.issue.split(":")[0]
       if (!groupedDiffs[issueType]) {
         groupedDiffs[issueType] = []
@@ -98,45 +137,29 @@ function main() {
       groupedDiffs[issueType].push(diff)
     })
 
-    // Output summary by issue type
+    // Summary by issue type
     Object.entries(groupedDiffs).forEach(([issueType, diffs]) => {
-      console.log(`\n=== ${issueType} Issues (${diffs.length}) ===`)
+      report += `  ${issueType} Issues: ${diffs.length}\n`
 
-      // Show first 10 examples of each type
-      const samplesToShow = Math.min(10, diffs.length)
+      // Show first 5 examples of each type
+      const samplesToShow = Math.min(5, diffs.length)
       for (let i = 0; i < samplesToShow; i++) {
         const diff = diffs[i]
-        console.log(`\nLine ${diff.lineNumber}: ${diff.issue}`)
-        console.log(`  Original:   "${diff.originalLine}"`)
-        console.log(`  Serialized: "${diff.serializedLine || "<MISSING>"}"`)
+        report += `    Line ${diff.lineNumber}: ${diff.issue}\n`
+        report += `      Original:   "${diff.originalLine}"\n`
+        report += `      Serialized: "${diff.serializedLine || "<MISSING>"}"\n`
       }
 
-      if (diffs.length > 10) {
-        console.log(`  ... and ${diffs.length - 10} more ${issueType.toLowerCase()} issues`)
+      if (diffs.length > 5) {
+        report += `    ... and ${diffs.length - 5} more ${issueType.toLowerCase()} issues\n`
       }
+      report += "\n"
     })
 
-    // Show sections that are completely missing
-    console.log("\n=== Analysis of Missing Content ===")
-
-    if (serializedLines.length < originalLines.length) {
-      const missingLineCount = originalLines.length - serializedLines.length
-      console.log(`\n${missingLineCount} lines are completely missing from serialization.`)
-      console.log("Missing content starts around line:", serializedLines.length + 1)
-      console.log("First few missing lines:")
-
-      for (let i = serializedLines.length; i < Math.min(serializedLines.length + 10, originalLines.length); i++) {
-        console.log(`  Line ${i + 1}: "${originalLines[i]}"`)
-      }
-    }
-
-    // Identify potential parsing gaps
-    console.log("\n=== Potential Parser/Serializer Gaps ===")
-
+    // Identify potential parsing gaps for this file
     const missingPatterns = new Set<string>()
-    differences.forEach((diff) => {
+    result.differences.forEach((diff) => {
       if (diff.originalLine && !diff.serializedLine) {
-        // Extract pattern from missing lines
         const line = diff.originalLine.trim()
         if (line.includes("=")) {
           const key = line.split("=")[0].trim()
@@ -149,19 +172,74 @@ function main() {
     })
 
     if (missingPatterns.size > 0) {
-      console.log("\nCommon patterns in missing lines:")
+      report += "  Common patterns in missing lines:\n"
       Array.from(missingPatterns)
         .sort()
         .forEach((pattern) => {
-          console.log(`  - "${pattern}"`)
+          report += `    - "${pattern}"\n`
         })
+      report += "\n"
     }
 
-    console.log("\n=== Next Steps ===")
-    console.log("1. Fix MISSING issues by implementing missing parser/serializer components")
-    console.log("2. Fix VALUE/NUMERIC issues by checking number formatting in serializers")
-    console.log("3. Fix WHITESPACE issues by matching original spacing patterns")
-    console.log("4. Verify bridge and culvert component serialization completeness")
+    report += "\n"
+  })
+
+  // Overall summary
+  const totalFiles = results.length
+  const passedFiles = results.filter((r) => r.differences.length === 0).length
+  const failedFiles = totalFiles - passedFiles
+  const totalDifferences = results.reduce((sum, r) => sum + r.differences.length, 0)
+
+  report += "Summary\n"
+  report += "-".repeat(20) + "\n"
+  report += `Files processed: ${totalFiles}\n`
+  report += `Files with no mismatches: ${passedFiles}\n`
+  report += `Files with mismatches: ${failedFiles}\n`
+  report += `Total differences found: ${totalDifferences}\n\n`
+
+  if (failedFiles > 0) {
+    report += "Next Steps:\n"
+    report += "1. Fix MISSING issues by implementing missing parser/serializer components\n"
+    report += "2. Fix VALUE/NUMERIC issues by checking number formatting in serializers\n"
+    report += "3. Fix WHITESPACE issues by matching original spacing patterns\n"
+    report += "4. Verify bridge and culvert component serialization completeness\n"
+  }
+
+  return report
+}
+
+function main() {
+  console.log("=== HEC-RAS Geometry Files Round-trip Comparison ===\n")
+
+  try {
+    const results: FileComparisonResult[] = []
+
+    for (const fileName of GEOMETRY_FILES) {
+      const filePath = join("test/data", fileName)
+      console.log(`Processing ${fileName}...`)
+
+      try {
+        const result = compareFile(filePath)
+        results.push(result)
+
+        if (result.differences.length === 0) {
+          console.log(`  ✓ All pass - no mismatches`)
+        } else {
+          console.log(`  ✗ ${result.differences.length} differences found`)
+        }
+      } catch (error) {
+        console.log(`  ✗ Error: ${error}`)
+        // Continue with other files even if one fails
+      }
+    }
+
+    // Generate and save report
+    const report = generateReport(results)
+    const reportPath = "geometry-roundtrip-report.txt"
+    writeFileSync(reportPath, report, "utf-8")
+
+    console.log(`\nReport saved to: ${reportPath}`)
+    console.log(`Processed ${results.length} files total`)
   } catch (error) {
     console.error("Error during comparison:", error)
     process.exit(1)
