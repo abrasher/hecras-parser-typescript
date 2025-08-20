@@ -33,8 +33,8 @@ export function formatCoordinateMultipleLines(
 }
 
 export function coordinatePairToString({ x, y }: Coordinate, width: number): string {
-  const x2 = toFixedWidthString(removeLeadingZero(x), width)
-  const y2 = toFixedWidthString(removeLeadingZero(y), width)
+  const x2 = toFixedWidthString(formatHecRasNumber(x), width)
+  const y2 = toFixedWidthString(formatHecRasNumber(y), width)
 
   return `${x2}${y2}`
 }
@@ -58,9 +58,16 @@ export function formatStationPairs(stations: UpstreamDownstreamPair[]): string[]
   return lines
 }
 
-export function removeLeadingZero(num: number): string {
-  // Handle numbers that start with 0. (like "0.584" -> "    .584"
-  const str = num.toString()
+export function formatHecRasNumber(num: number): string {
+  // Format numbers to match HEC-RAS conventions:
+  // 1. Remove leading zero from decimals (like "0.584" -> " .584")
+  // 2. Add trailing decimal to whole numbers (like "479942" -> "479942.")
+  let str = num.toString()
+
+  // For whole numbers, add trailing decimal to match HEC-RAS format
+  if (Number.isInteger(num) && !str.includes(".")) {
+    str += "."
+  }
 
   if (str.startsWith("0.")) {
     return str.replace("0.", " .")
@@ -70,8 +77,8 @@ export function removeLeadingZero(num: number): string {
 }
 
 export function stationPairToString(station: UpstreamDownstreamPair): string {
-  const upstream = toFixedWidthString(removeLeadingZero(station.upstreamStation), 8)
-  const downstream = toFixedWidthString(removeLeadingZero(station.downstreamStation), 8)
+  const upstream = toFixedWidthString(formatHecRasNumber(station.upstreamStation), 8)
+  const downstream = toFixedWidthString(formatHecRasNumber(station.downstreamStation), 8)
 
   return `${upstream}${downstream}`
 }
@@ -84,7 +91,7 @@ export function formatStationElevationPairs(stationElevationData: number[]): str
 
   // Station-elevation pairs are 8 characters each, 5 pairs per line (80 chars total)
   chunk(stationElevationData, 10).forEach((dataGroup) => {
-    const formattedLine = dataGroup.map((value) => toFixedWidthString(removeLeadingZero(value), 8)).join("")
+    const formattedLine = dataGroup.map((value) => toFixedWidthString(formatHecRasNumber(value), 8)).join("")
     lines.push(formattedLine)
   })
 

@@ -6,6 +6,7 @@ import { serializeGeometryHeader } from "./geometry/geometryHeaderSerializer"
 import { serializeStorageArea } from "./geometry/storageAreaSerializer"
 import { serializeConnection } from "./geometry/connectionSerializer"
 import { serializeBoundaryCondition } from "./geometry/boundaryConditionSerializer"
+import { appendLines } from "./utils/safeArrayUtils"
 
 /**
  * Serialize complete HEC-RAS geometry to text format
@@ -16,21 +17,21 @@ export function serializeGeometry(geometry: HECRASGeometry): string[] {
   const lines: string[] = []
 
   // 1. Serialize header section (title, version, viewing rectangle, description)
-  lines.push(...serializeGeometryHeader(geometry))
+  appendLines(lines, serializeGeometryHeader(geometry))
 
   // 2. Serialize storage areas in order
   for (const storageArea of geometry.storageAreas) {
-    lines.push(...serializeStorageArea(storageArea))
+    appendLines(lines, serializeStorageArea(storageArea))
   }
 
   // 3. Serialize connections in order
   for (const connection of geometry.connections) {
-    lines.push(...serializeConnection(connection))
+    appendLines(lines, serializeConnection(connection))
   }
 
   // 4. Serialize boundary conditions in order
   for (const boundaryCondition of geometry.boundaryConditions) {
-    lines.push(...serializeBoundaryCondition(boundaryCondition))
+    appendLines(lines, serializeBoundaryCondition(boundaryCondition))
   }
 
   // 5. Serialize global settings (appear at end of file)
