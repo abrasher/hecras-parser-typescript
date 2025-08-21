@@ -103,7 +103,7 @@ Conn BR: DSXS Ineff=3.24,260.55,16.87,260.72`
       { x: 483888.50815, y: 4751220.0721 },
       { x: 483877.6897, y: 4751236.0422 },
     ],
-    centerlineProfile: 0,
+    centerlineProfile: [],
     lastEditedTime: "May-15-2025 15:58:25",
     cellSizeMin: 2,
     nearRepeats: 1,

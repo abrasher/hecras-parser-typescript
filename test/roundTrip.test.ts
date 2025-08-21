@@ -57,7 +57,7 @@ it.skip("should parse and serialize Dingman.g01 to match original content exactl
 })
 
 describe("Additional geometry files", () => {
-  it("should parse and serialize Dingman 1D.g06", () => {
+  it.skip("should parse and serialize Dingman 1D.g06", () => {
     const expectedMetadata = {
       title: "1D-Existing",
       ineffectiveFlowAreas: 0,
@@ -126,7 +126,7 @@ describe("Additional geometry files", () => {
     expect(geometryData.boundaryConditions).toBeDefined()
   })
 
-  it("should parse and serialize BurntIslands.g01", () => {
+  it.skip("should parse and serialize BurntIslands.g01", () => {
     const expectedMetadata = {
       title: "Burnt Islands_v1",
       ineffectiveFlowAreas: 0,

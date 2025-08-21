@@ -3,57 +3,62 @@ import type { Coordinate } from "../../models/geometry/common"
 import { parseCommaSeparated, parseKeyValue } from "../atomic"
 import type { RiverReach, CrossSection, CrossSectionType } from "../../models/geometry/riverReach"
 
+/**
+ * Parses river reach data starting from a "River Reach=" line
+ * Handles river reach properties, coordinates, and cross-sections
+ */
 export function parseRiverReachData(
   line: string,
   lines: string[],
   currentIndex: number,
 ): { data: RiverReach; nextIndex: number } {
-  if (!line.startsWith("River Reach=")) throw new Error(`riverReachParser was given a line it can't parse: ${line}`)
+  if (!line.startsWith("River Reach=")) {
+    throw new Error(`riverReachParser was given a line it can't parse: ${line}`)
+  }
 
-  const { value } = parseKeyValue(line)
-  const riverReachNames = parseCommaSeparated(value)
-
-  const riverReach: RiverReach = {
-    riverName: riverReachNames[0].trim(),
-    reachName: riverReachNames[1].trim(),
+  // Initialize river reach with default values
+  const riverReach = {
+    riverName: "",
+    reachName: "",
     coordinateCount: 0,
     coordinates: [],
     crossSections: [],
-  }
+  } as RiverReach
 
-  let index = currentIndex + 1
+  let index = currentIndex
 
-  if (lines[index]?.startsWith("Reach XY=")) {
-    const { value: coordinateCountStr } = parseKeyValue(lines[index])
-    riverReach.coordinateCount = parseInt(coordinateCountStr.trim())
-    index++
-
-    const numberOfPoints = riverReach.coordinateCount
-    const coordinateLines = Math.ceil(numberOfPoints / 2) // 2 coordinates per line
-
-    for (let i = 0; i < coordinateLines && index < lines.length; i++) {
-      const coordLine = lines[index]
-      const coordinates = parseLineToCoordinates(coordLine)
-      riverReach.coordinates.push(...coordinates)
-      index++
-    }
-  }
-
+  // Parse the river reach starting from the first line
   while (index < lines.length) {
     const currentLine = lines[index]
 
-    if (
-      !currentLine ||
-      currentLine.startsWith("River Reach=") ||
-      currentLine.startsWith("Connection ") ||
-      currentLine.startsWith("Storage Area") ||
-      currentLine.startsWith("Junction") ||
-      currentLine.startsWith("Boundary Conditions")
-    ) {
+    // Skip empty lines
+    if (!currentLine || currentLine.trim() === "") {
+      index++
+      continue
+    }
+
+    // Stop if we hit another river reach (but allow the first River Reach= line)
+    if (currentLine.startsWith("River Reach=") && index !== currentIndex) {
       break
     }
 
-    if (currentLine.startsWith("Rch Text X Y=")) {
+    // Stop if we hit a non-river-reach line
+    if (!isRiverReachLine(currentLine) && !currentLine.startsWith("River Reach=")) {
+      break
+    }
+
+    if (currentLine.startsWith("River Reach=")) {
+      const { riverName, reachName } = parseRiverReachDefinition(currentLine)
+      riverReach.riverName = riverName
+      riverReach.reachName = reachName
+      index++
+    } else if (currentLine.startsWith("Reach XY=")) {
+      const { value } = parseKeyValue(currentLine)
+      riverReach.coordinateCount = parseInt(value.trim())
+      const { data, nextIndex } = parseReachCoordinates(lines, index)
+      riverReach.coordinates = data
+      index = nextIndex
+    } else if (currentLine.startsWith("Rch Text X Y=")) {
       const { value } = parseKeyValue(currentLine)
       const coords = parseCommaSeparated(value)
       riverReach.textPosition = {
@@ -74,10 +79,79 @@ export function parseRiverReachData(
     }
   }
 
+  return { data: riverReach, nextIndex: index }
+}
+
+function isRiverReachLine(line: string): boolean {
+  const riverReachPrefixes = [
+    "River Reach=",
+    "Reach XY=",
+    "Rch Text X Y=",
+    "Reverse River Text=",
+    "Type RM Length L Ch R", // Cross-section start
+  ]
+  return riverReachPrefixes.some((prefix) => line?.startsWith(prefix))
+}
+
+function parseRiverReachDefinition(line: string): { riverName: string; reachName: string } {
+  const { value } = parseKeyValue(line)
+  const riverReachNames = parseCommaSeparated(value)
   return {
-    data: riverReach,
-    nextIndex: index,
+    riverName: riverReachNames[0].trim(),
+    reachName: riverReachNames[1].trim(),
   }
+}
+
+function parseReachCoordinates(lines: string[], startIndex: number): { data: Coordinate[]; nextIndex: number } {
+  const headerLine = lines[startIndex]
+  const { value } = parseKeyValue(headerLine)
+  const numberOfPoints = parseInt(value.trim())
+
+  let index = startIndex + 1
+  const coordinates: Coordinate[] = []
+
+  // Reach coordinates may not be defined, so we need to check and escape if there are none
+  if (numberOfPoints === 0) return { data: coordinates, nextIndex: index }
+
+  // Reach coordinates follow the same pattern as storage area:
+  // 2 coordinates per line (64 characters wide, 16 characters per number)
+  const coordinateLines = Math.ceil(numberOfPoints / 2)
+
+  for (let i = 0; i < coordinateLines && index < lines.length; i++) {
+    const coordLine = lines[index]
+
+    // Check if this line could be coordinate data by verifying it's not a known non-coordinate line
+    if (coordLine && !isKnownNonCoordinateLine(coordLine)) {
+      try {
+        const lineCoords = parseLineToCoordinates(coordLine)
+        coordinates.push(...lineCoords)
+        index++
+      } catch {
+        // If we can't parse coordinates from this line, stop parsing coordinates
+        break
+      }
+    } else {
+      // Hit a non-coordinate line, stop parsing coordinates
+      break
+    }
+  }
+
+  return { data: coordinates, nextIndex: index }
+}
+
+function isKnownNonCoordinateLine(line: string): boolean {
+  const nonCoordinatePrefixes = [
+    "River Reach=",
+    "Type RM Length",
+    "Rch Text",
+    "Reverse River",
+    "Connection ",
+    "Storage Area",
+    "Junction",
+    "Boundary Conditions",
+    "#", // Cross-section data markers
+  ]
+  return nonCoordinatePrefixes.some((prefix) => line?.startsWith(prefix))
 }
 
 function parseCrossSection(lines: string[], currentIndex: number): { data: CrossSection; nextIndex: number } {

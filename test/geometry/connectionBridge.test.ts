@@ -325,6 +325,10 @@ const testBridgeData: BridgeConnection = {
     maxHighCoordinate: null,
     maxSubmerge: 0.98,
     isOgee: 0,
+    upstreamEmbankmentSideSlope: null,
+    downstreamEmbankmentSideSlope: null,
+    spillwayApproachHeight: null,
+    spillwayDesignHead: null,
     upstream: [
       { station: -24.11, highChord: 252.82, lowChord: null },
       { station: -18.14, highChord: 252.78, lowChord: null },
@@ -660,4 +664,5 @@ const testBridgeData: BridgeConnection = {
     rightStation: 30,
     rightElevation: 252.5,
   },
+  piers: [],
 }
