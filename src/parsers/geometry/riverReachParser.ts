@@ -28,32 +28,15 @@ export function parseRiverReachData(
     riverReach.coordinateCount = parseInt(coordinateCountStr.trim())
     index++
 
-    const coordinatesNeeded = riverReach.coordinateCount
-    const coordinates: Coordinate[] = []
+    const numberOfPoints = riverReach.coordinateCount
+    const coordinateLines = Math.ceil(numberOfPoints / 2) // 2 coordinates per line
 
-    while (coordinates.length < coordinatesNeeded && index < lines.length) {
-      const currentLine = lines[index]
-      if (
-        currentLine.trim() === "" ||
-        currentLine.startsWith("River Reach=") ||
-        currentLine.startsWith("Type RM Length") ||
-        currentLine.startsWith("Rch Text") ||
-        currentLine.startsWith("Reverse River")
-      ) {
-        break
-      }
-
-      try {
-        const lineCoords = parseLineToCoordinates(currentLine)
-        coordinates.push(...lineCoords)
-        index++
-      } catch {
-        // If we can't parse coordinates from this line, it's probably not coordinate data
-        break
-      }
+    for (let i = 0; i < coordinateLines && index < lines.length; i++) {
+      const coordLine = lines[index]
+      const coordinates = parseLineToCoordinates(coordLine)
+      riverReach.coordinates.push(...coordinates)
+      index++
     }
-
-    riverReach.coordinates = coordinates.slice(0, coordinatesNeeded)
   }
 
   while (index < lines.length) {
