@@ -11,7 +11,7 @@ export interface BridgeConnection {
   pressureWeir?: PressureWeirData
   deckParameters: DeckParameters
   bridgeCoefficients: BridgeCoefficients
-  bridgeSkew: number
+  bridgeSkew?: number | null
   insideCrossSections: [BridgeCrossSection, BridgeCrossSection]
   externalCrossSections: [BridgeCrossSection, BridgeCrossSection]
   upstreamIneffectiveFlowArea: IneffectiveFlowArea
@@ -52,8 +52,8 @@ export interface BridgeConfiguration {
   // -1 means Inside Bridge at Upstream End, 0 means Inside Bridge at Downstream End
   classBDefaults: number
   param5: number
-  contractionCoefficient: number
-  expansionCoefficient: number
+  contractionCoefficient: number | null
+  expansionCoefficient: number | null
 }
 
 export interface PressureWeirData {

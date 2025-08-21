@@ -39,8 +39,9 @@ function main() {
 
       if (originalLine !== serializedLine) {
         console.log(`First difference found at line ${i + 1}:`)
-        console.log(`Original:   "${originalLine}"`)
-        console.log(`Serialized: "${serializedLine}"`)
+        console.log(`  Original:   test/data/BurntIslands.g01:${i + 1}`)
+        console.log(`  Serialized: test/data/BurntIslands.serialized.g01:${i + 1}`)
+        console.log(`  Content: "${originalLine}" vs "${serializedLine}"`)
         return
       }
     }

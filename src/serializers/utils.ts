@@ -83,13 +83,19 @@ export function formatHECRASCoordinateNumber(num: number): string {
   return str
 }
 
-export function formatHECRASStationNumber(num: number): string {
+export function formatHECRASStationNumber(num: number | null): string {
   // Format numbers to match HEC-RAS conventions:
   // 1. 0.0 -> 0
   // 2. Remove leading zero from decimals (like "0.584" -> " .584" and "-0.584" -> "-.584")
+  // 3. null -> empty string
   // Does not add trailing decimal to whole numbers
 
-  // Rule 1: Handle 0.0 case
+  // Rule 1: Handle null case
+  if (num === null) {
+    return ""
+  }
+
+  // Rule 2: Handle 0.0 case
   if (num === 0) {
     return "0"
   }

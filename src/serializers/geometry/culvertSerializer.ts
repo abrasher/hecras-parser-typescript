@@ -1,5 +1,6 @@
 import type { CulvertGroupProperties, CulvertBarrelProperties } from "../../models/geometry/culvert"
 import { formatStationPairs, coordinatePairToString } from "../utils"
+import { formatFixedWidth } from "../atomic"
 import { chunk } from "es-toolkit"
 
 /**
@@ -13,8 +14,6 @@ export function serializeCulvertGroups(culvertGroups: CulvertGroupProperties[]):
   for (const culvertGroup of culvertGroups) {
     lines.push(...serializeCulvertGroup(culvertGroup))
   }
-
-  lines.push("")
 
   return lines
 }
@@ -57,8 +56,7 @@ export function serializeCulvertGroup(culvert: CulvertGroupProperties): string[]
     culvert.numberOfBarrels +
     " " +
     "," +
-    culvert.culvertGroupName +
-    "  " +
+    formatFixedWidth(culvert.culvertGroupName, 12, " ", "end") +
     "," +
     " " +
     culvert.unknownFlag +

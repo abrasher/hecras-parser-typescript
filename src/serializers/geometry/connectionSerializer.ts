@@ -46,9 +46,13 @@ export function serializeConnection(connection: Connection): string[] {
     lines.push(`Conn Near Repeats=${connection.nearRepeats}`)
   }
 
+  if (connection.protectionRadius !== undefined) {
+    lines.push(`Conn Protection Radius=${connection.protectionRadius}`)
+  }
+
   // 6. Storage area connections
-  lines.push(`Connection Up SA=${connection.upstreamStorageArea}         `)
-  lines.push(`Connection Dn SA=${connection.downstreamStorageArea}         `)
+  lines.push(`Connection Up SA=${formatFixedWidth(connection.upstreamStorageArea, 16, " ", "end")}`)
+  lines.push(`Connection Dn SA=${formatFixedWidth(connection.downstreamStorageArea, 16, " ", "end")}`)
 
   // 7. Routing and flow settings
   if (connection.routingType !== undefined) {
@@ -98,17 +102,25 @@ export function serializeConnection(connection: Connection): string[] {
     lines.push(...serializeWeirStationElevation(connection.weirSE))
   }
 
-  // 11. Hydraulic table properties
-  if (connection.hTabHWMax !== undefined) {
-    lines.push(`Conn HTab HWMax=${connection.hTabHWMax}`)
-    // Add extra blank line after Conn HTab HWMax - these have an extra line, not sure if it is intentional or not.
-    lines.push("")
-  }
-
   // 12. Culvert connection data (comes before outlet rating curve in HEC-RAS format)
   if (connection.culvert && connection.culvert.length > 0) {
     lines.push(...serializeCulvertGroups(connection.culvert))
   }
+
+  // 11. Hydraulic table properties
+  if (connection.hTabHWMax !== undefined) {
+    lines.push(`Conn HTab HWMax=${connection.hTabHWMax}`)
+  }
+
+  if (connection.hTabTWMax !== undefined) {
+    lines.push(`Conn HTab TWMax=${connection.hTabTWMax}`)
+  }
+
+  if (connection.hTabMaxFlow !== undefined) {
+    lines.push(`Conn HTab MaxFlow=${connection.hTabMaxFlow}`)
+  }
+
+  lines.push("")
 
   // 14. Outlet rating curve
   if (connection.outletRatingCurve) {

@@ -36,7 +36,6 @@ export function parseBridgeData(
     insideCrossSections: [] as BridgeCrossSection[],
     externalCrossSections: [] as BridgeCrossSection[],
     bridgeCoefficients: {} as BridgeCoefficients,
-    bridgeSkew: 0,
     upstreamIneffectiveFlowArea: {} as IneffectiveFlowArea,
     downstreamIneffectiveFlowArea: {} as IneffectiveFlowArea,
     piers: [] as BridgePier[],
@@ -104,8 +103,8 @@ function parseBridgeConfiguration(line: string): BridgeConfiguration {
     pressureFlowCriteria: parseInt(parts[2]),
     classBDefaults: parseInt(parts[3]),
     param5: parseInt(parts[4]),
-    contractionCoefficient: parseFloat(parts[5]),
-    expansionCoefficient: parseFloat(parts[6]),
+    contractionCoefficient: parseMaybeFloat(parts[5]),
+    expansionCoefficient: parseMaybeFloat(parts[6]),
   }
 }
 

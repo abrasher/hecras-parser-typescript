@@ -7,8 +7,10 @@ import type {
   BridgeCrossSection,
   IneffectiveFlowArea,
   DeckStationing,
+  BridgePier,
 } from "../../models/geometry/bridge"
-import { toFixedWidthString } from "../utils"
+import { formatFixedWidth, formatMaybeNullorUndefined } from "../atomic"
+import { formatHECRASStationNumber, toFixedWidthString } from "../utils"
 import { chunk } from "es-toolkit"
 
 /**
@@ -22,8 +24,10 @@ export function serializeBridgeConnection(bridge: BridgeConnection): string[] {
   // 1. Bridge configuration
   lines.push(...serializeBridgeConfiguration(bridge.bridge))
 
-  // 2. Pressure weir data
-  lines.push(...serializePressureWeirData(bridge.pressureWeir))
+  // 2. Pressure weir data (only if defined)
+  if (bridge.pressureWeir) {
+    lines.push(...serializePressureWeirData(bridge.pressureWeir))
+  }
 
   // 3. Deck parameters
   lines.push(...serializeDeckParameters(bridge.deckParameters))
@@ -33,18 +37,27 @@ export function serializeBridgeConnection(bridge: BridgeConnection): string[] {
     lines.push(...serializeBridgeCrossSection(section, "BR"))
   }
 
-  // 5. Bridge coefficients
+  // 5. Piers (if any)
+  if (bridge.piers && bridge.piers.length > 0) {
+    for (const pier of bridge.piers) {
+      lines.push(...serializeBridgePier(pier))
+    }
+  }
+
+  // 6. Bridge coefficients
   lines.push(...serializeBridgeCoefficients(bridge.bridgeCoefficients))
 
-  // 6. Bridge skew
-  lines.push(`Conn BR: BR Skew=${bridge.bridgeSkew}`)
+  // 7. Bridge skew (only if not default value of 0)
+  if (bridge.bridgeSkew !== undefined) {
+    lines.push(`Conn BR: BR Skew=${formatMaybeNullorUndefined(bridge.bridgeSkew)}`)
+  }
 
-  // 7. External cross sections
+  // 8. External cross sections
   for (const section of bridge.externalCrossSections) {
     lines.push(...serializeBridgeCrossSection(section, "XS"))
   }
 
-  // 8. Ineffective flow areas (only if they have valid data)
+  // 9. Ineffective flow areas (only if they have valid data)
   if (bridge.upstreamIneffectiveFlowArea.leftStation !== undefined) {
     lines.push(...serializeIneffectiveFlowArea(bridge.upstreamIneffectiveFlowArea, "USXS"))
   }
@@ -65,8 +78,8 @@ export function serializeBridgeConfiguration(config: BridgeConfiguration): strin
     config.pressureFlowCriteria,
     config.classBDefaults,
     ` ${config.param5} `, // Add spaces like in test data
-    config.contractionCoefficient,
-    config.expansionCoefficient,
+    config.contractionCoefficient ?? "",
+    config.expansionCoefficient ?? "",
   ]
 
   return [`Conn BR: Bridge=${values.join(",")}`]
@@ -108,10 +121,10 @@ export function serializeDeckParameters(deck: DeckParameters): string[] {
     ` ${deck.maxHighCoordinate ?? ""}`, // null becomes empty string with space
     ` ${deck.maxSubmerge}`, // Add space like in test data
     ` ${deck.isOgee}`, // Add space like in test data
-    ` ${deck.upstreamEmbankmentSideSlope ?? ""}`, // null becomes empty string with space
-    `${deck.downstreamEmbankmentSideSlope ?? ""}`, // null becomes empty string with space
-    `${deck.spillwayApproachHeight ?? ""}`, // null becomes empty string with space
-    `${deck.spillwayDesignHead ?? ""}`, // null becomes empty string with space
+    ` ${deck.upstreamEmbankmentSideSlope ?? 0}`, // Use 0 instead of empty string
+    `${deck.downstreamEmbankmentSideSlope ?? 0}`, // Use 0 instead of empty string
+    `${deck.spillwayApproachHeight ?? ""}`, // Use 0 instead of empty string
+    `${deck.spillwayDesignHead ?? ""}`, // Use 0 instead of empty string
   ]
 
   lines.push(params.join(","))
@@ -162,28 +175,11 @@ function formatStationValues(values: number[]): string[] {
   const lines: string[] = []
 
   chunk(values, 10).forEach((valueGroup) => {
-    const formattedLine = valueGroup.map((value) => formatBridgeNumber(value, 8)).join("")
+    const formattedLine = valueGroup.map((value) => formatFixedWidth(formatHECRASStationNumber(value), 8)).join("")
     lines.push(formattedLine)
   })
 
   return lines
-}
-
-/**
- * Format numbers for bridge serialization - handles special cases like .584 instead of 0.584
- * NOTE: This formatting (removing leading "0.") is only correct for Manning's coefficients
- * which are always < 1.0. For other numeric values, this could produce incorrect results.
- */
-function formatBridgeNumber(value: number, width: number): string {
-  let str = value.toString()
-
-  // Handle numbers that start with 0. (like 0.584 -> .584)
-  // WARNING: This is only valid for Manning's coefficients (values < 1.0)
-  if (str.startsWith("0.")) {
-    str = str.substring(1) // Remove the leading "0"
-  }
-
-  return toFixedWidthString(str, width)
 }
 
 /**
@@ -218,7 +214,7 @@ export function serializeBridgeCrossSection(section: BridgeCrossSection, prefix:
   }
 
   chunk(stationElevationData, 10).forEach((dataGroup) => {
-    const formattedLine = dataGroup.map((value) => formatBridgeNumber(value, 8)).join("")
+    const formattedLine = dataGroup.map((value) => formatFixedWidth(formatHECRASStationNumber(value), 8)).join("")
     lines.push(formattedLine)
   })
 
@@ -236,7 +232,7 @@ export function serializeBridgeCrossSection(section: BridgeCrossSection, prefix:
   }
 
   chunk(manningData, 10).forEach((dataGroup) => {
-    const formattedLine = dataGroup.map((value) => formatBridgeNumber(value, 8)).join("")
+    const formattedLine = dataGroup.map((value) => formatFixedWidth(formatHECRASStationNumber(value), 8)).join("")
     lines.push(formattedLine)
   })
 
@@ -271,6 +267,32 @@ export function serializeIneffectiveFlowArea(area: IneffectiveFlowArea, prefix: 
   const values = [area.leftStation, area.leftElevation, area.rightStation, area.rightElevation]
 
   return [`Conn BR: ${prefix} Ineff=${values.join(",")}`]
+}
+
+/**
+ * Serialize bridge pier to HEC-RAS format
+ */
+export function serializeBridgePier(pier: BridgePier): string[] {
+  const lines: string[] = []
+
+  // Pier header line with skew, centerline stations, number of upstream/downstream points, and debris parameters
+  const skew = pier.skew === "" ? "  " : pier.skew
+  const upstreamCount = pier.upstream.length
+  const downstreamCount = pier.downstream.length
+  const debrisWidth = pier.debrisWidth ?? ""
+  const debrisHeight = pier.debrisHeight ?? ""
+
+  lines.push(
+    `Conn BR: Pier Skew, UpSta & Num, DnSta & Num=${skew},${pier.centerlineStationUpstream}, ${upstreamCount} ,${pier.centerlineStationDownstream}, ${downstreamCount} , 0 , 0 , ${pier.applyFloatingDebris} ,${debrisWidth},${debrisHeight}`,
+  )
+
+  // Upstream width-elevation pairs
+  lines.push(...formatStationValues(pier.upstream.map((pair) => pair.width)))
+  lines.push(...formatStationValues(pier.upstream.map((pair) => pair.elevation)))
+  lines.push(...formatStationValues(pier.downstream.map((pair) => pair.width)))
+  lines.push(...formatStationValues(pier.downstream.map((pair) => pair.elevation)))
+
+  return lines
 }
 
 /**

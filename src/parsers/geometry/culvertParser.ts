@@ -1,4 +1,4 @@
-import { parseLineStationPairs, parseLineToCoordinates } from "../lineParsers"
+import { parseLineStationPairsWithNulls, parseLineToCoordinates } from "../lineParsers"
 import type { Coordinate } from "../../models/geometry/common"
 import { parseCommaSeparated, parseKeyValue } from "../atomic"
 import type { CulvertGroupProperties } from "../../models/geometry/culvert"
@@ -68,7 +68,7 @@ export function parseCulvertGroup(
 
   for (; index < endIndex; index++) {
     const nextLine = lines[index]
-    const stations = parseLineStationPairs(nextLine)
+    const stations = parseLineStationPairsWithNulls(nextLine)
     culvertData.barrelStations.push(...stations)
   }
 

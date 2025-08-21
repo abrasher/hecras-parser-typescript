@@ -20,6 +20,6 @@ export interface VolumeElevationPoint {
 }
 
 export interface UpstreamDownstreamPair {
-  upstreamStation: number
-  downstreamStation: number
+  upstreamStation: number | null
+  downstreamStation: number | null
 }
