@@ -1,4 +1,5 @@
 import type { StorageArea } from "../../models/geometry/storageArea"
+import { formatMaybeNullorUndefined } from "../atomic"
 import { coordinatePairToString } from "../utils"
 import { chunk } from "es-toolkit"
 
@@ -10,9 +11,11 @@ import { chunk } from "es-toolkit"
 export function serializeStorageArea(storageArea: StorageArea): string[] {
   const lines: string[] = []
 
-  lines.push(
-    `Storage Area=${storageArea.id.toString().padEnd(16, " ")},${storageArea.centroidX},${storageArea.centroidY}`,
-  )
+  const name = storageArea.id.toString().padEnd(16, " ")
+  const centroidX = formatMaybeNullorUndefined(storageArea.centroidX)
+  const centroidY = formatMaybeNullorUndefined(storageArea.centroidY)
+
+  lines.push(`Storage Area=${name},${centroidX},${centroidY}`)
 
   // Surface line coordinates
   lines.push(`Storage Area Surface Line= ${storageArea.surfaceLine.length} `)
@@ -30,7 +33,7 @@ export function serializeStorageArea(storageArea: StorageArea): string[] {
   if (storageArea.area !== null) {
     lines.push(`Storage Area Area=${storageArea.area}`)
   } else {
-    lines.push("Storage Area Area= ")
+    lines.push("Storage Area Area=")
   }
 
   // Storage Area Min Elevation (optional)

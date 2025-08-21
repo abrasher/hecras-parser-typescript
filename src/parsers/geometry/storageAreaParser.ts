@@ -1,6 +1,7 @@
 import { parseLineToCoordinates } from "../lineParsers"
 import type { StorageArea } from "../../models/geometry/storageArea"
 import { parseKeyValue } from "../atomic"
+import { parseMaybeFloat } from "../../serializers/atomic"
 
 /**
  * Parses storage area data starting from a "Storage Area=" line
@@ -17,8 +18,8 @@ export function parseStorageAreaData(
   // Storage Area=id,,, - extract the id from the comma-separated value
   const parts = value.split(",")
   const id = parts[0].trim()
-  const centroidX = parseFloat(parts[1])
-  const centroidY = parseFloat(parts[2])
+  const centroidX = parseMaybeFloat(parts[1])
+  const centroidY = parseMaybeFloat(parts[2])
 
   const storageAreaData = {
     id,

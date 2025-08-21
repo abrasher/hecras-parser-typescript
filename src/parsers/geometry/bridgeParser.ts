@@ -10,9 +10,11 @@ import type {
   IneffectiveFlowArea,
   BankStations,
   ManningCoefficients,
+  BridgePier,
 } from "../../models/geometry/bridge"
 import type { StationElevationPoint } from "../../models/geometry/common"
 import { parseMaybeFloat } from "../../serializers/atomic"
+import { zip } from "es-toolkit"
 
 /**
  * Parses bridge connection data starting from a "Conn BR: Bridge=" line
@@ -30,7 +32,6 @@ export function parseBridgeData(
   // Initialize bridge connection with empty values
   const bridgeConnection = {
     bridge: {} as BridgeConfiguration,
-    pressureWeir: {} as PressureWeirData,
     deckParameters: {} as DeckParameters,
     insideCrossSections: [] as BridgeCrossSection[],
     externalCrossSections: [] as BridgeCrossSection[],
@@ -38,6 +39,7 @@ export function parseBridgeData(
     bridgeSkew: 0,
     upstreamIneffectiveFlowArea: {} as IneffectiveFlowArea,
     downstreamIneffectiveFlowArea: {} as IneffectiveFlowArea,
+    piers: [] as BridgePier[],
   } as BridgeConnection
 
   let index = currentIndex
@@ -76,6 +78,10 @@ export function parseBridgeData(
     } else if (currentLine.startsWith("Conn BR: DSXS Ineff=")) {
       bridgeConnection.downstreamIneffectiveFlowArea = parseIneffectiveFlowArea(currentLine)
       index++
+    } else if (currentLine.startsWith("Conn BR: Pier Skew, UpSta & Num, DnSta & Num=")) {
+      const { data, nextIndex } = parsePier(lines, index)
+      bridgeConnection.piers.push(data)
+      index = nextIndex
     } else {
       index++
     }
@@ -184,6 +190,60 @@ function buildDeckStationingArray(
     })
   }
   return result
+}
+
+export function parsePier(lines: string[], startIndex: number): { data: BridgePier; nextIndex: number } {
+  let index = startIndex
+
+  const [
+    skew,
+    upstreamCenter,
+    _upstreamPoints,
+    downstreamCenter,
+    _downstreamPoints,
+    _unknown1,
+    _unknown2,
+    debrisEnabled,
+    debrisWidth,
+    debrisHeight,
+  ] = parseCommaSeparated(parseKeyValue(lines[index]).value)
+
+  index++
+
+  const upstreamWidths = chunkStringToNumbers(lines[index], 8)
+  index++
+
+  const upstreamElevations = chunkStringToNumbers(lines[index], 8)
+  index++
+
+  const downstreamWidths = chunkStringToNumbers(lines[index], 8)
+  index++
+
+  const downstreamElevations = chunkStringToNumbers(lines[index], 8)
+  index++
+
+  const upstream = zip(upstreamWidths, upstreamElevations).map(([width, elevation]) => ({
+    width,
+    elevation,
+  }))
+  const downstream = zip(downstreamWidths, downstreamElevations).map(([width, elevation]) => ({
+    width,
+    elevation,
+  }))
+
+  return {
+    data: {
+      skew,
+      centerlineStationUpstream: parseFloat(upstreamCenter),
+      centerlineStationDownstream: parseFloat(downstreamCenter),
+      upstream,
+      downstream,
+      applyFloatingDebris: parseInt(debrisEnabled),
+      debrisWidth: debrisWidth === "" ? null : parseFloat(debrisWidth),
+      debrisHeight: debrisHeight === "" ? null : parseFloat(debrisHeight),
+    },
+    nextIndex: index,
+  }
 }
 
 function parseDeckParameters(lines: string[], startIndex: number): { data: DeckParameters; nextIndex: number } {

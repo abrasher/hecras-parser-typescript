@@ -16,6 +16,7 @@ export interface Connection {
   cellSizeMin?: number
   cellSizeMax?: number
   nearRepeats?: number
+  protectionRadius?: number
 
   // Storage area connections
   upstreamStorageArea: string
@@ -39,7 +40,9 @@ export interface Connection {
   weirSE?: StationElevationPoint[]
 
   // Hydraulic table properties
-  hTabHWMax?: number
+  hTabHWMax?: number | null
+  hTabTWMax?: number | null
+  hTabMaxFlow?: number
 
   // Outlet rating curve
   outletRatingCurve?: {

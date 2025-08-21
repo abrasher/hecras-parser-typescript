@@ -8,7 +8,7 @@ export interface DeckStationing {
 
 export interface BridgeConnection {
   bridge: BridgeConfiguration
-  pressureWeir: PressureWeirData
+  pressureWeir?: PressureWeirData
   deckParameters: DeckParameters
   bridgeCoefficients: BridgeCoefficients
   bridgeSkew: number
@@ -16,6 +16,30 @@ export interface BridgeConnection {
   externalCrossSections: [BridgeCrossSection, BridgeCrossSection]
   upstreamIneffectiveFlowArea: IneffectiveFlowArea
   downstreamIneffectiveFlowArea: IneffectiveFlowArea
+  piers: BridgePier[]
+}
+
+export interface BridgePier {
+  skew?: string | null
+  centerlineStationUpstream: number
+  centerlineStationDownstream: number
+  upstream: WidthElevationPair[]
+  downstream: WidthElevationPair[]
+  applyFloatingDebris: number
+  debrisWidth?: number | null
+  debrisHeight?: number | null
+}
+
+interface WidthElevationPair {
+  width: number
+  elevation: number
+}
+
+export interface PierWidthElevation {
+  upstreamWidth: number
+  upstreamElevation: number
+  downstreamWidth: number
+  downstreamElevation: number
 }
 
 export interface BridgeConfiguration {

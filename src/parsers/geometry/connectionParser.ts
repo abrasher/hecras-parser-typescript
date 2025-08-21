@@ -4,6 +4,7 @@ import { parseBridgeData } from "./bridgeParser"
 import { parseCulvertData } from "./culvertParser"
 import type { Connection } from "../../models/geometry/connection"
 import type { Coordinate, StationElevationPoint } from "../../models/geometry/common"
+import { parseMaybeFloat } from "../../serializers/atomic"
 
 /**
  * Parses connection data starting from a "Connection=" line
@@ -84,6 +85,9 @@ export function parseConnectionData(
     } else if (currentLine.startsWith("Conn Near Repeats=")) {
       connection.nearRepeats = parseInt(parseKeyValue(currentLine).value.trim())
       index++
+    } else if (currentLine.startsWith("Conn Protection Radius=")) {
+      connection.protectionRadius = parseFloat(parseKeyValue(currentLine).value.trim())
+      index++
     } else if (currentLine.startsWith("Connection Up SA=")) {
       connection.upstreamStorageArea = parseKeyValue(currentLine).value.trim()
       index++
@@ -125,7 +129,13 @@ export function parseConnectionData(
       connection.weirSE = data
       index = nextIndex
     } else if (currentLine.includes("Conn HTab HWMax=")) {
-      connection.hTabHWMax = parseInt(parseKeyValue(currentLine).value.trim())
+      connection.hTabHWMax = parseMaybeFloat(parseKeyValue(currentLine).value)
+      index++
+    } else if (currentLine.includes("Conn HTab TWMax=")) {
+      connection.hTabTWMax = parseFloat(parseKeyValue(currentLine).value.trim())
+      index++
+    } else if (currentLine.includes("Conn HTab MaxFlow=")) {
+      connection.hTabMaxFlow = parseFloat(parseKeyValue(currentLine).value.trim())
       index++
     } else if (currentLine.includes("Conn Outlet Rating Curve=")) {
       connection.outletRatingCurve = parseConnOutletRatingCurve(currentLine)
@@ -158,6 +168,7 @@ function isConnectionLine(line: string): boolean {
     "Conn CellSize Min=",
     "Conn CellSize Max=",
     "Conn Near Repeats=",
+    "Conn Protection Radius=",
     "Conn Routing Type=",
     "Conn Use RC Family=",
     "Conn OverFlow Method 2D=",
@@ -170,6 +181,8 @@ function isConnectionLine(line: string): boolean {
     "Conn Simple Spill Neg Coef=",
     "Conn Weir SE=",
     "Conn HTab HWMax=",
+    "Conn HTab TWMax=",
+    "Conn HTab MaxFlow=",
     "Conn Outlet Rating Curve=",
     "Conn BR: Bridge=", // Only bridge start, not all bridge data
     "Connection Culv=", // Only culvert start marker

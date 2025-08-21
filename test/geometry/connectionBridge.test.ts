@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeAll } from "vitest"
-import { parseBridgeData } from "../../src/parsers/geometry/bridgeParser"
+import { parseBridgeData, parsePier } from "../../src/parsers/geometry/bridgeParser"
 import type { BridgeConnection } from "../../src/models/geometry/bridge"
 
 describe("Bridge Connection Unit Tests", () => {
@@ -162,6 +162,56 @@ describe("Bridge Connection Unit Tests", () => {
   describe("Complete Object Validation", () => {
     it("should equal the complete test object", () => {
       expect(bridgeData.data).toEqual(testBridgeData)
+    })
+  })
+})
+
+describe("Pier Parser Unit Tests", () => {
+  const pierInputString = `Conn BR: Pier Skew, UpSta & Num, DnSta & Num=  ,1, 4 ,4, 2 , 0 , 0 , 0 ,,
+       1       1       1       1
+       2       2       2       2
+       3       1
+       2  251.99`
+
+  const lines = pierInputString.split("\n")
+  let pierData: ReturnType<typeof parsePier>
+
+  beforeAll(() => {
+    pierData = parsePier(lines, 0)
+  })
+
+  describe("Pier Basic Parameters", () => {
+    it("should parse pier centerline stations", () => {
+      expect(pierData.data.centerlineStationUpstream).toBe(1)
+      expect(pierData.data.centerlineStationDownstream).toBe(4)
+    })
+
+    it("should parse pier skew", () => {
+      expect(pierData.data.skew).toBe("")
+    })
+
+    it("should parse debris parameters", () => {
+      expect(pierData.data.applyFloatingDebris).toBe(0)
+      expect(pierData.data.debrisWidth).toBe(null)
+      expect(pierData.data.debrisHeight).toBe(null)
+    })
+  })
+
+  describe("Pier Geometry", () => {
+    it("should parse upstream width-elevation pairs", () => {
+      expect(pierData.data.upstream).toEqual([
+        { width: 1, elevation: 2 },
+        { width: 1, elevation: 2 },
+        { width: 1, elevation: 2 },
+        { width: 1, elevation: 2 },
+      ])
+    })
+
+    it("should parse downstream width-elevation pairs", () => {
+      expect(pierData.data.downstream).toEqual([
+        { width: 3, elevation: 2 },
+        { width: 1, elevation: 251.99 },
+      ])
     })
   })
 })

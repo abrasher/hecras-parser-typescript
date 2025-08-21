@@ -107,6 +107,12 @@ export function formatCoordinateLines(coordinates: Coordinate[]): string[] {
   return lines
 }
 
+export function formatMaybeNullorUndefined(value: number | null | undefined, nullReturnValue: string = ""): string {
+  if (value === null) return nullReturnValue
+  if (value === undefined) return ""
+  return value.toString()
+}
+
 /**
  * Format station pairs to fixed-width string (8 characters per number, no decimals)
  * @param stations Array of numbers representing station pairs
