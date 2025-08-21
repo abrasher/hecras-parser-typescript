@@ -157,19 +157,3 @@ export function formatDescriptionBlock(description: string): string[] {
   const lines = description.split("\n")
   return ["BEGIN DESCRIPTION:", ...lines, "END DESCRIPTION:"]
 }
-
-export function parseMaybeInt(value: string | undefined): number | null {
-  if (value === undefined || value.trim() === "") {
-    return null
-  }
-  const num = parseInt(value)
-  return isNaN(num) ? null : num
-}
-
-export function parseMaybeFloat(value: string | undefined): number | null {
-  if (value === undefined || value.trim() === "") {
-    return null
-  }
-  const num = parseFloat(value)
-  return isNaN(num) ? null : num
-}

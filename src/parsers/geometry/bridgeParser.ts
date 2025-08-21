@@ -13,7 +13,7 @@ import type {
   BridgePier,
 } from "../../models/geometry/bridge"
 import type { StationElevationPoint } from "../../models/geometry/common"
-import { parseMaybeFloat } from "../../serializers/atomic"
+import { parseMaybeFloat } from "../atomic"
 import { zip } from "es-toolkit"
 
 /**

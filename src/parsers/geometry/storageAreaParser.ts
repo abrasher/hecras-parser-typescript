@@ -1,7 +1,7 @@
 import { parseLineToCoordinates } from "../lineParsers"
 import type { StorageArea } from "../../models/geometry/storageArea"
 import { parseKeyValue } from "../atomic"
-import { parseMaybeFloat } from "../../serializers/atomic"
+import { parseMaybeFloat } from "../atomic"
 
 /**
  * Parses storage area data starting from a "Storage Area=" line

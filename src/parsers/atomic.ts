@@ -119,3 +119,29 @@ export function numbersToCoordinates(nums: number[]): { x: number; y: number }[]
 
   return coordinates
 }
+
+/**
+ * Parse a string to integer, returning null for empty/undefined values
+ * @param value String value to parse
+ * @returns Parsed integer or null if empty/undefined
+ */
+export function parseMaybeInt(value: string | undefined): number | null {
+  if (value === undefined || value.trim() === "") {
+    return null
+  }
+  const num = parseInt(value)
+  return isNaN(num) ? null : num
+}
+
+/**
+ * Parse a string to float, returning null for empty/undefined values
+ * @param value String value to parse
+ * @returns Parsed float or null if empty/undefined
+ */
+export function parseMaybeFloat(value: string | undefined): number | null {
+  if (value === undefined || value.trim() === "") {
+    return null
+  }
+  const num = parseFloat(value)
+  return isNaN(num) ? null : num
+}

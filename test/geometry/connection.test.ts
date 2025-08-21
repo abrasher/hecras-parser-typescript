@@ -120,7 +120,7 @@ describe("Connection parsing tests", () => {
     })
 
     it("should parse centerline profile", () => {
-      expect(connectionData.centerlineProfile).toBe(0)
+      expect(connectionData.centerlineProfile).toEqual([])
     })
 
     it("should parse last edited time", () => {
@@ -313,7 +313,9 @@ const expectedConnection: Connection = {
     { x: 483888.50815, y: 4751220.0721 },
     { x: 483877.6897, y: 4751236.0422 },
   ],
-  centerlineProfile: 0,
+  centerlineProfile: [],
+  centroidX: 0,
+  centroidY: 0,
   lastEditedTime: "May-15-2025 15:58:25",
   cellSizeMin: 2,
   nearRepeats: 1,
@@ -365,6 +367,10 @@ const expectedConnection: Connection = {
       maxHighCoordinate: null,
       maxSubmerge: 0.98,
       isOgee: 0,
+      upstreamEmbankmentSideSlope: 0,
+      downstreamEmbankmentSideSlope: 0,
+      spillwayApproachHeight: 0,
+      spillwayDesignHead: 0,
       upstream: [
         { station: 2, highChord: 260.83, lowChord: null },
         { station: 2.61, highChord: 261.67, lowChord: null },
@@ -622,5 +628,6 @@ const expectedConnection: Connection = {
       rightStation: 16.87,
       rightElevation: 260.72,
     },
+    piers: [],
   },
 }

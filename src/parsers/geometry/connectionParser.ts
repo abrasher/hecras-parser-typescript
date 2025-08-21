@@ -4,7 +4,7 @@ import { parseBridgeData } from "./bridgeParser"
 import { parseCulvertData } from "./culvertParser"
 import type { Connection } from "../../models/geometry/connection"
 import type { Coordinate, StationElevationPoint } from "../../models/geometry/common"
-import { parseMaybeFloat } from "../../serializers/atomic"
+import { parseMaybeFloat } from "../atomic"
 
 /**
  * Parses connection data starting from a "Connection=" line

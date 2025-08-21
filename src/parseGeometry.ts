@@ -7,6 +7,7 @@ import { parseConnectionData } from "./parsers/geometry/connectionParser"
 import { parseBoundaryConditionData } from "./parsers/geometry/boundaryConditionParser"
 import { parseRiverReachData } from "./parsers/geometry/riverReachParser"
 import { parseBreakLine } from "./parsers/geometry/breakLineParser"
+import { parseJunctionData } from "./parsers/geometry/junctionParser"
 
 /**
  * Parse a complete HEC-RAS geometry file (.g01, .g02, etc.)
@@ -25,6 +26,7 @@ export function parseGeometry(content: string): HECRASGeometry {
     boundaryConditions: [],
     riverReaches: [],
     breakLines: [],
+    junctions: [],
   } as HECRASGeometry
 
   let index = 0
@@ -79,6 +81,12 @@ export function parseGeometry(content: string): HECRASGeometry {
         const result = parseBreakLine(lines, index)
         geometry.breakLines.push(result.data)
         index = index + result.linesConsumed
+      }
+      // Parse junctions
+      else if (line.startsWith("Junct Name=")) {
+        const result = parseJunctionData(line, lines, index)
+        geometry.junctions.push(result.data)
+        index = result.nextIndex
       }
       // Parse global settings (appear at end of file)
       else if (line.startsWith("LCMann Time=")) {

@@ -48,6 +48,8 @@ Storage Area Mannings=0.06
 
 const testStorageAreaData: StorageArea = {
   id: "2D_Grid",
+  centroidX: null, // Empty in source data
+  centroidY: null, // Empty in source data
   surfaceLine: [
     { x: 483730.859031855, y: 4751219.0960161 },
     { x: 483740.754888181, y: 4751244.70882071 },

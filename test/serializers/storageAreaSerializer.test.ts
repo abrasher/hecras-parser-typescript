@@ -6,6 +6,8 @@ describe("StorageAreaSerializer", () => {
   describe("2D Storage Area (Dingman.g01)", () => {
     const testStorageArea2D: StorageArea = {
       id: "2D_Grid",
+      centroidX: null,
+      centroidY: null,
       surfaceLine: [
         { x: 483730.859031855, y: 4751219.0960161 },
         { x: 483740.754888181, y: 4751244.70882071 },
@@ -54,7 +56,7 @@ describe("StorageAreaSerializer", () => {
       "483752.2215278274751314.88153067                ",
       "483752.8485621374751339.96290305                ",
       "Storage Area Type= 1 ",
-      "Storage Area Area= ",
+      "Storage Area Area=",
       "Storage Area Min Elev=",
       "Storage Area Is2D=-1",
       "Storage Area Point Generation Data=,,25,25",
@@ -75,6 +77,7 @@ describe("StorageAreaSerializer", () => {
       "2D Multiple Face Mann n=0",
       "2D Composite LC=0",
       "2D Locked=-1",
+      "",
     ]
 
     it("should serialize 2D storage area to array", () => {
