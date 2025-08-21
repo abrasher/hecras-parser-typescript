@@ -8,6 +8,7 @@ import { serializeConnection } from "./geometry/connectionSerializer"
 import { serializeBoundaryCondition } from "./geometry/boundaryConditionSerializer"
 import { serializeBreakLine } from "./geometry/breakLineSerializer"
 import { serializeJunction } from "./geometry/junctionSerializer"
+import { serializeRiverReach } from "./geometry/riverReachSerializer"
 import { appendLines } from "./utils/safeArrayUtils"
 
 /**
@@ -21,45 +22,40 @@ export function serializeGeometry(geometry: HECRASGeometry): string[] {
   // 1. Serialize header section (title, version, viewing rectangle, description)
   appendLines(lines, serializeGeometryHeader(geometry))
 
-  // 2. Serialize storage areas in order
+  // 2. Serialize junctions in order
+  for (const junction of geometry.junctions) {
+    appendLines(lines, serializeJunction(junction))
+    lines.push("")
+  }
+
+  // 3. Serialize river reaches in order
+  for (const riverReach of geometry.riverReaches) {
+    appendLines(lines, serializeRiverReach(riverReach))
+    lines.push("")
+  }
+
+  // 4. Serialize storage areas in order
   for (const storageArea of geometry.storageAreas) {
     appendLines(lines, serializeStorageArea(storageArea))
     lines.push("")
   }
 
-  // 4. Serialize break lines in order
+  // 5. Serialize break lines in order
   for (const breakLine of geometry.breakLines) {
     appendLines(lines, serializeBreakLine(breakLine))
   }
 
-  // 5. Serialize junctions in order
-  for (const junction of geometry.junctions) {
-    appendLines(lines, serializeJunction(junction))
-    lines.push("")
-  }
-
-  // 3. Serialize connections in order
+  // 6. Serialize connections in order
   for (const connection of geometry.connections) {
     appendLines(lines, serializeConnection(connection))
   }
 
-  // 4. Serialize break lines in order
-  for (const breakLine of geometry.breakLines) {
-    appendLines(lines, serializeBreakLine(breakLine))
-  }
-
-  // 5. Serialize junctions in order
-  for (const junction of geometry.junctions) {
-    appendLines(lines, serializeJunction(junction))
-    lines.push("")
-  }
-
-  // 6. Serialize boundary conditions in order
+  // 7. Serialize boundary conditions in order
   for (const boundaryCondition of geometry.boundaryConditions) {
     appendLines(lines, serializeBoundaryCondition(boundaryCondition))
   }
 
-  // 7. Serialize global settings (appear at end of file)
+  // 8. Serialize global settings (appear at end of file)
   if (geometry.lcmannTime !== undefined) {
     lines.push(`LCMann Time=${geometry.lcmannTime}`)
   }

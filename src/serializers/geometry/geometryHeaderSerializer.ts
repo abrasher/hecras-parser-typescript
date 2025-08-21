@@ -23,10 +23,10 @@ export function serializeGeometryHeader(geometry: HECRASGeometry): string[] {
     })
     .join(" , ")
   lines.push(`Viewing Rectangle= ${formattedRect} `)
+  lines.push("") // Empty line before description
 
   // Add description block if present
   if (geometry.description !== undefined && geometry.description !== null) {
-    lines.push("") // Empty line before description
     lines.push("BEGIN GEOM DESCRIPTION:")
 
     if (geometry.description.trim() === "") {

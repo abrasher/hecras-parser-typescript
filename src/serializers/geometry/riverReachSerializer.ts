@@ -1,5 +1,6 @@
 import type { RiverReach, CrossSection } from "../../models/geometry/riverReach"
-import { coordinatePairToString } from "../utils"
+import { formatCoordinates } from "../atomic"
+import { formatStationElevationPairs, formatCoordinateMultipleLines } from "../utils"
 import { chunk } from "es-toolkit"
 
 export function serializeRiverReach(riverReach: RiverReach): string[] {
@@ -7,13 +8,7 @@ export function serializeRiverReach(riverReach: RiverReach): string[] {
 
   lines.push(`River Reach=${riverReach.riverName.padEnd(16)},${riverReach.reachName.padEnd(16)}`)
 
-  lines.push(`Reach XY=${riverReach.coordinateCount.toString().padStart(5)} `)
-
-  const coordChunks = chunk(riverReach.coordinates, 2)
-  for (const coordPair of coordChunks) {
-    const coordStrings = coordPair.map((coord) => coordinatePairToString(coord, 16))
-    lines.push("     " + coordStrings.join("     "))
-  }
+  lines.push(...formatCoordinateMultipleLines("Reach XY", riverReach.coordinates, true))
 
   if (riverReach.textPosition) {
     lines.push(`Rch Text X Y=${riverReach.textPosition.x},${riverReach.textPosition.y}`)
@@ -42,8 +37,7 @@ export function serializeCrossSection(crossSection: CrossSection): string[] {
 
     const gisCoordChunks = chunk(crossSection.gisLine, 2)
     for (const coordPair of gisCoordChunks) {
-      const coordStrings = coordPair.map((coord) => coordinatePairToString(coord, 16))
-      lines.push("     " + coordStrings.join("     "))
+      lines.push("     " + formatCoordinates(coordPair))
     }
   }
 
@@ -128,19 +122,11 @@ export function serializeCrossSection(crossSection: CrossSection): string[] {
 }
 
 function serializeStationElevationData(points: { station: number; elevation: number }[]): string[] {
-  const lines: string[] = []
-
-  // Group points into lines (about 5 pairs per line to stay under typical line limits)
-  const pointsPerLine = 5
-  for (let i = 0; i < points.length; i += pointsPerLine) {
-    const linePoints = points.slice(i, i + pointsPerLine)
-    const formattedPairs = linePoints
-      .map((point) => `${point.station.toString().padStart(8)}${point.elevation.toString().padStart(8)}`)
-      .join("")
-    lines.push(formattedPairs)
+  const stationElevationData: number[] = []
+  for (const point of points) {
+    stationElevationData.push(point.station, point.elevation)
   }
-
-  return lines
+  return formatStationElevationPairs(stationElevationData)
 }
 
 function serializeManningData(segments: { station: number; nValue: number; unknownParameter: number }[]): string[] {
