@@ -55,6 +55,8 @@ export function parseConnectionData(
     if (currentLine.startsWith("Connection=")) {
       const { name, centroidX, centroidY } = parseConnectionDefinition(currentLine)
 
+      console.log(`Parsing connection: ${name} at (${centroidX}, ${centroidY})`)
+
       connection.name = name
       connection.centroidX = centroidX
       connection.centroidY = centroidY
@@ -194,6 +196,7 @@ function isConnectionLine(line: string): boolean {
 function parseConnectionDefinition(line: string): { name: string; centroidX: number; centroidY: number } {
   const { value } = parseKeyValue(line)
   const parts = parseCommaSeparated(value)
+
   return {
     name: parts[0].trim(),
     centroidX: parseFloat(parts[1]),

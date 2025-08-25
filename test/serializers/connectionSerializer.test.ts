@@ -103,10 +103,13 @@ Conn BR: DSXS Ineff=3.24,260.55,16.87,260.72`
       { x: 483888.50815, y: 4751220.0721 },
       { x: 483877.6897, y: 4751236.0422 },
     ],
+    centroidX: 0,
+    centroidY: 0,
     centerlineProfile: [],
     lastEditedTime: "May-15-2025 15:58:25",
     cellSizeMin: 2,
     nearRepeats: 1,
+
     upstreamStorageArea: "2D_Grid",
     downstreamStorageArea: "2D_Grid",
     routingType: 32,
@@ -154,6 +157,8 @@ Conn BR: DSXS Ineff=3.24,260.55,16.87,260.72`
         minLowCoordinate: null,
         maxHighCoordinate: null,
         maxSubmerge: 0.98,
+        spillwayApproachHeight: 0,
+        spillwayDesignHead: 0,
         isOgee: 0,
         upstream: [
           { station: 2, highChord: 260.83, lowChord: null },

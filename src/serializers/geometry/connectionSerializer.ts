@@ -4,7 +4,7 @@ import { serializeBridgeConnection } from "./bridgeSerializer"
 import { serializeCulvertGroups } from "./culvertSerializer"
 import { coordinatePairToString, formatStationElevationPairs } from "../utils"
 import { chunk } from "es-toolkit"
-import { formatFixedWidth } from "../atomic"
+import { formatFixedWidth, formatMaybeNullorUndefined } from "../atomic"
 
 /**
  * Serialize connection to HEC-RAS format
@@ -13,11 +13,15 @@ import { formatFixedWidth } from "../atomic"
  */
 export function serializeConnection(connection: Connection): string[] {
   const lines: string[] = []
+  console.log("Serializing connection:", connection)
 
+  const name = formatFixedWidth(connection.name, 16, " ", "end")
+  const centroidX = formatMaybeNullorUndefined(connection.centroidX)
+  const centroidY = formatMaybeNullorUndefined(connection.centroidY)
+
+  console.log(`Serializing connection: ${name} at (${centroidX}, ${centroidY})`)
   // 1. Connection name
-  lines.push(
-    `Connection=${formatFixedWidth(connection.name, 16, " ", "end")},${connection.centroidX ?? ""},${connection.centroidY ?? ""}`,
-  )
+  lines.push(`Connection=${name},${centroidX},${centroidY}`)
 
   // 2. Connection description (optional)
   if (connection.description !== undefined && connection.description !== null) {
