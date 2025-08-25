@@ -1,6 +1,7 @@
+import type { StationElevationPoint } from "../.."
 import type { RiverReach, CrossSection } from "../../models/geometry/riverReach"
-import { formatCoordinates, formatFixedWidth, formatNumbersToChunks } from "../atomic"
-import { formatStationElevationPairs, formatCoordinateMultipleLines } from "../utils"
+import { formatFixedWidth, formatNumbersToChunks } from "../atomic"
+import { formatStationElevationPairs, formatCoordinateMultipleLines, formatHECRASStationNumber } from "../utils"
 import { chunk } from "es-toolkit"
 
 export function serializeRiverReach(riverReach: RiverReach): string[] {
@@ -30,120 +31,93 @@ export function serializeRiverReach(riverReach: RiverReach): string[] {
   return lines
 }
 
-export function serializeCrossSection(crossSection: CrossSection): string[] {
+export function serializeCrossSection(xs: CrossSection): string[] {
   const lines: string[] = []
 
-  lines.push(
-    `Type RM Length L Ch R =${formatFixedWidth(crossSection.type, 2)} ,${formatFixedWidth(crossSection.riverMile, 8)}    ,${crossSection.lengthLeft},${crossSection.lengthChannel},${crossSection.lengthRight}`,
-  )
+  const type = ` ${xs.type} `
+  const riverMile = formatFixedWidth(xs.riverMile, 8, " ", "end")
+  const lengthLeft = xs.lengthLeft
+  const lengthChannel = xs.lengthChannel
+  const lengthRight = xs.lengthRight
 
-  if (crossSection.gisLineCount && crossSection.gisLine) {
-    lines.push(`XS GIS Cut Line=${crossSection.gisLineCount}`)
+  lines.push(`Type RM Length L Ch R =${type},${riverMile},${lengthLeft},${lengthChannel},${lengthRight}`)
 
-    const gisCoordChunks = chunk(crossSection.gisLine, 2)
-    for (const coordPair of gisCoordChunks) {
-      lines.push("     " + formatCoordinates(coordPair))
-    }
+  if (xs.gisLineCount && xs.gisLine) {
+    lines.push(...formatCoordinateMultipleLines("XS GIS Cut Line", xs.gisLine))
   }
 
-  if (crossSection.lastEditedTime) {
-    lines.push(`Node Last Edited Time=${crossSection.lastEditedTime}`)
-  }
-
-  if (crossSection.leftBankStation !== undefined && crossSection.rightBankStation !== undefined) {
-    lines.push(`Bank Sta=${crossSection.leftBankStation},${crossSection.rightBankStation}`)
-  }
-
-  if (crossSection.ratingCurveType !== undefined && crossSection.ratingCurveValue !== undefined) {
-    lines.push(`XS Rating Curve=${formatFixedWidth(crossSection.ratingCurveType, 2)} ,${crossSection.ratingCurveValue}`)
-  }
-
-  if (
-    crossSection.htabStartingElevation !== undefined &&
-    crossSection.htabIncrement !== undefined &&
-    crossSection.htabCount !== undefined
-  ) {
-    lines.push(
-      `XS HTab Starting El and Incr=${crossSection.htabStartingElevation},${crossSection.htabIncrement},${formatFixedWidth(crossSection.htabCount, 3)} `,
-    )
-  }
-
-  if (crossSection.htabHorizontalDistribution) {
-    const distribution = crossSection.htabHorizontalDistribution.map((d) => formatFixedWidth(d, 2)).join(" ,")
-    lines.push(`XS HTab Horizontal Distribution=${distribution} `)
-  }
-
-  if (crossSection.expansionContractionCoefficients) {
-    lines.push(
-      `Exp/Cntr=${crossSection.expansionContractionCoefficients.expansion},${crossSection.expansionContractionCoefficients.contraction}`,
-    )
+  if (xs.lastEditedTime) {
+    lines.push(`Node Last Edited Time=${xs.lastEditedTime}`)
   }
 
   // Station/Elevation data
-  if (crossSection.stationElevationCount !== undefined && crossSection.stationElevationPoints.length > 0) {
-    lines.push(`#Sta/Elev=${formatFixedWidth(crossSection.stationElevationCount, 4)} `)
-    lines.push(...serializeStationElevationData(crossSection.stationElevationPoints))
-  }
+  lines.push(...serializeStationElevation(xs.stationElevationPoints))
 
   // Manning's n values
-  if (crossSection.manningCount !== undefined && crossSection.manningValues && crossSection.manningValues.length > 0) {
-    lines.push(`#Mann=${formatFixedWidth(crossSection.manningCount, 3)} ,-1,0`)
-    lines.push(...serializeManningData(crossSection.manningValues))
+  if (xs.manningCount !== undefined && xs.manningValues && xs.manningValues.length > 0) {
+    lines.push(`#Mann= ${xs.manningValues.length} ,-1,0`)
+    lines.push(...serializeManningData(xs.manningValues))
   }
 
   // Ineffective flow areas
-  if (
-    crossSection.ineffectiveCount !== undefined &&
-    crossSection.ineffectiveFlowAreas &&
-    crossSection.ineffectiveFlowAreas.length > 0
-  ) {
-    lines.push(`#XS Ineff=${formatFixedWidth(crossSection.ineffectiveCount, 2)} ,-1`)
-    lines.push(...serializeIneffectiveFlowData(crossSection.ineffectiveFlowAreas))
+  if (xs.ineffectiveCount !== undefined && xs.ineffectiveFlowAreas && xs.ineffectiveFlowAreas.length > 0) {
+    lines.push(`#XS Ineff= ${xs.ineffectiveFlowAreas.length} ,-1 `)
+    lines.push(...serializeIneffectiveFlowData(xs.ineffectiveFlowAreas))
   }
 
   // Permanent ineffective areas
-  if (crossSection.permanentIneffective !== undefined) {
-    lines.push(`Permanent Ineff=${crossSection.permanentIneffective}`)
+  if (xs.permanentIneffective !== undefined) {
+    lines.push(`Permanent Ineff=`)
+    lines.push(xs.permanentIneffective.map((val) => (val ? "       T" : "       F")).join(""))
+  }
+
+  if (xs.leftBankStation !== undefined && xs.rightBankStation !== undefined) {
+    lines.push(`Bank Sta=${xs.leftBankStation},${xs.rightBankStation}`)
+  }
+
+  if (xs.ratingCurveType !== undefined && xs.ratingCurveValue !== undefined) {
+    lines.push(`XS Rating Curve=${formatFixedWidth(xs.ratingCurveType, 2)} ,${xs.ratingCurveValue}`)
+  }
+
+  if (xs.htabStartingElevation !== undefined && xs.htabIncrement !== undefined && xs.htabCount !== undefined) {
+    lines.push(
+      `XS HTab Starting El and Incr=${xs.htabStartingElevation},${xs.htabIncrement},${formatFixedWidth(xs.htabCount, 3)} `,
+    )
+  }
+
+  if (xs.htabHorizontalDistribution) {
+    const distribution = xs.htabHorizontalDistribution.map((d) => formatFixedWidth(d, 2)).join(" ,")
+    lines.push(`XS HTab Horizontal Distribution=${distribution} `)
+  }
+
+  if (xs.expansionContractionCoefficients) {
+    lines.push(
+      `Exp/Cntr=${xs.expansionContractionCoefficients.expansion},${xs.expansionContractionCoefficients.contraction}`,
+    )
   }
 
   // Blocked obstructions
-  if (
-    crossSection.blockedObstructionCount !== undefined &&
-    crossSection.blockedObstructions &&
-    crossSection.blockedObstructions.length > 0
-  ) {
-    lines.push(`#Block Obstruct=${formatFixedWidth(crossSection.blockedObstructionCount, 2)} ,-1`)
-    lines.push(...serializeBlockedObstructionData(crossSection.blockedObstructions))
+  if (xs.blockedObstructionCount !== undefined && xs.blockedObstructions && xs.blockedObstructions.length > 0) {
+    lines.push(`#Block Obstruct=${formatFixedWidth(xs.blockedObstructionCount, 2)} ,-1`)
+    lines.push(...serializeBlockedObstructionData(xs.blockedObstructions))
   }
 
   // Skew angle
-  if (crossSection.skewAngle !== undefined) {
-    lines.push(`Skew Angle=${formatFixedWidth(crossSection.skewAngle, 2)} `)
+  if (xs.skewAngle !== undefined) {
+    lines.push(`Skew Angle=${formatFixedWidth(xs.skewAngle, 2)} `)
   }
 
   return lines
 }
 
-function serializeStationElevationData(points: { station: number; elevation: number }[]): string[] {
-  const stationElevationData: number[] = []
-  for (const point of points) {
-    stationElevationData.push(point.station, point.elevation)
-  }
-  return formatStationElevationPairs(stationElevationData)
-}
-
 function serializeManningData(segments: { station: number; nValue: number; unknownParameter: number }[]): string[] {
+  const values = segments.flatMap((seg) => [seg.station, seg.nValue, seg.unknownParameter])
+
   const lines: string[] = []
 
-  // Group segments into lines (about 3 triplets per line)
-  const segmentsPerLine = 3
-  for (let i = 0; i < segments.length; i += segmentsPerLine) {
-    const lineSegments = segments.slice(i, i + segmentsPerLine)
-    const formattedTriplets = lineSegments
-      .map((segment) => formatNumbersToChunks([segment.station, segment.nValue, segment.unknownParameter], 8))
-      .join("")
-    lines.push(formattedTriplets)
-  }
+  chunk(values, 9).forEach((chunk) => {
+    lines.push(chunk.map((num) => formatFixedWidth(formatHECRASStationNumber(num), 8)).join(""))
+  })
 
   return lines
 }
@@ -151,23 +125,23 @@ function serializeManningData(segments: { station: number; nValue: number; unkno
 function serializeIneffectiveFlowData(
   areas: { leftStation: number; rightStation: number; elevation: number }[],
 ): string[] {
+  const values = areas.flatMap((seg) => [seg.leftStation, seg.rightStation, seg.elevation])
+
   const lines: string[] = []
 
-  // Group areas into lines (about 3 triplets per line)
-  const areasPerLine = 3
-  for (let i = 0; i < areas.length; i += areasPerLine) {
-    const lineAreas = areas.slice(i, i + areasPerLine)
-    const formattedTriplets = lineAreas
-      .map((area) => formatNumbersToChunks([area.leftStation, area.rightStation, area.elevation], 8))
-      .join("")
-    lines.push(formattedTriplets)
-  }
+  chunk(values, 9).forEach((chunk) => {
+    lines.push(chunk.map((num) => formatFixedWidth(formatHECRASStationNumber(num), 8)).join(""))
+  })
 
   return lines
 }
 
 function serializeBlockedObstructionData(
-  obstructions: { leftStation: number; rightStation: number; elevation: number }[],
+  obstructions: {
+    leftStation: number
+    rightStation: number
+    elevation: number
+  }[],
 ): string[] {
   const lines: string[] = []
 
@@ -181,6 +155,28 @@ function serializeBlockedObstructionData(
       )
       .join("")
     lines.push(formattedTriplets)
+  }
+
+  return lines
+}
+
+/**
+ * Serialize weir station elevation data
+ */
+function serializeStationElevation(stationElevation: StationElevationPoint[]): string[] {
+  const lines: string[] = []
+
+  // Header line with point count
+  lines.push(`#Sta/Elev= ${stationElevation.length} `)
+
+  if (stationElevation.length > 0) {
+    // Convert station-elevation points to flat array of numbers
+    const stationElevationData: number[] = []
+    for (const point of stationElevation) {
+      stationElevationData.push(point.station, point.elevation)
+    }
+
+    lines.push(...formatStationElevationPairs(stationElevationData))
   }
 
   return lines

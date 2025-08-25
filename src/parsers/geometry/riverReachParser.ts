@@ -1,6 +1,6 @@
 import { parseLineToCoordinates } from "../lineParsers"
 import type { Coordinate } from "../../models/geometry/common"
-import { parseCommaSeparated, parseKeyValue } from "../atomic"
+import { chunkStringToStrings, parseCommaSeparated, parseKeyValue } from "../atomic"
 import type { RiverReach, CrossSection, CrossSectionType } from "../../models/geometry/riverReach"
 
 /**
@@ -161,7 +161,7 @@ function parseCrossSection(lines: string[], currentIndex: number): { data: Cross
 
   const crossSection: CrossSection = {
     type: parseInt(parts[0]) as CrossSectionType,
-    riverMile: parseFloat(parts[1]),
+    riverMile: parts[1].trim(),
     lengthLeft: parseFloat(parts[2]),
     lengthChannel: parseFloat(parts[3]),
     lengthRight: parseFloat(parts[4]),
@@ -295,8 +295,10 @@ function parseCrossSection(lines: string[], currentIndex: number): { data: Cross
       crossSection.blockedObstructions = blockedData.data
       index = blockedData.nextIndex
     } else if (currentLine.startsWith("Permanent Ineff=")) {
-      const { value } = parseKeyValue(currentLine)
-      crossSection.permanentIneffective = value
+      const nextLine = lines[index + 1]
+      const permAreas = chunkStringToStrings(nextLine, 8).map((s) => s.trim() === "T")
+
+      crossSection.permanentIneffective = permAreas
       index++
     } else if (currentLine.startsWith("Skew Angle=")) {
       const { value } = parseKeyValue(currentLine)

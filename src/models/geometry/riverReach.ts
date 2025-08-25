@@ -23,7 +23,8 @@ export interface BlockedObstruction {
 
 export interface CrossSection {
   type: CrossSectionType
-  riverMile: number
+  // River mile is a string to preserve formatting (e.g., "12.34", "12", "12.0")
+  riverMile: string
   lengthLeft: number
   lengthChannel: number
   lengthRight: number
@@ -36,7 +37,7 @@ export interface CrossSection {
   manningCount?: number
   ineffectiveFlowAreas?: IneffectiveFlowArea[]
   ineffectiveCount?: number
-  permanentIneffective?: string
+  permanentIneffective?: boolean[]
   blockedObstructions?: BlockedObstruction[]
   blockedObstructionCount?: number
   skewAngle?: number

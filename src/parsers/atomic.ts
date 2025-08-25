@@ -99,6 +99,29 @@ export function chunkStringToNumbersOrNull(str: string, chunkWidth: number): (nu
   }
   return numbers
 }
+/**
+ * Chunk fixed-width string into substrings
+ * @param str Fixed-width string to chunk
+ * @param chunkWidth Width of each substring in characters
+ * @throws Error if chunkWidth is less than or equal to 0
+ */
+export function chunkStringToStrings(str: string, chunkWidth: number): string[] {
+  if (chunkWidth <= 0) {
+    throw new Error("Chunk width must be greater than 0")
+  }
+  if (str.length === 0) {
+    return []
+  }
+
+  const numChunks = Math.ceil(str.length / chunkWidth)
+  const chunks = new Array(numChunks)
+
+  for (let i = 0, o = 0; i < numChunks; ++i, o += chunkWidth) {
+    chunks[i] = str.substring(o, chunkWidth)
+  }
+
+  return chunks
+}
 
 /**
  * Convert array of numbers to coordinate pairs
