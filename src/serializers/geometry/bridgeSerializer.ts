@@ -123,8 +123,8 @@ export function serializeDeckParameters(deck: DeckParameters): string[] {
     ` ${deck.isOgee}`, // Add space like in test data
     ` ${deck.upstreamEmbankmentSideSlope ?? 0}`, // Use 0 instead of empty string
     `${deck.downstreamEmbankmentSideSlope ?? 0}`, // Use 0 instead of empty string
-    `${deck.spillwayApproachHeight ?? ""}`, // Use 0 instead of empty string
-    `${deck.spillwayDesignHead ?? ""}`, // Use 0 instead of empty string
+    `${deck.spillwayApproachHeight ?? ""}`,
+    `${deck.spillwayDesignHead ?? ""}`,
   ]
 
   lines.push(params.join(","))

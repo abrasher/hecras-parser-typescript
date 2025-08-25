@@ -10,10 +10,6 @@ describe("Bridge Connection Unit Tests", () => {
     bridgeData = parseBridgeData(lines[0], lines, 0)
   })
 
-  // it("input data should be correct", () => {
-  //   expect(lines.length).toBe(81)
-  // })
-
   describe("Bridge Basic Parameters", () => {
     it("should parse bridge momentum and flow parameters", () => {
       expect(bridgeData.data.bridge).toEqual({
@@ -325,10 +321,10 @@ const testBridgeData: BridgeConnection = {
     maxHighCoordinate: null,
     maxSubmerge: 0.98,
     isOgee: 0,
-    upstreamEmbankmentSideSlope: null,
-    downstreamEmbankmentSideSlope: null,
-    spillwayApproachHeight: null,
-    spillwayDesignHead: null,
+    upstreamEmbankmentSideSlope: 0,
+    downstreamEmbankmentSideSlope: 0,
+    spillwayApproachHeight: 0,
+    spillwayDesignHead: 0,
     upstream: [
       { station: -24.11, highChord: 252.82, lowChord: null },
       { station: -18.14, highChord: 252.78, lowChord: null },

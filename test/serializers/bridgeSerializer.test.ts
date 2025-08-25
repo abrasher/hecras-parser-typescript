@@ -121,6 +121,10 @@ Conn BR: DSXS Ineff=11.68,252.5,30,252.5`
       maxHighCoordinate: null,
       maxSubmerge: 0.98,
       isOgee: 0,
+      spillwayApproachHeight: 0,
+      spillwayDesignHead: 0,
+      downstreamEmbankmentSideSlope: 0,
+      upstreamEmbankmentSideSlope: 0,
       upstream: [
         { station: -24.11, highChord: 252.82, lowChord: null },
         { station: -18.14, highChord: 252.78, lowChord: null },
@@ -456,6 +460,7 @@ Conn BR: DSXS Ineff=11.68,252.5,30,252.5`
       rightStation: 30,
       rightElevation: 252.5,
     },
+    piers: [],
   }
 
   describe("serializeBridgeConfiguration", () => {
@@ -468,7 +473,7 @@ Conn BR: DSXS Ineff=11.68,252.5,30,252.5`
 
   describe("serializePressureWeirData", () => {
     it("should serialize pressure weir data with nulls", () => {
-      const result = serializePressureWeirData(testBridgeData.pressureWeir)
+      const result = serializePressureWeirData(testBridgeData.pressureWeir!)
 
       expect(result).toEqual(["Conn BR: Pressure-Weir=0.08,,0.25,,0.016"])
     })
