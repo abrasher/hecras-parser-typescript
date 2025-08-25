@@ -68,6 +68,7 @@ describe("GeometryHeaderSerializer", () => {
       "Geom Title=Muncie Base Geometry - 9 SAs",
       "Program Version=5.00",
       "Viewing Rectangle= 404112.085287251 , 413818.78591839 , 1806670.07015604 , 1799678.66049907 ",
+      "",
     ]
 
     it("should serialize Muncie header to array", () => {
@@ -103,6 +104,7 @@ describe("GeometryHeaderSerializer", () => {
       "Geom Title=Simple Project",
       "Program Version=6.00",
       "Viewing Rectangle= 100 , 200 , 300 , 150 ",
+      "",
     ]
 
     it("should serialize header without description to array", () => {
