@@ -1,12 +1,14 @@
 import type { RiverReach, CrossSection } from "../../models/geometry/riverReach"
-import { formatCoordinates } from "../atomic"
+import { formatCoordinates, formatFixedWidth, formatNumbersToChunks } from "../atomic"
 import { formatStationElevationPairs, formatCoordinateMultipleLines } from "../utils"
 import { chunk } from "es-toolkit"
 
 export function serializeRiverReach(riverReach: RiverReach): string[] {
   const lines: string[] = []
 
-  lines.push(`River Reach=${riverReach.riverName.padEnd(16)},${riverReach.reachName.padEnd(16)}`)
+  lines.push(
+    `River Reach=${formatFixedWidth(riverReach.riverName, 16, " ", "end")},${formatFixedWidth(riverReach.reachName, 16, " ", "end")}`,
+  )
 
   lines.push(...formatCoordinateMultipleLines("Reach XY", riverReach.coordinates, true))
 
@@ -14,9 +16,12 @@ export function serializeRiverReach(riverReach: RiverReach): string[] {
     lines.push(`Rch Text X Y=${riverReach.textPosition.x},${riverReach.textPosition.y}`)
   }
 
+  const reverseText = riverReach.reverseRiverText === 0 ? " 0" : riverReach.reverseRiverText
   if (riverReach.reverseRiverText !== undefined) {
-    lines.push(`Reverse River Text=${riverReach.reverseRiverText.toString().padStart(2)} `)
+    lines.push(`Reverse River Text=${reverseText} `)
   }
+
+  lines.push("") // Blank line before cross sections
 
   for (const crossSection of riverReach.crossSections) {
     lines.push(...serializeCrossSection(crossSection))
@@ -29,7 +34,7 @@ export function serializeCrossSection(crossSection: CrossSection): string[] {
   const lines: string[] = []
 
   lines.push(
-    `Type RM Length L Ch R =${crossSection.type.toString().padStart(2)} ,${crossSection.riverMile.toString().padStart(8)}    ,${crossSection.lengthLeft},${crossSection.lengthChannel},${crossSection.lengthRight}`,
+    `Type RM Length L Ch R =${formatFixedWidth(crossSection.type, 2)} ,${formatFixedWidth(crossSection.riverMile, 8)}    ,${crossSection.lengthLeft},${crossSection.lengthChannel},${crossSection.lengthRight}`,
   )
 
   if (crossSection.gisLineCount && crossSection.gisLine) {
@@ -50,9 +55,7 @@ export function serializeCrossSection(crossSection: CrossSection): string[] {
   }
 
   if (crossSection.ratingCurveType !== undefined && crossSection.ratingCurveValue !== undefined) {
-    lines.push(
-      `XS Rating Curve=${crossSection.ratingCurveType.toString().padStart(2)} ,${crossSection.ratingCurveValue}`,
-    )
+    lines.push(`XS Rating Curve=${formatFixedWidth(crossSection.ratingCurveType, 2)} ,${crossSection.ratingCurveValue}`)
   }
 
   if (
@@ -61,12 +64,12 @@ export function serializeCrossSection(crossSection: CrossSection): string[] {
     crossSection.htabCount !== undefined
   ) {
     lines.push(
-      `XS HTab Starting El and Incr=${crossSection.htabStartingElevation},${crossSection.htabIncrement},${crossSection.htabCount.toString().padStart(3)} `,
+      `XS HTab Starting El and Incr=${crossSection.htabStartingElevation},${crossSection.htabIncrement},${formatFixedWidth(crossSection.htabCount, 3)} `,
     )
   }
 
   if (crossSection.htabHorizontalDistribution) {
-    const distribution = crossSection.htabHorizontalDistribution.map((d) => d.toString().padStart(2)).join(" ,")
+    const distribution = crossSection.htabHorizontalDistribution.map((d) => formatFixedWidth(d, 2)).join(" ,")
     lines.push(`XS HTab Horizontal Distribution=${distribution} `)
   }
 
@@ -78,13 +81,13 @@ export function serializeCrossSection(crossSection: CrossSection): string[] {
 
   // Station/Elevation data
   if (crossSection.stationElevationCount !== undefined && crossSection.stationElevationPoints.length > 0) {
-    lines.push(`#Sta/Elev=${crossSection.stationElevationCount.toString().padStart(4)} `)
+    lines.push(`#Sta/Elev=${formatFixedWidth(crossSection.stationElevationCount, 4)} `)
     lines.push(...serializeStationElevationData(crossSection.stationElevationPoints))
   }
 
   // Manning's n values
   if (crossSection.manningCount !== undefined && crossSection.manningValues && crossSection.manningValues.length > 0) {
-    lines.push(`#Mann=${crossSection.manningCount.toString().padStart(3)} ,-1,0`)
+    lines.push(`#Mann=${formatFixedWidth(crossSection.manningCount, 3)} ,-1,0`)
     lines.push(...serializeManningData(crossSection.manningValues))
   }
 
@@ -94,7 +97,7 @@ export function serializeCrossSection(crossSection: CrossSection): string[] {
     crossSection.ineffectiveFlowAreas &&
     crossSection.ineffectiveFlowAreas.length > 0
   ) {
-    lines.push(`#XS Ineff=${crossSection.ineffectiveCount.toString().padStart(2)} ,-1`)
+    lines.push(`#XS Ineff=${formatFixedWidth(crossSection.ineffectiveCount, 2)} ,-1`)
     lines.push(...serializeIneffectiveFlowData(crossSection.ineffectiveFlowAreas))
   }
 
@@ -109,13 +112,13 @@ export function serializeCrossSection(crossSection: CrossSection): string[] {
     crossSection.blockedObstructions &&
     crossSection.blockedObstructions.length > 0
   ) {
-    lines.push(`#Block Obstruct=${crossSection.blockedObstructionCount.toString().padStart(2)} ,-1`)
+    lines.push(`#Block Obstruct=${formatFixedWidth(crossSection.blockedObstructionCount, 2)} ,-1`)
     lines.push(...serializeBlockedObstructionData(crossSection.blockedObstructions))
   }
 
   // Skew angle
   if (crossSection.skewAngle !== undefined) {
-    lines.push(`Skew Angle=${crossSection.skewAngle.toString().padStart(2)} `)
+    lines.push(`Skew Angle=${formatFixedWidth(crossSection.skewAngle, 2)} `)
   }
 
   return lines
@@ -137,10 +140,7 @@ function serializeManningData(segments: { station: number; nValue: number; unkno
   for (let i = 0; i < segments.length; i += segmentsPerLine) {
     const lineSegments = segments.slice(i, i + segmentsPerLine)
     const formattedTriplets = lineSegments
-      .map(
-        (segment) =>
-          `${segment.station.toString().padStart(8)}${segment.nValue.toString().padStart(8)}${segment.unknownParameter.toString().padStart(8)}`,
-      )
+      .map((segment) => formatNumbersToChunks([segment.station, segment.nValue, segment.unknownParameter], 8))
       .join("")
     lines.push(formattedTriplets)
   }
@@ -158,10 +158,7 @@ function serializeIneffectiveFlowData(
   for (let i = 0; i < areas.length; i += areasPerLine) {
     const lineAreas = areas.slice(i, i + areasPerLine)
     const formattedTriplets = lineAreas
-      .map(
-        (area) =>
-          `${area.leftStation.toString().padStart(8)}${area.rightStation.toString().padStart(8)}${area.elevation.toString().padStart(8)}`,
-      )
+      .map((area) => formatNumbersToChunks([area.leftStation, area.rightStation, area.elevation], 8))
       .join("")
     lines.push(formattedTriplets)
   }
@@ -179,9 +176,8 @@ function serializeBlockedObstructionData(
   for (let i = 0; i < obstructions.length; i += obstructionsPerLine) {
     const lineObstructions = obstructions.slice(i, i + obstructionsPerLine)
     const formattedTriplets = lineObstructions
-      .map(
-        (obstruction) =>
-          `${obstruction.leftStation.toString().padStart(8)}${obstruction.rightStation.toString().padStart(8)}${obstruction.elevation.toString().padStart(8)}`,
+      .map((obstruction) =>
+        formatNumbersToChunks([obstruction.leftStation, obstruction.rightStation, obstruction.elevation], 8),
       )
       .join("")
     lines.push(formattedTriplets)
