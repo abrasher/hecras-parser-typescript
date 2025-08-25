@@ -278,7 +278,7 @@ async function main() {
     // Example: Access specific connection data
     if (geometryData.connections && geometryData.connections.length > 0) {
       console.log("\n=== EXAMPLE: First Connection Details ===")
-      const firstConnection = geometryData.connections.at(1)
+      const firstConnection = geometryData.connections.at(-1)
       console.log(JSON.stringify(firstConnection, null, 2))
     }
   } catch (error) {

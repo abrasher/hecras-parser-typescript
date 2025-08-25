@@ -1,6 +1,9 @@
 import type { StorageArea } from "./storageArea"
 import type { Connection } from "./connection"
 import type { BoundaryCondition } from "./boundaryCondition"
+import type { RiverReach } from "./riverReach"
+import type { BreakLine } from "./breakLine"
+import type { JunctionProperties } from "./junction"
 
 export interface ViewingRectangle {
   left: number
@@ -17,6 +20,9 @@ export interface HECRASGeometry {
   storageAreas: StorageArea[]
   connections: Connection[]
   boundaryConditions: BoundaryCondition[]
+  riverReaches: RiverReach[]
+  breakLines: BreakLine[]
+  junctions: JunctionProperties[]
   rasterPath?: string
   units?: string
   dtmType?: string
@@ -25,4 +31,14 @@ export interface HECRASGeometry {
   xsCutLineLayer?: string
   projection?: string
   datum?: string
+
+  // Global settings (appear at end of file)
+  lcmannTime?: string // "LCMann Time="
+  lcmannRegionTime?: string // "LCMann Region Time="
+  lcmannTable?: number // "LCMann Table="
+  chanStopCuts?: number // "Chan Stop Cuts="
+  useUserSpecifiedReachOrder?: number // "Use User Specified Reach Order="
+  gisRatioCutsToInvert?: number // "GIS Ratio Cuts To Invert="
+  gisLimitAtBridges?: number // "GIS Limit At Bridges="
+  compositeChannelSlope?: number // "Composite Channel Slope="
 }

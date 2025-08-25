@@ -10,8 +10,11 @@ import type {
   IneffectiveFlowArea,
   BankStations,
   ManningCoefficients,
+  BridgePier,
 } from "../../models/geometry/bridge"
 import type { StationElevationPoint } from "../../models/geometry/common"
+import { parseMaybeFloat } from "../atomic"
+import { zip } from "es-toolkit"
 
 /**
  * Parses bridge connection data starting from a "Conn BR: Bridge=" line
@@ -29,14 +32,13 @@ export function parseBridgeData(
   // Initialize bridge connection with empty values
   const bridgeConnection = {
     bridge: {} as BridgeConfiguration,
-    pressureWeir: {} as PressureWeirData,
     deckParameters: {} as DeckParameters,
     insideCrossSections: [] as BridgeCrossSection[],
     externalCrossSections: [] as BridgeCrossSection[],
     bridgeCoefficients: {} as BridgeCoefficients,
-    bridgeSkew: 0,
     upstreamIneffectiveFlowArea: {} as IneffectiveFlowArea,
     downstreamIneffectiveFlowArea: {} as IneffectiveFlowArea,
+    piers: [] as BridgePier[],
   } as BridgeConnection
 
   let index = currentIndex
@@ -75,6 +77,10 @@ export function parseBridgeData(
     } else if (currentLine.startsWith("Conn BR: DSXS Ineff=")) {
       bridgeConnection.downstreamIneffectiveFlowArea = parseIneffectiveFlowArea(currentLine)
       index++
+    } else if (currentLine.startsWith("Conn BR: Pier Skew, UpSta & Num, DnSta & Num=")) {
+      const { data, nextIndex } = parsePier(lines, index)
+      bridgeConnection.piers.push(data)
+      index = nextIndex
     } else {
       index++
     }
@@ -97,8 +103,8 @@ function parseBridgeConfiguration(line: string): BridgeConfiguration {
     pressureFlowCriteria: parseInt(parts[2]),
     classBDefaults: parseInt(parts[3]),
     param5: parseInt(parts[4]),
-    contractionCoefficient: parseFloat(parts[5]),
-    expansionCoefficient: parseFloat(parts[6]),
+    contractionCoefficient: parseMaybeFloat(parts[5]),
+    expansionCoefficient: parseMaybeFloat(parts[6]),
   }
 }
 
@@ -185,6 +191,60 @@ function buildDeckStationingArray(
   return result
 }
 
+export function parsePier(lines: string[], startIndex: number): { data: BridgePier; nextIndex: number } {
+  let index = startIndex
+
+  const [
+    skew,
+    upstreamCenter,
+    _upstreamPoints,
+    downstreamCenter,
+    _downstreamPoints,
+    _unknown1,
+    _unknown2,
+    debrisEnabled,
+    debrisWidth,
+    debrisHeight,
+  ] = parseCommaSeparated(parseKeyValue(lines[index]).value)
+
+  index++
+
+  const upstreamWidths = chunkStringToNumbers(lines[index], 8)
+  index++
+
+  const upstreamElevations = chunkStringToNumbers(lines[index], 8)
+  index++
+
+  const downstreamWidths = chunkStringToNumbers(lines[index], 8)
+  index++
+
+  const downstreamElevations = chunkStringToNumbers(lines[index], 8)
+  index++
+
+  const upstream = zip(upstreamWidths, upstreamElevations).map(([width, elevation]) => ({
+    width,
+    elevation,
+  }))
+  const downstream = zip(downstreamWidths, downstreamElevations).map(([width, elevation]) => ({
+    width,
+    elevation,
+  }))
+
+  return {
+    data: {
+      skew,
+      centerlineStationUpstream: parseFloat(upstreamCenter),
+      centerlineStationDownstream: parseFloat(downstreamCenter),
+      upstream,
+      downstream,
+      applyFloatingDebris: parseInt(debrisEnabled),
+      debrisWidth: debrisWidth === "" ? null : parseFloat(debrisWidth),
+      debrisHeight: debrisHeight === "" ? null : parseFloat(debrisHeight),
+    },
+    nextIndex: index,
+  }
+}
+
 function parseDeckParameters(lines: string[], startIndex: number): { data: DeckParameters; nextIndex: number } {
   // Skip the header line
   let index = startIndex + 1
@@ -198,10 +258,14 @@ function parseDeckParameters(lines: string[], startIndex: number): { data: DeckP
     skew: parseFloat(parts[3]),
     numberOfUpstreamStations: parseInt(parts[4]),
     numberOfDownstreamStations: parseInt(parts[5]),
-    minLowCoordinate: parts[6] === "" ? null : parseFloat(parts[6]),
-    maxHighCoordinate: parts[7] === "" ? null : parseFloat(parts[7]),
+    minLowCoordinate: parseMaybeFloat(parts[6]),
+    maxHighCoordinate: parseMaybeFloat(parts[7]),
     maxSubmerge: parseFloat(parts[8]),
     isOgee: parseInt(parts[9]),
+    upstreamEmbankmentSideSlope: parseMaybeFloat(parts[10]),
+    downstreamEmbankmentSideSlope: parseMaybeFloat(parts[11]),
+    spillwayApproachHeight: parseMaybeFloat(parts[12]),
+    spillwayDesignHead: parseMaybeFloat(parts[13]),
     upstream: [],
     downstream: [],
   } as DeckParameters
@@ -344,8 +408,8 @@ function parseBankStations(line: string): BankStations {
 
   return {
     sectionId: parseInt(parts[0]),
-    leftBank: parseFloat(parts[1]),
-    rightBank: parseFloat(parts[2]),
+    leftBank: parts[1] === "" ? NaN : parseFloat(parts[1]),
+    rightBank: parts[2] === "" ? NaN : parseFloat(parts[2]),
   }
 }
 
@@ -353,6 +417,21 @@ function parseManningCoefficients(
   lines: string[],
   startIndex: number,
 ): { data: ManningCoefficients[]; nextIndex: number } {
+  // Parse the Manning's header line to get the count: "Conn BR: BR Mann=X,Y" where Y is count
+  const headerLine = lines[startIndex]
+  const { value } = parseKeyValue(headerLine)
+  const parts = parseCommaSeparated(value)
+  const coefficientCount = parseInt(parts[1])
+
+  // If count is 0, no data line follows - just return empty data
+  if (coefficientCount === 0) {
+    return {
+      data: [],
+      nextIndex: startIndex + 1, // Next line after the header
+    }
+  }
+
+  // Count > 0: parse the data line
   let index = startIndex + 1
   const dataLine = lines[index]
   const nums = chunkStringToNumbers(dataLine, 8)

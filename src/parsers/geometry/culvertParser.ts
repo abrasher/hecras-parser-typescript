@@ -1,4 +1,4 @@
-import { parseLineStationPairs, parseLineToCoordinates } from "../lineParsers"
+import { parseLineStationPairsWithNulls, parseLineToCoordinates } from "../lineParsers"
 import type { Coordinate } from "../../models/geometry/common"
 import { parseCommaSeparated, parseKeyValue } from "../atomic"
 import type { CulvertGroupProperties } from "../../models/geometry/culvert"
@@ -68,7 +68,7 @@ export function parseCulvertGroup(
 
   for (; index < endIndex; index++) {
     const nextLine = lines[index]
-    const stations = parseLineStationPairs(nextLine)
+    const stations = parseLineStationPairsWithNulls(nextLine)
     culvertData.barrelStations.push(...stations)
   }
 
@@ -90,10 +90,10 @@ export function parseCulvertGroup(
       culvertData.nBottom = parseFloat(parseKeyValue(currentLine).value)
       index++
     } else if (currentLine.startsWith("Conn Culv Bottom Depth")) {
-      culvertData.nBottom = parseFloat(parseKeyValue(currentLine).value)
+      culvertData.nBottomDepth = parseFloat(parseKeyValue(currentLine).value)
       index++
     } else if (currentLine.startsWith("Conn Culv Depth Blocked")) {
-      culvertData.nBottom = parseFloat(parseKeyValue(currentLine).value)
+      culvertData.depthBlocked = parseFloat(parseKeyValue(currentLine).value)
       index++
     } else {
       break

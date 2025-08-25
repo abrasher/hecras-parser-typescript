@@ -1,0 +1,89 @@
+import { describe, expect, it } from "vitest"
+import { parseStorageAreaData } from "../../src/parsers/geometry/storageAreaParser"
+import type { StorageArea } from "../../src/models/geometry/storageArea"
+
+describe("Storage Area Unit Tests", () => {
+  const lines = lineString.split("\n")
+
+  it("input data should be correct", () => {
+    expect(lines.length).toBe(30)
+  })
+
+  it("should equal the object", () => {
+    const storageAreaData = parseStorageAreaData(lines[0], lines, 0)
+    expect(storageAreaData.data).toEqual(testStorageAreaData)
+  })
+})
+
+const lineString = `Storage Area=2D_Grid         ,,
+Storage Area Surface Line= 6 
+483730.859031855 4751219.0960161                
+483740.7548881814751244.70882071                
+483745.0677738884751268.34428934                
+483748.6587646064751291.68572901                
+483752.2215278274751314.88153067                
+483752.8485621374751339.96290305                              
+Storage Area Type= 1 
+Storage Area Area= 
+Storage Area Min Elev=
+Storage Area Is2D=-1
+Storage Area Point Generation Data=,,25,25
+Storage Area 2D Points= 8 
+483813.4292227454751366.80032096483751.5905954734751168.36503865
+483809.1969629134751312.72041876483744.0849843064751228.70409084
+483290.107524941 4751088.9441675 483723.39188456 4751138.7829585
+483725.378001649 4751126.1986775 483362.711387054750999.01840593
+Storage Area 2D PointsPerimeterTime=21May2025 13:18:09
+Storage Area Mannings=0.06
+2D Cell Volume Filter Tolerance=0.01
+2D Cell Minimum Area Fraction=0.01
+2D Face Profile Filter Tolerance=0.01
+2D Face Area Elevation Profile Filter Tolerance=0.01
+2D Face Area Elevation Conveyance Ratio=0.02
+2D Face Min Length Ratio=0.05
+2D Face Area Laminar Depth=0.2
+2D Multiple Face Mann n=0
+2D Composite LC=0
+2D Locked=-1`
+
+const testStorageAreaData: StorageArea = {
+  id: "2D_Grid",
+  centroidX: null, // Empty in source data
+  centroidY: null, // Empty in source data
+  surfaceLine: [
+    { x: 483730.859031855, y: 4751219.0960161 },
+    { x: 483740.754888181, y: 4751244.70882071 },
+    { x: 483745.067773888, y: 4751268.34428934 },
+    { x: 483748.658764606, y: 4751291.68572901 },
+    { x: 483752.221527827, y: 4751314.88153067 },
+    { x: 483752.848562137, y: 4751339.96290305 },
+  ],
+  mannings: 0.06,
+  type: 1,
+  area: null, // Empty in source data
+  minElevation: null, // Empty in source data
+  volumeElevationData: [],
+  is2D: -1,
+  pointGenerationData: ",,25,25",
+  points2D: [
+    { x: 483813.429222745, y: 4751366.80032096 },
+    { x: 483751.590595473, y: 4751168.36503865 },
+    { x: 483809.196962913, y: 4751312.72041876 },
+    { x: 483744.084984306, y: 4751228.70409084 },
+    { x: 483290.107524941, y: 4751088.9441675 },
+    { x: 483723.39188456, y: 4751138.7829585 },
+    { x: 483725.378001649, y: 4751126.1986775 },
+    { x: 483362.71138705, y: 4750999.01840593 },
+  ],
+  pointsPerimeterTime: "21May2025 13:18:09",
+  cellVolumeFilterTolerance: 0.01,
+  cellMinimumAreaFraction: 0.01,
+  faceProfileFilterTolerance: 0.01,
+  faceAreaElevationProfileFilterTolerance: 0.01,
+  faceAreaElevationConveyanceRatio: 0.02,
+  faceMinLengthRatio: 0.05,
+  faceAreaLaminarDepth: 0.2,
+  multipleFaceMannN: 0,
+  compositeLC: 0,
+  locked: -1,
+}

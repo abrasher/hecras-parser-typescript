@@ -8,14 +8,38 @@ export interface DeckStationing {
 
 export interface BridgeConnection {
   bridge: BridgeConfiguration
-  pressureWeir: PressureWeirData
+  pressureWeir?: PressureWeirData
   deckParameters: DeckParameters
   bridgeCoefficients: BridgeCoefficients
-  bridgeSkew: number
+  bridgeSkew?: number | null
   insideCrossSections: [BridgeCrossSection, BridgeCrossSection]
   externalCrossSections: [BridgeCrossSection, BridgeCrossSection]
   upstreamIneffectiveFlowArea: IneffectiveFlowArea
   downstreamIneffectiveFlowArea: IneffectiveFlowArea
+  piers: BridgePier[]
+}
+
+export interface BridgePier {
+  skew?: string | null
+  centerlineStationUpstream: number
+  centerlineStationDownstream: number
+  upstream: WidthElevationPair[]
+  downstream: WidthElevationPair[]
+  applyFloatingDebris: number
+  debrisWidth?: number | null
+  debrisHeight?: number | null
+}
+
+interface WidthElevationPair {
+  width: number
+  elevation: number
+}
+
+export interface PierWidthElevation {
+  upstreamWidth: number
+  upstreamElevation: number
+  downstreamWidth: number
+  downstreamElevation: number
 }
 
 export interface BridgeConfiguration {
@@ -28,8 +52,8 @@ export interface BridgeConfiguration {
   // -1 means Inside Bridge at Upstream End, 0 means Inside Bridge at Downstream End
   classBDefaults: number
   param5: number
-  contractionCoefficient: number
-  expansionCoefficient: number
+  contractionCoefficient: number | null
+  expansionCoefficient: number | null
 }
 
 export interface PressureWeirData {
@@ -51,6 +75,10 @@ export interface DeckParameters {
   maxHighCoordinate: number | null
   maxSubmerge: number
   isOgee: number
+  upstreamEmbankmentSideSlope: number | null
+  downstreamEmbankmentSideSlope: number | null
+  spillwayApproachHeight: number | null
+  spillwayDesignHead: number | null
   upstream: DeckStationing[]
   downstream: DeckStationing[]
 }

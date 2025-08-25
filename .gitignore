@@ -13,6 +13,10 @@ dist-ssr
 *.local
 cross-section-plots
 
+# Generated serialized geometry files
+*.serialized.g*
+geometry-roundtrip-report.txt
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

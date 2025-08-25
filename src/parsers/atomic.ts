@@ -99,6 +99,29 @@ export function chunkStringToNumbersOrNull(str: string, chunkWidth: number): (nu
   }
   return numbers
 }
+/**
+ * Chunk fixed-width string into substrings
+ * @param str Fixed-width string to chunk
+ * @param chunkWidth Width of each substring in characters
+ * @throws Error if chunkWidth is less than or equal to 0
+ */
+export function chunkStringToStrings(str: string, chunkWidth: number): string[] {
+  if (chunkWidth <= 0) {
+    throw new Error("Chunk width must be greater than 0")
+  }
+  if (str.length === 0) {
+    return []
+  }
+
+  const numChunks = Math.ceil(str.length / chunkWidth)
+  const chunks = new Array(numChunks)
+
+  for (let i = 0, o = 0; i < numChunks; ++i, o += chunkWidth) {
+    chunks[i] = str.substring(o, chunkWidth)
+  }
+
+  return chunks
+}
 
 /**
  * Convert array of numbers to coordinate pairs
@@ -118,4 +141,30 @@ export function numbersToCoordinates(nums: number[]): { x: number; y: number }[]
   }
 
   return coordinates
+}
+
+/**
+ * Parse a string to integer, returning null for empty/undefined values
+ * @param value String value to parse
+ * @returns Parsed integer or null if empty/undefined
+ */
+export function parseMaybeInt(value: string | undefined): number | null {
+  if (value === undefined || value.trim() === "") {
+    return null
+  }
+  const num = parseInt(value)
+  return isNaN(num) ? null : num
+}
+
+/**
+ * Parse a string to float, returning null for empty/undefined values
+ * @param value String value to parse
+ * @returns Parsed float or null if empty/undefined
+ */
+export function parseMaybeFloat(value: string | undefined): number | null {
+  if (value === undefined || value.trim() === "") {
+    return null
+  }
+  const num = parseFloat(value)
+  return isNaN(num) ? null : num
 }

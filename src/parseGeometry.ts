@@ -5,6 +5,9 @@ import { parseHeader } from "./parsers/geometry/headerParser"
 import { parseStorageAreaData } from "./parsers/geometry/storageAreaParser"
 import { parseConnectionData } from "./parsers/geometry/connectionParser"
 import { parseBoundaryConditionData } from "./parsers/geometry/boundaryConditionParser"
+import { parseRiverReachData } from "./parsers/geometry/riverReachParser"
+import { parseBreakLine } from "./parsers/geometry/breakLineParser"
+import { parseJunctionData } from "./parsers/geometry/junctionParser"
 
 /**
  * Parse a complete HEC-RAS geometry file (.g01, .g02, etc.)
@@ -21,6 +24,9 @@ export function parseGeometry(content: string): HECRASGeometry {
     storageAreas: [],
     connections: [],
     boundaryConditions: [],
+    riverReaches: [],
+    breakLines: [],
+    junctions: [],
   } as HECRASGeometry
 
   let index = 0
@@ -48,16 +54,13 @@ export function parseGeometry(content: string): HECRASGeometry {
 
       // Parse storage areas
       if (line.startsWith("Storage Area=")) {
-        console.log(`Found storage area at line ${index + 1}: ${line}`)
         const result = parseStorageAreaData(line, lines, index)
         geometry.storageAreas.push(result.data)
         index = result.nextIndex
       }
       // Parse connections
       else if (line.startsWith("Connection=")) {
-        console.log(`Found connection at line ${index + 1}: ${line}`)
         const result = parseConnectionData(line, lines, index)
-        console.log(`Parsed connection: ${result.data.name}, next index: ${result.nextIndex}`)
         geometry.connections.push(result.data)
         index = result.nextIndex
       }
@@ -66,6 +69,50 @@ export function parseGeometry(content: string): HECRASGeometry {
         const result = parseBoundaryConditionData(line, lines, index)
         geometry.boundaryConditions.push(result.data)
         index = index + result.linesConsumed
+      }
+      // Parse river reaches
+      else if (line.startsWith("River Reach=")) {
+        const result = parseRiverReachData(line, lines, index)
+        geometry.riverReaches.push(result.data)
+        index = result.nextIndex
+      }
+      // Parse break lines
+      else if (line.startsWith("BreakLine Name=")) {
+        const result = parseBreakLine(lines, index)
+        geometry.breakLines.push(result.data)
+        index = index + result.linesConsumed
+      }
+      // Parse junctions
+      else if (line.startsWith("Junct Name=")) {
+        const result = parseJunctionData(line, lines, index)
+        geometry.junctions.push(result.data)
+        index = result.nextIndex
+      }
+      // Parse global settings (appear at end of file)
+      else if (line.startsWith("LCMann Time=")) {
+        geometry.lcmannTime = line.split("=")[1]
+        index++
+      } else if (line.startsWith("LCMann Region Time=")) {
+        geometry.lcmannRegionTime = line.split("=")[1]
+        index++
+      } else if (line.startsWith("LCMann Table=")) {
+        geometry.lcmannTable = parseInt(line.split("=")[1])
+        index++
+      } else if (line.startsWith("Chan Stop Cuts=")) {
+        geometry.chanStopCuts = parseInt(line.split("=")[1])
+        index++
+      } else if (line.startsWith("Use User Specified Reach Order=")) {
+        geometry.useUserSpecifiedReachOrder = parseInt(line.split("=")[1])
+        index++
+      } else if (line.startsWith("GIS Ratio Cuts To Invert=")) {
+        geometry.gisRatioCutsToInvert = parseInt(line.split("=")[1])
+        index++
+      } else if (line.startsWith("GIS Limit At Bridges=")) {
+        geometry.gisLimitAtBridges = parseInt(line.split("=")[1])
+        index++
+      } else if (line.startsWith("Composite Channel Slope=")) {
+        geometry.compositeChannelSlope = parseInt(line.split("=")[1])
+        index++
       }
       // Skip unrecognized sections for now
       else {
