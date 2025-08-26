@@ -1,4 +1,8 @@
-// Main parsing functions
+// New Enhanced API - Recommended for new projects
+export { loadGeometry, loadGeometrySync } from "./loadGeometry"
+export { HECRASGeometry } from "./HECRASGeometry"
+
+// Legacy API - Maintained for backward compatibility
 export { parseGeometry } from "./parseGeometry"
 
 // Data models
