@@ -217,8 +217,8 @@ async function main() {
           console.log(`\nPlotting bridge cross-sections for: ${conn.name}`)
 
           // Plot upstream cross-section
-          if (conn.bridge.insideCrossSections?.[0]?.points) {
-            const upstreamPoints = conn.bridge.insideCrossSections[0].points
+          if (conn.bridge.insideUpstreamCrossSection?.points) {
+            const upstreamPoints = conn.bridge.insideUpstreamCrossSection.points
             const title = `${conn.name} - Upstream Cross-Section`
             const filename = `bridge_${connIndex + 1}_upstream.png`
             plotCrossSection(upstreamPoints, title, filename, outputDir)
@@ -226,8 +226,8 @@ async function main() {
           }
 
           // Plot downstream cross-section
-          if (conn.bridge.insideCrossSections?.[1]?.points) {
-            const downstreamPoints = conn.bridge.insideCrossSections[1].points
+          if (conn.bridge.insideDownstreamCrossSection?.points) {
+            const downstreamPoints = conn.bridge.insideDownstreamCrossSection.points
             const title = `${conn.name} - Downstream Cross-Section`
             const filename = `bridge_${connIndex + 1}_downstream.png`
             plotCrossSection(downstreamPoints, title, filename, outputDir)
@@ -235,16 +235,16 @@ async function main() {
           }
 
           // Plot external cross-sections if available
-          if (conn.bridge.externalCrossSections?.[0]?.points) {
-            const externalUpstreamPoints = conn.bridge.externalCrossSections[0].points
+          if (conn.bridge.externalUpstreamCrossSection?.points) {
+            const externalUpstreamPoints = conn.bridge.externalUpstreamCrossSection.points
             const title = `${conn.name} - External Upstream Cross-Section`
             const filename = `bridge_${connIndex + 1}_external_upstream.png`
             plotCrossSection(externalUpstreamPoints, title, filename, outputDir)
             plotCount++
           }
 
-          if (conn.bridge.externalCrossSections?.[1]?.points) {
-            const externalDownstreamPoints = conn.bridge.externalCrossSections[1].points
+          if (conn.bridge.externalDownstreamCrossSection?.points) {
+            const externalDownstreamPoints = conn.bridge.externalDownstreamCrossSection.points
             const title = `${conn.name} - External Downstream Cross-Section`
             const filename = `bridge_${connIndex + 1}_external_downstream.png`
             plotCrossSection(externalDownstreamPoints, title, filename, outputDir)

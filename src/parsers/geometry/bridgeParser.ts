@@ -30,16 +30,18 @@ export function parseBridgeData(
   }
 
   // Initialize bridge connection with empty values
-  const bridgeConnection = {
+  const bridgeConnection: BridgeConnection = {
     bridge: {} as BridgeConfiguration,
     deckParameters: {} as DeckParameters,
-    insideCrossSections: [] as BridgeCrossSection[],
-    externalCrossSections: [] as BridgeCrossSection[],
+    insideUpstreamCrossSection: {} as BridgeCrossSection,
+    insideDownstreamCrossSection: {} as BridgeCrossSection,
+    externalUpstreamCrossSection: {} as BridgeCrossSection,
+    externalDownstreamCrossSection: {} as BridgeCrossSection,
     bridgeCoefficients: {} as BridgeCoefficients,
     upstreamIneffectiveFlowArea: {} as IneffectiveFlowArea,
     downstreamIneffectiveFlowArea: {} as IneffectiveFlowArea,
-    piers: [] as BridgePier[],
-  } as BridgeConnection
+    piers: [],
+  }
 
   let index = currentIndex
 
@@ -59,7 +61,11 @@ export function parseBridgeData(
       index = nextIndex
     } else if (currentLine.startsWith("Conn BR: BR SE=")) {
       const { data, nextIndex } = parseBridgeSection(lines, index)
-      bridgeConnection.insideCrossSections.push(data)
+      if (data.id === 1) {
+        bridgeConnection.insideUpstreamCrossSection = data
+      } else if (data.id === 2) {
+        bridgeConnection.insideDownstreamCrossSection = data
+      }
       index = nextIndex
     } else if (currentLine.startsWith("Conn BR: BR Coef=")) {
       bridgeConnection.bridgeCoefficients = parseBridgeCoefficients(currentLine)
@@ -69,7 +75,11 @@ export function parseBridgeData(
       index++
     } else if (currentLine.startsWith("Conn BR: XS SE=")) {
       const { data, nextIndex } = parseCrossSection(lines, index)
-      bridgeConnection.externalCrossSections.push(data)
+      if (data.id === 1) {
+        bridgeConnection.externalUpstreamCrossSection = data
+      } else if (data.id === 2) {
+        bridgeConnection.externalDownstreamCrossSection = data
+      }
       index = nextIndex
     } else if (currentLine.startsWith("Conn BR: USXS Ineff=")) {
       bridgeConnection.upstreamIneffectiveFlowArea = parseIneffectiveFlowArea(currentLine)
@@ -79,7 +89,7 @@ export function parseBridgeData(
       index++
     } else if (currentLine.startsWith("Conn BR: Pier Skew, UpSta & Num, DnSta & Num=")) {
       const { data, nextIndex } = parsePier(lines, index)
-      bridgeConnection.piers.push(data)
+      bridgeConnection.piers!.push(data)
       index = nextIndex
     } else {
       index++

@@ -12,11 +12,13 @@ export interface BridgeConnection {
   deckParameters: DeckParameters
   bridgeCoefficients: BridgeCoefficients
   bridgeSkew?: number | null
-  insideCrossSections: [BridgeCrossSection, BridgeCrossSection]
-  externalCrossSections: [BridgeCrossSection, BridgeCrossSection]
+  insideUpstreamCrossSection: BridgeCrossSection
+  insideDownstreamCrossSection: BridgeCrossSection
+  externalUpstreamCrossSection: BridgeCrossSection
+  externalDownstreamCrossSection: BridgeCrossSection
   upstreamIneffectiveFlowArea: IneffectiveFlowArea
   downstreamIneffectiveFlowArea: IneffectiveFlowArea
-  piers: BridgePier[]
+  piers?: BridgePier[]
 }
 
 export interface BridgePier {

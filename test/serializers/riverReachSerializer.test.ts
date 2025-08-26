@@ -30,7 +30,7 @@ describe("River Reach Serializer Tests", () => {
     crossSections: [
       {
         type: 1 as CrossSectionType,
-        riverMile: 1177,
+        riverMile: "1177",
         lengthLeft: 86.37,
         lengthChannel: 85.32,
         lengthRight: 77.22,

@@ -33,9 +33,8 @@ export function serializeBridgeConnection(bridge: BridgeConnection): string[] {
   lines.push(...serializeDeckParameters(bridge.deckParameters))
 
   // 4. Bridge sections
-  for (const section of bridge.insideCrossSections) {
-    lines.push(...serializeBridgeCrossSection(section, "BR"))
-  }
+  lines.push(...serializeBridgeCrossSection(bridge.insideUpstreamCrossSection, "BR"))
+  lines.push(...serializeBridgeCrossSection(bridge.insideDownstreamCrossSection, "BR"))
 
   // 5. Piers (if any)
   if (bridge.piers && bridge.piers.length > 0) {
@@ -53,9 +52,8 @@ export function serializeBridgeConnection(bridge: BridgeConnection): string[] {
   }
 
   // 8. External cross sections
-  for (const section of bridge.externalCrossSections) {
-    lines.push(...serializeBridgeCrossSection(section, "XS"))
-  }
+  lines.push(...serializeBridgeCrossSection(bridge.externalUpstreamCrossSection, "XS"))
+  lines.push(...serializeBridgeCrossSection(bridge.externalDownstreamCrossSection, "XS"))
 
   // 9. Ineffective flow areas (only if they have valid data)
   if (bridge.upstreamIneffectiveFlowArea.leftStation !== undefined) {

@@ -1,7 +1,6 @@
 import { parseLineToCoordinates } from "../lineParsers"
 import { parseKeyValue } from "../atomic"
 import type { BreakLine } from "../../models/geometry/breakLine"
-import type { ParseResult } from "../types"
 
 /**
  * Parse a BreakLine geometry definition from HEC-RAS format
@@ -9,7 +8,7 @@ import type { ParseResult } from "../types"
  * @param startIndex Index to start parsing from
  * @returns ParseResult containing the parsed BreakLine and lines consumed
  */
-export function parseBreakLine(lines: string[], startIndex: number): ParseResult<BreakLine> {
+export function parseBreakLine(lines: string[], startIndex: number) {
   let currentIndex = startIndex
   const breakLine: BreakLine = {
     name: "",

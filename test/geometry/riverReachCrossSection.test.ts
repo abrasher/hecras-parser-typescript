@@ -10,7 +10,7 @@ describe("River Reach Cross-Section Data Unit Tests", () => {
 
     expect(crossSection).toBeDefined()
     expect(crossSection.type).toBe(1)
-    expect(crossSection.riverMile).toBe(658)
+    expect(crossSection.riverMile).toBe("658")
     expect(crossSection.stationElevationCount).toBe(355)
     expect(crossSection.stationElevationPoints).toHaveLength(355)
 
