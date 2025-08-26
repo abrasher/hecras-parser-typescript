@@ -1,7 +1,6 @@
 {
   "name": "hecras-parser",
   "version": "0.1.0",
-  "type": "module",
   "description": "A TypeScript library for parsing HEC-RAS geometry and flow files.",
   "keywords": [
     "hec-ras",
@@ -25,13 +24,12 @@
     "url": "https://github.com/abrasher/hecras-parser-typescript/issues"
   },
   "homepage": "https://github.com/abrasher/hecras-parser-typescript#readme",
-  "main": "./dist/index.cjs",
-  "module": "./dist/index.js",
+  "type": "module",
+  "main": "./dist/index.js",
   "types": "./dist/index.d.ts",
   "exports": {
     ".": {
       "import": "./dist/index.js",
-      "require": "./dist/index.cjs",
       "types": "./dist/index.d.ts"
     }
   },
