@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { parseStorageAreaData } from "../../src/parsers/geometry/storageAreaParser"
-import type { StorageArea } from "../../src/models/geometry/storageArea"
+import { parseStorageAreaData } from "../../../src/parsers/geometry/storageAreaParser"
+import type { StorageArea } from "../../../src/models/geometry/storageArea"
 
 describe("Storage Area Unit Tests", () => {
   const lines = lineString.split("\n")

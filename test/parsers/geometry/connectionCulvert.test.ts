@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { parseCulvertData } from "../../src/parsers/geometry/culvertParser"
-import type { CulvertGroupProperties } from "../../src/models/geometry/culvert"
+import { parseCulvertData } from "../../../src/parsers/geometry/culvertParser"
+import type { CulvertGroupProperties } from "../../../src/models/geometry/culvert"
 
 describe("Culvert Unit Tests", () => {
   const lines = lineString.split("\n")

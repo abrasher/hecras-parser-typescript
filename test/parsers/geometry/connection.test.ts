@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeAll } from "vitest"
-import type { Connection } from "../../src/models/geometry/connection"
-import { parseConnectionData } from "../../src/parsers/geometry/connectionParser"
+import type { Connection } from "../../../src/models/geometry/connection"
+import { parseConnectionData } from "../../../src/parsers/geometry/connectionParser"
 
 const lineString = `Connection=DM22-38608      ,0,0
 Connection Desc=2nd bridge downstream of Dingman Dr

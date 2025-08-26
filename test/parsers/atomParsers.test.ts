@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { chunkStringToNumbers } from "../src/parsers/atomic"
+import { chunkStringToNumbers } from "../../src/parsers/atomic"
 
 describe("", () => {
   describe("chunkStringToNumbers", () => {

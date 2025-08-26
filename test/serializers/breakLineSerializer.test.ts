@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
-import { serializeBreakLine } from "../../../src/serializers/geometry/breakLineSerializer"
-import type { BreakLine } from "../../../src/models/geometry/breakLine"
+import { serializeBreakLine } from "../../src/serializers/geometry/breakLineSerializer"
+import type { BreakLine } from "../../src/models/geometry/breakLine"
 
 describe("BreakLine Serializer", () => {
   it("should serialize a simple BreakLine with minimal properties", () => {

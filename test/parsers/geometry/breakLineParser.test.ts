@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest"
-import { parseBreakLine } from "../../src/parsers/geometry/breakLineParser"
+import { parseBreakLine } from "../../../src/parsers/geometry/breakLineParser"
 
 describe("BreakLine Parser", () => {
   it("should parse a simple BreakLine with minimal properties", () => {

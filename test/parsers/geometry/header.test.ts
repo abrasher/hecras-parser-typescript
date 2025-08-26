@@ -1,5 +1,5 @@
 import { describe, expect, it, beforeAll } from "vitest"
-import { parseHeader } from "../../src/parsers/geometry/headerParser"
+import { parseHeader } from "../../../src/parsers/geometry/headerParser"
 
 describe("Header Parsing Tests", () => {
   let lines: string[]

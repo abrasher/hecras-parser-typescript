@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { parseBoundaryConditionData } from "../../src/parsers/geometry/boundaryConditionParser"
-import type { BoundaryCondition } from "../../src/models/geometry/boundaryCondition"
+import { parseBoundaryConditionData } from "../../../src/parsers/geometry/boundaryConditionParser"
+import type { BoundaryCondition } from "../../../src/models/geometry/boundaryCondition"
 
 describe("Boundary Condition Unit Tests", () => {
   const lines = lineString.split("\n")

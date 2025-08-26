@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
-import { parseJunctionData } from "../../src/parsers/geometry/junctionParser"
-import type { JunctionProperties } from "../../src/models/geometry/junction"
+import { parseJunctionData } from "../../../src/parsers/geometry/junctionParser"
+import type { JunctionProperties } from "../../../src/models/geometry/junction"
 
 describe("Junction Unit Tests", () => {
   const lines = lineString.split("\n")

@@ -1,6 +1,6 @@
 import { describe, expect, it, beforeAll } from "vitest"
-import { parseBridgeData, parsePier } from "../../src/parsers/geometry/bridgeParser"
-import type { BridgeConnection } from "../../src/models/geometry/bridge"
+import { parseBridgeData, parsePier } from "../../../src/parsers/geometry/bridgeParser"
+import type { BridgeConnection } from "../../../src/models/geometry/bridge"
 
 describe("Bridge Connection Unit Tests", () => {
   const lines = lineString.split("\n")
