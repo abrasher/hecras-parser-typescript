@@ -1,6 +1,7 @@
 import { parseKeyValue } from "../atomic"
 import type { BoundaryCondition, TextPosition } from "../../models/geometry/boundaryCondition"
 import type { Coordinate } from "../../models/geometry/common"
+import { parseMultilineArray, arrayToCoordinates } from "../multiLineParsers"
 
 /**
  * Parses boundary condition data starting from a "BC Line Name=" line
@@ -47,8 +48,8 @@ export function parseBoundaryConditionData(
   index++
 
   // Parse arc coordinates (variable number of coordinate pairs)
-  const arcCoordinates = parseArcCoordinates(lines, index, arc)
-  index += Math.ceil(arc / 2) // Each line can contain 2 coordinate pairs (32 chars each)
+  const { data: arcCoordinates, nextIndex } = parseArcCoordinates(lines, index, arc)
+  index = nextIndex // Each line can contain 2 coordinate pairs (32 chars each)
 
   // Parse BC Line Text Position
   const textPositionResult = parseKeyValue(lines[index])
@@ -64,7 +65,6 @@ export function parseBoundaryConditionData(
       startPosition,
       middlePosition,
       endPosition,
-      arc,
       arcCoordinates,
       textPosition,
     },
@@ -104,26 +104,21 @@ function parseTextPositionFromString(coordinateString: string): TextPosition {
  * Parse arc coordinates from fixed-width format lines
  * Each coordinate pair is 32 characters (16 chars for X, 16 chars for Y)
  */
-function parseArcCoordinates(lines: string[], startIndex: number, numberOfCoordinates: number): Coordinate[] {
-  const coordinates: Coordinate[] = []
-  let coordinatesParsed = 0
-  let lineIndex = startIndex
+function parseArcCoordinates(
+  lines: string[],
+  startIndex: number,
+  numberOfCoordinates: number,
+): { data: Coordinate[]; nextIndex: number } {
+  const pointsPerEntry = 2
+  const { data, nextIndex } = parseMultilineArray({
+    width: 16,
+    maxWidth: 64,
+    numOfEntries: numberOfCoordinates * pointsPerEntry,
+    currentIndex: startIndex,
+    lines,
+  })
 
-  while (coordinatesParsed < numberOfCoordinates && lineIndex < lines.length) {
-    const line = lines[lineIndex]
+  const res = arrayToCoordinates(data)
 
-    // Each line can contain multiple coordinate pairs (32 chars each)
-    for (let i = 0; i < line.length && coordinatesParsed < numberOfCoordinates; i += 32) {
-      const coordinatePair = line.substring(i, i + 32)
-      if (coordinatePair.length >= 32) {
-        const x = parseFloat(coordinatePair.substring(0, 16).trim())
-        const y = parseFloat(coordinatePair.substring(16, 32).trim())
-        coordinates.push({ x, y })
-        coordinatesParsed++
-      }
-    }
-    lineIndex++
-  }
-
-  return coordinates
+  return { data: res, nextIndex }
 }

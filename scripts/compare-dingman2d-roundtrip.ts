@@ -19,25 +19,18 @@ function main() {
     const originalContent = readFileSync("test/data/Dingman 2D.g01", "utf-8")
     const geometryData = parseGeometry(originalContent)
 
-    // Debug: Check parsed data structure
-    console.log(`Parsed ${geometryData.riverReaches.length} river reaches`)
-    console.log(`Parsed ${geometryData.storageAreas.length} storage areas`)
-    console.log(`Parsed ${geometryData.connections.length} connections`)
-
-    let totalCrossSections = 0
+    let _totalCrossSections = 0
     for (let i = 0; i < Math.min(3, geometryData.riverReaches.length); i++) {
       const reach = geometryData.riverReaches[i]
-      totalCrossSections += reach.crossSections.length
-      console.log(
-        `  ${reach.riverName}/${reach.reachName}: ${reach.crossSections.length} cross-sections, ${reach.coordinates.length}/${reach.coordinateCount} coords`,
-      )
+      _totalCrossSections += reach.crossSections.length
     }
-    console.log(`Total cross-sections in first 3 reaches: ${totalCrossSections}`)
 
     // Check storage areas
     if (geometryData.storageAreas.length > 0) {
       const firstStorageArea = geometryData.storageAreas[0]
-      console.log(`First storage area: ${firstStorageArea.id}, ${firstStorageArea.points2D.length} 2D points`)
+      console.log(
+        `First storage area: ${firstStorageArea.id}, ${firstStorageArea.points2D.length} 2D points`,
+      )
     }
 
     const serializedContent = serializeGeometryString(geometryData)
