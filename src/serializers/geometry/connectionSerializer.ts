@@ -13,13 +13,10 @@ import { formatFixedWidth, formatMaybeNullorUndefined } from "../atomic"
  */
 export function serializeConnection(connection: Connection): string[] {
   const lines: string[] = []
-  console.log("Serializing connection:", connection)
 
   const name = formatFixedWidth(connection.name, 16, " ", "end")
   const centroidX = formatMaybeNullorUndefined(connection.centroidX)
   const centroidY = formatMaybeNullorUndefined(connection.centroidY)
-
-  console.log(`Serializing connection: ${name} at (${centroidX}, ${centroidY})`)
   // 1. Connection name
   lines.push(`Connection=${name},${centroidX},${centroidY}`)
 
@@ -56,7 +53,9 @@ export function serializeConnection(connection: Connection): string[] {
 
   // 6. Storage area connections
   lines.push(`Connection Up SA=${formatFixedWidth(connection.upstreamStorageArea, 16, " ", "end")}`)
-  lines.push(`Connection Dn SA=${formatFixedWidth(connection.downstreamStorageArea, 16, " ", "end")}`)
+  lines.push(
+    `Connection Dn SA=${formatFixedWidth(connection.downstreamStorageArea, 16, " ", "end")}`,
+  )
 
   // 7. Routing and flow settings
   if (connection.routingType !== undefined) {
@@ -205,7 +204,12 @@ function serializeCenterlineProfile(weirSE: StationElevationPoint[]): string[] {
 /**
  * Serialize outlet rating curve
  */
-function serializeOutletRatingCurve(curve: { value: number; flag: boolean; param3?: string; param4?: string }): string {
+function serializeOutletRatingCurve(curve: {
+  value: number
+  flag: boolean
+  param3?: string
+  param4?: string
+}): string {
   // Format: "Conn Outlet Rating Curve= 0 ,False,,"
   const params = [
     `${curve.value} `, // Add space after first value
