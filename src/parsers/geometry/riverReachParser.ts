@@ -146,45 +146,38 @@ function parseCrossSection(
       })
       crossSection.gisLine = arrayToCoordinates(data)
       index = nextIndex
-    }
-    if (currentLine.startsWith("Node Last Edited Time=")) {
+    } else if (currentLine.startsWith("Node Last Edited Time=")) {
       const { value } = parseKeyValue(currentLine)
       crossSection.lastEditedTime = value
       index++
-    }
-    if (currentLine.startsWith("Bank Sta=")) {
+    } else if (currentLine.startsWith("Bank Sta=")) {
       const [leftBank, rightBank] = parseValueAsCSV(currentLine).map((s) => parseFloat(s))
       crossSection.leftBankStation = leftBank
       crossSection.rightBankStation = rightBank
       index++
-    }
-    if (currentLine.startsWith("XS Rating Curve=")) {
+    } else if (currentLine.startsWith("XS Rating Curve=")) {
       const ratingParts = parseValueAsCSV(currentLine)
       crossSection.ratingCurveType = parseInt(ratingParts[0])
       crossSection.ratingCurveValue = parseInt(ratingParts[1])
       index++
-    }
-    if (currentLine.startsWith("XS HTab Starting El and Incr=")) {
+    } else if (currentLine.startsWith("XS HTab Starting El and Incr=")) {
       const htabParts = parseValueAsCSV(currentLine)
       crossSection.htabStartingElevation = parseFloat(htabParts[0])
       crossSection.htabIncrement = parseFloat(htabParts[1])
       crossSection.htabCount = parseInt(htabParts[2])
       index++
-    }
-    if (currentLine.startsWith("XS HTab Horizontal Distribution=")) {
+    } else if (currentLine.startsWith("XS HTab Horizontal Distribution=")) {
       const distribution = parseValueAsCSV(currentLine)
       crossSection.htabHorizontalDistribution = distribution.map((d) => parseInt(d))
       index++
-    }
-    if (currentLine.startsWith("Exp/Cntr=")) {
+    } else if (currentLine.startsWith("Exp/Cntr=")) {
       const expCntr = parseValueAsCSV(currentLine)
       crossSection.expansionContractionCoefficients = {
         expansion: parseFloat(expCntr[0]),
         contraction: parseFloat(expCntr[1]),
       }
       index++
-    }
-    if (currentLine.startsWith("#Sta/Elev=")) {
+    } else if (currentLine.startsWith("#Sta/Elev=")) {
       const numberOfValues = parseInt(parseKeyValue(currentLine).value)
       index++
 
@@ -198,8 +191,7 @@ function parseCrossSection(
       })
       crossSection.stationElevation = arrayToNumberPairs(data, 2)
       index = nextIndex
-    }
-    if (currentLine.startsWith("#Mann=")) {
+    } else if (currentLine.startsWith("#Mann=")) {
       const numberOfValues = parseInt(parseKeyValue(currentLine).value)
       index++
 
@@ -213,8 +205,7 @@ function parseCrossSection(
       })
       crossSection.manningValues = arrayToNumberPairs(data, 3)
       index = nextIndex
-    }
-    if (currentLine.startsWith("#XS Ineff=")) {
+    } else if (currentLine.startsWith("#XS Ineff=")) {
       const [numIneff, _flag] = parseValueAsCSV(currentLine)
       index++
 
@@ -230,8 +221,7 @@ function parseCrossSection(
       })
       crossSection.ineffectiveFlowAreas = arrayToNumberPairs(data, 3) as [number, number, number][]
       index = nextIndex
-    }
-    if (currentLine.startsWith("#Block Obstruct=")) {
+    } else if (currentLine.startsWith("#Block Obstruct=")) {
       const numberOfValues = parseInt(parseKeyValue(currentLine).value)
       index++
 

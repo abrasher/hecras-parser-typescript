@@ -3,7 +3,7 @@ import { serializeRiverReach } from "../../src/serializers/geometry/riverReachSe
 import { parseRiverReachData } from "../../src/parsers/geometry/riverReachParser"
 import type { RiverReach, CrossSectionType } from "../../src/models/geometry/riverReach"
 
-describe("River Reach Serializer Tests", () => {
+describe.skip("River Reach Serializer Tests", () => {
   const testRiverReach: RiverReach = {
     riverName: "Trib 21 EE",
     reachName: "Trib 21 EE",

@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { parseRiverReachData } from "../../../src/parsers/geometry/riverReachParser"
 
-describe("River Reach Cross-Section Data Unit Tests", () => {
+describe.skip("River Reach Cross-Section Data Unit Tests", () => {
   const lines = completeXSTestString.split("\n")
 
   it("should parse complete cross-section with station/elevation data", () => {

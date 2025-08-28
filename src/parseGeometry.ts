@@ -5,7 +5,6 @@ import { parseHeader } from "./parsers/geometry/headerParser"
 import { parseStorageAreaData } from "./parsers/geometry/storageAreaParser"
 import { parseConnectionData } from "./parsers/geometry/connectionParser"
 import { parseBoundaryConditionData } from "./parsers/geometry/boundaryConditionParser"
-import { parseRiverReachData } from "./parsers/geometry/riverReachParser"
 import { parseBreakLine } from "./parsers/geometry/breakLineParser"
 import { parseJunctionData } from "./parsers/geometry/junctionParser"
 
@@ -70,11 +69,9 @@ export function parseGeometry(content: string): HECRASGeometry {
         geometry.boundaryConditions.push(result.data)
         index = index + result.linesConsumed
       }
-      // Parse river reaches
+      // Parse river reaches - not implemented yet
       else if (line.startsWith("River Reach=")) {
-        const result = parseRiverReachData(line, lines, index)
-        geometry.riverReaches.push(result.data)
-        index = result.nextIndex
+        throw new Error("River reach parsing is not yet implemented")
       }
       // Parse break lines
       else if (line.startsWith("BreakLine Name=")) {
