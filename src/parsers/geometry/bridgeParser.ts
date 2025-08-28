@@ -1,4 +1,10 @@
-import { parseCommaSeparated, parseKeyValue, chunkStringToNumbers, chunkStringToNumbersOrNull } from "../atomic"
+import {
+  parseCommaSeparated,
+  parseKeyValue,
+  chunkStringToNumbers,
+  chunkStringToNumbersOrNull,
+  parseValueAsCSV,
+} from "../atomic"
 import type {
   BridgeConnection,
   BridgeConfiguration,
@@ -12,9 +18,9 @@ import type {
   ManningCoefficients,
   BridgePier,
 } from "../../models/geometry/bridge"
-import type { StationElevationPoint } from "../../models/geometry/common"
 import { parseMaybeFloat } from "../atomic"
 import { zip } from "es-toolkit"
+import { parseMultilineArray, arrayToNumberPairs } from "../multiLineParsers"
 
 /**
  * Parses bridge connection data starting from a "Conn BR: Bridge=" line
@@ -201,7 +207,10 @@ function buildDeckStationingArray(
   return result
 }
 
-export function parsePier(lines: string[], startIndex: number): { data: BridgePier; nextIndex: number } {
+export function parsePier(
+  lines: string[],
+  startIndex: number,
+): { data: BridgePier; nextIndex: number } {
   let index = startIndex
 
   const [
@@ -255,7 +264,10 @@ export function parsePier(lines: string[], startIndex: number): { data: BridgePi
   }
 }
 
-function parseDeckParameters(lines: string[], startIndex: number): { data: DeckParameters; nextIndex: number } {
+function parseDeckParameters(
+  lines: string[],
+  startIndex: number,
+): { data: DeckParameters; nextIndex: number } {
   // Skip the header line
   let index = startIndex + 1
   const paramsLine = lines[index]
@@ -314,34 +326,28 @@ function parseDeckParameters(lines: string[], startIndex: number): { data: DeckP
   return { data: deckParams, nextIndex: downstreamResult.nextIndex }
 }
 
-function parseBridgeSection(lines: string[], startIndex: number): { data: BridgeCrossSection; nextIndex: number } {
+function parseBridgeSection(
+  lines: string[],
+  startIndex: number,
+): { data: BridgeCrossSection; nextIndex: number } {
   const headerLine = lines[startIndex]
-  const { value } = parseKeyValue(headerLine)
-  const parts = parseCommaSeparated(value)
 
-  const sectionId = parseInt(parts[0])
-  const pointCount = parseInt(parts[1])
+  const [id, numberOfPoints] = parseValueAsCSV(headerLine).map((s) => parseInt(s))
 
   let index = startIndex + 1
 
-  // Parse station-elevation points
-  const points: StationElevationPoint[] = []
-  const pointLines = Math.ceil(pointCount / 5) // 5 pairs per line
+  const pointsPerEntry = 2
+  const { data, nextIndex: nextIndex1 } = parseMultilineArray({
+    width: 8,
+    maxWidth: 80,
+    numOfEntries: numberOfPoints * pointsPerEntry,
+    currentIndex: index,
+    lines,
+  })
 
-  for (let i = 0; i < pointLines; i++) {
-    const pointLine = lines[index + i]
-    const nums = chunkStringToNumbers(pointLine, 8)
+  const points = arrayToNumberPairs(data, 2)
 
-    for (let j = 0; j < nums.length; j += 2) {
-      if (j + 1 < nums.length) {
-        points.push({
-          station: nums[j],
-          elevation: nums[j + 1],
-        })
-      }
-    }
-  }
-  index += pointLines
+  index = nextIndex1
 
   // Parse bank stations
   const bankStationsLine = lines[index]
@@ -354,7 +360,7 @@ function parseBridgeSection(lines: string[], startIndex: number): { data: Bridge
 
   return {
     data: {
-      id: sectionId,
+      id,
       points,
       bankStations,
       manningCoefficients,
@@ -363,34 +369,28 @@ function parseBridgeSection(lines: string[], startIndex: number): { data: Bridge
   }
 }
 
-function parseCrossSection(lines: string[], startIndex: number): { data: BridgeCrossSection; nextIndex: number } {
+function parseCrossSection(
+  lines: string[],
+  startIndex: number,
+): { data: BridgeCrossSection; nextIndex: number } {
   const headerLine = lines[startIndex]
-  const { value } = parseKeyValue(headerLine)
-  const parts = parseCommaSeparated(value)
 
-  const sectionId = parseInt(parts[0])
-  const pointCount = parseInt(parts[1])
+  const [id, numberOfPoints] = parseValueAsCSV(headerLine).map((s) => parseInt(s))
 
   let index = startIndex + 1
 
-  // Parse station-elevation points
-  const points: StationElevationPoint[] = []
-  const pointLines = Math.ceil(pointCount / 5) // 5 pairs per line
+  const pointsPerEntry = 2
+  const { data, nextIndex: nextIndex1 } = parseMultilineArray({
+    width: 8,
+    maxWidth: 80,
+    numOfEntries: numberOfPoints * pointsPerEntry,
+    currentIndex: index,
+    lines,
+  })
 
-  for (let i = 0; i < pointLines; i++) {
-    const pointLine = lines[index + i]
-    const nums = chunkStringToNumbers(pointLine, 8)
+  const points = arrayToNumberPairs(data, 2)
 
-    for (let j = 0; j < nums.length; j += 2) {
-      if (j + 1 < nums.length) {
-        points.push({
-          station: nums[j],
-          elevation: nums[j + 1],
-        })
-      }
-    }
-  }
-  index += pointLines
+  index = nextIndex1
 
   // Parse bank stations
   const bankStationsLine = lines[index]
@@ -403,7 +403,7 @@ function parseCrossSection(lines: string[], startIndex: number): { data: BridgeC
 
   return {
     data: {
-      id: sectionId,
+      id,
       points,
       bankStations,
       manningCoefficients,

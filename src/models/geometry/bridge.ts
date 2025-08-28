@@ -1,5 +1,3 @@
-import type { StationElevationPoint } from "./common"
-
 export interface DeckStationing {
   station: number
   highChord: number
@@ -113,7 +111,7 @@ export interface BridgeCoefficients {
 export interface BridgeCrossSection {
   // id of 1 is upstream, 2 is downstream
   id: number
-  points: StationElevationPoint[]
+  points: [number, number][]
   bankStations: BankStations
   manningCoefficients: ManningCoefficients[]
 }

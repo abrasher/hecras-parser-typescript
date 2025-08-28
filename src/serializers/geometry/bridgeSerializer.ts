@@ -21,6 +21,8 @@ import { chunk } from "es-toolkit"
 export function serializeBridgeConnection(bridge: BridgeConnection): string[] {
   const lines: string[] = []
 
+  console.log("Serializing bridge connection:", bridge)
+
   // 1. Bridge configuration
   lines.push(...serializeBridgeConfiguration(bridge.bridge))
 
@@ -105,7 +107,9 @@ export function serializeDeckParameters(deck: DeckParameters): string[] {
   const lines: string[] = []
 
   // Header line
-  lines.push("Conn BR: Deck Dist Width WeirC Skew NumUp NumDn MinLoCord MaxHiCord MaxSubmerge Is_Ogee")
+  lines.push(
+    "Conn BR: Deck Dist Width WeirC Skew NumUp NumDn MinLoCord MaxHiCord MaxSubmerge Is_Ogee",
+  )
 
   // Parameters line
   const params = [
@@ -136,7 +140,10 @@ export function serializeDeckParameters(deck: DeckParameters): string[] {
 /**
  * Serialize deck station data to HEC-RAS format
  */
-export function serializeDeckStationData(upstream: DeckStationing[], downstream: DeckStationing[]): string[] {
+export function serializeDeckStationData(
+  upstream: DeckStationing[],
+  downstream: DeckStationing[],
+): string[] {
   const lines: string[] = []
 
   // Upstream stations
@@ -173,7 +180,9 @@ function formatStationValues(values: number[]): string[] {
   const lines: string[] = []
 
   chunk(values, 10).forEach((valueGroup) => {
-    const formattedLine = valueGroup.map((value) => formatFixedWidth(formatHECRASStationNumber(value), 8)).join("")
+    const formattedLine = valueGroup
+      .map((value) => formatFixedWidth(formatHECRASStationNumber(value), 8))
+      .join("")
     lines.push(formattedLine)
   })
 
@@ -199,27 +208,34 @@ function formatStationValuesWithNulls(values: (number | null)[]): string[] {
 /**
  * Serialize bridge cross section to HEC-RAS format
  */
-export function serializeBridgeCrossSection(section: BridgeCrossSection, prefix: "BR" | "XS"): string[] {
+export function serializeBridgeCrossSection(
+  section: BridgeCrossSection,
+  prefix: "BR" | "XS",
+): string[] {
   const lines: string[] = []
 
   // Section header
-  lines.push(`Conn BR: ${prefix} SE=${section.id},${section.points.length}`)
+  lines.push(`Conn BR: ${prefix} SE=${section.id},${section.points?.length}`)
 
   // Station-elevation points (8 chars each, 5 pairs per line)
   const stationElevationData: number[] = []
-  for (const point of section.points) {
-    stationElevationData.push(point.station, point.elevation)
+  for (const [x, y] of section.points) {
+    stationElevationData.push(x, y)
   }
 
   chunk(stationElevationData, 10).forEach((dataGroup) => {
-    const formattedLine = dataGroup.map((value) => formatFixedWidth(formatHECRASStationNumber(value), 8)).join("")
+    const formattedLine = dataGroup
+      .map((value) => formatFixedWidth(formatHECRASStationNumber(value), 8))
+      .join("")
     lines.push(formattedLine)
   })
 
   // Bank stations
   const leftBank = isNaN(section.bankStations.leftBank) ? "" : section.bankStations.leftBank
   const rightBank = isNaN(section.bankStations.rightBank) ? "" : section.bankStations.rightBank
-  lines.push(`Conn BR: ${prefix} Bank Stations=${section.bankStations.sectionId},${leftBank},${rightBank}`)
+  lines.push(
+    `Conn BR: ${prefix} Bank Stations=${section.bankStations.sectionId},${leftBank},${rightBank}`,
+  )
 
   // Manning coefficients
   lines.push(`Conn BR: ${prefix} Mann=${section.id},${section.manningCoefficients.length}`)
@@ -230,7 +246,9 @@ export function serializeBridgeCrossSection(section: BridgeCrossSection, prefix:
   }
 
   chunk(manningData, 10).forEach((dataGroup) => {
-    const formattedLine = dataGroup.map((value) => formatFixedWidth(formatHECRASStationNumber(value), 8)).join("")
+    const formattedLine = dataGroup
+      .map((value) => formatFixedWidth(formatHECRASStationNumber(value), 8))
+      .join("")
     lines.push(formattedLine)
   })
 
@@ -261,7 +279,10 @@ export function serializeBridgeCoefficients(coefficients: BridgeCoefficients): s
 /**
  * Serialize ineffective flow area to HEC-RAS format
  */
-export function serializeIneffectiveFlowArea(area: IneffectiveFlowArea, prefix: "USXS" | "DSXS"): string[] {
+export function serializeIneffectiveFlowArea(
+  area: IneffectiveFlowArea,
+  prefix: "USXS" | "DSXS",
+): string[] {
   const values = [area.leftStation, area.leftElevation, area.rightStation, area.rightElevation]
 
   return [`Conn BR: ${prefix} Ineff=${values.join(",")}`]

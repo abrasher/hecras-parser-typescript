@@ -76,8 +76,13 @@ export const arrayToCoordinates = (arr: string[]) =>
     ["x", "y"] as const,
   )
 
-export const arrayToNumberPairs = (arr: string[], chunkSize: number) =>
+export const arrayToNumberPairs = <T extends string[], N extends number>(arr: T, chunkSize: N) =>
   chunk(
     arr.map((d: string): number => parseFloat(d)),
     chunkSize,
-  )
+  ) as NTuple<number, N>[]
+
+// Helper type: build a tuple of length N
+type NTuple<T, N extends number, R extends unknown[] = []> = R["length"] extends N
+  ? R
+  : NTuple<T, N, [T, ...R]>

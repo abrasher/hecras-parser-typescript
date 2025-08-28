@@ -1,6 +1,6 @@
 {
   "name": "hecras-parser",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A TypeScript library for parsing HEC-RAS geometry and flow files.",
   "keywords": [
     "hec-ras",
