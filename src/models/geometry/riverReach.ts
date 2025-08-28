@@ -1,4 +1,4 @@
-import type { Coordinate, StationElevationPoint, ManningSegment } from "./common"
+import type { Coordinate } from "./common"
 
 export enum CrossSectionType {
   NORMAL = 1,
@@ -28,13 +28,10 @@ export interface CrossSection {
   lengthLeft: number
   lengthChannel: number
   lengthRight: number
-  gisLineCount?: number
-  gisLine?: Coordinate[]
+  gisLine: Coordinate[]
   lastEditedTime?: string
-  stationElevationPoints: StationElevationPoint[]
-  stationElevationCount?: number
-  manningValues?: ManningSegment[]
-  manningCount?: number
+  stationElevation: number[][]
+  manningValues?: number[][]
   ineffectiveFlowAreas?: IneffectiveFlowArea[]
   ineffectiveCount?: number
   permanentIneffective?: boolean[]

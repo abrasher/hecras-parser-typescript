@@ -11,7 +11,10 @@
  * @param separator Separator character (default: "=")
  * @throws Error if line doesn't contain valid key-value pair
  */
-export function parseKeyValue(line: string, separator: string = "="): { key: string; value: string } {
+export function parseKeyValue(
+  line: string,
+  separator: string = "=",
+): { key: string; value: string } {
   const parts = line.split(separator)
   if (parts.length >= 2) {
     return {
@@ -29,6 +32,11 @@ export function parseKeyValue(line: string, separator: string = "="): { key: str
  */
 export function parseCommaSeparated(line: string): string[] {
   return line.split(",").map((s) => s.trim())
+}
+
+export function parseValueAsCSV(line: string) {
+  const value = parseKeyValue(line).value
+  return parseCommaSeparated(value)
 }
 
 /**

@@ -1,3 +1,5 @@
+import { chunk } from "es-toolkit"
+
 interface ParseMultilineArrayParams {
   lines: string[]
   width: number
@@ -72,4 +74,10 @@ export const arrayToCoordinates = (arr: string[]) =>
   chunkToObjects(
     arr.map((d: string): number => parseFloat(d)),
     ["x", "y"] as const,
+  )
+
+export const arrayToNumberPairs = (arr: string[], chunkSize: number) =>
+  chunk(
+    arr.map((d: string): number => parseFloat(d)),
+    chunkSize,
   )

@@ -1,6 +1,6 @@
-import { parseLineToCoordinates } from "../lineParsers"
 import { parseKeyValue } from "../atomic"
 import type { BreakLine } from "../../models/geometry/breakLine"
+import { parseMultilineArray, arrayToCoordinates } from "../multiLineParsers"
 
 /**
  * Parse a BreakLine geometry definition from HEC-RAS format
@@ -9,7 +9,7 @@ import type { BreakLine } from "../../models/geometry/breakLine"
  * @returns ParseResult containing the parsed BreakLine and lines consumed
  */
 export function parseBreakLine(lines: string[], startIndex: number) {
-  let currentIndex = startIndex
+  let index = startIndex
   const breakLine: BreakLine = {
     name: "",
     cellSizeMin: 0,
@@ -20,76 +20,78 @@ export function parseBreakLine(lines: string[], startIndex: number) {
   }
 
   // Parse BreakLine Name
-  const nameResult = parseKeyValue(lines[currentIndex])
+  const nameResult = parseKeyValue(lines[index])
   if (nameResult.key !== "BreakLine Name") {
-    throw new Error(`Expected BreakLine Name at line ${currentIndex + 1}`)
+    throw new Error(`Expected BreakLine Name at line ${index + 1}`)
   }
   breakLine.name = nameResult.value
-  currentIndex++
+  index++
 
   // Parse BreakLine CellSize Min
-  const cellSizeMinResult = parseKeyValue(lines[currentIndex])
+  const cellSizeMinResult = parseKeyValue(lines[index])
   if (cellSizeMinResult.key !== "BreakLine CellSize Min") {
-    throw new Error(`Expected BreakLine CellSize Min at line ${currentIndex + 1}`)
+    throw new Error(`Expected BreakLine CellSize Min at line ${index + 1}`)
   }
   breakLine.cellSizeMin = parseFloat(cellSizeMinResult.value)
-  currentIndex++
+  index++
 
   // Parse BreakLine CellSize Max (can be empty)
-  const cellSizeMaxResult = parseKeyValue(lines[currentIndex])
+  const cellSizeMaxResult = parseKeyValue(lines[index])
   if (cellSizeMaxResult.key !== "BreakLine CellSize Max") {
-    throw new Error(`Expected BreakLine CellSize Max at line ${currentIndex + 1}`)
+    throw new Error(`Expected BreakLine CellSize Max at line ${index + 1}`)
   }
-  breakLine.cellSizeMax = cellSizeMaxResult.value === "" ? null : parseFloat(cellSizeMaxResult.value)
-  currentIndex++
+  breakLine.cellSizeMax =
+    cellSizeMaxResult.value === "" ? null : parseFloat(cellSizeMaxResult.value)
+  index++
 
   // Parse BreakLine Near Repeats
-  const nearRepeatsResult = parseKeyValue(lines[currentIndex])
+  const nearRepeatsResult = parseKeyValue(lines[index])
   if (nearRepeatsResult.key !== "BreakLine Near Repeats") {
-    throw new Error(`Expected BreakLine Near Repeats at line ${currentIndex + 1}`)
+    throw new Error(`Expected BreakLine Near Repeats at line ${index + 1}`)
   }
   breakLine.nearRepeats = parseFloat(nearRepeatsResult.value)
-  currentIndex++
+  index++
 
   // Parse BreakLine Protection Radius
-  const protectionRadiusResult = parseKeyValue(lines[currentIndex])
+  const protectionRadiusResult = parseKeyValue(lines[index])
   if (protectionRadiusResult.key !== "BreakLine Protection Radius") {
-    throw new Error(`Expected BreakLine Protection Radius at line ${currentIndex + 1}`)
+    throw new Error(`Expected BreakLine Protection Radius at line ${index + 1}`)
   }
   breakLine.protectionRadius = parseFloat(protectionRadiusResult.value)
-  currentIndex++
+  index++
 
   // Parse BreakLine Polyline with coordinate count
-  const polylineResult = parseKeyValue(lines[currentIndex])
+  const polylineResult = parseKeyValue(lines[index])
   if (polylineResult.key !== "BreakLine Polyline") {
-    throw new Error(`Expected BreakLine Polyline at line ${currentIndex + 1}`)
+    throw new Error(`Expected BreakLine Polyline at line ${index + 1}`)
   }
-  const pointCount = parseInt(polylineResult.value.trim())
-  currentIndex++
+  const numberOfPoints = parseInt(polylineResult.value.trim())
+  index++
 
-  // Parse coordinate points (up to 2 coordinates per line, 16 chars per number)
-  let pointsRemaining = pointCount
+  const pointsPerEntry = 2
+  const { data, nextIndex } = parseMultilineArray({
+    width: 16,
+    maxWidth: 64,
+    numOfEntries: numberOfPoints * pointsPerEntry,
+    currentIndex: index,
+    lines,
+  })
 
-  while (pointsRemaining > 0 && currentIndex < lines.length) {
-    const coordinateLine = lines[currentIndex]
-    const lineCoords = parseLineToCoordinates(coordinateLine)
+  const res = arrayToCoordinates(data)
 
-    // Add coordinates from this line (but don't exceed the expected count)
-    const coordsToAdd = lineCoords.slice(0, pointsRemaining)
-    breakLine.polylinePoints.push(...coordsToAdd)
+  breakLine.polylinePoints = res
 
-    // Update remaining points based on how many we actually added
-    pointsRemaining -= coordsToAdd.length
-    currentIndex++
-  }
+  index = nextIndex
 
   // Validate we got the expected number of points
-  if (breakLine.polylinePoints.length !== pointCount) {
-    throw new Error(`Expected ${pointCount} coordinate points, but parsed ${breakLine.polylinePoints.length}`)
+  if (breakLine.polylinePoints.length !== numberOfPoints) {
+    throw new Error(
+      `Expected ${numberOfPoints} coordinate points, but parsed ${breakLine.polylinePoints.length}`,
+    )
   }
 
   return {
     data: breakLine,
-    linesConsumed: currentIndex - startIndex,
+    linesConsumed: index - startIndex,
   }
 }

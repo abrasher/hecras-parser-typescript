@@ -1,7 +1,11 @@
-import { parseLineToCoordinates } from "../lineParsers"
-import type { Coordinate } from "../../models/geometry/common"
-import { chunkStringToStrings, parseCommaSeparated, parseKeyValue } from "../atomic"
+import {
+  chunkStringToStrings,
+  parseCommaSeparated,
+  parseKeyValue,
+  parseValueAsCSV,
+} from "../atomic"
 import type { RiverReach, CrossSection, CrossSectionType } from "../../models/geometry/riverReach"
+import { parseMultilineArray, arrayToCoordinates, arrayToNumberPairs } from "../multiLineParsers"
 
 /**
  * Parses river reach data starting from a "River Reach=" line
@@ -48,23 +52,29 @@ export function parseRiverReachData(
     }
 
     if (currentLine.startsWith("River Reach=")) {
-      const { riverName, reachName } = parseRiverReachDefinition(currentLine)
+      const [riverName, reachName] = parseCommaSeparated(currentLine).map((s) => s.trim())
       riverReach.riverName = riverName
       riverReach.reachName = reachName
       index++
     } else if (currentLine.startsWith("Reach XY=")) {
-      const { value } = parseKeyValue(currentLine)
-      riverReach.coordinateCount = parseInt(value.trim())
-      const { data, nextIndex } = parseReachCoordinates(lines, index)
-      riverReach.coordinates = data
+      const numberOfPoints = parseInt(parseKeyValue(currentLine).value)
+      index++
+
+      const pointsPerEntry = 2
+      const { data, nextIndex } = parseMultilineArray({
+        width: 16,
+        maxWidth: 64,
+        numOfEntries: numberOfPoints * pointsPerEntry,
+        currentIndex: index,
+        lines,
+      })
+
+      riverReach.coordinates = arrayToCoordinates(data)
+
       index = nextIndex
     } else if (currentLine.startsWith("Rch Text X Y=")) {
-      const { value } = parseKeyValue(currentLine)
-      const coords = parseCommaSeparated(value)
-      riverReach.textPosition = {
-        x: parseFloat(coords[0]),
-        y: parseFloat(coords[1]),
-      }
+      const [x, y] = parseValueAsCSV(currentLine).map((s) => parseFloat(s))
+      riverReach.textPosition = { x, y }
       index++
     } else if (currentLine.startsWith("Reverse River Text=")) {
       const { value } = parseKeyValue(currentLine)
@@ -93,68 +103,10 @@ function isRiverReachLine(line: string): boolean {
   return riverReachPrefixes.some((prefix) => line?.startsWith(prefix))
 }
 
-function parseRiverReachDefinition(line: string): { riverName: string; reachName: string } {
-  const { value } = parseKeyValue(line)
-  const riverReachNames = parseCommaSeparated(value)
-  return {
-    riverName: riverReachNames[0].trim(),
-    reachName: riverReachNames[1].trim(),
-  }
-}
-
-function parseReachCoordinates(lines: string[], startIndex: number): { data: Coordinate[]; nextIndex: number } {
-  const headerLine = lines[startIndex]
-  const { value } = parseKeyValue(headerLine)
-  const numberOfPoints = parseInt(value.trim())
-
-  let index = startIndex + 1
-  const coordinates: Coordinate[] = []
-
-  // Reach coordinates may not be defined, so we need to check and escape if there are none
-  if (numberOfPoints === 0) return { data: coordinates, nextIndex: index }
-
-  // Reach coordinates follow the same pattern as storage area:
-  // 2 coordinates per line (64 characters wide, 16 characters per number)
-  const coordinateLines = Math.ceil(numberOfPoints / 2)
-
-  for (let i = 0; i < coordinateLines && index < lines.length; i++) {
-    const coordLine = lines[index]
-
-    // Check if this line could be coordinate data by verifying it's not a known non-coordinate line
-    if (coordLine && !isKnownNonCoordinateLine(coordLine)) {
-      try {
-        const lineCoords = parseLineToCoordinates(coordLine)
-        coordinates.push(...lineCoords)
-        index++
-      } catch {
-        // If we can't parse coordinates from this line, stop parsing coordinates
-        break
-      }
-    } else {
-      // Hit a non-coordinate line, stop parsing coordinates
-      break
-    }
-  }
-
-  return { data: coordinates, nextIndex: index }
-}
-
-function isKnownNonCoordinateLine(line: string): boolean {
-  const nonCoordinatePrefixes = [
-    "River Reach=",
-    "Type RM Length",
-    "Rch Text",
-    "Reverse River",
-    "Connection ",
-    "Storage Area",
-    "Junction",
-    "Boundary Conditions",
-    "#", // Cross-section data markers
-  ]
-  return nonCoordinatePrefixes.some((prefix) => line?.startsWith(prefix))
-}
-
-function parseCrossSection(lines: string[], currentIndex: number): { data: CrossSection; nextIndex: number } {
+function parseCrossSection(
+  lines: string[],
+  currentIndex: number,
+): { data: CrossSection; nextIndex: number } {
   const line = lines[currentIndex]
   const { value } = parseKeyValue(line)
   const parts = parseCommaSeparated(value)
@@ -165,7 +117,8 @@ function parseCrossSection(lines: string[], currentIndex: number): { data: Cross
     lengthLeft: parseFloat(parts[2]),
     lengthChannel: parseFloat(parts[3]),
     lengthRight: parseFloat(parts[4]),
-    stationElevationPoints: [],
+    gisLine: [],
+    stationElevation: [],
   }
 
   let index = currentIndex + 1
@@ -186,64 +139,53 @@ function parseCrossSection(lines: string[], currentIndex: number): { data: Cross
     }
 
     if (currentLine.startsWith("XS GIS Cut Line=")) {
-      const { value } = parseKeyValue(currentLine)
-      crossSection.gisLineCount = parseInt(value.trim())
+      const numberOfValues = parseInt(parseKeyValue(currentLine).value)
       index++
 
-      if (crossSection.gisLineCount && crossSection.gisLineCount > 0) {
-        const gisCoords: Coordinate[] = []
-        const coordsNeeded = crossSection.gisLineCount
-
-        while (gisCoords.length < coordsNeeded && index < lines.length) {
-          const coordLine = lines[index]
-          if (
-            coordLine.trim() === "" ||
-            coordLine.startsWith("Node ") ||
-            coordLine.startsWith("#") ||
-            coordLine.startsWith("Bank ") ||
-            coordLine.startsWith("XS ") ||
-            coordLine.startsWith("Exp/") ||
-            coordLine.startsWith("Type ")
-          ) {
-            break
-          }
-
-          const lineCoords = parseLineToCoordinates(coordLine)
-          gisCoords.push(...lineCoords)
-          index++
-        }
-
-        crossSection.gisLine = gisCoords.slice(0, coordsNeeded)
-      }
-    } else if (currentLine.startsWith("Node Last Edited Time=")) {
+      const pointsPerEntry = 2
+      const { data, nextIndex } = parseMultilineArray({
+        width: 16,
+        maxWidth: 64,
+        numOfEntries: numberOfValues * pointsPerEntry,
+        currentIndex: index,
+        lines,
+      })
+      crossSection.gisLine = arrayToCoordinates(data)
+      index = nextIndex
+    }
+    if (currentLine.startsWith("Node Last Edited Time=")) {
       const { value } = parseKeyValue(currentLine)
       crossSection.lastEditedTime = value
       index++
-    } else if (currentLine.startsWith("Bank Sta=")) {
-      const { value } = parseKeyValue(currentLine)
-      const bankStations = parseCommaSeparated(value)
-      crossSection.leftBankStation = parseFloat(bankStations[0])
-      crossSection.rightBankStation = parseFloat(bankStations[1])
+    }
+    if (currentLine.startsWith("Bank Sta=")) {
+      const [leftBank, rightBank] = parseValueAsCSV(currentLine).map((s) => parseFloat(s))
+      crossSection.leftBankStation = leftBank
+      crossSection.rightBankStation = rightBank
       index++
-    } else if (currentLine.startsWith("XS Rating Curve=")) {
+    }
+    if (currentLine.startsWith("XS Rating Curve=")) {
       const { value } = parseKeyValue(currentLine)
       const ratingParts = parseCommaSeparated(value)
       crossSection.ratingCurveType = parseInt(ratingParts[0])
       crossSection.ratingCurveValue = parseInt(ratingParts[1])
       index++
-    } else if (currentLine.startsWith("XS HTab Starting El and Incr=")) {
+    }
+    if (currentLine.startsWith("XS HTab Starting El and Incr=")) {
       const { value } = parseKeyValue(currentLine)
       const htabParts = parseCommaSeparated(value)
       crossSection.htabStartingElevation = parseFloat(htabParts[0])
       crossSection.htabIncrement = parseFloat(htabParts[1])
       crossSection.htabCount = parseInt(htabParts[2])
       index++
-    } else if (currentLine.startsWith("XS HTab Horizontal Distribution=")) {
+    }
+    if (currentLine.startsWith("XS HTab Horizontal Distribution=")) {
       const { value } = parseKeyValue(currentLine)
       const distribution = parseCommaSeparated(value)
       crossSection.htabHorizontalDistribution = distribution.map((d) => parseInt(d))
       index++
-    } else if (currentLine.startsWith("Exp/Cntr=")) {
+    }
+    if (currentLine.startsWith("Exp/Cntr=")) {
       const { value } = parseKeyValue(currentLine)
       const expCntr = parseCommaSeparated(value)
       crossSection.expansionContractionCoefficients = {
@@ -251,27 +193,35 @@ function parseCrossSection(lines: string[], currentIndex: number): { data: Cross
         contraction: parseFloat(expCntr[1]),
       }
       index++
-    } else if (currentLine.startsWith("#Sta/Elev=")) {
-      const { value } = parseKeyValue(currentLine)
-      const stationElevCount = parseInt(value.trim())
-      crossSection.stationElevationCount = stationElevCount
+    }
+    if (currentLine.startsWith("#Sta/Elev=")) {
+      const numberOfValues = parseInt(parseKeyValue(currentLine).value)
       index++
 
-      // Parse station/elevation data from following lines
-      const stationElevPoints = parseStationElevationData(lines, index, stationElevCount * 2) // Each point has station + elevation
-      crossSection.stationElevationPoints = stationElevPoints.data
-      index = stationElevPoints.nextIndex
+      const pointsPerEntry = 2
+      const { data, nextIndex } = parseMultilineArray({
+        width: 8,
+        maxWidth: 80,
+        numOfEntries: numberOfValues * pointsPerEntry,
+        currentIndex: index,
+        lines,
+      })
+      crossSection.stationElevation = arrayToNumberPairs(data, 2)
+      index = nextIndex
     } else if (currentLine.startsWith("#Mann=")) {
-      const { value } = parseKeyValue(currentLine)
-      const parts = parseCommaSeparated(value)
-      const manningCount = parseInt(parts[0])
-      crossSection.manningCount = manningCount
+      const numberOfValues = parseInt(parseKeyValue(currentLine).value)
       index++
 
-      // Parse Manning's n data from following lines
-      const manningData = parseManningData(lines, index, manningCount * 3) // Each segment has station + nValue + unknown
-      crossSection.manningValues = manningData.data
-      index = manningData.nextIndex
+      const pointsPerEntry = 3
+      const { data, nextIndex } = parseMultilineArray({
+        width: 8,
+        maxWidth: 72,
+        numOfEntries: numberOfValues * pointsPerEntry,
+        currentIndex: index,
+        lines,
+      })
+      crossSection.manningValues = arrayToNumberPairs(data, 3)
+      index = nextIndex
     } else if (currentLine.startsWith("#XS Ineff=")) {
       const { value } = parseKeyValue(currentLine)
       const parts = parseCommaSeparated(value)
@@ -283,7 +233,8 @@ function parseCrossSection(lines: string[], currentIndex: number): { data: Cross
       const ineffectiveData = parseIneffectiveFlowData(lines, index, ineffectiveCount * 3) // Each area has left + right + elevation
       crossSection.ineffectiveFlowAreas = ineffectiveData.data
       index = ineffectiveData.nextIndex
-    } else if (currentLine.startsWith("#Block Obstruct=")) {
+    }
+    if (currentLine.startsWith("#Block Obstruct=")) {
       const { value } = parseKeyValue(currentLine)
       const parts = parseCommaSeparated(value)
       const blockedCount = parseInt(parts[0])
@@ -294,214 +245,23 @@ function parseCrossSection(lines: string[], currentIndex: number): { data: Cross
       const blockedData = parseBlockedObstructionData(lines, index, blockedCount * 3) // Each obstruction has left + right + elevation
       crossSection.blockedObstructions = blockedData.data
       index = blockedData.nextIndex
-    } else if (currentLine.startsWith("Permanent Ineff=")) {
+    }
+    if (currentLine.startsWith("Permanent Ineff=")) {
       const nextLine = lines[index + 1]
       const permAreas = chunkStringToStrings(nextLine, 8).map((s) => s.trim() === "T")
 
       crossSection.permanentIneffective = permAreas
       index++
-    } else if (currentLine.startsWith("Skew Angle=")) {
+    }
+    if (currentLine.startsWith("Skew Angle=")) {
       const { value } = parseKeyValue(currentLine)
       crossSection.skewAngle = parseFloat(value.trim())
-      index++
-    } else {
       index++
     }
   }
 
   return {
     data: crossSection,
-    nextIndex: index,
-  }
-}
-
-function parseStationElevationData(
-  lines: string[],
-  currentIndex: number,
-  expectedNumbers: number,
-): { data: { station: number; elevation: number }[]; nextIndex: number } {
-  const stationElevPoints: { station: number; elevation: number }[] = []
-  let index = currentIndex
-  let numbersFound = 0
-
-  while (numbersFound < expectedNumbers && index < lines.length) {
-    const line = lines[index]
-    if (
-      !line ||
-      line.trim() === "" ||
-      line.startsWith("#") ||
-      line.startsWith("Type ") ||
-      line.startsWith("River Reach") ||
-      line.startsWith("Connection ")
-    ) {
-      break
-    }
-
-    // Parse numbers from the line (variable width, space separated)
-    const numbers = line
-      .trim()
-      .split(/\s+/)
-      .map((s) => parseFloat(s))
-      .filter((n) => !isNaN(n))
-
-    // Group numbers into station/elevation pairs
-    for (let i = 0; i < numbers.length - 1; i += 2) {
-      if (numbersFound >= expectedNumbers) break
-      stationElevPoints.push({
-        station: numbers[i],
-        elevation: numbers[i + 1],
-      })
-      numbersFound += 2
-    }
-    index++
-  }
-
-  return {
-    data: stationElevPoints,
-    nextIndex: index,
-  }
-}
-
-function parseManningData(
-  lines: string[],
-  currentIndex: number,
-  expectedNumbers: number,
-): { data: { station: number; nValue: number; unknownParameter: number }[]; nextIndex: number } {
-  const manningSegments: { station: number; nValue: number; unknownParameter: number }[] = []
-  let index = currentIndex
-  let numbersFound = 0
-
-  while (numbersFound < expectedNumbers && index < lines.length) {
-    const line = lines[index]
-    if (
-      !line ||
-      line.trim() === "" ||
-      line.startsWith("#") ||
-      line.startsWith("Type ") ||
-      line.startsWith("River Reach") ||
-      line.startsWith("Connection ")
-    ) {
-      break
-    }
-
-    // Parse numbers from the line
-    const numbers = line
-      .trim()
-      .split(/\s+/)
-      .map((s) => parseFloat(s))
-      .filter((n) => !isNaN(n))
-
-    // Group numbers into station/nValue/unknown triplets
-    for (let i = 0; i < numbers.length - 2; i += 3) {
-      if (numbersFound >= expectedNumbers) break
-      manningSegments.push({
-        station: numbers[i],
-        nValue: numbers[i + 1],
-        unknownParameter: numbers[i + 2],
-      })
-      numbersFound += 3
-    }
-    index++
-  }
-
-  return {
-    data: manningSegments,
-    nextIndex: index,
-  }
-}
-
-function parseIneffectiveFlowData(
-  lines: string[],
-  currentIndex: number,
-  expectedNumbers: number,
-): { data: { leftStation: number; rightStation: number; elevation: number }[]; nextIndex: number } {
-  const ineffectiveAreas: { leftStation: number; rightStation: number; elevation: number }[] = []
-  let index = currentIndex
-  let numbersFound = 0
-
-  while (numbersFound < expectedNumbers && index < lines.length) {
-    const line = lines[index]
-    if (
-      !line ||
-      line.trim() === "" ||
-      line.startsWith("#") ||
-      line.startsWith("Type ") ||
-      line.startsWith("River Reach") ||
-      line.startsWith("Connection ")
-    ) {
-      break
-    }
-
-    // Parse numbers from the line
-    const numbers = line
-      .trim()
-      .split(/\s+/)
-      .map((s) => parseFloat(s))
-      .filter((n) => !isNaN(n))
-
-    // Group numbers into left/right/elevation triplets
-    for (let i = 0; i < numbers.length - 2; i += 3) {
-      if (numbersFound >= expectedNumbers) break
-      ineffectiveAreas.push({
-        leftStation: numbers[i],
-        rightStation: numbers[i + 1],
-        elevation: numbers[i + 2],
-      })
-      numbersFound += 3
-    }
-    index++
-  }
-
-  return {
-    data: ineffectiveAreas,
-    nextIndex: index,
-  }
-}
-
-function parseBlockedObstructionData(
-  lines: string[],
-  currentIndex: number,
-  expectedNumbers: number,
-): { data: { leftStation: number; rightStation: number; elevation: number }[]; nextIndex: number } {
-  const blockedObstructions: { leftStation: number; rightStation: number; elevation: number }[] = []
-  let index = currentIndex
-  let numbersFound = 0
-
-  while (numbersFound < expectedNumbers && index < lines.length) {
-    const line = lines[index]
-    if (
-      !line ||
-      line.trim() === "" ||
-      line.startsWith("#") ||
-      line.startsWith("Type ") ||
-      line.startsWith("River Reach") ||
-      line.startsWith("Connection ")
-    ) {
-      break
-    }
-
-    // Parse numbers from the line
-    const numbers = line
-      .trim()
-      .split(/\s+/)
-      .map((s) => parseFloat(s))
-      .filter((n) => !isNaN(n))
-
-    // Group numbers into left/right/elevation triplets
-    for (let i = 0; i < numbers.length - 2; i += 3) {
-      if (numbersFound >= expectedNumbers) break
-      blockedObstructions.push({
-        leftStation: numbers[i],
-        rightStation: numbers[i + 1],
-        elevation: numbers[i + 2],
-      })
-      numbersFound += 3
-    }
-    index++
-  }
-
-  return {
-    data: blockedObstructions,
     nextIndex: index,
   }
 }
