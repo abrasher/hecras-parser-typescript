@@ -1,7 +1,7 @@
-import { parseLineToCoordinates } from "../lineParsers"
 import type { StorageArea } from "../../models/geometry/storageArea"
 import { parseKeyValue, parseCommaSeparated } from "../atomic"
 import { parseMaybeFloat } from "../atomic"
+import { parseMultilineArray, arrayToCoordinates } from "../multiLineParsers"
 
 /**
  * Parses storage area data starting from a "Storage Area=" line
@@ -11,7 +11,8 @@ export function parseStorageAreaData(
   lines: string[],
   currentIndex: number,
 ): { data: StorageArea; nextIndex: number } {
-  if (!line.startsWith("Storage Area=")) throw new Error(`storageAreaParser was given a line it can't parse: ${line}`)
+  if (!line.startsWith("Storage Area="))
+    throw new Error(`storageAreaParser was given a line it can't parse: ${line}`)
 
   const { value } = parseKeyValue(line)
 
@@ -80,19 +81,25 @@ export function parseStorageAreaData(
     const currentLine = lines[index]
 
     if (currentLine.startsWith("Storage Area Surface Line=")) {
-      const { value: surfaceLineCount } = parseKeyValue(currentLine)
-      const numberOfPoints = parseInt(surfaceLineCount.trim())
-
-      // Surface line coordinates follow on subsequent lines
-      const coordinateLines = numberOfPoints // 1 coordinate pair per line
+      const { value: pointCount } = parseKeyValue(currentLine)
+      const numberOfPoints = parseInt(pointCount.trim())
       index++
 
-      for (let i = 0; i < coordinateLines && index < lines.length; i++) {
-        const coordLine = lines[index]
-        const coordinates = parseLineToCoordinates(coordLine)
-        storageAreaData.surfaceLine.push(...coordinates)
-        index++
-      }
+      const pointsPerEntry = 2
+      const { data, nextIndex } = parseMultilineArray({
+        width: 16,
+        maxWidth: 32,
+        numOfEntries: numberOfPoints * pointsPerEntry,
+        currentIndex: index,
+        lines,
+      })
+
+      const res = arrayToCoordinates(data)
+
+      storageAreaData.surfaceLine = res
+
+      index = nextIndex
+
       continue
     }
 
@@ -134,17 +141,23 @@ export function parseStorageAreaData(
     if (currentLine.startsWith("Storage Area 2D Points=")) {
       const { value: pointCount } = parseKeyValue(currentLine)
       const numberOfPoints = parseInt(pointCount.trim())
-
-      // 2D points follow on subsequent lines
-      const coordinateLines = Math.ceil(numberOfPoints / 2) // 2 coordinates per line
       index++
 
-      for (let i = 0; i < coordinateLines && index < lines.length; i++) {
-        const coordLine = lines[index]
-        const coordinates = parseLineToCoordinates(coordLine)
-        storageAreaData.points2D.push(...coordinates)
-        index++
-      }
+      const pointsPerEntry = 2
+      const { data, nextIndex } = parseMultilineArray({
+        width: 16,
+        maxWidth: 64,
+        numOfEntries: numberOfPoints * pointsPerEntry,
+        currentIndex: index,
+        lines,
+      })
+
+      const res = arrayToCoordinates(data)
+
+      storageAreaData.points2D = res
+
+      index = nextIndex
+
       continue
     }
 

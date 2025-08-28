@@ -55,8 +55,6 @@ export function parseConnectionData(
     if (currentLine.startsWith("Connection=")) {
       const { name, centroidX, centroidY } = parseConnectionDefinition(currentLine)
 
-      console.log(`Parsing connection: ${name} at (${centroidX}, ${centroidY})`)
-
       connection.name = name
       connection.centroidX = centroidX
       connection.centroidY = centroidY
@@ -193,7 +191,11 @@ function isConnectionLine(line: string): boolean {
 }
 
 // Basic connection property parsers
-function parseConnectionDefinition(line: string): { name: string; centroidX: number; centroidY: number } {
+function parseConnectionDefinition(line: string): {
+  name: string
+  centroidX: number
+  centroidY: number
+} {
   const { value } = parseKeyValue(line)
   const parts = parseCommaSeparated(value)
 
@@ -204,7 +206,10 @@ function parseConnectionDefinition(line: string): { name: string; centroidX: num
   }
 }
 
-function parseConnectionLine(lines: string[], startIndex: number): { data: Coordinate[]; nextIndex: number } {
+function parseConnectionLine(
+  lines: string[],
+  startIndex: number,
+): { data: Coordinate[]; nextIndex: number } {
   const headerLine = lines[startIndex]
   const { value } = parseKeyValue(headerLine)
   const numberOfCoordinates = parseInt(value.trim())

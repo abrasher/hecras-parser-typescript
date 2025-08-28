@@ -11,7 +11,6 @@ export interface BoundaryCondition {
   startPosition: Coordinate
   middlePosition: Coordinate
   endPosition: Coordinate
-  arc: number
   arcCoordinates: Coordinate[]
   textPosition: TextPosition
 }

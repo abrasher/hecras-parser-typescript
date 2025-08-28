@@ -12,32 +12,15 @@ import { parseGeometry } from "../src/parseGeometry"
 import { serializeGeometryString } from "../src/serializers"
 
 function main() {
-  console.log("=== Dingman 2D.g01 Round-trip Line-by-Line Comparison ===\n")
-
   try {
     // Read and parse the original file
     const originalContent = readFileSync("test/data/Dingman 2D.g01", "utf-8")
     const geometryData = parseGeometry(originalContent)
 
-    // Debug: Check parsed data structure
-    console.log(`Parsed ${geometryData.riverReaches.length} river reaches`)
-    console.log(`Parsed ${geometryData.storageAreas.length} storage areas`)
-    console.log(`Parsed ${geometryData.connections.length} connections`)
-
-    let totalCrossSections = 0
+    let _totalCrossSections = 0
     for (let i = 0; i < Math.min(3, geometryData.riverReaches.length); i++) {
       const reach = geometryData.riverReaches[i]
-      totalCrossSections += reach.crossSections.length
-      console.log(
-        `  ${reach.riverName}/${reach.reachName}: ${reach.crossSections.length} cross-sections, ${reach.coordinates.length}/${reach.coordinateCount} coords`,
-      )
-    }
-    console.log(`Total cross-sections in first 3 reaches: ${totalCrossSections}`)
-
-    // Check storage areas
-    if (geometryData.storageAreas.length > 0) {
-      const firstStorageArea = geometryData.storageAreas[0]
-      console.log(`First storage area: ${firstStorageArea.id}, ${firstStorageArea.points2D.length} 2D points`)
+      _totalCrossSections += reach.crossSections.length
     }
 
     const serializedContent = serializeGeometryString(geometryData)
@@ -45,14 +28,10 @@ function main() {
     // Save serialized output to file for examination
     const serializedOutputPath = "test/data/Dingman 2D.serialized.g01"
     writeFileSync(serializedOutputPath, serializedContent, "utf-8")
-    console.log(`Serialized output saved to: ${serializedOutputPath}\n`)
 
     // Normalize line endings and split into lines
     const originalLines = originalContent.replace(/\r\n/g, "\n").split("\n")
     const serializedLines = serializedContent.split("\n")
-
-    console.log(`Original file: ${originalLines.length} lines`)
-    console.log(`Serialized file: ${serializedLines.length} lines\n`)
 
     // Compare line by line until first difference
     const maxLines = Math.max(originalLines.length, serializedLines.length)

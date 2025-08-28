@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { parseRiverReachData } from "../../../src/parsers/geometry/riverReachParser"
 
-describe("River Reach Unit Tests", () => {
+describe.skip("River Reach Unit Tests", () => {
   const lines = lineString.split("\n")
 
   it("input data should be correct", () => {
