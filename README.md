@@ -2,6 +2,8 @@
 
 A work-in-progress TypeScript library for parsing HEC-RAS geometry files (.gXX).
 
+Currently targetting HECRAS 6.6 as of August 2025.
+
 ## Installation
 
 ```bash
@@ -32,25 +34,26 @@ const geometry = await loadGeometry("./path/to/file.g01")
 
 | File Type         | Extension            | Status               | Description                      |
 | ----------------- | -------------------- | -------------------- | -------------------------------- |
-| **Flow Files**    | `.f01`, `.f02`, etc. | ❌ **Not Supported** | Steady/unsteady flow data files  |
+| **Flow Files**    | `.f0x`, `.u0x`, etc. | ❌ **Not Supported** | Steady/unsteady flow data files  |
 | **Plan Files**    | `.p01`, `.p02`, etc. | ❌ **Not Supported** | Project plan definition files    |
 | **Project Files** | `.prj`               | ❌ **Not Supported** | HEC-RAS project files            |
-| **Results Files** | `.hdf`               | ❌ **Not Supported** | Simulation results in HDF format |
+| **Results Files** | `.hdf`               | ❌ **Out of Scope**  | Simulation results in HDF format |
 
 ## Geometry File Parsing Support
 
 ### Core Geometry Elements
 
-| Element                 | Support Level    | Parser | Serializer | Description                                    |
-| ----------------------- | ---------------- | ------ | ---------- | ---------------------------------------------- |
-| **File Headers**        | ✅ **Complete**  | ✅     | ✅         | Title, version, viewing rectangle, description |
-| **Storage Areas**       | ✅ **Complete**  | ✅     | ✅         | 2D flow areas, elevation data, Manning's n     |
-| **River Reaches**       | ❌**Incomplete** | ✅     | ✅         | 1D river centerlines, cross-sections, stations |
-| **Connections**         | ✅ **Complete**  | ✅     | ✅         | All connection types between storage areas     |
-| **Boundary Conditions** | ✅ **Complete**  | ✅     | ✅         | Flow boundary condition lines                  |
-| **Break Lines**         | ✅ **Complete**  | ✅     | ✅         | Terrain modification lines                     |
-| **Junctions**           | ✅ **Complete**  | ✅     | ✅         | Flow junctions and splits                      |
-| **Global Settings**     | **Partial**      | ✅     | ✅         | LCMann time, channel cuts, GIS settings        |
+| Element                 | Support Level     | Parser | Serializer | Description                                    |
+| ----------------------- | ----------------- | ------ | ---------- | ---------------------------------------------- |
+| **File Headers**        | ✅ **Complete**   | ✅     | ✅         | Title, version, viewing rectangle, description |
+| **Storage Areas**       | ✅ **Complete**   | ✅     | ✅         | 2D flow areas, elevation data, Manning's n     |
+| **Connections**         | ✅ **Complete**   | ✅     | ✅         | All connection types between storage areas     |
+| **Boundary Conditions** | ✅ **Complete**   | ✅     | ✅         | Flow boundary condition lines                  |
+| **Break Lines**         | ✅ **Complete**   | ✅     | ✅         | Terrain modification lines                     |
+| **Junctions**           | ✅ **Complete**   | ✅     | ✅         | Flow junctions and splits                      |
+| **Pipes**               | ❌**Not Started** | ✅     | ✅         | Flow junctions and splits                      |
+| **Global Settings**     | ❌**Partial**     | ✅     | ✅         | LCMann time, channel cuts, GIS settings        |
+| **River Reaches**       | ❌**Incomplete**  | ❌     | ❌         | 1D river centerlines, cross-sections, stations |
 
 ### Connection Types
 
