@@ -12,8 +12,6 @@ import { parseGeometry } from "../src/parseGeometry"
 import { serializeGeometryString } from "../src/serializers"
 
 function main() {
-  console.log("=== Dingman 2D.g01 Round-trip Line-by-Line Comparison ===\n")
-
   try {
     // Read and parse the original file
     const originalContent = readFileSync("test/data/Dingman 2D.g01", "utf-8")
@@ -25,27 +23,15 @@ function main() {
       _totalCrossSections += reach.crossSections.length
     }
 
-    // Check storage areas
-    if (geometryData.storageAreas.length > 0) {
-      const firstStorageArea = geometryData.storageAreas[0]
-      console.log(
-        `First storage area: ${firstStorageArea.id}, ${firstStorageArea.points2D.length} 2D points`,
-      )
-    }
-
     const serializedContent = serializeGeometryString(geometryData)
 
     // Save serialized output to file for examination
     const serializedOutputPath = "test/data/Dingman 2D.serialized.g01"
     writeFileSync(serializedOutputPath, serializedContent, "utf-8")
-    console.log(`Serialized output saved to: ${serializedOutputPath}\n`)
 
     // Normalize line endings and split into lines
     const originalLines = originalContent.replace(/\r\n/g, "\n").split("\n")
     const serializedLines = serializedContent.split("\n")
-
-    console.log(`Original file: ${originalLines.length} lines`)
-    console.log(`Serialized file: ${serializedLines.length} lines\n`)
 
     // Compare line by line until first difference
     const maxLines = Math.max(originalLines.length, serializedLines.length)
