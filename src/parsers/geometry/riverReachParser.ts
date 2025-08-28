@@ -1,9 +1,4 @@
-import {
-  chunkStringToStrings,
-  parseCommaSeparated,
-  parseKeyValue,
-  parseValueAsCSV,
-} from "../atomic"
+import { chunkStringToStrings, parseKeyValue, parseValueAsCSV } from "../atomic"
 import type { RiverReach, CrossSection, CrossSectionType } from "../../models/geometry/riverReach"
 import { parseMultilineArray, arrayToCoordinates, arrayToNumberPairs } from "../multiLineParsers"
 
@@ -52,7 +47,7 @@ export function parseRiverReachData(
     }
 
     if (currentLine.startsWith("River Reach=")) {
-      const [riverName, reachName] = parseCommaSeparated(currentLine).map((s) => s.trim())
+      const [riverName, reachName] = parseValueAsCSV(currentLine).map((s) => s.trim())
       riverReach.riverName = riverName
       riverReach.reachName = reachName
       index++
@@ -108,8 +103,7 @@ function parseCrossSection(
   currentIndex: number,
 ): { data: CrossSection; nextIndex: number } {
   const line = lines[currentIndex]
-  const { value } = parseKeyValue(line)
-  const parts = parseCommaSeparated(value)
+  const parts = parseValueAsCSV(line)
 
   const crossSection: CrossSection = {
     type: parseInt(parts[0]) as CrossSectionType,
@@ -165,29 +159,25 @@ function parseCrossSection(
       index++
     }
     if (currentLine.startsWith("XS Rating Curve=")) {
-      const { value } = parseKeyValue(currentLine)
-      const ratingParts = parseCommaSeparated(value)
+      const ratingParts = parseValueAsCSV(currentLine)
       crossSection.ratingCurveType = parseInt(ratingParts[0])
       crossSection.ratingCurveValue = parseInt(ratingParts[1])
       index++
     }
     if (currentLine.startsWith("XS HTab Starting El and Incr=")) {
-      const { value } = parseKeyValue(currentLine)
-      const htabParts = parseCommaSeparated(value)
+      const htabParts = parseValueAsCSV(currentLine)
       crossSection.htabStartingElevation = parseFloat(htabParts[0])
       crossSection.htabIncrement = parseFloat(htabParts[1])
       crossSection.htabCount = parseInt(htabParts[2])
       index++
     }
     if (currentLine.startsWith("XS HTab Horizontal Distribution=")) {
-      const { value } = parseKeyValue(currentLine)
-      const distribution = parseCommaSeparated(value)
+      const distribution = parseValueAsCSV(currentLine)
       crossSection.htabHorizontalDistribution = distribution.map((d) => parseInt(d))
       index++
     }
     if (currentLine.startsWith("Exp/Cntr=")) {
-      const { value } = parseKeyValue(currentLine)
-      const expCntr = parseCommaSeparated(value)
+      const expCntr = parseValueAsCSV(currentLine)
       crossSection.expansionContractionCoefficients = {
         expansion: parseFloat(expCntr[0]),
         contraction: parseFloat(expCntr[1]),
@@ -208,7 +198,8 @@ function parseCrossSection(
       })
       crossSection.stationElevation = arrayToNumberPairs(data, 2)
       index = nextIndex
-    } else if (currentLine.startsWith("#Mann=")) {
+    }
+    if (currentLine.startsWith("#Mann=")) {
       const numberOfValues = parseInt(parseKeyValue(currentLine).value)
       index++
 
@@ -222,40 +213,51 @@ function parseCrossSection(
       })
       crossSection.manningValues = arrayToNumberPairs(data, 3)
       index = nextIndex
-    } else if (currentLine.startsWith("#XS Ineff=")) {
-      const { value } = parseKeyValue(currentLine)
-      const parts = parseCommaSeparated(value)
-      const ineffectiveCount = parseInt(parts[0])
-      crossSection.ineffectiveCount = ineffectiveCount
+    }
+    if (currentLine.startsWith("#XS Ineff=")) {
+      const [numIneff, _flag] = parseValueAsCSV(currentLine)
       index++
 
-      // Parse ineffective flow areas from following lines
-      const ineffectiveData = parseIneffectiveFlowData(lines, index, ineffectiveCount * 3) // Each area has left + right + elevation
-      crossSection.ineffectiveFlowAreas = ineffectiveData.data
-      index = ineffectiveData.nextIndex
+      const numberOfValues = parseInt(numIneff)
+
+      const pointsPerEntry = 3
+      const { data, nextIndex } = parseMultilineArray({
+        width: 8,
+        maxWidth: 72,
+        numOfEntries: numberOfValues * pointsPerEntry,
+        currentIndex: index,
+        lines,
+      })
+      crossSection.ineffectiveFlowAreas = arrayToNumberPairs(data, 3) as [number, number, number][]
+      index = nextIndex
     }
     if (currentLine.startsWith("#Block Obstruct=")) {
-      const { value } = parseKeyValue(currentLine)
-      const parts = parseCommaSeparated(value)
-      const blockedCount = parseInt(parts[0])
-      crossSection.blockedObstructionCount = blockedCount
+      const numberOfValues = parseInt(parseKeyValue(currentLine).value)
       index++
 
-      // Parse blocked obstructions from following lines
-      const blockedData = parseBlockedObstructionData(lines, index, blockedCount * 3) // Each obstruction has left + right + elevation
-      crossSection.blockedObstructions = blockedData.data
-      index = blockedData.nextIndex
-    }
-    if (currentLine.startsWith("Permanent Ineff=")) {
+      const pointsPerEntry = 3
+      const { data, nextIndex } = parseMultilineArray({
+        width: 8,
+        maxWidth: 72,
+        numOfEntries: numberOfValues * pointsPerEntry,
+        currentIndex: index,
+        lines,
+      })
+      crossSection.blockedObstructions = arrayToNumberPairs(data, 3) as [number, number, number][]
+      index = nextIndex
+    } else if (currentLine.startsWith("Permanent Ineff=")) {
       const nextLine = lines[index + 1]
       const permAreas = chunkStringToStrings(nextLine, 8).map((s) => s.trim() === "T")
 
       crossSection.permanentIneffective = permAreas
-      index++
-    }
-    if (currentLine.startsWith("Skew Angle=")) {
+      index += 2
+    } else if (currentLine.startsWith("Skew Angle=")) {
       const { value } = parseKeyValue(currentLine)
       crossSection.skewAngle = parseFloat(value.trim())
+      index++
+    } else {
+      // If we don't recognize the line, skip it to avoid infinite loop
+      console.error(`Unrecognized cross-section line: ${currentLine}`)
       index++
     }
   }

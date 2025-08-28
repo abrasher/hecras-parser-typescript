@@ -1,4 +1,5 @@
 import type { Coordinate } from "./common"
+import type { UpstreamDownstreamValue } from "./general"
 
 export enum CrossSectionType {
   NORMAL = 1,
@@ -32,10 +33,9 @@ export interface CrossSection {
   lastEditedTime?: string
   stationElevation: number[][]
   manningValues?: number[][]
-  ineffectiveFlowAreas?: IneffectiveFlowArea[]
-  ineffectiveCount?: number
+  ineffectiveFlowAreas?: [upstreamStn: number, downstreamStn: number, elevation: number][]
   permanentIneffective?: boolean[]
-  blockedObstructions?: BlockedObstruction[]
+  blockedObstructions?: UpstreamDownstreamValue[]
   blockedObstructionCount?: number
   skewAngle?: number
   leftBankStation?: number
