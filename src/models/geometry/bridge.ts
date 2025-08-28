@@ -8,7 +8,7 @@ export interface BridgeConnection {
   bridge: BridgeConfiguration
   pressureWeir?: PressureWeirData
   deckParameters: DeckParameters
-  bridgeCoefficients: BridgeCoefficients
+  bridgeCoefficients?: BridgeCoefficients
   bridgeSkew?: number | null
   insideUpstreamCrossSection: BridgeCrossSection
   insideDownstreamCrossSection: BridgeCrossSection
@@ -57,11 +57,11 @@ export interface BridgeConfiguration {
 }
 
 export interface PressureWeirData {
-  value1: number
+  value1: number | null
   value2: number | null
-  value3: number
+  value3: number | null
   value4: number | null
-  value5: number
+  value5: number | null
 }
 
 export interface DeckParameters {
@@ -113,7 +113,7 @@ export interface BridgeCrossSection {
   id: number
   points: [number, number][]
   bankStations: BankStations
-  manningCoefficients: ManningCoefficients[]
+  manningCoefficients: [number, number][]
 }
 
 export interface IneffectiveFlowArea {

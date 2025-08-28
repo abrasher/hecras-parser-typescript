@@ -21,8 +21,6 @@ import { chunk } from "es-toolkit"
 export function serializeBridgeConnection(bridge: BridgeConnection): string[] {
   const lines: string[] = []
 
-  console.log("Serializing bridge connection:", bridge)
-
   // 1. Bridge configuration
   lines.push(...serializeBridgeConfiguration(bridge.bridge))
 
@@ -45,7 +43,7 @@ export function serializeBridgeConnection(bridge: BridgeConnection): string[] {
     }
   }
 
-  // 6. Bridge coefficients
+  // 6. Bridge coefficients (return if any)
   lines.push(...serializeBridgeCoefficients(bridge.bridgeCoefficients))
 
   // 7. Bridge skew (only if not default value of 0)
@@ -219,8 +217,10 @@ export function serializeBridgeCrossSection(
 
   // Station-elevation points (8 chars each, 5 pairs per line)
   const stationElevationData: number[] = []
-  for (const [x, y] of section.points) {
-    stationElevationData.push(x, y)
+  if (section.points && Array.isArray(section.points)) {
+    for (const [x, y] of section.points) {
+      stationElevationData.push(x, y)
+    }
   }
 
   chunk(stationElevationData, 10).forEach((dataGroup) => {
@@ -231,19 +231,19 @@ export function serializeBridgeCrossSection(
   })
 
   // Bank stations
-  const leftBank = isNaN(section.bankStations.leftBank) ? "" : section.bankStations.leftBank
-  const rightBank = isNaN(section.bankStations.rightBank) ? "" : section.bankStations.rightBank
-  lines.push(
-    `Conn BR: ${prefix} Bank Stations=${section.bankStations.sectionId},${leftBank},${rightBank}`,
-  )
+  if (section.bankStations) {
+    const leftBank = isNaN(section.bankStations.leftBank) ? "" : section.bankStations.leftBank
+    const rightBank = isNaN(section.bankStations.rightBank) ? "" : section.bankStations.rightBank
+    lines.push(
+      `Conn BR: ${prefix} Bank Stations=${section.bankStations.sectionId},${leftBank},${rightBank}`,
+    )
+  }
 
   // Manning coefficients
-  lines.push(`Conn BR: ${prefix} Mann=${section.id},${section.manningCoefficients.length}`)
+  const manningCoefficients = section.manningCoefficients || []
+  lines.push(`Conn BR: ${prefix} Mann=${section.id},${manningCoefficients.length}`)
 
-  const manningData: number[] = []
-  for (const manning of section.manningCoefficients) {
-    manningData.push(manning.station, manning.nValue)
-  }
+  const manningData = manningCoefficients.flat()
 
   chunk(manningData, 10).forEach((dataGroup) => {
     const formattedLine = dataGroup
@@ -258,7 +258,12 @@ export function serializeBridgeCrossSection(
 /**
  * Serialize bridge coefficients to HEC-RAS format
  */
-export function serializeBridgeCoefficients(coefficients: BridgeCoefficients): string[] {
+export function serializeBridgeCoefficients(
+  coefficients: BridgeCoefficients | undefined,
+): string[] {
+  if (!coefficients) {
+    return []
+  }
   const coef1 = coefficients.coef1 === 1 ? " 1 " : "-1 "
   const values = [
     coef1, // Add space after first coefficient

@@ -132,7 +132,6 @@ export function serializeConnection(connection: Connection): string[] {
 
   // 15. Bridge connection data
   if (connection.bridge) {
-    console.log("Serializing bridge connection:", connection.name)
     lines.push(...serializeBridgeConnection(connection.bridge))
   }
 

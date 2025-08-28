@@ -103,11 +103,15 @@ export function serializeStorageArea(storageArea: StorageArea): string[] {
   }
 
   if (storageArea.faceAreaElevationProfileFilterTolerance !== null) {
-    lines.push(`2D Face Area Elevation Profile Filter Tolerance=${storageArea.faceAreaElevationProfileFilterTolerance}`)
+    lines.push(
+      `2D Face Area Elevation Profile Filter Tolerance=${storageArea.faceAreaElevationProfileFilterTolerance}`,
+    )
   }
 
   if (storageArea.faceAreaElevationConveyanceRatio !== null) {
-    lines.push(`2D Face Area Elevation Conveyance Ratio=${storageArea.faceAreaElevationConveyanceRatio}`)
+    lines.push(
+      `2D Face Area Elevation Conveyance Ratio=${storageArea.faceAreaElevationConveyanceRatio}`,
+    )
   }
 
   if (storageArea.faceMinLengthRatio !== null) {
@@ -129,7 +133,7 @@ export function serializeStorageArea(storageArea: StorageArea): string[] {
   if (storageArea.locked !== null) {
     lines.push(`2D Locked=${storageArea.locked}`)
     // Add extra blank line after 2D Locked - these have an extra line, not sure if it is intentional or not.
-    lines.push("")
+    // lines.push("")
   }
 
   return lines

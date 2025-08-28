@@ -15,7 +15,6 @@ import type {
   BridgeCoefficients,
   IneffectiveFlowArea,
   BankStations,
-  ManningCoefficients,
   BridgePier,
 } from "../../models/geometry/bridge"
 import { parseMaybeFloat } from "../atomic"
@@ -43,7 +42,6 @@ export function parseBridgeData(
     insideDownstreamCrossSection: {} as BridgeCrossSection,
     externalUpstreamCrossSection: {} as BridgeCrossSection,
     externalDownstreamCrossSection: {} as BridgeCrossSection,
-    bridgeCoefficients: {} as BridgeCoefficients,
     upstreamIneffectiveFlowArea: {} as IneffectiveFlowArea,
     downstreamIneffectiveFlowArea: {} as IneffectiveFlowArea,
     piers: [],
@@ -126,14 +124,14 @@ function parseBridgeConfiguration(line: string): BridgeConfiguration {
 
 function parsePressureWeir(line: string): PressureWeirData {
   const { value } = parseKeyValue(line)
-  const parts = parseCommaSeparated(value)
+  const [value1, value2, value3, value4, value5] = parseCommaSeparated(value).map(parseMaybeFloat)
 
   return {
-    value1: parseFloat(parts[0]),
-    value2: parts[1] === "" ? null : parseFloat(parts[1]),
-    value3: parseFloat(parts[2]),
-    value4: parts[3] === "" ? null : parseFloat(parts[3]),
-    value5: parseFloat(parts[4]),
+    value1,
+    value2,
+    value3,
+    value4,
+    value5,
   }
 }
 
@@ -426,41 +424,27 @@ function parseBankStations(line: string): BankStations {
 function parseManningCoefficients(
   lines: string[],
   startIndex: number,
-): { data: ManningCoefficients[]; nextIndex: number } {
-  // Parse the Manning's header line to get the count: "Conn BR: BR Mann=X,Y" where Y is count
+): { data: [number, number][]; nextIndex: number } {
   const headerLine = lines[startIndex]
-  const { value } = parseKeyValue(headerLine)
-  const parts = parseCommaSeparated(value)
-  const coefficientCount = parseInt(parts[1])
 
-  // If count is 0, no data line follows - just return empty data
-  if (coefficientCount === 0) {
-    return {
-      data: [],
-      nextIndex: startIndex + 1, // Next line after the header
-    }
-  }
+  const [_id, numberOfPoints] = parseValueAsCSV(headerLine).map((s) => parseInt(s))
 
-  // Count > 0: parse the data line
-  let index = startIndex + 1
-  const dataLine = lines[index]
-  const nums = chunkStringToNumbers(dataLine, 8)
+  const index = startIndex + 1
 
-  const values: ManningCoefficients[] = []
-  for (let i = 0; i < nums.length; i += 2) {
-    if (i + 1 < nums.length) {
-      values.push({
-        station: nums[i],
-        nValue: nums[i + 1],
-      })
-    }
-  }
+  const pointsPerEntry = 2
+  const { data, nextIndex } = parseMultilineArray({
+    width: 8,
+    maxWidth: 80,
+    numOfEntries: numberOfPoints * pointsPerEntry,
+    currentIndex: index,
+    lines,
+  })
 
-  index++
+  const points = arrayToNumberPairs(data, 2)
 
   return {
-    data: values,
-    nextIndex: index,
+    data: points,
+    nextIndex,
   }
 }
 
