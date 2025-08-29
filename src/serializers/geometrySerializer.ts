@@ -10,6 +10,8 @@ import { serializeBreakLine } from "./geometry/breakLineSerializer"
 import { serializeJunction } from "./geometry/junctionSerializer"
 import { serializeRiverReach } from "./geometry/riverReachSerializer"
 import { appendLines } from "./utils/safeArrayUtils"
+import { serializeICPoints } from "./geometry/icPointSerializer"
+import { serializeLandCover } from "./geometry/landCoverSerializer"
 
 /**
  * Serialize complete HEC-RAS geometry to text format
@@ -55,16 +57,10 @@ export function serializeGeometry(geometry: HECRASGeometry): string[] {
     appendLines(lines, serializeBoundaryCondition(boundaryCondition))
   }
 
-  // 8. Serialize global settings (appear at end of file)
-  if (geometry.lcmannTime !== undefined) {
-    lines.push(`LCMann Time=${geometry.lcmannTime}`)
-  }
-  if (geometry.lcmannRegionTime !== undefined) {
-    lines.push(`LCMann Region Time=${geometry.lcmannRegionTime}`)
-  }
-  if (geometry.lcmannTable !== undefined) {
-    lines.push(`LCMann Table=${geometry.lcmannTable}`)
-  }
+  appendLines(lines, serializeICPoints(geometry.icPoints))
+
+  // 9. Serialize global settings (appear at end of file)
+  appendLines(lines, serializeLandCover(geometry.landCover))
   if (geometry.chanStopCuts !== undefined) {
     lines.push(`Chan Stop Cuts=${geometry.chanStopCuts} `)
   }

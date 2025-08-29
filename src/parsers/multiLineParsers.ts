@@ -45,6 +45,29 @@ export function parseMultilineArray({
   return { data, nextIndex: lineIndex }
 }
 
+export function parseMultilineCSV({
+  lines,
+  currentIndex,
+  numberOfLines,
+}: {
+  lines: string[]
+  currentIndex: number
+  numberOfLines: number
+}): { data: string[][]; nextIndex: number } {
+  const data = new Array(numberOfLines)
+
+  let lineIndex = currentIndex
+  for (let i = 0; i < numberOfLines; i++) {
+    const line = lines[lineIndex]
+    const parts = line.split(",")
+
+    data[i] = parts.map((part) => part.trim())
+    lineIndex++
+  }
+
+  return { data, nextIndex: lineIndex }
+}
+
 function chunkToObjects<T, K extends string>(arr: T[], keys: readonly K[]): { [P in K]: T }[] {
   const result: { [P in K]: T }[] = []
   const keyCount = keys.length

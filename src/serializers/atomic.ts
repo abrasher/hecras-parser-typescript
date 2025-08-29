@@ -14,7 +14,11 @@ import type { Coordinate } from "../models/geometry/common"
  * @param separator Separator character (default: "=")
  * @returns Formatted key=value string, or empty string if value is undefined
  */
-export function formatKeyValue(key: string, value: string | number | undefined, separator: string = "="): string {
+export function formatKeyValue(
+  key: string,
+  value: string | number | undefined,
+  separator: string = "=",
+): string {
   if (value === undefined) return ""
   return `${key}${separator}${value}`
 }
@@ -74,8 +78,13 @@ export function formatNumbersToChunks(numbers: number[], chunkWidth: number): st
  * @param chunkWidth Width of each number field in characters
  * @returns Fixed-width formatted string with blank spaces for null values
  */
-export function formatNumbersOrNullToChunks(numbers: (number | null)[], chunkWidth: number): string {
-  return numbers.map((num) => (num === null ? " ".repeat(chunkWidth) : formatFixedWidth(num, chunkWidth))).join("")
+export function formatNumbersOrNullToChunks(
+  numbers: (number | null)[],
+  chunkWidth: number,
+): string {
+  return numbers
+    .map((num) => (num === null ? " ".repeat(chunkWidth) : formatFixedWidth(num, chunkWidth)))
+    .join("")
 }
 
 /**
@@ -107,7 +116,10 @@ export function formatCoordinateLines(coordinates: Coordinate[]): string[] {
   return lines
 }
 
-export function formatMaybeNullorUndefined(value: number | null | undefined, nullReturnValue: string = ""): string {
+export function formatMaybeNullorUndefined(
+  value: number | null | undefined,
+  nullReturnValue: string = "",
+): string {
   if (value === null) return nullReturnValue
   if (value === undefined) return ""
   return value.toString()

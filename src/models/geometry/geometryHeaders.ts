@@ -4,6 +4,8 @@ import type { BoundaryCondition } from "./boundaryCondition"
 import type { RiverReach } from "./riverReach"
 import type { BreakLine } from "./breakLine"
 import type { JunctionProperties } from "./junction"
+import type { ICPoint } from "./icPoint"
+import type { LandCover } from "./landCover"
 
 export interface ViewingRectangle {
   left: number
@@ -23,6 +25,8 @@ export interface HECRASGeometry {
   riverReaches: RiverReach[]
   breakLines: BreakLine[]
   junctions: JunctionProperties[]
+  icPoints?: ICPoint[]
+
   rasterPath?: string
   units?: string
   dtmType?: string
@@ -33,9 +37,7 @@ export interface HECRASGeometry {
   datum?: string
 
   // Global settings (appear at end of file)
-  lcmannTime?: string // "LCMann Time="
-  lcmannRegionTime?: string // "LCMann Region Time="
-  lcmannTable?: number // "LCMann Table="
+  landCover: LandCover
   chanStopCuts?: number // "Chan Stop Cuts="
   useUserSpecifiedReachOrder?: number // "Use User Specified Reach Order="
   gisRatioCutsToInvert?: number // "GIS Ratio Cuts To Invert="

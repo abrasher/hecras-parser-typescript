@@ -7,6 +7,9 @@ import { parseConnectionData } from "./parsers/geometry/connectionParser"
 import { parseBoundaryConditionData } from "./parsers/geometry/boundaryConditionParser"
 import { parseBreakLine } from "./parsers/geometry/breakLineParser"
 import { parseJunctionData } from "./parsers/geometry/junctionParser"
+import { parseICPointsSection } from "./parsers/geometry/icPointParser"
+import { parseLandCoverData } from "./parsers/geometry/landCoverParser"
+import type { LandCover } from "./models/geometry/landCover"
 
 /**
  * Parse a complete HEC-RAS geometry file (.g01, .g02, etc.)
@@ -26,6 +29,7 @@ export function parseGeometry(content: string): HECRASGeometry {
     riverReaches: [],
     breakLines: [],
     junctions: [],
+    landCover: {} as LandCover,
   } as HECRASGeometry
 
   let index = 0
@@ -84,17 +88,18 @@ export function parseGeometry(content: string): HECRASGeometry {
         const result = parseJunctionData(line, lines, index)
         geometry.junctions.push(result.data)
         index = result.nextIndex
+      } else if (line.startsWith("IC Point Name=")) {
+        const { data, nextIndex } = parseICPointsSection(lines, index)
+        geometry.icPoints = data
+        index = nextIndex
       }
       // Parse global settings (appear at end of file)
       else if (line.startsWith("LCMann Time=")) {
-        geometry.lcmannTime = line.split("=")[1]
-        index++
-      } else if (line.startsWith("LCMann Region Time=")) {
-        geometry.lcmannRegionTime = line.split("=")[1]
-        index++
-      } else if (line.startsWith("LCMann Table=")) {
-        geometry.lcmannTable = parseInt(line.split("=")[1])
-        index++
+        const { data, nextIndex } = parseLandCoverData(lines, index)
+
+        geometry.landCover = data
+
+        index = nextIndex
       } else if (line.startsWith("Chan Stop Cuts=")) {
         geometry.chanStopCuts = parseInt(line.split("=")[1])
         index++

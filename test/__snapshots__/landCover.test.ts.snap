@@ -1,0 +1,252 @@
+// Vitest Snapshot v1, https://vitest.dev/guide/snapshot.html
+
+exports[`Land Cover > should match snapshots 1`] = `
+{
+  "lastEdited": "Dec-30-1899 00:00:00",
+  "lastEditedRegion": "Dec-30-1899 00:00:00",
+  "regions": [
+    {
+      "name": "Manning's Region 1",
+      "polygon": [
+        [
+          277387.661780033,
+          5274662.1779326,
+        ],
+        [
+          277387.661780033,
+          5274657.1779326,
+        ],
+        [
+          277386.661780033,
+          5274657.1779326,
+        ],
+        [
+          277386.661780033,
+          5274656.1779326,
+        ],
+        [
+          277333.661780033,
+          5274578.1779326,
+        ],
+        [
+          277333.661780033,
+          5274576.1779326,
+        ],
+        [
+          277332.661780033,
+          5274576.1779326,
+        ],
+        [
+          277332.661780033,
+          5274575.1779326,
+        ],
+        [
+          277316.661780033,
+          5274565.1779326,
+        ],
+        [
+          277316.661780033,
+          5274564.1779326,
+        ],
+        [
+          277387.661780033,
+          5274662.1779326,
+        ],
+      ],
+      "table": [
+        [
+          "NoData",
+          0.05,
+        ],
+        [
+          "Developed - High Intensity",
+          0.05,
+        ],
+        [
+          "Developed - Low Intensity",
+          0.05,
+        ],
+        [
+          "Unclassified",
+          0.05,
+        ],
+        [
+          "Developed - Medium Intensity",
+          0.05,
+        ],
+        [
+          "Pasture-Hay",
+          0.05,
+        ],
+        [
+          "Cultivated Crops",
+          0.05,
+        ],
+        [
+          "Developed - Open Space",
+          0.05,
+        ],
+        [
+          "Grassland-Herbaceous",
+          0.05,
+        ],
+      ],
+    },
+    {
+      "name": "Manning's Region 2",
+      "polygon": [
+        [
+          277504.661780033,
+          5274275.1779326,
+        ],
+        [
+          277503.661780033,
+          5274275.1779326,
+        ],
+        [
+          277503.661780033,
+          5274277.1779326,
+        ],
+        [
+          277502.661780033,
+          5274277.1779326,
+        ],
+        [
+          277502.661780033,
+          5274276.1779326,
+        ],
+        [
+          277501.661780033,
+          5274276.1779326,
+        ],
+      ],
+      "table": [
+        [
+          "NoData",
+          0.05,
+        ],
+        [
+          "Developed - High Intensity",
+          0.05,
+        ],
+        [
+          "Developed - Low Intensity",
+          0.05,
+        ],
+        [
+          "Unclassified",
+          0.05,
+        ],
+        [
+          "Developed - Medium Intensity",
+          0.05,
+        ],
+        [
+          "Pasture-Hay",
+          0.05,
+        ],
+        [
+          "Cultivated Crops",
+          0.05,
+        ],
+        [
+          "Developed - Open Space",
+          0.05,
+        ],
+        [
+          "Grassland-Herbaceous",
+          0.05,
+        ],
+      ],
+    },
+  ],
+  "table": [
+    [
+      "NoData",
+      0.05,
+    ],
+    [
+      "Developed - High Intensity",
+      0.05,
+    ],
+    [
+      "Developed - Low Intensity",
+      0.05,
+    ],
+    [
+      "Unclassified",
+      0.05,
+    ],
+    [
+      "Developed - Medium Intensity",
+      0.05,
+    ],
+    [
+      "Pasture-Hay",
+      0.05,
+    ],
+    [
+      "Cultivated Crops",
+      0.05,
+    ],
+    [
+      "Developed - Open Space",
+      0.05,
+    ],
+    [
+      "Grassland-Herbaceous",
+      0.05,
+    ],
+  ],
+}
+`;
+
+exports[`Land Cover > should match snapshots 2`] = `
+[
+  "LCMann Time=Dec-30-1899 00:00:00",
+  "LCMann Region Time=Dec-30-1899 00:00:00",
+  "LCMann Table=9",
+  "NoData,0.05",
+  "Developed - High Intensity,0.05",
+  "Developed - Low Intensity,0.05",
+  "Unclassified,0.05",
+  "Developed - Medium Intensity,0.05",
+  "Pasture-Hay,0.05",
+  "Cultivated Crops,0.05",
+  "Developed - Open Space,0.05",
+  "Grassland-Herbaceous,0.05",
+  "LCMann Region Name=Manning's Region 1",
+  "LCMann Region Table=9",
+  "NoData,0.05",
+  "Developed - High Intensity,0.05",
+  "Developed - Low Intensity,0.05",
+  "Unclassified,0.05",
+  "Developed - Medium Intensity,0.05",
+  "Pasture-Hay,0.05",
+  "Cultivated Crops,0.05",
+  "Developed - Open Space,0.05",
+  "Grassland-Herbaceous,0.05",
+  "LCMann Region Polygon=11",
+  "277387.661780033 5274662.1779326277387.661780033 5274657.1779326",
+  "277386.661780033 5274657.1779326277386.661780033 5274656.1779326",
+  "277333.661780033 5274578.1779326277333.661780033 5274576.1779326",
+  "277332.661780033 5274576.1779326277332.661780033 5274575.1779326",
+  "277316.661780033 5274565.1779326277316.661780033 5274564.1779326",
+  "277387.661780033 5274662.1779326",
+  "LCMann Region Name=Manning's Region 2",
+  "LCMann Region Table=9",
+  "NoData,0.05",
+  "Developed - High Intensity,0.05",
+  "Developed - Low Intensity,0.05",
+  "Unclassified,0.05",
+  "Developed - Medium Intensity,0.05",
+  "Pasture-Hay,0.05",
+  "Cultivated Crops,0.05",
+  "Developed - Open Space,0.05",
+  "Grassland-Herbaceous,0.05",
+  "LCMann Region Polygon=6",
+  "277504.661780033 5274275.1779326277503.661780033 5274275.1779326",
+  "277503.661780033 5274277.1779326277502.661780033 5274277.1779326",
+  "277502.661780033 5274276.1779326277501.661780033 5274276.1779326",
+]
+`;

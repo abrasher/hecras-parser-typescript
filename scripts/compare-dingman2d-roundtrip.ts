@@ -30,6 +30,7 @@ function testGeometry(testFilePath: string) {
     const serializedLines = serializedContent.split("\n")
 
     console.log(
+      `\nComparing files: \n  "${testFilePath}" \n  "${serializedOutputPath}"\n`,
       `Original lines: ${originalLines.length}\nSerialized lines: ${serializedLines.length}`,
     )
 
@@ -69,3 +70,4 @@ testGeometry("scripts/geometries/Mitigation7.g07")
 testGeometry("scripts/geometries/Mitigation8.g08")
 testGeometry("scripts/geometries/Mitigation9.g09")
 testGeometry("scripts/geometries/Mitigation10.g10")
+testGeometry("test/data/BurntIslands.g01")

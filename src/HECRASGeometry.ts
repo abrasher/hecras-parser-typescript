@@ -12,6 +12,8 @@ export class HECRASGeometry implements IHECRASGeometry {
   riverReaches: IHECRASGeometry["riverReaches"]
   breakLines: IHECRASGeometry["breakLines"]
   junctions: IHECRASGeometry["junctions"]
+  icPoints?: IHECRASGeometry["icPoints"]
+  landCover: IHECRASGeometry["landCover"]
   rasterPath?: string
   units?: string
   dtmType?: string
@@ -48,9 +50,7 @@ export class HECRASGeometry implements IHECRASGeometry {
     this.xsCutLineLayer = data.xsCutLineLayer
     this.projection = data.projection
     this.datum = data.datum
-    this.lcmannTime = data.lcmannTime
-    this.lcmannRegionTime = data.lcmannRegionTime
-    this.lcmannTable = data.lcmannTable
+    this.landCover = data.landCover
     this.chanStopCuts = data.chanStopCuts
     this.useUserSpecifiedReachOrder = data.useUserSpecifiedReachOrder
     this.gisRatioCutsToInvert = data.gisRatioCutsToInvert
@@ -80,7 +80,9 @@ export class HECRASGeometry implements IHECRASGeometry {
       const content = this.save()
       await writeFile(filePath, content, "utf-8")
     } catch (error) {
-      throw new Error(`Failed to save file: ${error instanceof Error ? error.message : String(error)}`)
+      throw new Error(
+        `Failed to save file: ${error instanceof Error ? error.message : String(error)}`,
+      )
     }
   }
 
