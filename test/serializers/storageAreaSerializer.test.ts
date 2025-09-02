@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 import type { StorageArea } from "../../src/models/geometry/storageArea"
-import { serializeStorageArea, serializeStorageAreaString } from "../../src/serializers/geometry/storageAreaSerializer"
+import {
+  serializeStorageArea,
+  serializeStorageAreaString,
+} from "../../src/serializers/geometry/storageAreaSerializer"
 
 describe("StorageAreaSerializer", () => {
   describe("2D Storage Area (Dingman.g01)", () => {
@@ -77,7 +80,6 @@ describe("StorageAreaSerializer", () => {
       "2D Multiple Face Mann n=0",
       "2D Composite LC=0",
       "2D Locked=-1",
-      "",
     ]
 
     it("should serialize 2D storage area to array", () => {

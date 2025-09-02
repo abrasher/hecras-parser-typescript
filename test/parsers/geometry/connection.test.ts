@@ -248,7 +248,7 @@ describe("Connection parsing tests", () => {
       const section1 = connectionData.bridge!.insideUpstreamCrossSection
       expect(section1.id).toBe(1)
       expect(section1.points).toHaveLength(40)
-      expect(section1.points[0]).toEqual({ station: 0, elevation: 260.817 })
+      expect(section1.points[0]).toEqual([0, 260.817])
       expect(section1.bankStations.leftBank).toBe(2.043)
       expect(section1.bankStations.rightBank).toBe(17.92)
     })
@@ -280,7 +280,7 @@ describe("Connection parsing tests", () => {
       const xs1 = connectionData.bridge!.externalUpstreamCrossSection
       expect(xs1.id).toBe(1)
       expect(xs1.points).toHaveLength(32)
-      expect(xs1.points[0]).toEqual({ station: 0, elevation: 260.408 })
+      expect(xs1.points[0]).toEqual([0, 260.408])
     })
 
     it("should parse ineffective flow areas", () => {

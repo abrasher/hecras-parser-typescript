@@ -17,7 +17,7 @@ describe("Boundary Condition Unit Tests", () => {
 
       expect(bcData.data.name).toBe("S166")
       expect(bcData.data.storageArea).toBe("2D_Grid")
-      expect(bcData.data.arc).toBe(2)
+      expect(bcData.data.arcCoordinates.length).toBe(2)
     })
 
     it("should parse coordinate positions", () => {
@@ -67,7 +67,7 @@ describe("Boundary Condition Unit Tests", () => {
 
       expect(bcData.data.name).toBe("633_2")
       expect(bcData.data.storageArea).toBe("2D_Grid")
-      expect(bcData.data.arc).toBe(3)
+      expect(bcData.data.arcCoordinates.length).toBe(3)
     })
 
     it("should parse arc coordinates with 3 points", () => {
@@ -99,7 +99,7 @@ describe("Boundary Condition Unit Tests", () => {
 
       expect(bcData.data.name).toBe("S199")
       expect(bcData.data.storageArea).toBe("2D_Grid")
-      expect(bcData.data.arc).toBe(6)
+      expect(bcData.data.arcCoordinates.length).toBe(6)
     })
 
     it("should parse arc coordinates with 6 points", () => {
@@ -192,7 +192,6 @@ const testBoundaryConditions: BoundaryCondition[] = [
       x: 485810.819926863,
       y: 4751207.55626144,
     },
-    arc: 2,
     arcCoordinates: [
       {
         x: 485748.087453498,
@@ -223,7 +222,6 @@ const testBoundaryConditions: BoundaryCondition[] = [
       x: 484364.337900046,
       y: 4750216.17530629,
     },
-    arc: 3,
     arcCoordinates: [
       {
         x: 484415.211449923,
@@ -258,7 +256,6 @@ const testBoundaryConditions: BoundaryCondition[] = [
       x: 484718.06292799,
       y: 4750633.17418926,
     },
-    arc: 6,
     arcCoordinates: [
       {
         x: 484682.664690301,
