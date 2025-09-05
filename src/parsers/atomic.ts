@@ -176,3 +176,44 @@ export function parseMaybeFloat(value: string | undefined): number | null {
   const num = parseFloat(value)
   return isNaN(num) ? null : num
 }
+
+export const parseDurationLine = (line: string) => {
+  const value = parseKeyValue(line).value
+  return parseHECRASDuration(value)
+}
+
+/**
+ * Parse HEC-RAS duration string to total seconds
+ * @param value Duration string (e.g., "0.1SEC", "5MIN", "2HOUR", "1DAY","1YEAR")
+ * @returns Duration in total seconds
+ * @throws Error if format is invalid or unit is unknown
+ */
+export function parseHECRASDuration(value: string): number {
+  const durationRegex = /(\d+\.?\d*)\s*(SEC|MIN|HOUR|DAY|WEEK|MONTH|YEAR)/i
+  const match = value.match(durationRegex)
+  if (!match) {
+    throw new Error(`Invalid duration format: ${value}`)
+  }
+
+  const amount = parseFloat(match[1])
+  const unit = match[2]
+
+  switch (unit) {
+    case "SEC":
+      return amount
+    case "MIN":
+      return amount * 60
+    case "HOUR":
+      return amount * 3600
+    case "DAY":
+      return amount * 86400
+    case "WEEK":
+      return amount * 604800
+    case "MONTH":
+      return amount * 2592000
+    case "YEAR":
+      return amount * 31536000
+    default:
+      throw new Error(`Unknown duration unit: ${unit}`)
+  }
+}

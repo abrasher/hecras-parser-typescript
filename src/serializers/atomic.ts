@@ -169,3 +169,20 @@ export function formatDescriptionBlock(description: string): string[] {
   const lines = description.split("\n")
   return ["BEGIN DESCRIPTION:", ...lines, "END DESCRIPTION:"]
 }
+export function serializeHECRASDuration(seconds: number): string {
+  if (seconds < 60) {
+    return `${seconds}SEC`
+  } else if (seconds < 3600) {
+    return `${seconds / 60}MIN`
+  } else if (seconds < 86400) {
+    return `${seconds / 3600}HOUR`
+  } else if (seconds < 604800) {
+    return `${seconds / 86400}DAY`
+  } else if (seconds < 2592000) {
+    return `${seconds / 604800}WEEK`
+  } else if (seconds < 31536000) {
+    return `${seconds / 2592000}MONTH`
+  } else {
+    return `${seconds / 31536000}YEAR`
+  }
+}
