@@ -10,8 +10,8 @@ describe.skip("River Reach Cross-Section Serializer Tests", () => {
       reachName: "Test Reach",
       coordinateCount: 2,
       coordinates: [
-        { x: 483651.1529, y: 4753544.9142 },
-        { x: 483651.771, y: 4753544.1374 },
+        [483651.1529, 4753544.9142],
+        [483651.771, 4753544.1374],
       ],
       crossSections: [
         {
@@ -61,8 +61,8 @@ describe.skip("River Reach Cross-Section Serializer Tests", () => {
       reachName: "Test Reach",
       coordinateCount: 2,
       coordinates: [
-        { x: 483651.1529, y: 4753544.9142 },
-        { x: 483651.771, y: 4753544.1374 },
+        [483651.1529, 4753544.9142],
+        [483651.771, 4753544.1374],
       ],
       crossSections: [
         {

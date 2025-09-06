@@ -11,7 +11,9 @@ export function serializeJunction(junction: JunctionProperties): string[] {
   lines.push(`Junct Desc=${junction.description}`)
 
   // Coordinates line
-  const coordLine = `Junct X Y & Text X Y=${junction.coordinates.position.x},${junction.coordinates.position.y},${junction.coordinates.textPosition.x},${junction.coordinates.textPosition.y}`
+  const [px, py] = junction.coordinates.position
+  const [tx, ty] = junction.coordinates.textPosition
+  const coordLine = `Junct X Y & Text X Y=${px},${py},${tx},${ty}`
   lines.push(coordLine)
 
   // Upstream connections - with exact spacing

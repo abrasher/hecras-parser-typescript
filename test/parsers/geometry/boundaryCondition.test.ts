@@ -21,30 +21,15 @@ describe("Boundary Condition Unit Tests", () => {
     })
 
     it("should parse coordinate positions", () => {
-      expect(bcData.data.startPosition).toEqual({
-        x: 485748.087453498,
-        y: 4751198.7455208,
-      })
-      expect(bcData.data.middlePosition).toEqual({
-        x: 485779.453690181,
-        y: 4751203.15089112,
-      })
-      expect(bcData.data.endPosition).toEqual({
-        x: 485810.819926863,
-        y: 4751207.55626144,
-      })
+      expect(bcData.data.startPosition).toEqual([485748.087453498, 4751198.7455208])
+      expect(bcData.data.middlePosition).toEqual([485779.453690181, 4751203.15089112])
+      expect(bcData.data.endPosition).toEqual([485810.819926863, 4751207.55626144])
     })
 
     it("should parse arc coordinates", () => {
       expect(bcData.data.arcCoordinates).toHaveLength(2)
-      expect(bcData.data.arcCoordinates[0]).toEqual({
-        x: 485748.087453498,
-        y: 4751198.7455208,
-      })
-      expect(bcData.data.arcCoordinates[1]).toEqual({
-        x: 485810.819926863,
-        y: 4751207.55626144,
-      })
+      expect(bcData.data.arcCoordinates[0]).toEqual([485748.087453498, 4751198.7455208])
+      expect(bcData.data.arcCoordinates[1]).toEqual([485810.819926863, 4751207.55626144])
     })
 
     it("should parse text position", () => {
@@ -72,18 +57,9 @@ describe("Boundary Condition Unit Tests", () => {
 
     it("should parse arc coordinates with 3 points", () => {
       expect(bcData.data.arcCoordinates).toHaveLength(3)
-      expect(bcData.data.arcCoordinates[0]).toEqual({
-        x: 484415.211449923,
-        y: 4750224.91492707,
-      })
-      expect(bcData.data.arcCoordinates[1]).toEqual({
-        x: 484394.944244852,
-        y: 4750221.64055968,
-      })
-      expect(bcData.data.arcCoordinates[2]).toEqual({
-        x: 484364.337900046,
-        y: 4750216.17530629,
-      })
+      expect(bcData.data.arcCoordinates[0]).toEqual([484415.211449923, 4750224.91492707])
+      expect(bcData.data.arcCoordinates[1]).toEqual([484394.944244852, 4750221.64055968])
+      expect(bcData.data.arcCoordinates[2]).toEqual([484364.337900046, 4750216.17530629])
     })
 
     it("should return correct number of lines consumed", () => {
@@ -104,30 +80,12 @@ describe("Boundary Condition Unit Tests", () => {
 
     it("should parse arc coordinates with 6 points", () => {
       expect(bcData.data.arcCoordinates).toHaveLength(6)
-      expect(bcData.data.arcCoordinates[0]).toEqual({
-        x: 484682.664690301,
-        y: 4750565.69624726,
-      })
-      expect(bcData.data.arcCoordinates[1]).toEqual({
-        x: 484712.235315286,
-        y: 4750556.09722015,
-      })
-      expect(bcData.data.arcCoordinates[2]).toEqual({
-        x: 484748.250469295,
-        y: 4750560.65178075,
-      })
-      expect(bcData.data.arcCoordinates[3]).toEqual({
-        x: 484755.92919377,
-        y: 4750589.0621334,
-      })
-      expect(bcData.data.arcCoordinates[4]).toEqual({
-        x: 484734.231120695,
-        y: 4750621.72216582,
-      })
-      expect(bcData.data.arcCoordinates[5]).toEqual({
-        x: 484718.06292799,
-        y: 4750633.17418926,
-      })
+      expect(bcData.data.arcCoordinates[0]).toEqual([484682.664690301, 4750565.69624726])
+      expect(bcData.data.arcCoordinates[1]).toEqual([484712.235315286, 4750556.09722015])
+      expect(bcData.data.arcCoordinates[2]).toEqual([484748.250469295, 4750560.65178075])
+      expect(bcData.data.arcCoordinates[3]).toEqual([484755.92919377, 4750589.0621334])
+      expect(bcData.data.arcCoordinates[4]).toEqual([484734.231120695, 4750621.72216582])
+      expect(bcData.data.arcCoordinates[5]).toEqual([484718.06292799, 4750633.17418926])
     })
 
     it("should return correct number of lines consumed", () => {
@@ -180,27 +138,12 @@ const testBoundaryConditions: BoundaryCondition[] = [
   {
     name: "S166",
     storageArea: "2D_Grid",
-    startPosition: {
-      x: 485748.087453498,
-      y: 4751198.7455208,
-    },
-    middlePosition: {
-      x: 485779.453690181,
-      y: 4751203.15089112,
-    },
-    endPosition: {
-      x: 485810.819926863,
-      y: 4751207.55626144,
-    },
+    startPosition: [485748.087453498, 4751198.7455208],
+    middlePosition: [485779.453690181, 4751203.15089112],
+    endPosition: [485810.819926863, 4751207.55626144],
     arcCoordinates: [
-      {
-        x: 485748.087453498,
-        y: 4751198.7455208,
-      },
-      {
-        x: 485810.819926863,
-        y: 4751207.55626144,
-      },
+      [485748.087453498, 4751198.7455208],
+      [485810.819926863, 4751207.55626144],
     ],
     textPosition: {
       x: "1.79769313486232E+308",
@@ -210,31 +153,13 @@ const testBoundaryConditions: BoundaryCondition[] = [
   {
     name: "633_2",
     storageArea: "2D_Grid",
-    startPosition: {
-      x: 484415.211449923,
-      y: 4750224.91492707,
-    },
-    middlePosition: {
-      x: 484389.746233154,
-      y: 4750220.71237138,
-    },
-    endPosition: {
-      x: 484364.337900046,
-      y: 4750216.17530629,
-    },
+    startPosition: [484415.211449923, 4750224.91492707],
+    middlePosition: [484389.746233154, 4750220.71237138],
+    endPosition: [484364.337900046, 4750216.17530629],
     arcCoordinates: [
-      {
-        x: 484415.211449923,
-        y: 4750224.91492707,
-      },
-      {
-        x: 484394.944244852,
-        y: 4750221.64055968,
-      },
-      {
-        x: 484364.337900046,
-        y: 4750216.17530629,
-      },
+      [484415.211449923, 4750224.91492707],
+      [484394.944244852, 4750221.64055968],
+      [484364.337900046, 4750216.17530629],
     ],
     textPosition: {
       x: "1.79769313486232E+308",
@@ -244,43 +169,16 @@ const testBoundaryConditions: BoundaryCondition[] = [
   {
     name: "S199",
     storageArea: "2D_Grid",
-    startPosition: {
-      x: 484682.664690301,
-      y: 4750565.69624726,
-    },
-    middlePosition: {
-      x: 484750.998190567,
-      y: 4750570.81801742,
-    },
-    endPosition: {
-      x: 484718.06292799,
-      y: 4750633.17418926,
-    },
+    startPosition: [484682.664690301, 4750565.69624726],
+    middlePosition: [484750.998190567, 4750570.81801742],
+    endPosition: [484718.06292799, 4750633.17418926],
     arcCoordinates: [
-      {
-        x: 484682.664690301,
-        y: 4750565.69624726,
-      },
-      {
-        x: 484712.235315286,
-        y: 4750556.09722015,
-      },
-      {
-        x: 484748.250469295,
-        y: 4750560.65178075,
-      },
-      {
-        x: 484755.92919377,
-        y: 4750589.0621334,
-      },
-      {
-        x: 484734.231120695,
-        y: 4750621.72216582,
-      },
-      {
-        x: 484718.06292799,
-        y: 4750633.17418926,
-      },
+      [484682.664690301, 4750565.69624726],
+      [484712.235315286, 4750556.09722015],
+      [484748.250469295, 4750560.65178075],
+      [484755.92919377, 4750589.0621334],
+      [484734.231120695, 4750621.72216582],
+      [484718.06292799, 4750633.17418926],
     ],
     textPosition: {
       x: "1.79769313486232E+308",

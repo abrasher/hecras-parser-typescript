@@ -8,19 +8,13 @@ describe("BoundaryConditionSerializer", () => {
       const boundaryCondition: BoundaryCondition = {
         name: "BC1",
         storageArea: "2D_Grid",
-        startPosition: { x: 485748.087453498, y: 4751198.7455208 },
-        middlePosition: { x: 485779.453690181, y: 4751203.15089112 },
-        endPosition: { x: 485810.819926863, y: 4751207.55626144 },
+        startPosition: [485748.087453498, 4751198.7455208],
+        middlePosition: [485779.453690181, 4751203.15089112],
+        endPosition: [485810.819926863, 4751207.55626144],
         arc: 2,
         arcCoordinates: [
-          {
-            x: 485748.087453498,
-            y: 4751198.7455208,
-          },
-          {
-            x: 485810.819926863,
-            y: 4751207.55626144,
-          },
+          [485748.087453498, 4751198.7455208],
+          [485810.819926863, 4751207.55626144],
         ],
         textPosition: { x: "1.79769313486232E+308", y: "1.79769313486232E+308" },
       }
@@ -34,7 +28,9 @@ describe("BoundaryConditionSerializer", () => {
       expect(result[4]).toBe("BC Line End Position= 485810.819926863 , 4751207.55626144 ")
       expect(result[5]).toBe("BC Line Arc= 2 ") // this might be actually "BC Line Arc= 2 ", check later
       expect(result[6]).toBe("485748.087453498 4751198.7455208485810.8199268634751207.55626144")
-      expect(result[7]).toBe("BC Line Text Position= 1.79769313486232E+308 , 1.79769313486232E+308 ")
+      expect(result[7]).toBe(
+        "BC Line Text Position= 1.79769313486232E+308 , 1.79769313486232E+308 ",
+      )
     })
   })
 })

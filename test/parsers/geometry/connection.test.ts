@@ -113,8 +113,8 @@ describe("Connection parsing tests", () => {
 
     it("should parse connection line coordinates", () => {
       expect(connectionData.connectionLine).toEqual([
-        { x: 483888.50815, y: 4751220.0721 },
-        { x: 483877.6897, y: 4751236.0422 },
+        [483888.50815, 4751220.0721],
+        [483877.6897, 4751236.0422],
       ])
     })
 

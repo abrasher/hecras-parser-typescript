@@ -102,8 +102,8 @@ Conn BR: DSXS Ineff=3.24,260.55,16.87,260.72`
     name: "DM22-38608",
     description: "2nd bridge downstream of Dingman Dr",
     connectionLine: [
-      { x: 483888.50815, y: 4751220.0721 },
-      { x: 483877.6897, y: 4751236.0422 },
+      [483888.50815, 4751220.0721],
+      [483877.6897, 4751236.0422],
     ],
     centroidX: 0,
     centroidY: 0,

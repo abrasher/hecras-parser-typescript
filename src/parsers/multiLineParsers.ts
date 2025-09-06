@@ -68,20 +68,6 @@ export function parseMultilineCSV({
   return { data, nextIndex: lineIndex }
 }
 
-function chunkToObjects<T, K extends string>(arr: T[], keys: readonly K[]): { [P in K]: T }[] {
-  const result: { [P in K]: T }[] = []
-  const keyCount = keys.length
-
-  for (let i = 0; i < arr.length; i += keyCount) {
-    const obj = {} as { [P in K]: T }
-    for (let j = 0; j < keyCount; j++) {
-      obj[keys[j] as K] = arr[i + j]
-    }
-    result.push(obj)
-  }
-  return result
-}
-
 function chunkString(str: string, width: number): string[] {
   const length = str.length
   const chunks = new Array(Math.ceil(length / width))
@@ -93,11 +79,7 @@ function chunkString(str: string, width: number): string[] {
   return chunks
 }
 
-export const arrayToCoordinates = (arr: string[]) =>
-  chunkToObjects(
-    arr.map((d: string): number => parseFloat(d)),
-    ["x", "y"] as const,
-  )
+export const arrayToCoordinates = (arr: string[]): [number, number][] => arrayToNumberPairs(arr, 2)
 
 export const arrayToNumberPairs = <T extends string[], N extends number>(arr: T, chunkSize: N) =>
   chunk(

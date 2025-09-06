@@ -94,8 +94,8 @@ export function formatNumbersOrNullToChunks(
  */
 export function formatCoordinates(coordinates: Coordinate[]): string {
   const numbers: number[] = []
-  for (const coord of coordinates) {
-    numbers.push(coord.x, coord.y)
+  for (const [x, y] of coordinates) {
+    numbers.push(x, y)
   }
   return formatNumbersToChunks(numbers, 16)
 }
@@ -108,8 +108,8 @@ export function formatCoordinates(coordinates: Coordinate[]): string {
 export function formatCoordinateLines(coordinates: Coordinate[]): string[] {
   const lines: string[] = []
 
-  for (const coord of coordinates) {
-    const numbers = [coord.x, coord.y]
+  for (const [x, y] of coordinates) {
+    const numbers = [x, y]
     lines.push(formatNumbersToChunks(numbers, 16))
   }
 

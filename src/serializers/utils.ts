@@ -32,7 +32,7 @@ export function formatCoordinateMultipleLines(
   return lines
 }
 
-export function coordinatePairToString({ x, y }: Coordinate, width: number): string {
+export function coordinatePairToString([x, y]: Coordinate, width: number): string {
   const x2 = toFixedWidthString(formatHECRASCoordinateNumber(x), width)
   const y2 = toFixedWidthString(formatHECRASCoordinateNumber(y), width)
 

@@ -17,14 +17,8 @@ Junc L&A=67.3,0`
     name: "1",
     description: ", 0 , 0 ,-1 ,0",
     coordinates: {
-      position: {
-        x: 491202.53125,
-        y: 4753367.5,
-      },
-      textPosition: {
-        x: 491202.53125,
-        y: 4753367.5,
-      },
+      position: [491202.53125, 4753367.5],
+      textPosition: [491202.53125, 4753367.5],
     },
     upstreamConnections: [
       {

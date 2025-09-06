@@ -11,10 +11,10 @@ describe("BreakLine Serializer", () => {
       nearRepeats: 0,
       protectionRadius: 0,
       polylinePoints: [
-        { x: 100, y: 200 },
-        { x: 150, y: 250 },
-        { x: 200, y: 300 },
-        { x: 250, y: 350 },
+        [100, 200],
+        [150, 250],
+        [200, 300],
+        [250, 350],
       ],
     }
 
@@ -40,8 +40,8 @@ describe("BreakLine Serializer", () => {
       nearRepeats: 0,
       protectionRadius: 0,
       polylinePoints: [
-        { x: 483197.68128, y: 4749428.34159 },
-        { x: 483194.89599, y: 4749428.11647 },
+        [483197.68128, 4749428.34159],
+        [483194.89599, 4749428.11647],
       ],
     }
 
@@ -66,12 +66,12 @@ describe("BreakLine Serializer", () => {
       nearRepeats: 0,
       protectionRadius: 0,
       polylinePoints: [
-        { x: 481017.73935, y: 4753111.93336 },
-        { x: 481018.00917, y: 4753109.15421 },
-        { x: 481018.06111, y: 4753108.61923 },
-        { x: 481018.13728, y: 4753107.83465 },
-        { x: 481018.24026, y: 4753106.7741 },
-        { x: 481018.36873, y: 4753105.45101 },
+        [481017.73935, 4753111.93336],
+        [481018.00917, 4753109.15421],
+        [481018.06111, 4753108.61923],
+        [481018.13728, 4753107.83465],
+        [481018.24026, 4753106.7741],
+        [481018.36873, 4753105.45101],
       ],
     }
 
@@ -98,8 +98,8 @@ describe("BreakLine Serializer", () => {
       nearRepeats: 1,
       protectionRadius: 5,
       polylinePoints: [
-        { x: 100, y: 200 },
-        { x: 300, y: 400 },
+        [100, 200],
+        [300, 400],
       ],
     }
 
@@ -123,7 +123,7 @@ describe("BreakLine Serializer", () => {
       cellSizeMax: null,
       nearRepeats: 2,
       protectionRadius: 1,
-      polylinePoints: [{ x: 10, y: 20 }],
+      polylinePoints: [[10, 20]],
     }
 
     const result = serializeBreakLine(breakLine)
@@ -144,9 +144,9 @@ describe("BreakLine Serializer", () => {
       nearRepeats: 0,
       protectionRadius: 0,
       polylinePoints: [
-        { x: 1, y: 2 },
-        { x: 3, y: 4 },
-        { x: 5, y: 6 },
+        [1, 2],
+        [3, 4],
+        [5, 6],
       ],
     }
 
