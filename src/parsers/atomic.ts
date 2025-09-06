@@ -136,15 +136,12 @@ export function chunkStringToStrings(str: string, chunkWidth: number): string[] 
  * @param nums Array of numbers (must be even length)
  * @returns Array of {x, y} coordinate objects
  */
-export function numbersToCoordinates(nums: number[]): { x: number; y: number }[] {
-  const coordinates: { x: number; y: number }[] = []
+export function numbersToCoordinates(nums: number[]): [number, number][] {
+  const coordinates: [number, number][] = []
 
   for (let i = 0; i < nums.length; i += 2) {
     if (i + 1 < nums.length) {
-      coordinates.push({
-        x: nums[i],
-        y: nums[i + 1],
-      })
+      coordinates.push([nums[i], nums[i + 1]])
     }
   }
 

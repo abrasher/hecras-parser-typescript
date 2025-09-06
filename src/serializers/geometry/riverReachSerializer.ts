@@ -1,7 +1,11 @@
 import type { StationElevationPoint } from "../.."
 import type { RiverReach, CrossSection } from "../../models/geometry/riverReach"
 import { formatFixedWidth, formatNumbersToChunks } from "../atomic"
-import { formatStationElevationPairs, formatCoordinateMultipleLines, formatHECRASStationNumber } from "../utils"
+import {
+  formatStationElevationPairs,
+  formatCoordinateMultipleLines,
+  formatHECRASStationNumber,
+} from "../utils"
 import { chunk } from "es-toolkit"
 
 export function serializeRiverReach(riverReach: RiverReach): string[] {
@@ -14,7 +18,8 @@ export function serializeRiverReach(riverReach: RiverReach): string[] {
   lines.push(...formatCoordinateMultipleLines("Reach XY", riverReach.coordinates, true))
 
   if (riverReach.textPosition) {
-    lines.push(`Rch Text X Y=${riverReach.textPosition.x},${riverReach.textPosition.y}`)
+    const [tx, ty] = riverReach.textPosition
+    lines.push(`Rch Text X Y=${tx},${ty}`)
   }
 
   const reverseText = riverReach.reverseRiverText === 0 ? " 0" : riverReach.reverseRiverText
@@ -40,7 +45,9 @@ export function serializeCrossSection(xs: CrossSection): string[] {
   const lengthChannel = xs.lengthChannel
   const lengthRight = xs.lengthRight
 
-  lines.push(`Type RM Length L Ch R =${type},${riverMile},${lengthLeft},${lengthChannel},${lengthRight}`)
+  lines.push(
+    `Type RM Length L Ch R =${type},${riverMile},${lengthLeft},${lengthChannel},${lengthRight}`,
+  )
 
   if (xs.gisLineCount && xs.gisLine) {
     lines.push(...formatCoordinateMultipleLines("XS GIS Cut Line", xs.gisLine))
@@ -60,7 +67,11 @@ export function serializeCrossSection(xs: CrossSection): string[] {
   }
 
   // Ineffective flow areas
-  if (xs.ineffectiveCount !== undefined && xs.ineffectiveFlowAreas && xs.ineffectiveFlowAreas.length > 0) {
+  if (
+    xs.ineffectiveCount !== undefined &&
+    xs.ineffectiveFlowAreas &&
+    xs.ineffectiveFlowAreas.length > 0
+  ) {
     lines.push(`#XS Ineff= ${xs.ineffectiveFlowAreas.length} ,-1 `)
     lines.push(...serializeIneffectiveFlowData(xs.ineffectiveFlowAreas))
   }
@@ -79,7 +90,11 @@ export function serializeCrossSection(xs: CrossSection): string[] {
     lines.push(`XS Rating Curve=${formatFixedWidth(xs.ratingCurveType, 2)} ,${xs.ratingCurveValue}`)
   }
 
-  if (xs.htabStartingElevation !== undefined && xs.htabIncrement !== undefined && xs.htabCount !== undefined) {
+  if (
+    xs.htabStartingElevation !== undefined &&
+    xs.htabIncrement !== undefined &&
+    xs.htabCount !== undefined
+  ) {
     lines.push(
       `XS HTab Starting El and Incr=${xs.htabStartingElevation},${xs.htabIncrement},${formatFixedWidth(xs.htabCount, 3)} `,
     )
@@ -97,7 +112,11 @@ export function serializeCrossSection(xs: CrossSection): string[] {
   }
 
   // Blocked obstructions
-  if (xs.blockedObstructionCount !== undefined && xs.blockedObstructions && xs.blockedObstructions.length > 0) {
+  if (
+    xs.blockedObstructionCount !== undefined &&
+    xs.blockedObstructions &&
+    xs.blockedObstructions.length > 0
+  ) {
     lines.push(`#Block Obstruct=${formatFixedWidth(xs.blockedObstructionCount, 2)} ,-1`)
     lines.push(...serializeBlockedObstructionData(xs.blockedObstructions))
   }
@@ -110,7 +129,9 @@ export function serializeCrossSection(xs: CrossSection): string[] {
   return lines
 }
 
-function serializeManningData(segments: { station: number; nValue: number; unknownParameter: number }[]): string[] {
+function serializeManningData(
+  segments: { station: number; nValue: number; unknownParameter: number }[],
+): string[] {
   const values = segments.flatMap((seg) => [seg.station, seg.nValue, seg.unknownParameter])
 
   const lines: string[] = []
@@ -151,7 +172,10 @@ function serializeBlockedObstructionData(
     const lineObstructions = obstructions.slice(i, i + obstructionsPerLine)
     const formattedTriplets = lineObstructions
       .map((obstruction) =>
-        formatNumbersToChunks([obstruction.leftStation, obstruction.rightStation, obstruction.elevation], 8),
+        formatNumbersToChunks(
+          [obstruction.leftStation, obstruction.rightStation, obstruction.elevation],
+          8,
+        ),
       )
       .join("")
     lines.push(formattedTriplets)

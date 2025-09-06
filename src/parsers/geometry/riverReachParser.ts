@@ -69,7 +69,7 @@ export function parseRiverReachData(
       index = nextIndex
     } else if (currentLine.startsWith("Rch Text X Y=")) {
       const [x, y] = parseValueAsCSV(currentLine).map((s) => parseFloat(s))
-      riverReach.textPosition = { x, y }
+      riverReach.textPosition = [x, y]
       index++
     } else if (currentLine.startsWith("Reverse River Text=")) {
       const { value } = parseKeyValue(currentLine)

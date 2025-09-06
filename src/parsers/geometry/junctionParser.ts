@@ -1,12 +1,17 @@
 import { parseCommaSeparated, parseKeyValue } from "../atomic"
-import type { JunctionProperties, RiverReachConnection, LengthAreaPair } from "../../models/geometry/junction"
+import type {
+  JunctionProperties,
+  RiverReachConnection,
+  LengthAreaPair,
+} from "../../models/geometry/junction"
 
 export function parseJunctionData(
   line: string,
   lines: string[],
   currentIndex: number,
 ): { data: JunctionProperties; nextIndex: number } {
-  if (!line.startsWith("Junct Name=")) throw new Error(`junctionParser was given a line it can't parse: ${line}`)
+  if (!line.startsWith("Junct Name="))
+    throw new Error(`junctionParser was given a line it can't parse: ${line}`)
 
   const junctionName = parseKeyValue(line).value.trim()
   let index = currentIndex + 1
@@ -24,14 +29,8 @@ export function parseJunctionData(
   }
   const coordinatesParts = parseCommaSeparated(parseKeyValue(lines[index]).value)
   const coordinates = {
-    position: {
-      x: parseFloat(coordinatesParts[0]),
-      y: parseFloat(coordinatesParts[1]),
-    },
-    textPosition: {
-      x: parseFloat(coordinatesParts[2]),
-      y: parseFloat(coordinatesParts[3]),
-    },
+    position: [parseFloat(coordinatesParts[0]), parseFloat(coordinatesParts[1])] as const,
+    textPosition: [parseFloat(coordinatesParts[2]), parseFloat(coordinatesParts[3])] as const,
   }
   index++
 

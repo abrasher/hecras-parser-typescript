@@ -80,10 +80,7 @@ function parseCoordinateFromString(coordinateString: string): Coordinate {
   if (parts.length !== 2) {
     throw new Error(`Invalid coordinate format: ${coordinateString}`)
   }
-  return {
-    x: parseFloat(parts[0].trim()),
-    y: parseFloat(parts[1].trim()),
-  }
+  return [parseFloat(parts[0].trim()), parseFloat(parts[1].trim())]
 }
 
 /**

@@ -15,9 +15,9 @@ import {
 /**
  * Parse a line of fixed-width coordinate data (16 characters per number)
  * @param line Line containing coordinate data
- * @returns Array of {x, y} coordinate objects
+ * @returns Array of [x, y] coordinate tuples
  */
-export function parseLineToCoordinates(line: string): { x: number; y: number }[] {
+export function parseLineToCoordinates(line: string): [number, number][] {
   return numbersToCoordinates(chunkStringToNumbers(line, 16))
 }
 

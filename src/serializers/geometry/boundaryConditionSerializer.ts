@@ -16,13 +16,16 @@ export function serializeBoundaryCondition(bc: BoundaryCondition): string[] {
   lines.push(`BC Line Storage Area=${bc.storageArea.padEnd(16)}`)
 
   // BC Line Start Position
-  lines.push(`BC Line Start Position= ${bc.startPosition.x} , ${bc.startPosition.y} `)
+  const [sx, sy] = bc.startPosition
+  lines.push(`BC Line Start Position= ${sx} , ${sy} `)
 
   // BC Line Middle Position
-  lines.push(`BC Line Middle Position= ${bc.middlePosition.x} , ${bc.middlePosition.y} `)
+  const [mx, my] = bc.middlePosition
+  lines.push(`BC Line Middle Position= ${mx} , ${my} `)
 
   // BC Line End Position
-  lines.push(`BC Line End Position= ${bc.endPosition.x} , ${bc.endPosition.y} `)
+  const [ex, ey] = bc.endPosition
+  lines.push(`BC Line End Position= ${ex} , ${ey} `)
 
   // BC Line Arc
   lines.push(...formatCoordinateMultipleLines("BC Line Arc", bc.arcCoordinates, true))

@@ -1,7 +1,4 @@
-export interface Coordinate {
-  x: number
-  y: number
-}
+export type Coordinate = [x: number, y: number]
 
 export interface StationElevationPoint {
   station: number
