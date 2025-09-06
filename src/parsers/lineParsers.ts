@@ -1,7 +1,12 @@
 // Line-level parsers for HEC-RAS format (Tier 2)
 // Use atomic parsers + logic for single lines
 
-import { chunkStringToNumbers, chunkStringToNumbersOrNull, numbersToCoordinates } from "./atomic"
+import {
+  chunkStringToNumbers,
+  chunkStringToNumbersOrNull,
+  numbersToCoordinates,
+  parseKeyValue,
+} from "./atomic"
 
 // ============================================================================
 // LINE-LEVEL PARSERS
@@ -21,7 +26,9 @@ export function parseLineToCoordinates(line: string): { x: number; y: number }[]
  * @param line Line containing station pair data
  * @returns Array of {upstreamStation, downstreamStation} objects
  */
-export function parseLineStationPairs(line: string): { upstreamStation: number; downstreamStation: number }[] {
+export function parseLineStationPairs(
+  line: string,
+): { upstreamStation: number; downstreamStation: number }[] {
   const nums = chunkStringToNumbers(line, 8)
   const stationPairs: { upstreamStation: number; downstreamStation: number }[] = []
 
@@ -58,4 +65,15 @@ export function parseLineStationPairsWithNulls(
   }
 
   return stationPairs
+}
+
+export function parseBooleanLine(line: string): boolean {
+  const val = Number(parseKeyValue(line).value)
+  if (val === -1) {
+    return true
+  } else if (val === 0) {
+    return false
+  } else {
+    throw new Error(`Invalid boolean value: ${val}`)
+  }
 }
