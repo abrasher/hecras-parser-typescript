@@ -30,6 +30,7 @@ export { serializeBridgeConnection } from "./serializers/geometry/bridgeSerializ
 export { serializeStorageArea } from "./serializers/geometry/storageAreaSerializer"
 export { serializeBoundaryCondition } from "./serializers/geometry/boundaryConditionSerializer"
 export { serializePlan } from "./serializers/geometry/planSerializer"
+export { serializeUnsteadyFlow, serializeUnsteadyFlowString } from "./serializers/unsteadyFlow"
 
 // Parsing utilities (for advanced users)
 export { parseLineToCoordinates, parseLineStationPairs } from "./parsers/lineParsers"
