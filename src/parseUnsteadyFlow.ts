@@ -7,6 +7,7 @@ import type {
   UnsteadyFlow,
 } from "./models/unsteadyFlow"
 import { parseCommaSeparated, parseKeyValue } from "./parsers/atomic"
+import { parseBooleanLine } from "./parsers/lineParsers"
 import { parseMultilineArray } from "./parsers/multiLineParsers"
 
 const parseNumbers = (arr: string[]) => arr.map((d) => parseFloat(d))
@@ -256,13 +257,18 @@ export function parseUnsteadyFlow(content: string): UnsteadyFlow {
       i++
       continue
     }
+    if (line.startsWith("Restart Filename=")) {
+      flow.restartFile = parseKeyValue(line).value
+      i++
+      continue
+    }
     if (line.startsWith("Program Version=")) {
       flow.programVersion = parseKeyValue(line).value
       i++
       continue
     }
     if (line.startsWith("Use Restart=")) {
-      flow.useRestart = parseInt(parseKeyValue(line).value)
+      flow.useRestart = parseBooleanLine(line)
       i++
       continue
     }

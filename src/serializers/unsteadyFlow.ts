@@ -186,8 +186,8 @@ export function serializeUnsteadyFlow(flow: UnsteadyFlow): string[] {
   if (flow.flowTitle) lines.push(formatKeyValue("Flow Title", flow.flowTitle))
   if (flow.programVersion) lines.push(formatKeyValue("Program Version", flow.programVersion))
   if (flow.useRestart !== undefined)
-    lines.push(formatKeyValue("Use Restart", formatFixedWidth(flow.useRestart.toString(), 2)))
-
+    lines.push(formatKeyValue("Use Restart", flow.useRestart ? "-1 " : " 0 "))
+  if (flow.programVersion) lines.push(formatKeyValue("Restart Filename", flow.restartFile))
   for (const loc of flow.initialFlowLocations) {
     lines.push(serializeInitialFlowLocation(loc))
   }

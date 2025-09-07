@@ -17,7 +17,6 @@ export type * from "./models/plan/plan"
 export type * from "./models/unsteadyFlow"
 
 // Plan parser
-export { parsePlan } from "./parsers/plan/planParser"
 export { parseUnsteadyFlow } from "./parseUnsteadyFlow"
 
 // Serializers
@@ -29,7 +28,6 @@ export {
 export { serializeBridgeConnection } from "./serializers/geometry/bridgeSerializer"
 export { serializeStorageArea } from "./serializers/geometry/storageAreaSerializer"
 export { serializeBoundaryCondition } from "./serializers/geometry/boundaryConditionSerializer"
-export { serializePlan } from "./serializers/geometry/planSerializer"
 export { serializeUnsteadyFlow, serializeUnsteadyFlowString } from "./serializers/unsteadyFlow"
 
 // Parsing utilities (for advanced users)

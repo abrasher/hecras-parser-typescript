@@ -52,7 +52,8 @@ export interface Boundary {
 export interface UnsteadyFlow {
   flowTitle?: string
   programVersion?: string
-  useRestart?: number
+  useRestart?: boolean
+  restartFile?: string
   initialFlowLocations: InitialFlowLocation[]
   initialStorageElevations: InitialStorageElevation[]
   initialRRRElevations: InitialRRRElevation[]
