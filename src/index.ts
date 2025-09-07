@@ -14,9 +14,11 @@ export type * from "./models/geometry/culvert"
 export type * from "./models/geometry/boundaryCondition"
 export type * from "./models/geometry/common"
 export type * from "./models/plan/plan"
+export type * from "./models/unsteadyFlow"
 
 // Plan parser
 export { parsePlan } from "./parsers/plan/planParser"
+export { parseUnsteadyFlow } from "./parseUnsteadyFlow"
 
 // Serializers
 export { serializeGeometry } from "./serializers/geometrySerializer"
