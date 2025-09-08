@@ -6,8 +6,8 @@ import type {
   InitialRRRElevation,
 } from "../models/unsteadyFlow"
 import { formatKeyValue, formatCommaSeparated, formatFixedWidth } from "./atomic"
+import { appendLines, insertLinesAtIndices } from "./utils/safeArrayUtils"
 import { formatBoolean } from "./utils"
-import { appendLines } from "./utils/safeArrayUtils"
 
 // Helper to format numeric arrays into fixed-width lines (8 chars per value, 10 per line)
 function formatNumberArrayLines(numbers: number[]): string[] {
@@ -53,6 +53,7 @@ function serializeGate(gate: Gate): string[] {
     )
     appendLines(lines, formatNumberArrayLines(gate.openings))
   }
+  insertLinesAtIndices(lines, gate.unparsedLines)
   return lines
 }
 
@@ -162,6 +163,10 @@ function serializeBoundary(boundary: Boundary): string[] {
   for (const gate of boundary.gates) {
     appendLines(lines, serializeGate(gate))
   }
+<<<<<<< HEAD
+=======
+  insertLinesAtIndices(lines, boundary.unparsedLines)
+>>>>>>> ce30b6fdc8362b4b480445bee486f7cefb8ea1fe
   return lines
 }
 
@@ -214,11 +219,6 @@ export function serializeUnsteadyFlow(flow: UnsteadyFlow): string[] {
       lines.push(formatKeyValue(key, value))
     }
   }
-  if (flow.otherLines) {
-    for (const [key, value] of Object.entries(flow.otherLines)) {
-      lines.push(formatKeyValue(key, value))
-    }
-  }
   if (flow.globalFlowHydrograph && flow.globalFlowHydrograph.length > 0) {
     lines.push(
       formatKeyValue(
@@ -228,6 +228,7 @@ export function serializeUnsteadyFlow(flow: UnsteadyFlow): string[] {
     )
     appendLines(lines, formatNumberArrayLines(flow.globalFlowHydrograph))
   }
+  insertLinesAtIndices(lines, flow.unparsedLines)
   return lines
 }
 

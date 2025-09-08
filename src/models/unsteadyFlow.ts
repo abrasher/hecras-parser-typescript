@@ -17,6 +17,11 @@ export interface InitialRRRElevation {
   elevation: number
 }
 
+export interface UnparsedLine {
+  index: number
+  content: string
+}
+
 export interface Gate {
   name: string
   dssPath?: string
@@ -25,6 +30,7 @@ export interface Gate {
   useFixedStartTime?: boolean
   fixedStartDateTime?: string
   openings: number[]
+  unparsedLines?: UnparsedLine[]
 }
 
 export interface Boundary {
@@ -80,7 +86,7 @@ export interface Boundary {
   isCriticalBoundary?: boolean
   criticalBoundaryFlow?: string
   gates: Gate[]
-  extra?: string[]
+  unparsedLines?: UnparsedLine[]
 }
 
 export interface UnsteadyFlow {
@@ -98,6 +104,6 @@ export interface UnsteadyFlow {
     submethod: string
   }
   lava?: Record<string, string>
-  otherLines?: Record<string, string>
+  unparsedLines?: UnparsedLine[]
   globalFlowHydrograph?: number[]
 }
