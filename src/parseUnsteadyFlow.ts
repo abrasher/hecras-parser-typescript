@@ -1,247 +1,7 @@
-import type {
-  Boundary,
-  Gate,
-  InitialFlowLocation,
-  InitialRRRElevation,
-  InitialStorageElevation,
-  UnsteadyFlow,
-} from "./models/unsteadyFlow"
-import { parseCommaSeparated, parseKeyValue } from "./parsers/atomic"
-import { parseBooleanLine } from "./parsers/lineParsers"
+import type { BoundaryCondition, UnsteadyFlow } from "./models/unsteadyFlow"
+import { parseBoolean, parseDurationLine, parseKeyValue, parseValueAsCSV } from "./parsers/atomic"
+import { parseBooleanLine, parseNumberBooleanLine } from "./parsers/lineParsers"
 import { parseMultilineArray } from "./parsers/multiLineParsers"
-
-const parseNumbers = (arr: string[]) => arr.map((d) => parseFloat(d))
-
-function parseInitialFlowLocation(value: string): InitialFlowLocation {
-  const [river, reach, stn, flow] = parseCommaSeparated(value)
-  return {
-    river: river.trim(),
-    reach: reach.trim(),
-    station: parseFloat(stn),
-    flow: parseFloat(flow),
-  }
-}
-
-function parseInitialStorageElevation(value: string): InitialStorageElevation {
-  const [name, elev] = parseCommaSeparated(value)
-  return { name: name.trim(), elevation: parseFloat(elev) }
-}
-
-function parseInitialRRRElevation(value: string): InitialRRRElevation {
-  const [river, reach, stn, elev] = parseCommaSeparated(value)
-  return {
-    river: river.trim(),
-    reach: reach.trim(),
-    station: parseFloat(stn),
-    elevation: parseFloat(elev),
-  }
-}
-
-function parseGate(lines: string[], startIndex: number): { gate: Gate; next: number } {
-  const gate: Gate = { name: "", openings: [] }
-  let i = startIndex
-  while (i < lines.length) {
-    const line = lines[i]
-    if (!line || line.trim() === "") {
-      i++
-      continue
-    }
-    if (line.startsWith("Gate Name=")) {
-      gate.name = parseKeyValue(line).value
-      i++
-    } else if (line.startsWith("Gate DSS Path=")) {
-      gate.dssPath = parseKeyValue(line).value
-      i++
-    } else if (line.startsWith("Gate Use DSS=")) {
-      gate.useDSS = parseKeyValue(line).value.trim().toLowerCase() === "true"
-      i++
-    } else if (line.startsWith("Gate Time Interval=")) {
-      gate.timeInterval = parseKeyValue(line).value
-      i++
-    } else if (line.startsWith("Gate Use Fixed Start Time=")) {
-      gate.useFixedStartTime = parseKeyValue(line).value.trim().toLowerCase() === "true"
-      i++
-    } else if (line.startsWith("Gate Fixed Start Date/Time=")) {
-      gate.fixedStartDateTime = parseKeyValue(line).value
-      i++
-    } else if (line.startsWith("Gate Openings=")) {
-      const count = parseInt(parseKeyValue(line).value)
-      const { data, nextIndex } = parseMultilineArray({
-        lines,
-        width: 8,
-        maxWidth: 80,
-        numOfEntries: count,
-        currentIndex: i + 1,
-      })
-      gate.openings = parseNumbers(data)
-      i = nextIndex
-    } else if (line.startsWith("Gate Name=") || line.startsWith("Boundary Location=")) {
-      break
-    } else {
-      gate.unparsedLines = gate.unparsedLines || []
-      gate.unparsedLines.push({ index: i - startIndex, content: line })
-      i++
-    }
-  }
-  return { gate, next: i }
-}
-
-function parseBoundary(lines: string[], startIndex: number): { boundary: Boundary; next: number } {
-  const line = lines[startIndex]
-  const [reach, river, stationStr, param1, param2, param3, param4, param5, param6] =
-    parseCommaSeparated(parseKeyValue(line).value)
-
-  const station = parseFloat(stationStr)
-
-  const boundary: Boundary = {
-    location: { reach, river, station, param1, param2, param3, param4, param5, param6 },
-    gates: [],
-  }
-  let i = startIndex + 1
-
-  while (i < lines.length) {
-    const l = lines[i]
-    if (!l || l.trim() === "") {
-      i++
-      continue
-    }
-    if (
-      l.startsWith("Boundary Location=") ||
-      l.startsWith("Initial Flow Loc=") ||
-      l.startsWith("Met ") ||
-      l.startsWith("Precipitation Mode=") ||
-      l.startsWith("Wind Mode=") ||
-      l.startsWith("Air Density Mode=") ||
-      l.startsWith("Non-Newtonian") ||
-      l.startsWith("Lava") ||
-      l.startsWith("Temperature") ||
-      l.startsWith("Heat Ballance") ||
-      l.startsWith("Viscosity") ||
-      l.startsWith("Yield Strength") ||
-      l.startsWith("Consistency Factor") ||
-      l.startsWith("Profile Coefficient") ||
-      l.startsWith("Lava Param")
-    ) {
-      break
-    }
-
-    if (l.startsWith("Friction Slope=")) {
-      boundary.frictionSlope = parseNumbers(parseCommaSeparated(parseKeyValue(l).value))
-      i++
-      continue
-    }
-    if (l.startsWith("Interval=")) {
-      boundary.interval = parseKeyValue(l).value
-      i++
-      continue
-    }
-    if (l.startsWith("Flow Hydrograph=")) {
-      const count = parseInt(parseKeyValue(l).value)
-      const { data, nextIndex } = parseMultilineArray({
-        lines,
-        width: 8,
-        maxWidth: 80,
-        numOfEntries: count,
-        currentIndex: i + 1,
-      })
-      boundary.flowHydrograph = parseNumbers(data)
-      i = nextIndex
-      continue
-    }
-    if (l.startsWith("Lateral Inflow Hydrograph=")) {
-      const count = parseInt(parseKeyValue(l).value)
-      const { data, nextIndex } = parseMultilineArray({
-        lines,
-        width: 8,
-        maxWidth: 80,
-        numOfEntries: count,
-        currentIndex: i + 1,
-      })
-      boundary.lateralInflowHydrograph = parseNumbers(data)
-      i = nextIndex
-      continue
-    }
-    if (l.startsWith("Uniform Lateral Inflow Hydrograph=")) {
-      const count = parseInt(parseKeyValue(l).value)
-      const { data, nextIndex } = parseMultilineArray({
-        lines,
-        width: 8,
-        maxWidth: 80,
-        numOfEntries: count,
-        currentIndex: i + 1,
-      })
-      boundary.uniformLateralInflowHydrograph = parseNumbers(data)
-      i = nextIndex
-      continue
-    }
-    if (l.startsWith("Stage Hydrograph TW Check=")) {
-      boundary.stageHydrographTWCheck = parseBooleanLine(l)
-      i++
-      continue
-    }
-    if (l.startsWith("Flow Hydrograph QMult=")) {
-      boundary.flowHydrographQMult = parseFloat(parseKeyValue(l).value)
-      i++
-      continue
-    }
-    if (l.startsWith("Flow Hydrograph Slope=")) {
-      boundary.flowHydrographSlope = parseFloat(parseKeyValue(l).value)
-      i++
-      continue
-    }
-    if (l.startsWith("Flow Hydrograph QMin=")) {
-      boundary.flowHydrographQMin = parseFloat(parseKeyValue(l).value)
-      i++
-      continue
-    }
-    if (l.startsWith("DSS File=")) {
-      boundary.dssFile = parseKeyValue(l).value
-      i++
-      continue
-    }
-    if (l.startsWith("DSS Path=")) {
-      boundary.dssPath = parseKeyValue(l).value
-      i++
-      continue
-    }
-    if (l.startsWith("Use DSS=")) {
-      boundary.useDSS = parseKeyValue(l).value.trim().toLowerCase() === "true"
-      i++
-      continue
-    }
-    if (l.startsWith("Use Fixed Start Time=")) {
-      boundary.useFixedStartTime = parseKeyValue(l).value.trim().toLowerCase() === "true"
-      i++
-      continue
-    }
-    if (l.startsWith("Fixed Start Date/Time=")) {
-      boundary.fixedStartDateTime = parseKeyValue(l).value
-      i++
-      continue
-    }
-    if (l.startsWith("Is Critical Boundary=")) {
-      boundary.isCriticalBoundary = parseKeyValue(l).value.trim().toLowerCase() === "true"
-      i++
-      continue
-    }
-    if (l.startsWith("Critical Boundary Flow=")) {
-      boundary.criticalBoundaryFlow = parseKeyValue(l).value
-      i++
-      continue
-    }
-    if (l.startsWith("Gate Name=")) {
-      const { gate, next } = parseGate(lines, i)
-      boundary.gates.push(gate)
-      i = next
-      continue
-    }
-
-    boundary.unparsedLines = boundary.unparsedLines || []
-    boundary.unparsedLines.push({ index: i - startIndex, content: l })
-    i++
-  }
-  return { boundary, next: i }
-}
 
 export function parseUnsteadyFlow(content: string): UnsteadyFlow {
   const lines = content.split(/\r\n|\r|\n/)
@@ -251,7 +11,6 @@ export function parseUnsteadyFlow(content: string): UnsteadyFlow {
     initialRRRElevations: [],
     boundaries: [],
     metBC: [],
-    nonNewtonian: {},
   }
 
   let i = 0
@@ -277,79 +36,32 @@ export function parseUnsteadyFlow(content: string): UnsteadyFlow {
       continue
     }
     if (line.startsWith("Use Restart=")) {
-      flow.useRestart = parseBooleanLine(line)
+      flow.useRestart = parseNumberBooleanLine(line)
       i++
       continue
     }
     if (line.startsWith("Initial Flow Loc=")) {
-      flow.initialFlowLocations.push(parseInitialFlowLocation(parseKeyValue(line).value))
-      i++
-      continue
+      const [river, reach, station, intialFlow] = parseValueAsCSV(line)
+
+      flow.initialFlowLocations.push({
+        river,
+        reach,
+        station: parseFloat(station),
+        flow: parseFloat(intialFlow),
+      })
     }
     if (line.startsWith("Initial Storage Elev=")) {
-      flow.initialStorageElevations.push(parseInitialStorageElevation(parseKeyValue(line).value))
-      i++
-      continue
-    }
-    if (line.startsWith("Initial RRR Elev=")) {
-      flow.initialRRRElevations.push(parseInitialRRRElevation(parseKeyValue(line).value))
-      i++
-      continue
-    }
-    if (line.startsWith("Boundary Location=")) {
-      const { boundary, next } = parseBoundary(lines, i)
-      flow.boundaries.push(boundary)
-      i = next
-      continue
-    }
-    if (line.startsWith("Met BC=")) {
-      flow.metBC.push(parseKeyValue(line).value)
-      i++
-      continue
-    }
-    if (
-      line.startsWith("Met Point Raster Parameters=") ||
-      line.startsWith("Precipitation Mode=") ||
-      line.startsWith("Wind Mode=") ||
-      line.startsWith("Air Density Mode=")
-    ) {
-      const { key, value } = parseKeyValue(line)
-      flow.metBC.push(`${key}=${value}`)
-      i++
-      continue
-    }
-    if (line.startsWith("Non-Newtonian")) {
-      const { key, value } = parseKeyValue(line)
-      flow.nonNewtonian[key] = value
-      i++
-      continue
-    }
-    if (
-      line.startsWith("Lava") ||
-      line.startsWith("Temperature") ||
-      line.startsWith("Heat Ballance") ||
-      line.startsWith("Viscosity") ||
-      line.startsWith("Yield Strength") ||
-      line.startsWith("Consistency Factor") ||
-      line.startsWith("Profile Coefficient") ||
-      line.startsWith("Lava Param")
-    ) {
-      const { key, value } = parseKeyValue(line)
-      flow.lava = flow.lava || {}
-      flow.lava[key] = value
-      i++
-      continue
-    }
-    if (line.startsWith("Flow Hydrograph=")) {
-      const count = parseInt(parseKeyValue(line).value)
-      const { data, nextIndex } = parseMultilineArray({
-        lines,
-        width: 8,
-        maxWidth: 80,
-        numOfEntries: count,
-        currentIndex: i + 1,
+      const [name, elevation, fixed] = parseValueAsCSV(line)
+      flow.initialStorageElevations.push({
+        name,
+        elevation: parseFloat(elevation),
+        fixedDuringWarmup: parseBoolean(fixed),
       })
-      flow.globalFlowHydrograph = parseNumbers(data)
+    }
+
+    if (line.startsWith("Boundary Location=")) {
+      const { data, nextIndex } = parseBoundaryCondition(lines, i)
+      flow.boundaries.push(data)
       i = nextIndex
       continue
     }
@@ -358,4 +70,89 @@ export function parseUnsteadyFlow(content: string): UnsteadyFlow {
     i++
   }
   return flow
+}
+
+function parseBoundaryCondition(
+  lines: string[],
+  currentIndex: number,
+): { data: BoundaryCondition; nextIndex: number } {
+  let index = currentIndex
+
+  const bc = {} as BoundaryCondition
+
+  const map = {
+    "Boundary Location=": (lines: string[], index: number) => {
+      const parts = parseValueAsCSV(lines[index])
+
+      bc.river = parts[0]
+      bc.reach = parts[1]
+      bc.station = parseFloat(parts[2])
+      bc.param1 = parts[3]
+      bc.param2 = parts[3]
+      bc.param3 = parts[4]
+      bc.param4 = parts[5]
+      bc.param5 = parts[6]
+      bc.param6 = parts[7]
+
+      index++
+    },
+    "Interval=": (lines: string[], index: number) => {
+      bc.interval = parseDurationLine(lines[index])
+      index++
+    },
+    "Flow Hydrograph=": (lines: string[]) => {
+      const numOfEntries = Number(parseKeyValue(lines[index]))
+      index++
+
+      const { data, nextIndex } = parseMultilineArray({
+        lines,
+        width: 8,
+        maxWidth: 80,
+        numOfEntries,
+        currentIndex: index,
+      })
+      bc.flowHydrograph = data.map((s) => parseFloat(s))
+      index = nextIndex
+    },
+    "Stage Hydrograph TW Check=": (lines: string[]) => {
+      bc.stageHydrographTWCheck = parseNumberBooleanLine(lines[index])
+      index++
+    },
+    "DSS Path=": (lines: string[]) => {
+      bc.dssPath = parseKeyValue(lines[index]).value
+      index++
+    },
+    "Use DSS=": (lines: string[]) => {
+      bc.useDSS = parseBooleanLine(lines[index])
+      index++
+    },
+    "Use Fixed Start Time=": (lines: string[]) => {
+      bc.useFixedStartTime = parseBooleanLine(lines[index])
+      index++
+    },
+    "Fixed Start Date/Time=": (lines: string[]) => {
+      const [date, time] = parseValueAsCSV(lines[index])
+      bc.fixedStartDateTime = {
+        date,
+        time,
+      }
+      index++
+    },
+  }
+
+  while (index < lines.length) {
+    const line = lines[index]
+    // Stop when we hit the next boundary
+    if (line.startsWith("Boundary Location=") && index !== currentIndex) break
+
+    const key = line.split("=")[0].trim() as keyof typeof map
+    if (key in map) {
+      map[key](lines, index)
+    } else {
+      bc.unparsedLines = bc.unparsedLines || []
+      bc.unparsedLines.push({ index, content: line })
+    }
+    index++
+  }
+  return { data: bc, nextIndex: index }
 }

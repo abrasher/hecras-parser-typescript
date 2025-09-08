@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
 import { parseHECRASDuration } from "../src/parsers/atomic"
-import { serializeHECRASDuration } from "../src/serializers/atomic"
+import { formatDuration } from "../src/serializers/atomic"
 
 describe("hecrasDuration", () => {
   describe("parseHECRASDuration", () => {
@@ -41,36 +41,36 @@ describe("hecrasDuration", () => {
 
   describe("serializeHECRASDuration", () => {
     it("should serialize seconds", () => {
-      expect(serializeHECRASDuration(0.1)).toBe("0.1SEC")
-      expect(serializeHECRASDuration(1)).toBe("1SEC")
-      expect(serializeHECRASDuration(30)).toBe("30SEC")
+      expect(formatDuration(0.1)).toBe("0.1SEC")
+      expect(formatDuration(1)).toBe("1SEC")
+      expect(formatDuration(30)).toBe("30SEC")
     })
 
     it("should serialize minutes", () => {
-      expect(serializeHECRASDuration(60)).toBe("1MIN")
-      expect(serializeHECRASDuration(120)).toBe("2MIN")
-      expect(serializeHECRASDuration(180)).toBe("3MIN")
+      expect(formatDuration(60)).toBe("1MIN")
+      expect(formatDuration(120)).toBe("2MIN")
+      expect(formatDuration(180)).toBe("3MIN")
     })
 
     it("should serialize hours", () => {
-      expect(serializeHECRASDuration(3600)).toBe("1HOUR")
-      expect(serializeHECRASDuration(7200)).toBe("2HOUR")
-      expect(serializeHECRASDuration(10800)).toBe("3HOUR")
+      expect(formatDuration(3600)).toBe("1HOUR")
+      expect(formatDuration(7200)).toBe("2HOUR")
+      expect(formatDuration(10800)).toBe("3HOUR")
     })
 
     it("should serialize days", () => {
-      expect(serializeHECRASDuration(86400)).toBe("1DAY")
+      expect(formatDuration(86400)).toBe("1DAY")
     })
 
     it("should serialize weeks", () => {
-      expect(serializeHECRASDuration(604800)).toBe("1WEEK")
+      expect(formatDuration(604800)).toBe("1WEEK")
     })
     it("should serialize months", () => {
-      expect(serializeHECRASDuration(2592000)).toBe("1MONTH")
+      expect(formatDuration(2592000)).toBe("1MONTH")
     })
 
     it("should serialize years", () => {
-      expect(serializeHECRASDuration(31536000)).toBe("1YEAR")
+      expect(formatDuration(31536000)).toBe("1YEAR")
     })
   })
 })

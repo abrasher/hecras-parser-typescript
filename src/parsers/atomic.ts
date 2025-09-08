@@ -214,3 +214,13 @@ export function parseHECRASDuration(value: string): number {
       throw new Error(`Unknown duration unit: ${unit}`)
   }
 }
+
+export function parseBoolean(val: string): boolean {
+  if (val === "-1") {
+    return true
+  } else if (val.trim() === "0") {
+    return false
+  } else {
+    throw new Error(`Invalid boolean value: ${val}`)
+  }
+}

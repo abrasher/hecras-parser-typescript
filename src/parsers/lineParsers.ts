@@ -67,7 +67,7 @@ export function parseLineStationPairsWithNulls(
   return stationPairs
 }
 
-export function parseBooleanLine(line: string): boolean {
+export function parseNumberBooleanLine(line: string): boolean {
   const val = Number(parseKeyValue(line).value)
   if (val === -1) {
     return true
@@ -76,4 +76,11 @@ export function parseBooleanLine(line: string): boolean {
   } else {
     throw new Error(`Invalid boolean value: ${val}`)
   }
+}
+
+export function parseBooleanLine(line: string) {
+  const val = parseKeyValue(line).value
+  if (val === "True") return true
+  if (val === "False") return false
+  throw new Error(`Invalid boolean value: ${val}`)
 }

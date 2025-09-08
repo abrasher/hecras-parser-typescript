@@ -33,6 +33,10 @@ function testGeometry(testFilePath: string) {
       `Original lines: ${originalLines.length}\nSerialized lines: ${serializedLines.length}`,
     )
 
+    if (geometryData.unparsedLines && geometryData.unparsedLines.length > 0) {
+      console.log(`Unparsed lines: ${JSON.stringify(geometryData.unparsedLines)}`)
+    }
+
     // Compare line by line until first difference
     const maxLines = Math.max(originalLines.length, serializedLines.length)
 

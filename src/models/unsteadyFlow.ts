@@ -1,3 +1,5 @@
+import type { DateTime } from "./common"
+
 export interface InitialFlowLocation {
   river: string
   reach: string
@@ -6,8 +8,12 @@ export interface InitialFlowLocation {
 }
 
 export interface InitialStorageElevation {
+  /**
+   * Name of SA, IC Point or 2D Area
+   */
   name: string
   elevation: number
+  fixedDuringWarmup: boolean
 }
 
 export interface InitialRRRElevation {
@@ -33,44 +39,42 @@ export interface Gate {
   unparsedLines?: UnparsedLine[]
 }
 
-export interface Boundary {
-  location: {
-    /**
-     * Fixed Length of 16
-     */
-    river: string
-    /**
-     * Fixed Length of 16
-     */
-    reach: string
-    station: number
-    /**
-     * Fixed Length of 8
-     */
-    param1: string
-    /**
-     * Fixed Length of 16
-     */
-    param2: string
-    /**
-     * Fixed Length of 16
-     */
-    param3: string
-    /**
-     * Fixed Length of 16
-     */
-    param4: string
-    /**
-     * Fixed Length of 32
-     */
-    param5: string
-    /**
-     * Fixed Length of 32
-     */
-    param6: string
-  }
+export interface BoundaryCondition {
+  /**
+   * Fixed Length of 16
+   */
+  river: string
+  /**
+   * Fixed Length of 16
+   */
+  reach: string
+  station: number
+  /**
+   * Fixed Length of 8
+   */
+  param1: string
+  /**
+   * Fixed Length of 16
+   */
+  param2: string
+  /**
+   * Fixed Length of 16
+   */
+  param3: string
+  /**
+   * Fixed Length of 16
+   */
+  param4: string
+  /**
+   * Fixed Length of 32
+   */
+  param5: string
+  /**
+   * Fixed Length of 32
+   */
+  param6: string
   frictionSlope?: number[]
-  interval?: string
+  interval?: number
   flowHydrograph?: number[]
   flowHydrographQMult?: number
   flowHydrographSlope?: number
@@ -82,10 +86,10 @@ export interface Boundary {
   dssPath?: string
   useDSS?: boolean
   useFixedStartTime?: boolean
-  fixedStartDateTime?: string
+  fixedStartDateTime?: DateTime
   isCriticalBoundary?: boolean
   criticalBoundaryFlow?: string
-  gates: Gate[]
+  gates?: Gate[]
   unparsedLines?: UnparsedLine[]
 }
 
@@ -97,13 +101,14 @@ export interface UnsteadyFlow {
   initialFlowLocations: InitialFlowLocation[]
   initialStorageElevations: InitialStorageElevation[]
   initialRRRElevations: InitialRRRElevation[]
-  boundaries: Boundary[]
+  boundaries: BoundaryCondition[]
   metBC: string[]
-  nonNewtonian: {
-    method: number
-    submethod: string
-  }
+
   lava?: Record<string, string>
   unparsedLines?: UnparsedLine[]
   globalFlowHydrograph?: number[]
+  // nonNewtonian: {
+  //   method: number
+  //   submethod: string
+  // }
 }
