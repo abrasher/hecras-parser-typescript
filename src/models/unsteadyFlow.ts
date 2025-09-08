@@ -28,7 +28,41 @@ export interface Gate {
 }
 
 export interface Boundary {
-  location: string[]
+  location: {
+    /**
+     * Fixed Length of 16
+     */
+    river: string
+    /**
+     * Fixed Length of 16
+     */
+    reach: string
+    station: number
+    /**
+     * Fixed Length of 8
+     */
+    param1: string
+    /**
+     * Fixed Length of 16
+     */
+    param2: string
+    /**
+     * Fixed Length of 16
+     */
+    param3: string
+    /**
+     * Fixed Length of 16
+     */
+    param4: string
+    /**
+     * Fixed Length of 32
+     */
+    param5: string
+    /**
+     * Fixed Length of 32
+     */
+    param6: string
+  }
   frictionSlope?: number[]
   interval?: string
   flowHydrograph?: number[]
@@ -37,7 +71,7 @@ export interface Boundary {
   flowHydrographQMin?: number
   lateralInflowHydrograph?: number[]
   uniformLateralInflowHydrograph?: number[]
-  stageHydrographTWCheck?: number
+  stageHydrographTWCheck?: boolean
   dssFile?: string
   dssPath?: string
   useDSS?: boolean
@@ -59,7 +93,10 @@ export interface UnsteadyFlow {
   initialRRRElevations: InitialRRRElevation[]
   boundaries: Boundary[]
   metBC: string[]
-  nonNewtonian: Record<string, string>
+  nonNewtonian: {
+    method: number
+    submethod: string
+  }
   lava?: Record<string, string>
   otherLines?: Record<string, string>
   globalFlowHydrograph?: number[]

@@ -2,11 +2,11 @@ import type {
   UnsteadyFlow,
   Boundary,
   Gate,
-  InitialFlowLocation,
   InitialStorageElevation,
   InitialRRRElevation,
 } from "../models/unsteadyFlow"
 import { formatKeyValue, formatCommaSeparated, formatFixedWidth } from "./atomic"
+import { formatBoolean } from "./utils"
 import { appendLines } from "./utils/safeArrayUtils"
 
 // Helper to format numeric arrays into fixed-width lines (8 chars per value, 10 per line)
@@ -20,13 +20,6 @@ function formatNumberArrayLines(numbers: number[]): string[] {
     lines.push(line)
   }
   return lines
-}
-
-function serializeInitialFlowLocation(loc: InitialFlowLocation): string {
-  return formatKeyValue(
-    "Initial Flow Loc",
-    formatCommaSeparated([loc.river, loc.reach, loc.station, loc.flow]),
-  )
 }
 
 function serializeInitialStorageElevation(e: InitialStorageElevation): string {
@@ -65,38 +58,30 @@ function serializeGate(gate: Gate): string[] {
 
 function serializeBoundary(boundary: Boundary): string[] {
   const lines: string[] = []
-  const locFields = [
-    formatFixedWidth(boundary.location[0] || "", 16, " ", "end"),
-    formatFixedWidth(boundary.location[1] || "", 16, " ", "end"),
-    formatFixedWidth(boundary.location[2] || "", 8, " ", "end"),
-    formatFixedWidth(boundary.location[3] || "", 8, " ", "end"),
-    formatFixedWidth(boundary.location[4] || "", 16, " ", "end"),
-    formatFixedWidth(boundary.location[5] || "", 16, " ", "end"),
-    formatFixedWidth(boundary.location[6] || "", 16, " ", "end"),
-    formatFixedWidth(boundary.location[7] || "", 16, " ", "end"),
-  ]
-  const locValue = formatCommaSeparated(locFields)
-  let extras = boundary.extra ? [...boundary.extra] : undefined
-  if (locValue.length > 80) {
-    lines.push(formatKeyValue("Boundary Location", locValue.slice(0, 80)))
-    const remainder = locValue.slice(80)
-    lines.push(remainder)
-    if (extras && extras.length > 0 && extras[0].trimEnd() === remainder.trimEnd()) {
-      extras = extras.slice(1)
-    }
-  } else {
-    lines.push(formatKeyValue("Boundary Location", locValue))
-  }
+
+  const reach = formatFixedWidth(boundary.location.reach, 16, " ", "end")
+  const river = formatFixedWidth(boundary.location.river, 16, " ", "end")
+
+  const stn = boundary.location.station.toString()
+  const param1 = formatFixedWidth(boundary.location.param1, 8, " ", "end")
+  const param2 = formatFixedWidth(boundary.location.param2, 16, " ", "end")
+  const param3 = formatFixedWidth(boundary.location.param3, 16, " ", "end")
+  const param4 = formatFixedWidth(boundary.location.param4, 16, " ", "end")
+  const param5 = formatFixedWidth(boundary.location.param5, 32, " ", "end")
+  const param6 = formatFixedWidth(boundary.location.param6, 32, " ", "end")
+
+  const locLine = formatKeyValue(
+    "Boundary Location",
+    [reach, river, stn, param1, param2, param3, param4, param5, param6].join(","),
+  )
+
+  lines.push(locLine)
+
   if (boundary.frictionSlope)
     lines.push(formatKeyValue("Friction Slope", formatCommaSeparated(boundary.frictionSlope)))
   if (boundary.interval) lines.push(formatKeyValue("Interval", boundary.interval))
   if (boundary.flowHydrograph && boundary.flowHydrograph.length > 0) {
-    lines.push(
-      formatKeyValue(
-        "Flow Hydrograph",
-        formatFixedWidth(boundary.flowHydrograph.length.toString(), 4),
-      ),
-    )
+    lines.push(formatKeyValue("Flow Hydrograph", ` ${boundary.flowHydrograph.length} `))
     appendLines(lines, formatNumberArrayLines(boundary.flowHydrograph))
   }
   if (boundary.lateralInflowHydrograph && boundary.lateralInflowHydrograph.length > 0) {
@@ -124,7 +109,7 @@ function serializeBoundary(boundary: Boundary): string[] {
     lines.push(
       formatKeyValue(
         "Stage Hydrograph TW Check",
-        formatFixedWidth(boundary.stageHydrographTWCheck.toString(), 2),
+        formatBoolean(boundary.stageHydrographTWCheck, false),
       ),
     )
   if (boundary.flowHydrographQMult !== undefined)
@@ -177,7 +162,6 @@ function serializeBoundary(boundary: Boundary): string[] {
   for (const gate of boundary.gates) {
     appendLines(lines, serializeGate(gate))
   }
-  if (extras) appendLines(lines, extras)
   return lines
 }
 
@@ -189,7 +173,14 @@ export function serializeUnsteadyFlow(flow: UnsteadyFlow): string[] {
     lines.push(formatKeyValue("Use Restart", flow.useRestart ? "-1 " : " 0 "))
   if (flow.programVersion) lines.push(formatKeyValue("Restart Filename", flow.restartFile))
   for (const loc of flow.initialFlowLocations) {
-    lines.push(serializeInitialFlowLocation(loc))
+    const river = formatFixedWidth(loc.river, 16, " ", "end")
+    const reach = formatFixedWidth(loc.reach, 16, " ", "end")
+
+    const line = formatKeyValue(
+      "Initial Flow Loc",
+      formatCommaSeparated([river, reach, loc.station, loc.flow]),
+    )
+    lines.push(line)
   }
   for (const elev of flow.initialStorageElevations) {
     lines.push(serializeInitialStorageElevation(elev))

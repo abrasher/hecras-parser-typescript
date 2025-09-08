@@ -86,8 +86,15 @@ function parseGate(lines: string[], startIndex: number): { gate: Gate; next: num
 
 function parseBoundary(lines: string[], startIndex: number): { boundary: Boundary; next: number } {
   const line = lines[startIndex]
-  const location = parseCommaSeparated(parseKeyValue(line).value)
-  const boundary: Boundary = { location, gates: [] }
+  const [reach, river, stationStr, param1, param2, param3, param4, param5, param6] =
+    parseCommaSeparated(parseKeyValue(line).value)
+
+  const station = parseFloat(stationStr)
+
+  const boundary: Boundary = {
+    location: { reach, river, station, param1, param2, param3, param4, param5, param6 },
+    gates: [],
+  }
   let i = startIndex + 1
 
   while (i < lines.length) {
@@ -166,7 +173,7 @@ function parseBoundary(lines: string[], startIndex: number): { boundary: Boundar
       continue
     }
     if (l.startsWith("Stage Hydrograph TW Check=")) {
-      boundary.stageHydrographTWCheck = parseFloat(parseKeyValue(l).value)
+      boundary.stageHydrographTWCheck = parseBooleanLine(l)
       i++
       continue
     }

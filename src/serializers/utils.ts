@@ -130,3 +130,49 @@ export function formatStationElevationPairs(stationElevationData: number[]): str
 
   return lines
 }
+
+/**
+ * Function that converts an array into multiple lines with header
+ * @example
+ * `formatArray('Points',[1, 2, 3], 8, 80)` ->
+ * [
+ *    "Points= 3 ",
+ *    "       1       2       3"
+ * ]
+ * @param key Header key to use
+ * @param arr Array to convert
+ * @param width Width of each field
+ * @param maxWidth Maximum width of each line
+ * @returns Array of formatted lines with key header line
+ */
+export function formatArray<T extends readonly T[]>(
+  arr: T,
+  width: number,
+  maxWidth: number,
+): string[] {
+  const lines: string[] = []
+
+  chunk(arr, maxWidth / width).forEach((chunk) => {
+    const formattedLine = chunk.map((value) => toFixedWidthString(value.toString(), width)).join("")
+    lines.push(formattedLine)
+  })
+
+  return lines
+}
+
+/**
+ * Format a boolean value into a string for HECRAS
+ * HECRAS uses "-1" for true, "0" for false
+ * @param value Boolean value to format
+ * @param extraSpaceBeforeZero Default is true, which adds an extra space before "0". This is generally how HECRAS formats booleans in geometry, but not in unsteady flow files
+ * @returns Formatted string
+ */
+export function formatBoolean(value: boolean, extraSpaceBeforeZero: boolean = true): string {
+  if (value) {
+    return "-1"
+  }
+  if (extraSpaceBeforeZero) {
+    return " 0"
+  }
+  return "0"
+}
