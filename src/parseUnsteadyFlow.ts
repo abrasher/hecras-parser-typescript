@@ -78,7 +78,9 @@ function parseGate(lines: string[], startIndex: number): { gate: Gate; next: num
     } else if (line.startsWith("Gate Name=") || line.startsWith("Boundary Location=")) {
       break
     } else {
-      break
+      gate.unparsedLines = gate.unparsedLines || []
+      gate.unparsedLines.push({ index: i - startIndex, content: line })
+      i++
     }
   }
   return { gate, next: i }
@@ -227,8 +229,8 @@ function parseBoundary(lines: string[], startIndex: number): { boundary: Boundar
       continue
     }
 
-    boundary.extra = boundary.extra || []
-    boundary.extra.push(l)
+    boundary.unparsedLines = boundary.unparsedLines || []
+    boundary.unparsedLines.push({ index: i - startIndex, content: l })
     i++
   }
   return { boundary, next: i }
@@ -344,13 +346,8 @@ export function parseUnsteadyFlow(content: string): UnsteadyFlow {
       i = nextIndex
       continue
     }
-    try {
-      const { key, value } = parseKeyValue(line)
-      flow.otherLines = flow.otherLines || {}
-      flow.otherLines[key] = value
-    } catch {
-      // ignore
-    }
+    flow.unparsedLines = flow.unparsedLines || []
+    flow.unparsedLines.push({ index: i, content: line })
     i++
   }
   return flow

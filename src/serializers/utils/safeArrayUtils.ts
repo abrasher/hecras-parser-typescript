@@ -69,3 +69,23 @@ export function isLargeArray<T>(array: T[]): boolean {
 export function appendLines(target: string[], source: string[]): void {
   safeArrayPush(target, source)
 }
+
+/**
+ * Insert lines at specific indices while preserving order and avoiding duplicates
+ * @param target Target lines array
+ * @param extras Lines with their target indices
+ */
+export function insertLinesAtIndices(
+  target: string[],
+  extras?: { index: number; content: string }[],
+): void {
+  if (!extras || extras.length === 0) return
+  const sorted = [...extras].sort((a, b) => a.index - b.index)
+  let offset = 0
+  for (const { index, content } of sorted) {
+    const insertionIndex = Math.min(index + offset, target.length)
+    if (target[insertionIndex]?.trimEnd() === content.trimEnd()) continue
+    target.splice(insertionIndex, 0, content)
+    offset++
+  }
+}

@@ -7,7 +7,7 @@ import type {
   InitialRRRElevation,
 } from "../models/unsteadyFlow"
 import { formatKeyValue, formatCommaSeparated, formatFixedWidth } from "./atomic"
-import { appendLines } from "./utils/safeArrayUtils"
+import { appendLines, insertLinesAtIndices } from "./utils/safeArrayUtils"
 
 // Helper to format numeric arrays into fixed-width lines (8 chars per value, 10 per line)
 function formatNumberArrayLines(numbers: number[]): string[] {
@@ -60,6 +60,7 @@ function serializeGate(gate: Gate): string[] {
     )
     appendLines(lines, formatNumberArrayLines(gate.openings))
   }
+  insertLinesAtIndices(lines, gate.unparsedLines)
   return lines
 }
 
@@ -76,14 +77,10 @@ function serializeBoundary(boundary: Boundary): string[] {
     formatFixedWidth(boundary.location[7] || "", 16, " ", "end"),
   ]
   const locValue = formatCommaSeparated(locFields)
-  let extras = boundary.extra ? [...boundary.extra] : undefined
   if (locValue.length > 80) {
     lines.push(formatKeyValue("Boundary Location", locValue.slice(0, 80)))
     const remainder = locValue.slice(80)
     lines.push(remainder)
-    if (extras && extras.length > 0 && extras[0].trimEnd() === remainder.trimEnd()) {
-      extras = extras.slice(1)
-    }
   } else {
     lines.push(formatKeyValue("Boundary Location", locValue))
   }
@@ -177,7 +174,7 @@ function serializeBoundary(boundary: Boundary): string[] {
   for (const gate of boundary.gates) {
     appendLines(lines, serializeGate(gate))
   }
-  if (extras) appendLines(lines, extras)
+  insertLinesAtIndices(lines, boundary.unparsedLines)
   return lines
 }
 
@@ -223,11 +220,6 @@ export function serializeUnsteadyFlow(flow: UnsteadyFlow): string[] {
       lines.push(formatKeyValue(key, value))
     }
   }
-  if (flow.otherLines) {
-    for (const [key, value] of Object.entries(flow.otherLines)) {
-      lines.push(formatKeyValue(key, value))
-    }
-  }
   if (flow.globalFlowHydrograph && flow.globalFlowHydrograph.length > 0) {
     lines.push(
       formatKeyValue(
@@ -237,6 +229,7 @@ export function serializeUnsteadyFlow(flow: UnsteadyFlow): string[] {
     )
     appendLines(lines, formatNumberArrayLines(flow.globalFlowHydrograph))
   }
+  insertLinesAtIndices(lines, flow.unparsedLines)
   return lines
 }
 
