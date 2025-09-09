@@ -49,6 +49,8 @@ export function parseUnsteadyFlow(content: string): UnsteadyFlow {
         station: parseFloat(station),
         flow: parseFloat(intialFlow),
       })
+      i++
+      continue
     }
     if (line.startsWith("Initial Storage Elev=")) {
       const [name, elevation, fixed] = parseValueAsCSV(line)
@@ -57,6 +59,8 @@ export function parseUnsteadyFlow(content: string): UnsteadyFlow {
         elevation: parseFloat(elevation),
         fixedDuringWarmup: parseBoolean(fixed),
       })
+      i++
+      continue
     }
 
     if (line.startsWith("Boundary Location=")) {

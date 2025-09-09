@@ -70,7 +70,6 @@ function serializeBoundary(boundary: BoundaryCondition): string[] {
       ),
     )
 
-  insertLinesAtIndices(lines, boundary.unparsedLines)
   return lines
 }
 
