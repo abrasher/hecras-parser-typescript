@@ -81,7 +81,7 @@ function parseBoundaryCondition(
   const bc = {} as BoundaryCondition
 
   const map = {
-    "Boundary Location=": (lines: string[], index: number) => {
+    "Boundary Location": () => {
       const parts = parseValueAsCSV(lines[index])
 
       bc.river = parts[0]
@@ -93,15 +93,14 @@ function parseBoundaryCondition(
       bc.param4 = parts[5]
       bc.param5 = parts[6]
       bc.param6 = parts[7]
-
       index++
     },
-    "Interval=": (lines: string[], index: number) => {
+    Interval: () => {
       bc.interval = parseDurationLine(lines[index])
       index++
     },
-    "Flow Hydrograph=": (lines: string[]) => {
-      const numOfEntries = Number(parseKeyValue(lines[index]))
+    "Flow Hydrograph": () => {
+      const numOfEntries = Number(parseKeyValue(lines[index]).value)
       index++
 
       const { data, nextIndex } = parseMultilineArray({
@@ -111,26 +110,28 @@ function parseBoundaryCondition(
         numOfEntries,
         currentIndex: index,
       })
+
       bc.flowHydrograph = data.map((s) => parseFloat(s))
       index = nextIndex
     },
-    "Stage Hydrograph TW Check=": (lines: string[]) => {
+    "Stage Hydrograph TW Check": () => {
+      console.log("parsing stage hydrograph tw check")
       bc.stageHydrographTWCheck = parseNumberBooleanLine(lines[index])
       index++
     },
-    "DSS Path=": (lines: string[]) => {
+    "DSS Path": () => {
       bc.dssPath = parseKeyValue(lines[index]).value
       index++
     },
-    "Use DSS=": (lines: string[]) => {
+    "Use DSS": () => {
       bc.useDSS = parseBooleanLine(lines[index])
       index++
     },
-    "Use Fixed Start Time=": (lines: string[]) => {
+    "Use Fixed Start Time": () => {
       bc.useFixedStartTime = parseBooleanLine(lines[index])
       index++
     },
-    "Fixed Start Date/Time=": (lines: string[]) => {
+    "Fixed Start Date/Time": () => {
       const [date, time] = parseValueAsCSV(lines[index])
       bc.fixedStartDateTime = {
         date,
@@ -142,17 +143,18 @@ function parseBoundaryCondition(
 
   while (index < lines.length) {
     const line = lines[index]
+    console.log(`line: ${line}`)
     // Stop when we hit the next boundary
     if (line.startsWith("Boundary Location=") && index !== currentIndex) break
 
-    const key = line.split("=")[0].trim() as keyof typeof map
+    const key = parseKeyValue(line).key as keyof typeof map
     if (key in map) {
-      map[key](lines, index)
+      map[key]()
     } else {
-      bc.unparsedLines = bc.unparsedLines || []
-      bc.unparsedLines.push({ index, content: line })
+      console.log(`Unknown key: ${key}`)
+      // Don't increment index - let main parser handle this line
+      break
     }
-    index++
   }
   return { data: bc, nextIndex: index }
 }
