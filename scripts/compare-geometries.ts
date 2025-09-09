@@ -13,6 +13,7 @@ import { serializeGeometryString } from "../src/serializers"
 
 function testGeometry(testFilePath: string) {
   try {
+    const linesToLog = []
     // Read and parse the original file
     const originalContent = readFileSync(testFilePath, "utf-8")
     const [name, extension] = testFilePath.split(".")
@@ -29,7 +30,7 @@ function testGeometry(testFilePath: string) {
     const originalLines = originalContent.replace(/\r\n/g, "\n").split("\n")
     const serializedLines = serializedContent.split("\n")
 
-    console.log(
+    linesToLog.push(
       `\nComparing files: \n  "${testFilePath}" \n  "${serializedOutputPath}"\n`,
       `Original lines: ${originalLines.length}\nSerialized lines: ${serializedLines.length}`,
     )
@@ -42,15 +43,16 @@ function testGeometry(testFilePath: string) {
       const serializedLine = serializedLines[i] || ""
 
       if (originalLine !== serializedLine) {
-        console.log(`First difference found at line ${i + 1}:`)
-        console.log(`  Original:   "${testFilePath}":${i + 1}`)
-        console.log(`  Serialized: "${serializedOutputPath}":${i + 1}`)
-        console.log(`  Content: \n "${originalLine}" \n "${serializedLine}"`)
+        linesToLog.push(`First difference found at line ${i + 1}:`)
+        linesToLog.push(`  Original:   "${testFilePath}":${i + 1}`)
+        linesToLog.push(`  Serialized: "${serializedOutputPath}":${i + 1}`)
+        linesToLog.push(`  Content: \n "${originalLine}" \n "${serializedLine}"`)
+        console.log(...linesToLog)
         return
       }
     }
 
-    console.log("No differences found - files are identical!")
+    console.log(`No differences for "${testFilePath}"`)
   } catch (error) {
     console.error("Error during comparison:", error)
 
@@ -71,3 +73,4 @@ testGeometry("scripts/geometries/Mitigation8.g08")
 testGeometry("scripts/geometries/Mitigation9.g09")
 testGeometry("scripts/geometries/Mitigation10.g10")
 testGeometry("test/data/BurntIslands.g01")
+testGeometry("test/data/Muncie.g01")
