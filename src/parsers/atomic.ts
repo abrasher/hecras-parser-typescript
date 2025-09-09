@@ -1,10 +1,3 @@
-// Atomic parsers for HEC-RAS format (Tier 1)
-// Simple functions that throw on error
-
-// ============================================================================
-// BASIC ATOMIC PARSERS
-// ============================================================================
-
 /**
  * Parse key-value pairs from HEC-RAS lines
  * @param line Line containing key=value or key:value format

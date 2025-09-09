@@ -10,7 +10,7 @@ interface ParseMultilineArrayParams {
 
 /**
  *
- * @param lines
+ * @param lines Array of lines that contain the data, not including the header
  * @param width
  * @param maxWidth
  * @param numOfEntries
