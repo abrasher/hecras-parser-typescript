@@ -109,7 +109,7 @@ export function serializeUnsteadyFlow(flow: UnsteadyFlow): string[] {
 
   insertLinesAtIndices(lines, flow.unparsedLines)
   // add empty line to end of file
-  lines.push("")
+  // lines.push("")
   return lines
 }
 
