@@ -69,6 +69,20 @@ export function parseUnsteadyFlow(content: string): UnsteadyFlow {
       i = nextIndex
       continue
     }
+    if (line.startsWith("Met Point Raster Parameters=")) {
+      const [left, right, rows, cols, cellSize] = parseValueAsCSV(line).map(
+        (x) => parseFloat(x),
+      )
+      flow.metPointRasterParameters = {
+        left,
+        right,
+        rows,
+        cols,
+        cellSize,
+      }
+      i++
+      continue
+    }
     flow.unparsedLines = flow.unparsedLines || []
     flow.unparsedLines.push({ index: i, content: line })
     i++
@@ -97,6 +111,10 @@ function parseBoundaryCondition(
       bc.param4 = parts[5]
       bc.param5 = parts[6]
       bc.param6 = parts[7]
+      index++
+    },
+    "Friction Slope": () => {
+      bc.frictionSlope = parseValueAsCSV(lines[index]).map((s) => parseFloat(s))
       index++
     },
     Interval: () => {
@@ -140,6 +158,14 @@ function parseBoundaryCondition(
         date,
         time,
       }
+      index++
+    },
+    "Is Critical Boundary": () => {
+      bc.isCriticalBoundary = parseBooleanLine(lines[index])
+      index++
+    },
+    "Critical Boundary Flow": () => {
+      bc.criticalBoundaryFlow = parseKeyValue(lines[index]).value
       index++
     },
   }

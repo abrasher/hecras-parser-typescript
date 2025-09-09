@@ -91,6 +91,14 @@ export interface BoundaryCondition {
   gates?: Gate[]
 }
 
+export interface MetPointRasterParameters {
+  left: number
+  right: number
+  rows: number
+  cols: number
+  cellSize: number
+}
+
 export interface UnsteadyFlow {
   flowTitle?: string
   programVersion?: string
@@ -101,6 +109,7 @@ export interface UnsteadyFlow {
   initialRRRElevations: InitialRRRElevation[]
   boundaries: BoundaryCondition[]
   metBC: string[]
+  metPointRasterParameters?: MetPointRasterParameters
 
   lava?: Record<string, string>
   unparsedLines?: UnparsedLine[]
