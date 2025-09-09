@@ -37,6 +37,11 @@ function serializeBoundary(boundary: BoundaryCondition): string[] {
 
   lines.push(locLine)
 
+  if (boundary.frictionSlope)
+    lines.push(
+      formatKeyValue("Friction Slope", formatCommaSeparated(boundary.frictionSlope)),
+    )
+
   if (boundary.interval) lines.push(formatKeyValue("Interval", formatDuration(boundary.interval)))
 
   if (boundary.flowHydrograph) {
@@ -69,6 +74,16 @@ function serializeBoundary(boundary: BoundaryCondition): string[] {
         `${boundary.fixedStartDateTime.date},${boundary.fixedStartDateTime.time}`,
       ),
     )
+
+  if (boundary.isCriticalBoundary !== undefined)
+    lines.push(
+      formatKeyValue(
+        "Is Critical Boundary",
+        boundary.isCriticalBoundary ? "True" : "False",
+      ),
+    )
+  if (boundary.criticalBoundaryFlow !== undefined)
+    lines.push(formatKeyValue("Critical Boundary Flow", boundary.criticalBoundaryFlow))
 
   return lines
 }
@@ -105,6 +120,19 @@ export function serializeUnsteadyFlow(flow: UnsteadyFlow): string[] {
 
   for (const bc of flow.boundaries) {
     lines.push(...serializeBoundary(bc))
+  }
+
+  if (flow.metPointRasterParameters) {
+    const { left, right, rows, cols, cellSize } = flow.metPointRasterParameters
+    const values = [left, right, rows, cols, cellSize].map((n) =>
+      Number.isFinite(n) ? n : "",
+    )
+    lines.push(
+      formatKeyValue(
+        "Met Point Raster Parameters",
+        formatCommaSeparated(values),
+      ),
+    )
   }
 
   insertLinesAtIndices(lines, flow.unparsedLines)
