@@ -19,8 +19,8 @@ function formatNumberArrayLines(numbers: number[]): string[] {
 function serializeBoundary(boundary: BoundaryCondition): string[] {
   const lines: string[] = []
 
-  const reach = formatFixedWidth(boundary.reach, 16, " ", "end")
-  const river = formatFixedWidth(boundary.river, 16, " ", "end")
+  const reach = formatFixedWidth(boundary.river, 16, " ", "end")
+  const river = formatFixedWidth(boundary.reach, 16, " ", "end")
 
   const stn = boundary.station
   const param1 = formatFixedWidth(boundary.param1, 8, " ", "end")
@@ -51,13 +51,14 @@ function serializeBoundary(boundary: BoundaryCondition): string[] {
         formatBoolean(boundary.stageHydrographTWCheck, false),
       ),
     )
-  if (boundary.dssFile) lines.push(formatKeyValue("DSS File", boundary.dssFile))
+  if (boundary.dssFile !== undefined) lines.push(formatKeyValue("DSS File", boundary.dssFile))
 
-  if (boundary.dssPath) lines.push(formatKeyValue("DSS Path", boundary.dssPath))
+  if (boundary.dssPath !== undefined) lines.push(formatKeyValue("DSS Path", boundary.dssPath))
 
-  if (boundary.useDSS) lines.push(formatKeyValue("Use DSS", boundary.useDSS ? "True" : "False"))
+  if (boundary.useDSS !== undefined)
+    lines.push(formatKeyValue("Use DSS", boundary.useDSS ? "True" : "False"))
 
-  if (boundary.useFixedStartTime)
+  if (boundary.useFixedStartTime !== undefined)
     lines.push(
       formatKeyValue("Use Fixed Start Time", boundary.useFixedStartTime ? "True" : "False"),
     )
