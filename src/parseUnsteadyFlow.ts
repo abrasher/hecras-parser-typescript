@@ -119,7 +119,6 @@ function parseBoundaryCondition(
       index = nextIndex
     },
     "Stage Hydrograph TW Check": () => {
-      console.log("parsing stage hydrograph tw check")
       bc.stageHydrographTWCheck = parseNumberBooleanLine(lines[index])
       index++
     },
@@ -147,7 +146,6 @@ function parseBoundaryCondition(
 
   while (index < lines.length) {
     const line = lines[index]
-    console.log(`line: ${line}`)
     // Stop when we hit the next boundary
     if (line.startsWith("Boundary Location=") && index !== currentIndex) break
 
@@ -155,8 +153,6 @@ function parseBoundaryCondition(
     if (key in map) {
       map[key]()
     } else {
-      console.log(`Unknown key: ${key}`)
-      // Don't increment index - let main parser handle this line
       break
     }
   }

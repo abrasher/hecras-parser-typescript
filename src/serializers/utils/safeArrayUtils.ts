@@ -81,11 +81,10 @@ export function insertLinesAtIndices(
 ): void {
   if (!extras || extras.length === 0) return
   const sorted = [...extras].sort((a, b) => a.index - b.index)
-  let offset = 0
+
   for (const { index, content } of sorted) {
-    const insertionIndex = Math.min(index + offset, target.length)
+    const insertionIndex = Math.min(index, target.length)
     if (target[insertionIndex]?.trimEnd() === content.trimEnd()) continue
     target.splice(insertionIndex, 0, content)
-    offset++
   }
 }
