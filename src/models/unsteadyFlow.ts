@@ -36,7 +36,6 @@ export interface Gate {
   useFixedStartTime?: boolean
   fixedStartDateTime?: string
   openings: number[]
-  unparsedLines?: UnparsedLine[]
 }
 
 export interface BoundaryCondition {
@@ -90,7 +89,6 @@ export interface BoundaryCondition {
   isCriticalBoundary?: boolean
   criticalBoundaryFlow?: string
   gates?: Gate[]
-  unparsedLines?: UnparsedLine[]
 }
 
 export interface UnsteadyFlow {
