@@ -1,0 +1,27 @@
+generate-parser.ts <file-to-parse>
+
+
+# Prompt
+You are to generate a parser for a HECRAS file. Previous work has shown that this can be done by parsing the file line-by-line. You are to follow a specific process to best achieve this:
+
+The overall parsing logic generally follows:
+1. Read the file one line at a time
+2. For each line, the code checks what it starts with. If it is a line that is the start of a "section", it delegates to a parser for that section.
+3. Once that section is over, it returns how many lines it is based and returns to the main loop.
+
+
+
+
+This has been simplified for the purpose of this prompt, but would evaluate to a structure like the following:
+```
+{
+  header1: value,
+  header2: value,
+  header3: value,
+  section1: [{
+    section
+  }]
+}
+
+Will run 
+scripts/extract-start-of-line-tokens.ts

@@ -1,0 +1,43 @@
+{
+  "headerKeys": [
+    "Geom Title=",
+    "Program Version=",
+    "Viewing Rectangle=",
+    "BEGIN GEOM DESCRIPTION:",
+    "END GEOM DESCRIPTION:"
+  ],
+  "sections": [
+    {
+      "sectionName": "storageArea",
+      "sectionStartKey": "Storage Area="
+    },
+    {
+      "sectionName": "connection",
+      "sectionStartKey": "Connection="
+    },
+    {
+      "sectionName": "boundaryCondition",
+      "sectionStartKey": "BC Line Name="
+    },
+    {
+      "sectionName": "riverReach",
+      "sectionStartKey": "River Reach="
+    },
+    {
+      "sectionName": "breakLine",
+      "sectionStartKey": "BreakLine Name="
+    },
+    {
+      "sectionName": "junction",
+      "sectionStartKey": "Junct Name="
+    },
+    {
+      "sectionName": "icPoints",
+      "sectionStartKey": "IC Point Name="
+    },
+    {
+      "sectionName": "landCover",
+      "sectionStartKey": "LCMann Time="
+    }
+  ]
+}

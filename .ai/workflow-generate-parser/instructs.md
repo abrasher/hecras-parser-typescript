@@ -1,9 +1,19 @@
+# Objective
+You are given a key
+
+
 For each key:
 
 You need to look at the output of:
-scripts/extract-start-of-line-tokens.ts
+
 scripts/extract-values-of-key.ts
 scripts/extract-token-context.ts.  
+
+<tools>
+scripts/extract-start-of-line-tokens.ts
+
+
+
 
 and figure out what is the best way to parse the value following the "How to determine the type of the value / parsing" section
 
@@ -25,7 +35,7 @@ Each part in a comma separated line needs to be parsed as a single value which c
 # Multiline array parsing
 Multiline arrays follow a format generally is a "header line" follows by zero or more lines of fixed width.
 
-## Header line
+## Headerlike line
 A header line usually consists of a key and a value.
 The value has information about the number of values in the array. It can be either:
 - a number (easy case)

@@ -1,0 +1,130 @@
+{
+  "keys": [
+    "Flow Title",
+    "Program Version",
+    "Use Restart",
+    "Initial Flow Loc",
+    "Initial Storage Elev",
+    "Initial RRR Elev",
+    "Boundary Location",
+    "Interval",
+    "Lateral Inflow Hydrograph",
+    "Uniform Lateral Inflow Hydrograph",
+    "Flow Hydrograph",
+    "Flow Hydrograph QMin",
+    "Flow Hydrograph Slope",
+    "Friction Slope",
+    "DSS File",
+    "DSS Path",
+    "Use DSS",
+    "Use Fixed Start Time",
+    "Fixed Start Date/Time",
+    "Is Critical Boundary",
+    "Critical Boundary Flow",
+    "Gate Name",
+    "Gate DSS Path",
+    "Gate Use DSS",
+    "Gate Time Interval",
+    "Gate Use Fixed Start Time",
+    "Gate Fixed Start Date/Time",
+    "Gate Openings"
+  ],
+  "sections": [
+    {
+      "name": "Header",
+      "startKey": "Flow Title",
+      "keys": ["Flow Title", "Program Version", "Use Restart"],
+      "subsections": []
+    },
+    {
+      "name": "Initial Conditions",
+      "startKey": "Initial Flow Loc",
+      "keys": ["Initial Flow Loc", "Initial Storage Elev", "Initial RRR Elev"],
+      "subsections": []
+    },
+    {
+      "name": "Boundary Conditions",
+      "startKey": "Boundary Location",
+      "keys": ["Boundary Location", "Interval", "Is Critical Boundary", "Critical Boundary Flow"],
+      "subsections": [
+        {
+          "name": "Lateral Inflow Hydrograph",
+          "startKey": "Lateral Inflow Hydrograph",
+          "keys": ["Lateral Inflow Hydrograph"],
+          "subsections": [
+            {
+              "name": "DSS Time-Series Settings",
+              "startKey": "DSS File",
+              "keys": [
+                "DSS File",
+                "DSS Path",
+                "Use DSS",
+                "Use Fixed Start Time",
+                "Fixed Start Date/Time"
+              ],
+              "subsections": []
+            }
+          ]
+        },
+        {
+          "name": "Uniform Lateral Inflow Hydrograph",
+          "startKey": "Uniform Lateral Inflow Hydrograph",
+          "keys": ["Uniform Lateral Inflow Hydrograph"],
+          "subsections": [
+            {
+              "name": "DSS Time-Series Settings",
+              "startKey": "DSS File",
+              "keys": [
+                "DSS File",
+                "DSS Path",
+                "Use DSS",
+                "Use Fixed Start Time",
+                "Fixed Start Date/Time"
+              ],
+              "subsections": []
+            }
+          ]
+        },
+        {
+          "name": "Flow Hydrograph",
+          "startKey": "Flow Hydrograph",
+          "keys": ["Flow Hydrograph", "Flow Hydrograph QMin", "Flow Hydrograph Slope"],
+          "subsections": [
+            {
+              "name": "DSS Time-Series Settings",
+              "startKey": "DSS File",
+              "keys": [
+                "DSS File",
+                "DSS Path",
+                "Use DSS",
+                "Use Fixed Start Time",
+                "Fixed Start Date/Time"
+              ],
+              "subsections": []
+            }
+          ]
+        },
+        {
+          "name": "Normal Depth (Friction Slope) Boundary",
+          "startKey": "Friction Slope",
+          "keys": ["Friction Slope"],
+          "subsections": []
+        },
+        {
+          "name": "Gate Operations",
+          "startKey": "Gate Name",
+          "keys": [
+            "Gate Name",
+            "Gate DSS Path",
+            "Gate Use DSS",
+            "Gate Time Interval",
+            "Gate Use Fixed Start Time",
+            "Gate Fixed Start Date/Time",
+            "Gate Openings"
+          ],
+          "subsections": []
+        }
+      ]
+    }
+  ]
+}
