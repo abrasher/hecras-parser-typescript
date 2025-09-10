@@ -1,16 +1,17 @@
 For each key:
 
 You need to look at the output of:
-scripts/extract-values-of-key.ts
 scripts/extract-start-of-line-tokens.ts
-scripts/extract-token-context.ts
+scripts/extract-values-of-key.ts
+scripts/extract-token-context.ts.  
 
 and figure out what is the best way to parse the value following the "How to determine the type of the value / parsing" section
 
 # How to determine the type of value / parsing for a key
 
-Check if the next line in the file also has a key. 
-1. If it does, it is most likely doesn't require multiline parsing and can be parsed as a single line (see Single line parsing).
+
+First, we need to check if the next line in the file also has a key
+1. If it does, it is most likely doesn't require multiline parsing and can be parsed as a single line (see Single line parsing). Exception to this is if value is 0, where there is no subsequent lines.
 2. If it does not, it may be a multiline array (see Multiline array parsing).
 
 ## Single line parsing
@@ -41,16 +42,19 @@ a value can be either:
 - a number
 - a string
 - a boolean
+- a duration
 
 Determining which it is can be done by following the rules and guidelines below.
 
 Rules:
 If the value is "True" or "False", it is always a boolean
+If the value has SEC, MIN, HOUR, DAY, WEEK, MONTH, YEAR in it, it is always a duration
 
 Guidelines (in order of likelyhood / importance):
 1. If there are digits in the value, it may be a number or boolean
 2. If there are digits and letters, it is always a string
 3. If it is a number, it may be an enum mapping. This can be checked by looking at a large number of examples to determine a set of possible values
+
 
 ## Numbers
 Numbers that are stored in a comma separated list are usually not fixed width
