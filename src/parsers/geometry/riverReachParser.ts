@@ -7,12 +7,11 @@ import { parseMultilineArray, arrayToCoordinates, arrayToNumberPairs } from "../
  * Handles river reach properties, coordinates, and cross-sections
  */
 export function parseRiverReachData(
-  line: string,
   lines: string[],
   currentIndex: number,
 ): { data: RiverReach; nextIndex: number } {
-  if (!line.startsWith("River Reach=")) {
-    throw new Error(`riverReachParser was given a line it can't parse: ${line}`)
+  if (!lines[currentIndex].startsWith("River Reach=")) {
+    throw new Error(`riverReachParser was given a line it can't parse: ${lines[currentIndex]}`)
   }
 
   // Initialize river reach with default values

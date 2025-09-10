@@ -159,4 +159,10 @@ describe("Additional geometry files", () => {
     expect(geometryData.connections).toBeDefined()
     expect(geometryData.boundaryConditions).toBeDefined()
   })
+
+  it("should parse and serialize Muncie.g01 (1D and 2D geometry)", () => {
+    const originalContent = readFileSync("test/data/Muncie.g01", "utf-8")
+    const geometryData = parseGeometry(originalContent)
+    const serializedContent = serializeGeometryString(geometryData)
+  })
 })

@@ -1,0 +1,127 @@
+{
+  "token": "Conn BR: BR SE",
+  "unique": [
+    {
+      "lines": [
+        "Conn BR: BR SE=1,0",
+        "Conn BR: BR Bank Stations=1,,",
+        "Conn BR: BR Mann=1,0"
+      ],
+      "first": {
+        "file": "Dingman.g01",
+        "lineNumber": 73
+      },
+      "duplicates": [
+        {
+          "file": "Dingman.g01",
+          "lineNumber": 126
+        },
+        {
+          "file": "Dingman.g01",
+          "lineNumber": 177
+        },
+        {
+          "file": "Dingman.g01",
+          "lineNumber": 238
+        }
+      ]
+    },
+    {
+      "lines": [
+        "Conn BR: BR SE=2,0",
+        "Conn BR: BR Bank Stations=2,,",
+        "Conn BR: BR Mann=2,0"
+      ],
+      "first": {
+        "file": "Dingman.g01",
+        "lineNumber": 76
+      },
+      "duplicates": [
+        {
+          "file": "Dingman.g01",
+          "lineNumber": 129
+        },
+        {
+          "file": "Dingman.g01",
+          "lineNumber": 180
+        },
+        {
+          "file": "Dingman.g01",
+          "lineNumber": 241
+        }
+      ]
+    },
+    {
+      "lines": [
+        "Conn BR: BR SE=1,40",
+        "       0 260.817    .407 260.859    .602 260.838   1.011 260.833   1.614 260.736",
+        "   2.043 260.584   2.403 260.492   2.822 260.327   3.426 259.969   3.566 259.645"
+      ],
+      "first": {
+        "file": "Dingman.g01",
+        "lineNumber": 292
+      },
+      "duplicates": []
+    },
+    {
+      "lines": [
+        "Conn BR: BR SE=2,35",
+        "       0 260.819    .386  260.77    .746 260.695   1.466 260.607   1.835 260.505",
+        "   2.439  260.32   3.266  259.94   3.647 259.781   4.251 258.204   5.458 258.127"
+      ],
+      "first": {
+        "file": "Dingman.g01",
+        "lineNumber": 304
+      },
+      "duplicates": []
+    },
+    {
+      "lines": [
+        "Conn BR: BR SE=1,26",
+        "       0 263.094    .725 263.102   1.225 263.126   1.725 257.347   2.225 257.333",
+        "   3.225 257.246   5.225  256.82   5.725 256.777   6.225 256.926   7.725 257.425"
+      ],
+      "first": {
+        "file": "Dingman.g01",
+        "lineNumber": 375
+      },
+      "duplicates": []
+    },
+    {
+      "lines": [
+        "Conn BR: BR SE=2,28",
+        "       0 263.109    .746 263.118   1.246 258.026   2.246 258.028   2.746 258.193",
+        "   3.246 257.367   3.746 257.156   5.246 256.828   5.746 256.773   6.246 256.914"
+      ],
+      "first": {
+        "file": "Dingman.g01",
+        "lineNumber": 385
+      },
+      "duplicates": []
+    },
+    {
+      "lines": [
+        "Conn BR: BR SE=1,29",
+        "       0 261.923   2.972 261.954   6.995 262.021   8.001 262.044   8.504 262.099",
+        "   9.006  261.55  12.024  261.86  12.527  259.68  13.532  259.68  14.035 259.648"
+      ],
+      "first": {
+        "file": "Dingman.g01",
+        "lineNumber": 458
+      },
+      "duplicates": []
+    },
+    {
+      "lines": [
+        "Conn BR: BR SE=2,41",
+        "       0 261.915   3.221 261.947   3.724 261.969   5.735 261.973   6.741     262",
+        "   7.244 261.992   7.747 262.016     7.9 261.994    8.25 261.929   9.256 261.119"
+      ],
+      "first": {
+        "file": "Dingman.g01",
+        "lineNumber": 468
+      },
+      "duplicates": []
+    }
+  ]
+}

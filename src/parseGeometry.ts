@@ -10,6 +10,7 @@ import { parseJunctionData } from "./parsers/geometry/junctionParser"
 import { parseICPointsSection } from "./parsers/geometry/icPointParser"
 import { parseLandCoverData } from "./parsers/geometry/landCoverParser"
 import type { LandCover } from "./models/geometry/landCover"
+import { parseRiverReachData } from "./parsers/geometry/riverReachParser"
 
 /**
  * Parse a complete HEC-RAS geometry file (.g01, .g02, etc.)
@@ -75,7 +76,9 @@ export function parseGeometry(content: string): HECRASGeometry {
       }
       // Parse river reaches - not implemented yet
       else if (line.startsWith("River Reach=")) {
-        throw new Error("River reach parsing is not yet implemented")
+        const result = parseRiverReachData(lines, index)
+        geometry.riverReaches.push(result.data)
+        index = index + result.linesConsumed
       }
       // Parse break lines
       else if (line.startsWith("BreakLine Name=")) {
