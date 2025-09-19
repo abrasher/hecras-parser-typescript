@@ -1,4 +1,4 @@
-import { parseKeyValue } from "../atomic"
+import { parseKeyValue } from "../utils"
 import type { BoundaryCondition, TextPosition } from "../../models/geometry/boundaryCondition"
 import type { Coordinate } from "../../models/geometry/common"
 import { parseMultilineArray, arrayToCoordinates } from "../multiLineParsers"

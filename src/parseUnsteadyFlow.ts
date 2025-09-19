@@ -1,5 +1,6 @@
 import type { BoundaryCondition, UnsteadyFlow } from "./models/unsteadyFlow"
-import { parseBoolean, parseDurationLine, parseKeyValue, parseValueAsCSV } from "./parsers/atomic"
+import { parseBoolean, parseDurationLine, parseValueAsCSV } from "./parsers/atomic"
+import { parseKeyValue } from "./parsers/utils"
 import { parseBooleanLine, parseNumberBooleanLine } from "./parsers/lineParsers"
 import { parseMultilineArray } from "./parsers/multiLineParsers"
 
@@ -70,9 +71,7 @@ export function parseUnsteadyFlow(content: string): UnsteadyFlow {
       continue
     }
     if (line.startsWith("Met Point Raster Parameters=")) {
-      const [left, right, rows, cols, cellSize] = parseValueAsCSV(line).map(
-        (x) => parseFloat(x),
-      )
+      const [left, right, rows, cols, cellSize] = parseValueAsCSV(line).map((x) => parseFloat(x))
       flow.metPointRasterParameters = {
         left,
         right,

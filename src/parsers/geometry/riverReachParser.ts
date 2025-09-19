@@ -1,4 +1,5 @@
-import { chunkStringToStrings, parseKeyValue, parseValueAsCSV } from "../atomic"
+import { chunkStringToStrings, parseValueAsCSV } from "../atomic"
+import { parseKeyValue } from "../utils"
 import type { RiverReach, CrossSection, CrossSectionType } from "../../models/geometry/riverReach"
 import { parseMultilineArray, arrayToCoordinates, arrayToNumberPairs } from "../multiLineParsers"
 

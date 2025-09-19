@@ -87,6 +87,14 @@ export const arrayToNumberPairs = <T extends string[], N extends number>(arr: T,
     chunkSize,
   ) as NTuple<number, N>[]
 
+export const arrayToNestedTuples = <
+  ArrayT extends Array<string | number | boolean>,
+  TupleLength extends number,
+>(
+  arr: ArrayT,
+  chunkSize: TupleLength,
+) => chunk(arr, chunkSize) as NTuple<string | number | boolean, TupleLength>[]
+
 // Helper type: build a tuple of length N
 type NTuple<T, N extends number, R extends unknown[] = []> = R["length"] extends N
   ? R

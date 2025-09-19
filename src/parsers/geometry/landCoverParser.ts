@@ -1,5 +1,5 @@
 import type { LandCover, LandCoverRegion, LandCoverTable } from "../../models/geometry/landCover"
-import { parseKeyValue } from "../atomic"
+import { parseKeyValue } from "../utils"
 import { arrayToNumberPairs, parseMultilineArray, parseMultilineCSV } from "../multiLineParsers"
 
 export function parseLandCoverData(

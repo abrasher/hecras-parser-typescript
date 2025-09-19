@@ -1,4 +1,5 @@
-import { parseKeyValue, parseCommaSeparated, chunkStringToNumbers } from "../atomic"
+import { parseCommaSeparated, chunkStringToNumbers } from "../atomic"
+import { parseKeyValue } from "../utils"
 import { parseLineToCoordinates } from "../lineParsers"
 import { parseBridgeData } from "./bridgeParser"
 import { parseCulvertData } from "./culvertParser"

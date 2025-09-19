@@ -1,6 +1,7 @@
 import { parseLineStationPairsWithNulls, parseLineToCoordinates } from "../lineParsers"
 import type { Coordinate } from "../../models/geometry/common"
-import { parseCommaSeparated, parseKeyValue } from "../atomic"
+import { parseCommaSeparated } from "../atomic"
+import { parseKeyValue } from "../utils"
 import type { CulvertGroupProperties } from "../../models/geometry/culvert"
 
 /**
@@ -12,7 +13,8 @@ export function parseCulvertData(
   lines: string[],
   currentIndex: number,
 ): { data: CulvertGroupProperties[]; nextIndex: number } {
-  if (!line.startsWith("Connection Culv=")) throw new Error(`culvertParser was given a line it can't parse: ${line}`)
+  if (!line.startsWith("Connection Culv="))
+    throw new Error(`culvertParser was given a line it can't parse: ${line}`)
 
   const culvertGroups = [] as CulvertGroupProperties[]
 
@@ -72,7 +74,12 @@ export function parseCulvertGroup(
     culvertData.barrelStations.push(...stations)
   }
 
-  const validKeys = ["Conn Culvert Barrel", "Conn Culv Bottom n", "Conn Culv Bottom Depth", "Conn Culv Depth Blocked"]
+  const validKeys = [
+    "Conn Culvert Barrel",
+    "Conn Culv Bottom n",
+    "Conn Culv Bottom Depth",
+    "Conn Culv Depth Blocked",
+  ]
 
   const isValidLine = (line: string) => {
     return validKeys.some((key) => line?.startsWith(key))

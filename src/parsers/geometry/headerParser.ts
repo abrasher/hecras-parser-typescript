@@ -1,5 +1,5 @@
 import type { ViewingRectangle } from "../../models/geometry/geometryHeaders"
-import { parseKeyValue } from "../atomic"
+import { parseKeyValue } from "../utils"
 
 export interface HeaderData {
   geomTitle: string
@@ -62,7 +62,10 @@ function parseViewingRectangle(line: string): ViewingRectangle {
   }
 }
 
-function parseDescription(lines: string[], startIndex: number): { description: string; nextIndex: number } {
+function parseDescription(
+  lines: string[],
+  startIndex: number,
+): { description: string; nextIndex: number } {
   let index = startIndex + 1 // Skip "BEGIN GEOM DESCRIPTION:" line
   const descriptionLines: string[] = []
 

@@ -208,12 +208,26 @@ export function parseHECRASDuration(value: string): number {
   }
 }
 
+/**
+ * Parse HEC-RAS boolean string to boolean
+ * @param val Boolean string
+ * "-1", "0"
+ * "-1", " 0"
+ * "False", "True"
+ * "Enable", "Disable"
+ * @returns Boolean value
+ * @throws Error if format is invalid
+ */
 export function parseBoolean(val: string): boolean {
-  if (val === "-1") {
+  if (val === "True" || val === "Enable") {
+    return true
+  } else if (val === "False" || val === "Disable") {
+    return false
+  } else if (val === "-1") {
     return true
   } else if (val.trim() === "0") {
     return false
   } else {
-    throw new Error(`Invalid boolean value: ${val}`)
+    throw new Error(`Unable to parse boolean: ${val}`)
   }
 }

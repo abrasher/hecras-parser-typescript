@@ -1,5 +1,6 @@
 import type { ICPoint } from "../../models/geometry/icPoint"
-import { parseKeyValue, parseValueAsCSV } from "../atomic"
+import { parseValueAsCSV } from "../atomic"
+import { parseKeyValue } from "../utils"
 
 export function parseICPointsSection(
   lines: string[],

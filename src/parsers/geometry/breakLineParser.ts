@@ -1,4 +1,4 @@
-import { parseKeyValue } from "../atomic"
+import { parseKeyValue } from "../utils"
 import type { BreakLine } from "../../models/geometry/breakLine"
 import { parseMultilineArray, arrayToCoordinates } from "../multiLineParsers"
 

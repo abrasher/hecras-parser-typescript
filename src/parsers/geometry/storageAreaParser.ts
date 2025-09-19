@@ -1,5 +1,6 @@
 import type { StorageArea } from "../../models/geometry/storageArea"
-import { parseKeyValue, parseCommaSeparated } from "../atomic"
+import { parseCommaSeparated } from "../atomic"
+import { parseKeyValue } from "../utils"
 import { parseMaybeFloat } from "../atomic"
 import { parseMultilineArray, arrayToCoordinates } from "../multiLineParsers"
 

@@ -27,3 +27,6 @@ geometry-roundtrip-report.txt
 *.njsproj
 *.sln
 *.sw?
+
+.chunkhound.json
+.chunkhound/

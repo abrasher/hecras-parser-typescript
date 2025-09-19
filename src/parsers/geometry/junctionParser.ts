@@ -1,4 +1,5 @@
-import { parseCommaSeparated, parseKeyValue } from "../atomic"
+import { parseCommaSeparated } from "../atomic"
+import { parseKeyValue } from "../utils"
 import type {
   JunctionProperties,
   RiverReachConnection,

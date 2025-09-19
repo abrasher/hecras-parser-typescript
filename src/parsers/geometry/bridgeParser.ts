@@ -1,10 +1,10 @@
 import {
   parseCommaSeparated,
-  parseKeyValue,
   chunkStringToNumbers,
   chunkStringToNumbersOrNull,
   parseValueAsCSV,
 } from "../atomic"
+import { parseKeyValue } from "../utils"
 import type {
   BridgeConnection,
   BridgeConfiguration,
