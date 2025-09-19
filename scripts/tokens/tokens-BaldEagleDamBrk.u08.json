@@ -1,0 +1,37 @@
+{
+  "file": "BaldEagleDamBrk.u08",
+  "tokens": {
+    "Flow Title": 1,
+    "Program Version": 1,
+    "Use Restart": 1,
+    "Initial Flow Loc": 3,
+    "Initial Storage Elev": 3,
+    "Initial RRR Elev": 2,
+    "Boundary Location": 9,
+    "Interval": 7,
+    "Lateral Inflow Hydrograph": 4,
+    "DSS File": 5,
+    "DSS Path": 7,
+    "Use DSS": 7,
+    "Use Fixed Start Time": 7,
+    "Fixed Start Date/Time": 7,
+    "Is Critical Boundary": 7,
+    "Critical Boundary Flow": 7,
+    "Uniform Lateral Inflow Hydrograph": 2,
+    "Friction Slope": 1,
+    "Flow Hydrograph": 1,
+    "Flow Hydrograph QMin": 1,
+    "Flow Hydrograph Slope": 1,
+    "Gate Name": 1,
+    "Gate DSS Path": 1,
+    "Gate Use DSS": 1,
+    "Gate Time Interval": 1,
+    "Gate Use Fixed Start Time": 1,
+    "Gate Fixed Start Date/Time": 1,
+    "Gate Openings": 1
+  },
+  "emptyLineNumbers": [
+    157
+  ],
+  "emptyLineCount": 1
+}
