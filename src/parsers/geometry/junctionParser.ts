@@ -30,8 +30,14 @@ export function parseJunctionData(
   }
   const coordinatesParts = parseCommaSeparated(parseKeyValue(lines[index]).value)
   const coordinates = {
-    position: [parseFloat(coordinatesParts[0]), parseFloat(coordinatesParts[1])] as const,
-    textPosition: [parseFloat(coordinatesParts[2]), parseFloat(coordinatesParts[3])] as const,
+    position: [parseFloat(coordinatesParts[0]), parseFloat(coordinatesParts[1])] as [
+      number,
+      number,
+    ],
+    textPosition: [parseFloat(coordinatesParts[2]), parseFloat(coordinatesParts[3])] as [
+      number,
+      number,
+    ],
   }
   index++
 
