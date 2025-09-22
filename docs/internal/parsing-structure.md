@@ -18,7 +18,7 @@ Optional/Repeated Blocks: Repeated items are handled by “while next line start
 Utilities & Conventions
 
 Key/Value Lines: parseKeyValue extracts key=value pairs; variants handle CSV and fixed-width fields (src/parsers/atomic.ts:1).
-Fixed-Width Multiline Data: parseMultilineArray slices lines by field width and total entry count, then converters like arrayToCoordinates/arrayToNumberPairs shape them into typed tuples (src/parsers/multiLineParsers.ts:19, 71; exports at 69–80).
+Fixed-Width Multiline Data: parseMultilineArray slices lines by field width and total entry count, and call sites map values with parseFloat before piping through splitIntoTuples to build typed coordinate tuples (src/parsers/multiLineParsers.ts:19; tuple helper in src/parsers/utils.ts:137).
 Tolerant Number Parsing: Helpers like parseMaybeInt/parseMaybeFloat convert blanks to null and guard against NaNs where appropriate (src/parsers/atomic.ts:87–123).
 Clear Termination: Each sub-parser either:
 Stops when it sees a different section’s sentinel, or

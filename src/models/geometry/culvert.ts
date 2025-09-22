@@ -1,4 +1,4 @@
-import type { UpstreamDownstreamPair } from "./common"
+import type { Coordinate, UpstreamDownstreamPair } from "./common"
 
 export enum CULVERT_SHAPE {
   CIRCLE = 1,
@@ -36,8 +36,5 @@ export interface CulvertGroupProperties {
 export interface CulvertBarrelProperties {
   index: number
   name: string
-  coordinates: {
-    x: number
-    y: number
-  }[]
+  coordinates: Coordinate[]
 }

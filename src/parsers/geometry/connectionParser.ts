@@ -1,11 +1,14 @@
-import { parseCommaSeparated, chunkStringToNumbers } from "../atomic"
-import { parseKeyValue } from "../utils"
-import { parseLineToCoordinates } from "../lineParsers"
+import {
+  splitIntoTuples,
+  parseCommaSeparated,
+  parseKeyValue,
+  parseMaybeFloat,
+  parseMultilineArray,
+} from "../utils"
 import { parseBridgeData } from "./bridgeParser"
 import { parseCulvertData } from "./culvertParser"
 import type { Connection } from "../../models/geometry/connection"
 import type { Coordinate, StationElevationPoint } from "../../models/geometry/common"
-import { parseMaybeFloat } from "../atomic"
 
 /**
  * Parses connection data starting from a "Connection=" line
@@ -215,36 +218,41 @@ function parseConnectionLine(
   const { value } = parseKeyValue(headerLine)
   const numberOfCoordinates = parseInt(value.trim())
 
-  let index = startIndex + 1
-  const coordinates: Coordinate[] = []
+  const index = startIndex + 1
 
-  // Connection coordinates may not be defined, so we need to check and escape if there are none
-  if (numberOfCoordinates === 0) return { data: coordinates, nextIndex: index }
-
-  // Connection coordinates are 64 characters wide, 16 characters per number, 4 coordinates per line
-  // This means we can fit 2 coordinate pair per line, so number of lines equals numberOfCoordinates
-  const lineCount = Math.ceil(numberOfCoordinates / 2) // 64 char line, 16 per char, 2 coord per pair
-
-  const endIndex = index + lineCount
-
-  for (; index < endIndex; index++) {
-    const nextLine = lines[index]
-    // Use the same fixed-width parsing as culvert barrel coordinates
-    const lineCoords = parseLineToCoordinates(nextLine)
-    coordinates.push(...lineCoords)
+  if (numberOfCoordinates === 0) {
+    return { data: [], nextIndex: index }
   }
 
-  return { data: coordinates, nextIndex: index }
+  const numbersPerCoordinate = 2
+  const { data, nextIndex } = parseMultilineArray({
+    lines,
+    width: 16,
+    maxWidth: 64,
+    numOfEntries: numberOfCoordinates * numbersPerCoordinate,
+    currentIndex: index,
+  })
+
+  const dataAsFloats = data.map((value) => {
+    const parsed = parseFloat(value)
+    if (Number.isNaN(parsed)) {
+      throw new Error(`Error parsing connection coordinate value: ${value}`)
+    }
+    return parsed
+  })
+
+  const coordinates = splitIntoTuples(dataAsFloats, 2)
+
+  return { data: coordinates, nextIndex }
 }
 
-/*************  ✨ Windsurf Command ⭐  *************/
 /**
  * Parses connection centerline profile elevation points from a "Conn BR: Centerline Profile=" line
  * @param lines The input lines to parse
  * @param startIndex The index of the "Conn BR: Centerline Profile=" line
  * @returns An object containing the parsed elevation points and the index of the next line
  */
-/*******  c6b87a42-c35f-46a3-93da-60bd9d01bfdd  *******/ function parseConnectionCenterlineProfile(
+function parseConnectionCenterlineProfile(
   lines: string[],
   startIndex: number,
 ): { data: StationElevationPoint[]; nextIndex: number } {
@@ -253,28 +261,34 @@ function parseConnectionLine(
 
   const pointCount = parseInt(value)
 
-  let index = startIndex + 1
+  const index = startIndex + 1
 
-  // Parse station-elevation points
-  const points: StationElevationPoint[] = []
-  const pointLines = Math.ceil(pointCount / 5) // 5 pairs per line
-
-  for (let i = 0; i < pointLines; i++) {
-    const pointLine = lines[index + i]
-    const nums = chunkStringToNumbers(pointLine, 8)
-
-    for (let j = 0; j < nums.length; j += 2) {
-      if (j + 1 < nums.length) {
-        points.push({
-          station: nums[j],
-          elevation: nums[j + 1],
-        })
-      }
-    }
+  if (pointCount === 0) {
+    return { data: [], nextIndex: index }
   }
-  index += pointLines
 
-  return { data: points, nextIndex: index }
+  const pointsPerEntry = 2
+  const { data, nextIndex } = parseMultilineArray({
+    lines,
+    width: 8,
+    maxWidth: 80,
+    numOfEntries: pointCount * pointsPerEntry,
+    currentIndex: index,
+  })
+
+  const dataAsFloats = data
+    .filter((value) => value !== "")
+    .map((value) => {
+      const parsed = parseFloat(value)
+      if (Number.isNaN(parsed)) {
+        throw new Error(`Error parsing connection centerline profile value: ${value}`)
+      }
+      return parsed
+    })
+  const dataAsPairs = splitIntoTuples(dataAsFloats, 2) as [number, number][]
+  const points = dataAsPairs.map(([station, elevation]) => ({ station, elevation }))
+
+  return { data: points, nextIndex }
 }
 
 function parseConnOutletRatingCurve(line: string): {
@@ -303,26 +317,28 @@ function parseWeirStationElevation(lines: string[], currentIndex: number) {
     return { data: [], nextIndex: currentIndex + 1 }
   }
 
-  let index = currentIndex + 1
+  const index = currentIndex + 1
 
-  // Parse station-elevation points
-  const points: StationElevationPoint[] = []
-  const pointLines = Math.ceil(pointCount / 5) // 5 pairs per line
+  const pointsPerEntry = 2
+  const { data, nextIndex } = parseMultilineArray({
+    lines,
+    width: 8,
+    maxWidth: 80,
+    numOfEntries: pointCount * pointsPerEntry,
+    currentIndex: index,
+  })
 
-  for (let i = 0; i < pointLines; i++) {
-    const pointLine = lines[index + i]
-    const nums = chunkStringToNumbers(pointLine, 8)
-
-    for (let j = 0; j < nums.length; j += 2) {
-      if (j + 1 < nums.length) {
-        points.push({
-          station: nums[j],
-          elevation: nums[j + 1],
-        })
+  const dataAsFloats = data
+    .filter((value) => value !== "")
+    .map((value) => {
+      const parsed = parseFloat(value)
+      if (Number.isNaN(parsed)) {
+        throw new Error(`Error parsing weir station elevation value: ${value}`)
       }
-    }
-  }
-  index += pointLines
+      return parsed
+    })
+  const dataAsPairs = splitIntoTuples(dataAsFloats, 2) as [number, number][]
+  const points = dataAsPairs.map(([station, elevation]) => ({ station, elevation }))
 
-  return { data: points, nextIndex: index }
+  return { data: points, nextIndex }
 }

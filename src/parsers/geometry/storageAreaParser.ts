@@ -1,8 +1,11 @@
 import type { StorageArea } from "../../models/geometry/storageArea"
-import { parseCommaSeparated } from "../atomic"
-import { parseKeyValue } from "../utils"
-import { parseMaybeFloat } from "../atomic"
-import { parseMultilineArray, arrayToCoordinates } from "../multiLineParsers"
+import {
+  parseCommaSeparated,
+  parseKeyValue,
+  parseMaybeFloat,
+  splitIntoTuples,
+  parseMultilineArray,
+} from "../utils"
 
 /**
  * Parses storage area data starting from a "Storage Area=" line
@@ -95,7 +98,8 @@ export function parseStorageAreaData(
         lines,
       })
 
-      const res = arrayToCoordinates(data)
+      const dataAsFloats = data.map((value) => parseFloat(value))
+      const res = splitIntoTuples(dataAsFloats, 2) as StorageArea["surfaceLine"]
 
       storageAreaData.surfaceLine = res
 
@@ -153,7 +157,8 @@ export function parseStorageAreaData(
         lines,
       })
 
-      const res = arrayToCoordinates(data)
+      const dataAsFloats = data.map((value) => parseFloat(value))
+      const res = splitIntoTuples(dataAsFloats, 2) as StorageArea["points2D"]
 
       storageAreaData.points2D = res
 

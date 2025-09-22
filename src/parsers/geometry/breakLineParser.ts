@@ -1,6 +1,5 @@
-import { parseKeyValue } from "../utils"
+import { parseKeyValue, splitIntoTuples, parseMultilineArray } from "../utils"
 import type { BreakLine } from "../../models/geometry/breakLine"
-import { parseMultilineArray, arrayToCoordinates } from "../multiLineParsers"
 
 /**
  * Parse a BreakLine geometry definition from HEC-RAS format
@@ -77,7 +76,8 @@ export function parseBreakLine(lines: string[], startIndex: number) {
     lines,
   })
 
-  const res = arrayToCoordinates(data)
+  const dataAsFloats = data.map((value) => parseFloat(value))
+  const res = splitIntoTuples(dataAsFloats, 2) as BreakLine["polylinePoints"]
 
   breakLine.polylinePoints = res
 

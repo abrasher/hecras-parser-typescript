@@ -1,4 +1,4 @@
-import { parseCommaSeparated } from "../atomic"
+import { parseCommaSeparated } from "../utils"
 import { parseKeyValue } from "../utils"
 import type {
   JunctionProperties,

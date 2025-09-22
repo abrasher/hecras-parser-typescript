@@ -1,6 +1,5 @@
 import type { ICPoint } from "../../models/geometry/icPoint"
-import { parseValueAsCSV } from "../atomic"
-import { parseKeyValue } from "../utils"
+import { parseKeyValue, parseCommaSeparated } from "../utils"
 
 export function parseICPointsSection(
   lines: string[],
@@ -17,7 +16,8 @@ export function parseICPointsSection(
     const name = parseKeyValue(line).value.trim()
     index++
 
-    const [x, y] = parseValueAsCSV(lines[index]).map(Number)
+    const { value } = parseKeyValue(lines[index])
+    const [x, y] = parseCommaSeparated(value).map(Number)
     index++
 
     icPoints.push({ name, coordinate: [x, y] })

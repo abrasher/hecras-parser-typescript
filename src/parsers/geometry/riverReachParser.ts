@@ -1,7 +1,5 @@
-import { chunkStringToStrings, parseValueAsCSV } from "../atomic"
-import { parseKeyValue } from "../utils"
+import { parseKeyValue, parseCommaSeparated, splitIntoTuples, parseMultilineArray } from "../utils"
 import type { RiverReach, CrossSection, CrossSectionType } from "../../models/geometry/riverReach"
-import { parseMultilineArray, arrayToCoordinates, arrayToNumberPairs } from "../multiLineParsers"
 
 /**
  * Parses river reach data starting from a "River Reach=" line
@@ -47,7 +45,8 @@ export function parseRiverReachData(
     }
 
     if (currentLine.startsWith("River Reach=")) {
-      const [riverName, reachName] = parseValueAsCSV(currentLine).map((s) => s.trim())
+      const { value } = parseKeyValue(currentLine)
+      const [riverName, reachName] = parseCommaSeparated(value).map((s) => s.trim())
       riverReach.riverName = riverName
       riverReach.reachName = reachName
       index++
@@ -64,11 +63,13 @@ export function parseRiverReachData(
         lines,
       })
 
-      riverReach.coordinates = arrayToCoordinates(data)
+      const dataAsFloats = data.map((value) => parseFloat(value))
+      riverReach.coordinates = splitIntoTuples(dataAsFloats, 2)
 
       index = nextIndex
     } else if (currentLine.startsWith("Rch Text X Y=")) {
-      const [x, y] = parseValueAsCSV(currentLine).map((s) => parseFloat(s))
+      const { value } = parseKeyValue(currentLine)
+      const [x, y] = parseCommaSeparated(value).map((s) => parseFloat(s))
       riverReach.textPosition = [x, y]
       index++
     } else if (currentLine.startsWith("Reverse River Text=")) {
@@ -103,7 +104,8 @@ function parseCrossSection(
   currentIndex: number,
 ): { data: CrossSection; nextIndex: number } {
   const line = lines[currentIndex]
-  const parts = parseValueAsCSV(line)
+  const { value } = parseKeyValue(line)
+  const parts = parseCommaSeparated(value)
 
   const crossSection: CrossSection = {
     type: parseInt(parts[0]) as CrossSectionType,
@@ -144,34 +146,40 @@ function parseCrossSection(
         currentIndex: index,
         lines,
       })
-      crossSection.gisLine = arrayToCoordinates(data)
+      const dataAsFloats = data.map((value) => parseFloat(value))
+      crossSection.gisLine = splitIntoTuples(dataAsFloats, 2)
       index = nextIndex
     } else if (currentLine.startsWith("Node Last Edited Time=")) {
       const { value } = parseKeyValue(currentLine)
       crossSection.lastEditedTime = value
       index++
     } else if (currentLine.startsWith("Bank Sta=")) {
-      const [leftBank, rightBank] = parseValueAsCSV(currentLine).map((s) => parseFloat(s))
+      const { value } = parseKeyValue(currentLine)
+      const [leftBank, rightBank] = parseCommaSeparated(value).map((s) => parseFloat(s))
       crossSection.leftBankStation = leftBank
       crossSection.rightBankStation = rightBank
       index++
     } else if (currentLine.startsWith("XS Rating Curve=")) {
-      const ratingParts = parseValueAsCSV(currentLine)
+      const { value } = parseKeyValue(currentLine)
+      const ratingParts = parseCommaSeparated(value)
       crossSection.ratingCurveType = parseInt(ratingParts[0])
       crossSection.ratingCurveValue = parseInt(ratingParts[1])
       index++
     } else if (currentLine.startsWith("XS HTab Starting El and Incr=")) {
-      const htabParts = parseValueAsCSV(currentLine)
+      const { value } = parseKeyValue(currentLine)
+      const htabParts = parseCommaSeparated(value)
       crossSection.htabStartingElevation = parseFloat(htabParts[0])
       crossSection.htabIncrement = parseFloat(htabParts[1])
       crossSection.htabCount = parseInt(htabParts[2])
       index++
     } else if (currentLine.startsWith("XS HTab Horizontal Distribution=")) {
-      const distribution = parseValueAsCSV(currentLine)
+      const { value } = parseKeyValue(currentLine)
+      const distribution = parseCommaSeparated(value)
       crossSection.htabHorizontalDistribution = distribution.map((d) => parseInt(d))
       index++
     } else if (currentLine.startsWith("Exp/Cntr=")) {
-      const expCntr = parseValueAsCSV(currentLine)
+      const { value } = parseKeyValue(currentLine)
+      const expCntr = parseCommaSeparated(value)
       crossSection.expansionContractionCoefficients = {
         expansion: parseFloat(expCntr[0]),
         contraction: parseFloat(expCntr[1]),
@@ -189,7 +197,10 @@ function parseCrossSection(
         currentIndex: index,
         lines,
       })
-      crossSection.stationElevation = arrayToNumberPairs(data, 2)
+      {
+        const dataAsFloats = data.map((value) => parseFloat(value))
+        crossSection.stationElevation = splitIntoTuples(dataAsFloats, 2)
+      }
       index = nextIndex
     } else if (currentLine.startsWith("#Mann=")) {
       const numberOfValues = parseInt(parseKeyValue(currentLine).value)
@@ -203,10 +214,14 @@ function parseCrossSection(
         currentIndex: index,
         lines,
       })
-      crossSection.manningValues = arrayToNumberPairs(data, 3)
+      {
+        const dataAsFloats = data.map((value) => parseFloat(value))
+        crossSection.manningValues = splitIntoTuples(dataAsFloats, 3)
+      }
       index = nextIndex
     } else if (currentLine.startsWith("#XS Ineff=")) {
-      const [numIneff, _flag] = parseValueAsCSV(currentLine)
+      const { value } = parseKeyValue(currentLine)
+      const [numIneff, _flag] = parseCommaSeparated(value)
       index++
 
       const numberOfValues = parseInt(numIneff)
@@ -219,7 +234,14 @@ function parseCrossSection(
         currentIndex: index,
         lines,
       })
-      crossSection.ineffectiveFlowAreas = arrayToNumberPairs(data, 3) as [number, number, number][]
+      {
+        const dataAsFloats = data.map((value) => parseFloat(value))
+        crossSection.ineffectiveFlowAreas = splitIntoTuples(dataAsFloats, 3) as [
+          number,
+          number,
+          number,
+        ][]
+      }
       index = nextIndex
     } else if (currentLine.startsWith("#Block Obstruct=")) {
       const numberOfValues = parseInt(parseKeyValue(currentLine).value)
@@ -233,11 +255,21 @@ function parseCrossSection(
         currentIndex: index,
         lines,
       })
-      crossSection.blockedObstructions = arrayToNumberPairs(data, 3) as [number, number, number][]
+      {
+        const dataAsFloats = data.map((value) => parseFloat(value))
+        crossSection.blockedObstructions = splitIntoTuples(dataAsFloats, 3) as [
+          number,
+          number,
+          number,
+        ][]
+      }
       index = nextIndex
     } else if (currentLine.startsWith("Permanent Ineff=")) {
-      const nextLine = lines[index + 1]
-      const permAreas = chunkStringToStrings(nextLine, 8).map((s) => s.trim() === "T")
+      const nextLine = lines[index + 1] ?? ""
+      const boolChunks = nextLine.replace(/\r/g, "").match(/.{1,8}/g) ?? []
+      const permAreas = splitIntoTuples(boolChunks, 2)
+        .flat()
+        .map((value) => value.trim() === "T")
 
       crossSection.permanentIneffective = permAreas
       index += 2

@@ -1,7 +1,10 @@
-import { parseLineStationPairsWithNulls, parseLineToCoordinates } from "../lineParsers"
-import type { Coordinate } from "../../models/geometry/common"
-import { parseCommaSeparated } from "../atomic"
-import { parseKeyValue } from "../utils"
+import {
+  splitIntoTuples,
+  parseCommaSeparated,
+  parseKeyValue,
+  parseMaybeFloat,
+  parseMultilineArray,
+} from "../utils"
 import type { CulvertGroupProperties } from "../../models/geometry/culvert"
 
 /**
@@ -64,15 +67,23 @@ export function parseCulvertGroup(
   // Barrel stations are defined on the next lines
   // The line is max width of 80, each number being 8 characters. You can fit 5 pairs per line
   // [5 pair per line = (80 chars / 8 char per num ) / 2 num per pair]
-  const numberOfStationLines = Math.ceil(culvertData.numberOfBarrels / 5)
   let index = currentIndex + 1
-  const endIndex = index + numberOfStationLines
-
-  for (; index < endIndex; index++) {
-    const nextLine = lines[index]
-    const stations = parseLineStationPairsWithNulls(nextLine)
-    culvertData.barrelStations.push(...stations)
-  }
+  const { data: stationData, nextIndex: stationsNextIndex } = parseMultilineArray({
+    width: 8,
+    maxWidth: 80,
+    numOfEntries: culvertData.numberOfBarrels * 2,
+    currentIndex: index,
+    lines,
+  })
+  const stationValues = stationData.map((value) => parseMaybeFloat(value))
+  const stationPairs = splitIntoTuples(stationValues, 2).map(
+    ([upstreamStation, downstreamStation]) => ({
+      upstreamStation,
+      downstreamStation,
+    }),
+  )
+  culvertData.barrelStations.push(...stationPairs)
+  index = stationsNextIndex
 
   const validKeys = [
     "Conn Culvert Barrel",
@@ -111,6 +122,7 @@ export function parseCulvertGroup(
 }
 
 function parseCulvertBarrel(line: string, lines: string[], currentIndex: number) {
+  let index = currentIndex
   const { value } = parseKeyValue(line)
 
   // Conn Culvert Barrel=index,name,numberOfCoordinates
@@ -119,31 +131,32 @@ function parseCulvertBarrel(line: string, lines: string[], currentIndex: number)
   const barrelData = {
     index: parseInt(parts[0]),
     name: parts[1],
-    coordinates: [] as Coordinate[],
+    coordinates: [] as [number, number][],
   }
 
-  // HECRAS tells you how many coordinates a barrel has
-  const numberOfCoordinatesForBarrel = parseInt(parts[2])
-
-  // Barrels may not have coordinates defined, so we need to check and escape if there are none
-  if (numberOfCoordinatesForBarrel === 0) return { data: barrelData, nextIndex: currentIndex + 1 }
+  // HECRAS tells you how many points a barrel has
+  const numberOfPoints = parseInt(parts[2])
+  index++
 
   // Barrel coordinates are 64 characters wide, 16 characters a number, 2 pairs a line
   // This means we can fit 2 coordinates per line, so number of lines is coordinates / 2
-  const lineCount = Math.ceil(numberOfCoordinatesForBarrel / 2)
+  const pointsPerEntry = 2
+  const { data, nextIndex: nextIndex1 } = parseMultilineArray({
+    width: 16,
+    maxWidth: 64,
+    numOfEntries: numberOfPoints * pointsPerEntry,
+    currentIndex: index,
+    lines,
+  })
 
-  let index = currentIndex + 1
-  const endIndex = index + lineCount
+  const dataAsFloats = data.map((v) => parseFloat(v))
+  const dataAsPairs = splitIntoTuples(dataAsFloats, 2)
 
-  for (; index < endIndex; index++) {
-    const nextLine = lines[index]
-    const stations = parseLineToCoordinates(nextLine)
-    barrelData.coordinates.push(...stations)
-  }
+  barrelData.coordinates = dataAsPairs
 
   return {
     data: barrelData,
-    nextIndex: index,
+    nextIndex: nextIndex1,
   }
 }
 

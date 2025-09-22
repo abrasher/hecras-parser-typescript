@@ -1,8 +1,12 @@
 import type { BoundaryCondition, UnsteadyFlow } from "./models/unsteadyFlow"
-import { parseBoolean, parseDurationLine, parseValueAsCSV } from "./parsers/atomic"
-import { parseKeyValue } from "./parsers/utils"
-import { parseBooleanLine, parseNumberBooleanLine } from "./parsers/lineParsers"
-import { parseMultilineArray } from "./parsers/multiLineParsers"
+
+import {
+  parseKeyValue,
+  parseDuration,
+  parseCommaSeparated,
+  parseBoolean,
+  parseMultilineArray,
+} from "./parsers/utils"
 
 export function parseUnsteadyFlow(content: string): UnsteadyFlow {
   const lines = content.split(/\r\n|\r|\n/)
@@ -37,12 +41,14 @@ export function parseUnsteadyFlow(content: string): UnsteadyFlow {
       continue
     }
     if (line.startsWith("Use Restart=")) {
-      flow.useRestart = parseNumberBooleanLine(line)
+      const { value } = parseKeyValue(line)
+      flow.useRestart = parseBoolean(value)
       i++
       continue
     }
     if (line.startsWith("Initial Flow Loc=")) {
-      const [river, reach, station, intialFlow] = parseValueAsCSV(line)
+      const { value } = parseKeyValue(line)
+      const [river, reach, station, intialFlow] = parseCommaSeparated(value)
 
       flow.initialFlowLocations.push({
         river,
@@ -54,7 +60,8 @@ export function parseUnsteadyFlow(content: string): UnsteadyFlow {
       continue
     }
     if (line.startsWith("Initial Storage Elev=")) {
-      const [name, elevation, fixed] = parseValueAsCSV(line)
+      const { value } = parseKeyValue(line)
+      const [name, elevation, fixed] = parseCommaSeparated(value)
       flow.initialStorageElevations.push({
         name,
         elevation: parseFloat(elevation),
@@ -71,7 +78,10 @@ export function parseUnsteadyFlow(content: string): UnsteadyFlow {
       continue
     }
     if (line.startsWith("Met Point Raster Parameters=")) {
-      const [left, right, rows, cols, cellSize] = parseValueAsCSV(line).map((x) => parseFloat(x))
+      const { value } = parseKeyValue(line)
+      const [left, right, rows, cols, cellSize] = parseCommaSeparated(value).map((x) =>
+        parseFloat(x),
+      )
       flow.metPointRasterParameters = {
         left,
         right,
@@ -99,7 +109,8 @@ function parseBoundaryCondition(
 
   const map = {
     "Boundary Location": () => {
-      const parts = parseValueAsCSV(lines[index])
+      const { value } = parseKeyValue(lines[index])
+      const parts = parseCommaSeparated(value)
 
       bc.river = parts[0]
       bc.reach = parts[1]
@@ -113,11 +124,13 @@ function parseBoundaryCondition(
       index++
     },
     "Friction Slope": () => {
-      bc.frictionSlope = parseValueAsCSV(lines[index]).map((s) => parseFloat(s))
+      const { value } = parseKeyValue(lines[index])
+      bc.frictionSlope = parseCommaSeparated(value).map((s) => parseFloat(s))
       index++
     },
     Interval: () => {
-      bc.interval = parseDurationLine(lines[index])
+      const { value } = parseKeyValue(lines[index])
+      bc.interval = parseDuration(value)
       index++
     },
     "Flow Hydrograph": () => {
@@ -136,7 +149,8 @@ function parseBoundaryCondition(
       index = nextIndex
     },
     "Stage Hydrograph TW Check": () => {
-      bc.stageHydrographTWCheck = parseNumberBooleanLine(lines[index])
+      const { value } = parseKeyValue(lines[index])
+      bc.stageHydrographTWCheck = parseBoolean(value)
       index++
     },
     "DSS Path": () => {
@@ -144,15 +158,18 @@ function parseBoundaryCondition(
       index++
     },
     "Use DSS": () => {
-      bc.useDSS = parseBooleanLine(lines[index])
+      const { value } = parseKeyValue(lines[index])
+      bc.useDSS = parseBoolean(value)
       index++
     },
     "Use Fixed Start Time": () => {
-      bc.useFixedStartTime = parseBooleanLine(lines[index])
+      const { value } = parseKeyValue(lines[index])
+      bc.useFixedStartTime = parseBoolean(value)
       index++
     },
     "Fixed Start Date/Time": () => {
-      const [date, time] = parseValueAsCSV(lines[index])
+      const { value } = parseKeyValue(lines[index])
+      const [date, time] = parseCommaSeparated(value)
       bc.fixedStartDateTime = {
         date,
         time,
@@ -160,7 +177,8 @@ function parseBoundaryCondition(
       index++
     },
     "Is Critical Boundary": () => {
-      bc.isCriticalBoundary = parseBooleanLine(lines[index])
+      const { value } = parseKeyValue(lines[index])
+      bc.isCriticalBoundary = parseBoolean(value)
       index++
     },
     "Critical Boundary Flow": () => {

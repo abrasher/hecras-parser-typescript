@@ -1,7 +1,6 @@
-import { parseKeyValue } from "../utils"
+import { parseKeyValue, splitIntoTuples, parseMultilineArray } from "../utils"
 import type { BoundaryCondition, TextPosition } from "../../models/geometry/boundaryCondition"
 import type { Coordinate } from "../../models/geometry/common"
-import { parseMultilineArray, arrayToCoordinates } from "../multiLineParsers"
 
 /**
  * Parses boundary condition data starting from a "BC Line Name=" line
@@ -115,7 +114,8 @@ function parseArcCoordinates(
     lines,
   })
 
-  const res = arrayToCoordinates(data)
+  const dataAsFloats = data.map((value) => parseFloat(value))
+  const res = splitIntoTuples(dataAsFloats, 2) as Coordinate[]
 
   return { data: res, nextIndex }
 }

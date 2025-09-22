@@ -1,5 +1,5 @@
 import type { Coordinate } from "./common"
-import type { UpstreamDownstreamValue } from "./general"
+import type { UpstreamDownstreamValue } from "./common"
 
 export enum CrossSectionType {
   NORMAL = 1,

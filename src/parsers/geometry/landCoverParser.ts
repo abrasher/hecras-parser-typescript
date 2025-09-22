@@ -1,6 +1,5 @@
 import type { LandCover, LandCoverRegion, LandCoverTable } from "../../models/geometry/landCover"
-import { parseKeyValue } from "../utils"
-import { arrayToNumberPairs, parseMultilineArray, parseMultilineCSV } from "../multiLineParsers"
+import { parseKeyValue, splitIntoTuples, parseMultilineCSV, parseMultilineArray } from "../utils"
 
 export function parseLandCoverData(
   lines: string[],
@@ -53,7 +52,8 @@ export function parseLandCoverData(
     })
     index = nextIndex
 
-    const polygon = arrayToNumberPairs(polygonData, 2)
+    const dataAsFloats = polygonData.map((value) => parseFloat(value))
+    const polygon = splitIntoTuples(dataAsFloats, 2)
 
     regions.push({
       name,

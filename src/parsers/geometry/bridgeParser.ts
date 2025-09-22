@@ -1,10 +1,10 @@
 import {
   parseCommaSeparated,
-  chunkStringToNumbers,
-  chunkStringToNumbersOrNull,
-  parseValueAsCSV,
-} from "../atomic"
-import { parseKeyValue } from "../utils"
+  parseKeyValue,
+  parseMaybeFloat,
+  splitIntoTuples,
+  parseMultilineArray,
+} from "../utils"
 import type {
   BridgeConnection,
   BridgeConfiguration,
@@ -17,9 +17,7 @@ import type {
   BankStations,
   BridgePier,
 } from "../../models/geometry/bridge"
-import { parseMaybeFloat } from "../atomic"
 import { zip } from "es-toolkit"
-import { parseMultilineArray, arrayToNumberPairs } from "../multiLineParsers"
 
 /**
  * Parses bridge connection data starting from a "Conn BR: Bridge=" line
@@ -152,36 +150,64 @@ function parseDeckSection(
   maxPointsPerLine: number,
 ): { stations: number[]; highChords: number[]; lowChords: (number | null)[]; nextIndex: number } {
   let index = startIndex
+  const maxWidth = widthPerPoint * maxPointsPerLine
 
-  // Parse stations
-  const stations: number[] = []
-  const stationLines = Math.ceil(numberOfStations / maxPointsPerLine)
-  for (let i = 0; i < stationLines; i++) {
-    const stationLine = lines[index + i]
-    const stationNumbers = chunkStringToNumbers(stationLine, widthPerPoint)
-    stations.push(...stationNumbers)
+  const { data: stationData, nextIndex: stationNextIndex } = parseMultilineArray({
+    width: widthPerPoint,
+    maxWidth,
+    numOfEntries: numberOfStations,
+    currentIndex: index,
+    lines,
+  })
+  const stations = stationData
+    .filter((value) => value !== "")
+    .map((value) => {
+      const parsed = parseFloat(value)
+      if (Number.isNaN(parsed)) {
+        throw new Error(`Error parsing station value: ${value}`)
+      }
+      return parsed
+    })
+  if (stations.length !== numberOfStations) {
+    throw new Error(
+      `Expected ${numberOfStations} station values but parsed ${stations.length} while reading deck section`,
+    )
   }
-  index += stationLines
+  index = stationNextIndex
 
-  // Parse high chord elevations
-  const highChords: number[] = []
-  const highChordLines = Math.ceil(numberOfStations / maxPointsPerLine)
-  for (let i = 0; i < highChordLines; i++) {
-    const elevLine = lines[index + i]
-    const elevations = chunkStringToNumbers(elevLine, widthPerPoint)
-    highChords.push(...elevations)
+  const { data: highChordData, nextIndex: highChordNextIndex } = parseMultilineArray({
+    width: widthPerPoint,
+    maxWidth,
+    numOfEntries: numberOfStations,
+    currentIndex: index,
+    lines,
+  })
+  const highChords = highChordData
+    .filter((value) => value !== "")
+    .map((value) => {
+      const parsed = parseFloat(value)
+      if (Number.isNaN(parsed)) {
+        throw new Error(`Error parsing high chord value: ${value}`)
+      }
+      return parsed
+    })
+  if (highChords.length !== numberOfStations) {
+    throw new Error(
+      `Expected ${numberOfStations} high chord values but parsed ${highChords.length} while reading deck section`,
+    )
   }
-  index += highChordLines
+  index = highChordNextIndex
 
-  // Parse low chord elevations (may contain nulls)
-  const lowChords: (number | null)[] = []
-  const lowChordLines = Math.ceil(numberOfStations / maxPointsPerLine)
-  for (let i = 0; i < lowChordLines; i++) {
-    const lowChordLine = lines[index + i]
-    const lowChordNumbers = chunkStringToNumbersOrNull(lowChordLine, widthPerPoint)
-    lowChords.push(...lowChordNumbers)
-  }
-  index += lowChordLines
+  const { data: lowChordData, nextIndex: nextLowChordIndex } = parseMultilineArray({
+    width: widthPerPoint,
+    maxWidth,
+    numOfEntries: numberOfStations,
+    currentIndex: index,
+    lines,
+  })
+
+  const lowChords = lowChordData.map((value) => parseMaybeFloat(value))
+  index = nextLowChordIndex
 
   return { stations, highChords, lowChords, nextIndex: index }
 }
@@ -214,9 +240,9 @@ export function parsePier(
   const [
     skew,
     upstreamCenter,
-    _upstreamPoints,
+    upstreamPoints,
     downstreamCenter,
-    _downstreamPoints,
+    downstreamPoints,
     _unknown1,
     _unknown2,
     debrisEnabled,
@@ -226,17 +252,102 @@ export function parsePier(
 
   index++
 
-  const upstreamWidths = chunkStringToNumbers(lines[index], 8)
-  index++
+  const upstreamPointCount = parseInt(upstreamPoints) || 0
+  const downstreamPointCount = parseInt(downstreamPoints) || 0
 
-  const upstreamElevations = chunkStringToNumbers(lines[index], 8)
-  index++
+  const { data: upstreamWidthData, nextIndex: upstreamWidthNext } = parseMultilineArray({
+    width: 8,
+    maxWidth: 80,
+    numOfEntries: upstreamPointCount,
+    currentIndex: index,
+    lines,
+  })
+  const upstreamWidths = upstreamWidthData
+    .filter((value) => value !== "")
+    .map((value) => {
+      const parsed = parseFloat(value)
+      if (Number.isNaN(parsed)) {
+        throw new Error(`Error parsing upstream width: ${value}`)
+      }
+      return parsed
+    })
+  if (upstreamWidths.length !== upstreamPointCount) {
+    throw new Error(
+      `Expected ${upstreamPointCount} upstream widths but parsed ${upstreamWidths.length} while reading pier data`,
+    )
+  }
+  index = upstreamWidthNext
 
-  const downstreamWidths = chunkStringToNumbers(lines[index], 8)
-  index++
+  const { data: upstreamElevationData, nextIndex: upstreamElevationNext } = parseMultilineArray({
+    width: 8,
+    maxWidth: 80,
+    numOfEntries: upstreamPointCount,
+    currentIndex: index,
+    lines,
+  })
+  const upstreamElevations = upstreamElevationData
+    .filter((value) => value !== "")
+    .map((value) => {
+      const parsed = parseFloat(value)
+      if (Number.isNaN(parsed)) {
+        throw new Error(`Error parsing upstream elevation: ${value}`)
+      }
+      return parsed
+    })
+  if (upstreamElevations.length !== upstreamPointCount) {
+    throw new Error(
+      `Expected ${upstreamPointCount} upstream elevations but parsed ${upstreamElevations.length} while reading pier data`,
+    )
+  }
+  index = upstreamElevationNext
 
-  const downstreamElevations = chunkStringToNumbers(lines[index], 8)
-  index++
+  const { data: downstreamWidthData, nextIndex: downstreamWidthNext } = parseMultilineArray({
+    width: 8,
+    maxWidth: 80,
+    numOfEntries: downstreamPointCount,
+    currentIndex: index,
+    lines,
+  })
+  const downstreamWidths = downstreamWidthData
+    .filter((value) => value !== "")
+    .map((value) => {
+      const parsed = parseFloat(value)
+      if (Number.isNaN(parsed)) {
+        throw new Error(`Error parsing downstream width: ${value}`)
+      }
+      return parsed
+    })
+  if (downstreamWidths.length !== downstreamPointCount) {
+    throw new Error(
+      `Expected ${downstreamPointCount} downstream widths but parsed ${downstreamWidths.length} while reading pier data`,
+    )
+  }
+  index = downstreamWidthNext
+
+  const { data: downstreamElevationData, nextIndex: downstreamElevationNext } = parseMultilineArray(
+    {
+      width: 8,
+      maxWidth: 80,
+      numOfEntries: downstreamPointCount,
+      currentIndex: index,
+      lines,
+    },
+  )
+  const downstreamElevations = downstreamElevationData
+    .filter((value) => value !== "")
+    .map((value) => {
+      const parsed = parseFloat(value)
+      if (Number.isNaN(parsed)) {
+        throw new Error(`Error parsing downstream elevation: ${value}`)
+      }
+      return parsed
+    })
+  if (downstreamElevations.length !== downstreamPointCount) {
+    throw new Error(
+      `Expected ${downstreamPointCount} downstream elevations but parsed ${downstreamElevations.length} while reading pier data`,
+    )
+  }
+  index = downstreamElevationNext
 
   const upstream = zip(upstreamWidths, upstreamElevations).map(([width, elevation]) => ({
     width,
@@ -330,7 +441,8 @@ function parseBridgeSection(
 ): { data: BridgeCrossSection; nextIndex: number } {
   const headerLine = lines[startIndex]
 
-  const [id, numberOfPoints] = parseValueAsCSV(headerLine).map((s) => parseInt(s))
+  const { value } = parseKeyValue(headerLine)
+  const [id, numberOfPoints] = parseCommaSeparated(value).map((s) => parseInt(s))
 
   let index = startIndex + 1
 
@@ -343,7 +455,8 @@ function parseBridgeSection(
     lines,
   })
 
-  const points = arrayToNumberPairs(data, 2)
+  const dataAsFloats = data.map((value) => parseFloat(value))
+  const points = splitIntoTuples(dataAsFloats, 2)
 
   index = nextIndex1
 
@@ -373,7 +486,8 @@ function parseCrossSection(
 ): { data: BridgeCrossSection; nextIndex: number } {
   const headerLine = lines[startIndex]
 
-  const [id, numberOfPoints] = parseValueAsCSV(headerLine).map((s) => parseInt(s))
+  const { value } = parseKeyValue(headerLine)
+  const [id, numberOfPoints] = parseCommaSeparated(value).map((s) => parseInt(s))
 
   let index = startIndex + 1
 
@@ -386,7 +500,8 @@ function parseCrossSection(
     lines,
   })
 
-  const points = arrayToNumberPairs(data, 2)
+  const dataAsFloats = data.map((value) => parseFloat(value))
+  const points = splitIntoTuples(dataAsFloats, 2)
 
   index = nextIndex1
 
@@ -427,7 +542,8 @@ function parseManningCoefficients(
 ): { data: [number, number][]; nextIndex: number } {
   const headerLine = lines[startIndex]
 
-  const [_id, numberOfPoints] = parseValueAsCSV(headerLine).map((s) => parseInt(s))
+  const { value } = parseKeyValue(headerLine)
+  const [_id, numberOfPoints] = parseCommaSeparated(value).map((s) => parseInt(s))
 
   const index = startIndex + 1
 
@@ -440,7 +556,8 @@ function parseManningCoefficients(
     lines,
   })
 
-  const points = arrayToNumberPairs(data, 2)
+  const dataAsFloats = data.map((value) => parseFloat(value))
+  const points = splitIntoTuples(dataAsFloats, 2)
 
   return {
     data: points,

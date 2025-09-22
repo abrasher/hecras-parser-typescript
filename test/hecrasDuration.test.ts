@@ -1,41 +1,41 @@
 import { describe, it, expect } from "vitest"
-import { parseHECRASDuration } from "../src/parsers/atomic"
+import { parseDuration } from "../src/parsers/utils"
 import { formatDuration } from "../src/serializers/atomic"
 
 describe("hecrasDuration", () => {
-  describe("parseHECRASDuration", () => {
+  describe("parseDuration", () => {
     it("should parse seconds", () => {
-      expect(parseHECRASDuration("0.1SEC")).toBe(0.1)
-      expect(parseHECRASDuration("1SEC")).toBe(1)
-      expect(parseHECRASDuration("30SEC")).toBe(30)
+      expect(parseDuration("0.1SEC")).toBe(0.1)
+      expect(parseDuration("1SEC")).toBe(1)
+      expect(parseDuration("30SEC")).toBe(30)
     })
 
     it("should parse minutes", () => {
-      expect(parseHECRASDuration("1MIN")).toBe(60)
-      expect(parseHECRASDuration("2MIN")).toBe(120)
-      expect(parseHECRASDuration("3MIN")).toBe(180)
+      expect(parseDuration("1MIN")).toBe(60)
+      expect(parseDuration("2MIN")).toBe(120)
+      expect(parseDuration("3MIN")).toBe(180)
     })
 
     it("should parse hours", () => {
-      expect(parseHECRASDuration("1HOUR")).toBe(3600)
-      expect(parseHECRASDuration("2HOUR")).toBe(7200)
-      expect(parseHECRASDuration("3HOUR")).toBe(10800)
+      expect(parseDuration("1HOUR")).toBe(3600)
+      expect(parseDuration("2HOUR")).toBe(7200)
+      expect(parseDuration("3HOUR")).toBe(10800)
     })
 
     it("should parse days", () => {
-      expect(parseHECRASDuration("1DAY")).toBe(86400)
+      expect(parseDuration("1DAY")).toBe(86400)
     })
 
     it("should parse weeks", () => {
-      expect(parseHECRASDuration("1WEEK")).toBe(604800)
+      expect(parseDuration("1WEEK")).toBe(604800)
     })
 
     it("should parse months", () => {
-      expect(parseHECRASDuration("1MONTH")).toBe(2592000)
+      expect(parseDuration("1MONTH")).toBe(2592000)
     })
 
     it("should parse years", () => {
-      expect(parseHECRASDuration("1YEAR")).toBe(31536000)
+      expect(parseDuration("1YEAR")).toBe(31536000)
     })
   })
 

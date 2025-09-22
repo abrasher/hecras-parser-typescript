@@ -1,5 +1,3 @@
-import { chunk } from "es-toolkit"
-
 /**
  * Parse key-value pairs from HEC-RAS lines
  * @param line Line containing key=value or key:value format
@@ -18,41 +16,6 @@ export function parseKeyValue(
     }
   }
   throw new Error(`Error parsing line ${line}`)
-}
-
-/**
- * Parse comma-separated values
- * @param line String containing comma-separated values
- * @returns Array of trimmed string values
- */
-export function parseCommaSeparated(line: string): string[] {
-  return line.split(",").map((s) => s.trim())
-}
-
-/**
- * Parse a string to integer, returning null for empty/undefined values
- * @param value String value to parse
- * @returns Parsed integer or null if empty/undefined
- */
-export function parseMaybeInt(value: string | undefined): number | null {
-  if (value === undefined || value.trim() === "") {
-    return null
-  }
-  const num = parseInt(value)
-  return isNaN(num) ? null : num
-}
-
-/**
- * Parse a string to float, returning null for empty/undefined values
- * @param value String value to parse
- * @returns Parsed float or null if empty/undefined
- */
-export function parseMaybeFloat(value: string | undefined): number | null {
-  if (value === undefined || value.trim() === "") {
-    return null
-  }
-  const num = parseFloat(value)
-  return isNaN(num) ? null : num
 }
 
 /**
@@ -165,15 +128,84 @@ export function parseMultilineArray(params: {
   return { data, nextIndex: lineIndex }
 }
 
-export const chunkToTuples = <
-  ArrayT extends Array<string | number | boolean>,
-  TupleLength extends number,
->(
-  arr: ArrayT,
-  chunkSize: TupleLength,
-) => chunk(arr, chunkSize) as NTuple<string | number | boolean, TupleLength>[]
-
-// Helper type: build a tuple of length N
-type NTuple<T, N extends number, R extends unknown[] = []> = R["length"] extends N
+// Helper type: N-length tuple of T
+export type NTuple<T, N extends number, R extends unknown[] = []> = R["length"] extends N
   ? R
   : NTuple<T, N, [T, ...R]>
+
+// Main function
+export function splitIntoTuples<Arr extends unknown[], const N extends number>(
+  arr: Arr,
+  size: N,
+): NTuple<Arr[number], N>[] {
+  if (arr.length % size !== 0) {
+    throw new Error(`Array length ${arr.length} is not divisible by chunk size ${size}`)
+  }
+
+  const result: NTuple<Arr[number], N>[] = []
+  for (let i = 0; i < arr.length; i += size) {
+    // slice returns T[], but we know it'll have length N due to divisibility check
+    result.push(arr.slice(i, i + size) as NTuple<Arr[number], N>)
+  }
+  return result
+}
+
+/**
+ * Parse comma-separated values
+ * @param line String containing comma-separated values
+ * @returns Array of trimmed string values
+ */
+export function parseCommaSeparated(line: string): string[] {
+  return line.split(",").map((s) => s.trim())
+}
+
+/**
+ * Parse a string to integer, returning null for empty/undefined values
+ * @param value String value to parse
+ * @returns Parsed integer or null if empty/undefined
+ */
+
+export function parseMaybeInt(value: string | undefined): number | null {
+  if (value === undefined || value.trim() === "") {
+    return null
+  }
+  const num = parseInt(value)
+  return isNaN(num) ? null : num
+}
+
+/**
+ * Parse a string to float, returning null for empty/undefined values
+ * @param value String value to parse
+ * @returns Parsed float or null if empty/undefined
+ */
+
+export function parseMaybeFloat(value: string | undefined): number | null {
+  if (value === undefined || value.trim() === "") {
+    return null
+  }
+  const num = parseFloat(value)
+  return isNaN(num) ? null : num
+}
+
+export function parseMultilineCSV({
+  lines,
+  currentIndex,
+  numberOfLines,
+}: {
+  lines: string[]
+  currentIndex: number
+  numberOfLines: number
+}): { data: string[][]; nextIndex: number } {
+  const data = new Array(numberOfLines)
+
+  let lineIndex = currentIndex
+  for (let i = 0; i < numberOfLines; i++) {
+    const line = lines[lineIndex]
+    const parts = line.split(",")
+
+    data[i] = parts.map((part) => part.trim())
+    lineIndex++
+  }
+
+  return { data, nextIndex: lineIndex }
+}
