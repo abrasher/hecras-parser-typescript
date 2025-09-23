@@ -99,6 +99,7 @@ export function parseGeometry(content: string): HECRASGeometry {
       // Parse global settings (appear at end of file)
       else if (line.startsWith("LCMann Time=")) {
         const { data, nextIndex } = parseLandCoverData(lines, index)
+        console.log(data)
 
         geometry.landCover = data
 

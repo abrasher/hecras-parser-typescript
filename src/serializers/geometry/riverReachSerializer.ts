@@ -1,4 +1,3 @@
-import type { StationElevationPoint } from "../.."
 import type { RiverReach, CrossSection } from "../../models/geometry/riverReach"
 import { formatFixedWidth, formatNumbersToChunks } from "../atomic"
 import {
@@ -49,7 +48,7 @@ export function serializeCrossSection(xs: CrossSection): string[] {
     `Type RM Length L Ch R =${type},${riverMile},${lengthLeft},${lengthChannel},${lengthRight}`,
   )
 
-  if (xs.gisLineCount && xs.gisLine) {
+  if (xs.gisLine && xs.gisLine.length > 0) {
     lines.push(...formatCoordinateMultipleLines("XS GIS Cut Line", xs.gisLine))
   }
 
@@ -58,10 +57,10 @@ export function serializeCrossSection(xs: CrossSection): string[] {
   }
 
   // Station/Elevation data
-  lines.push(...serializeStationElevation(xs.stationElevationPoints))
+  lines.push(...serializeStationElevation(xs.stationElevation))
 
   // Manning's n values
-  if (xs.manningCount !== undefined && xs.manningValues && xs.manningValues.length > 0) {
+  if (xs.manningValues && xs.manningValues.length > 0) {
     lines.push(`#Mann= ${xs.manningValues.length} ,-1,0`)
     lines.push(...serializeManningData(xs.manningValues))
   }
@@ -129,10 +128,12 @@ export function serializeCrossSection(xs: CrossSection): string[] {
   return lines
 }
 
-function serializeManningData(
-  segments: { station: number; nValue: number; unknownParameter: number }[],
-): string[] {
-  const values = segments.flatMap((seg) => [seg.station, seg.nValue, seg.unknownParameter])
+function serializeManningData(segments: [number, number, number][]): string[] {
+  const values = segments.flatMap(([station, nValue, unknownParameter]) => [
+    station,
+    nValue,
+    unknownParameter,
+  ])
 
   const lines: string[] = []
 
@@ -187,7 +188,7 @@ function serializeBlockedObstructionData(
 /**
  * Serialize weir station elevation data
  */
-function serializeStationElevation(stationElevation: StationElevationPoint[]): string[] {
+function serializeStationElevation(stationElevation: [number, number][]): string[] {
   const lines: string[] = []
 
   // Header line with point count
@@ -196,8 +197,8 @@ function serializeStationElevation(stationElevation: StationElevationPoint[]): s
   if (stationElevation.length > 0) {
     // Convert station-elevation points to flat array of numbers
     const stationElevationData: number[] = []
-    for (const point of stationElevation) {
-      stationElevationData.push(point.station, point.elevation)
+    for (const [station, elevation] of stationElevation) {
+      stationElevationData.push(station, elevation)
     }
 
     lines.push(...formatStationElevationPairs(stationElevationData))

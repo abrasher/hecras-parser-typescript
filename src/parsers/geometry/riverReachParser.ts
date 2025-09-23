@@ -1,5 +1,17 @@
-import { parseKeyValue, parseCommaSeparated, splitIntoTuples, parseMultilineArray } from "../utils"
-import type { RiverReach, CrossSection, CrossSectionType } from "../../models/geometry/riverReach"
+import {
+  parseKeyValue,
+  parseCommaSeparated,
+  splitIntoTuples,
+  parseMultilineArray,
+  parseBoolean,
+  parseMaybeFloat,
+} from "../utils"
+import type {
+  RiverReach,
+  CrossSection,
+  CrossSectionType,
+  LateralWeir,
+} from "../../models/geometry/riverReach"
 
 /**
  * Parses river reach data starting from a "River Reach=" line
@@ -197,10 +209,9 @@ function parseCrossSection(
         currentIndex: index,
         lines,
       })
-      {
-        const dataAsFloats = data.map((value) => parseFloat(value))
-        crossSection.stationElevation = splitIntoTuples(dataAsFloats, 2)
-      }
+      const dataAsFloats = data.map((value) => parseFloat(value))
+      crossSection.stationElevation = splitIntoTuples(dataAsFloats, 2)
+
       index = nextIndex
     } else if (currentLine.startsWith("#Mann=")) {
       const numberOfValues = parseInt(parseKeyValue(currentLine).value)
@@ -311,5 +322,110 @@ function parseCrossSection(
   return {
     data: crossSection,
     nextIndex: index,
+  }
+}
+
+const parseLateralWeir = (lines: string[], currentIndex: number) => {
+  let index = currentIndex
+
+  const lw: LateralWeir = {
+    position: 0,
+    end: {
+      param1: null,
+      param2: null,
+      param3: null,
+      param4: 0,
+    },
+    distance: 0,
+    twMultipleXS: 0,
+    width: 0,
+    coefficient: 0,
+    waterSurfaceCriteria: false,
+    flapGates: 0,
+    hagesEquation: {
+      param1: 0,
+      param2: null,
+      param3: null,
+      param4: null,
+      param5: null,
+      param6: null,
+    },
+    slipeSlope: [0, 0],
+    type: 0,
+    stationElevation: [],
+    centerline: [],
+    headwaterConnections: [],
+    tailwaterConnections: [],
+    diversion: {
+      useFlow: false,
+      stationForOutletFlows: null,
+      outletWidth: null,
+      curvePoints: [],
+    },
+  }
+  while (index < lines.length) {
+    if (lines[index].startsWith("Lateral Weir Pos=")) {
+      const { value } = parseKeyValue(lines[index])
+      lw.position = parseInt(value)
+      index++
+    } else if (lines[index].startsWith("Lateral Weir End=")) {
+      const { value } = parseKeyValue(lines[index])
+      const parts = parseCommaSeparated(value)
+
+      lw.end.param1 = parts[0]
+      lw.end.param2 = parts[1]
+      lw.end.param3 = parts[2]
+      lw.end.param4 = parts[3]
+      index++
+    } else if (lines[index].startsWith("Lateral Weir Distance=")) {
+      const { value } = parseKeyValue(lines[index])
+      lw.distance = parseFloat(value)
+      index++
+    } else if (lines[index].startsWith("Lateral Weir TW Multiple XS=")) {
+      const { value } = parseKeyValue(lines[index])
+      lw.twMultipleXS = parseInt(value)
+      index++
+    } else if (lines[index].startsWith("Lateral Weir WD=")) {
+      const { value } = parseKeyValue(lines[index])
+      lw.width = parseFloat(value)
+      index++
+    } else if (lines[index].startsWith("Lateral Weir Coef=")) {
+      const { value } = parseKeyValue(lines[index])
+      lw.coefficient = parseFloat(value)
+      index++
+    } else if (lines[index].startsWith("Lateral Weir WSCriteria=")) {
+      const { value } = parseKeyValue(lines[index])
+      lw.waterSurfaceCriteria = parseBoolean(value)
+      index++
+    } else if (lines[index].startsWith("Lateral Weir Flap Gates=")) {
+      const { value } = parseKeyValue(lines[index])
+      lw.flapGates = parseInt(value) as 0 | 1 | 2
+      index++
+    } else if (lines[index].startsWith("Lateral Weir Hagers EQN=")) {
+      const { value } = parseKeyValue(lines[index])
+      const parts = parseCommaSeparated(value)
+      lw.hagesEquation.param1 = parseFloat(parts[0])
+      lw.hagesEquation.param2 = parseMaybeFloat(parts[1])
+      lw.hagesEquation.param3 = parseMaybeFloat(parts[2])
+      lw.hagesEquation.param4 = parseMaybeFloat(parts[3])
+      lw.hagesEquation.param5 = parseMaybeFloat(parts[4])
+      lw.hagesEquation.param6 = parseMaybeFloat(parts[5])
+      index++
+    } else if (lines[index].startsWith("Lateral Weir SS=")) {
+      // number?
+    } else if (lines[index].startsWith("Lateral Weir Type=")) {
+      // number?
+    } else if (lines[index].startsWith("Lateral Weir Connection Pos and Dist=")) {
+      // number?
+    } else if (lines[index].startsWith("Lateral Weir SE=")) {
+      // multiline
+    } else if (lines[index].startsWith("Lateral Weir Centerline=")) {
+      // csv
+      const { value } = parseKeyValue(lines[index])
+    } else if (lines[index].startsWith("Lateral Weir HW RS Station=")) {
+      // number?
+    } else if (lines[index].startsWith("Lateral Weir TW RS Station=")) {
+      // number?
+    }
   }
 }

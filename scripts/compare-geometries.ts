@@ -13,6 +13,7 @@ import { serializeGeometryString } from "../src/serializers"
 
 function testGeometry(testFilePath: string) {
   try {
+    console.log(`Comparing "${testFilePath}"`)
     const linesToLog = []
     // Read and parse the original file
     const originalContent = readFileSync(testFilePath, "utf-8")
@@ -54,7 +55,7 @@ function testGeometry(testFilePath: string) {
 
     console.log(`No differences for "${testFilePath}"`)
   } catch (error) {
-    console.error("Error during comparison:", error)
+    console.error(`Error during comparison of ${testFilePath}:`, error)
 
     process.exit(1)
   }
