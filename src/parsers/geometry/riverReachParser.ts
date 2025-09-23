@@ -257,22 +257,46 @@ function parseCrossSection(
       })
       {
         const dataAsFloats = data.map((value) => parseFloat(value))
-        crossSection.blockedObstructions = splitIntoTuples(dataAsFloats, 3) as [
-          number,
-          number,
-          number,
-        ][]
+        crossSection.blockedObstructions = splitIntoTuples(dataAsFloats, 3)
       }
       index = nextIndex
     } else if (currentLine.startsWith("Permanent Ineff=")) {
-      const nextLine = lines[index + 1] ?? ""
-      const boolChunks = nextLine.replace(/\r/g, "").match(/.{1,8}/g) ?? []
-      const permAreas = splitIntoTuples(boolChunks, 2)
-        .flat()
-        .map((value) => value.trim() === "T")
+      index++
 
-      crossSection.permanentIneffective = permAreas
-      index += 2
+      const { entriesFromDataLines, dataLineCount } = (() => {
+        let lookahead = index
+        let totalEntries = 0
+        while (lookahead < lines.length) {
+          const candidate = lines[lookahead]
+          if (!candidate || !/^[TF\s]*$/.test(candidate)) {
+            break
+          }
+          const chunks = candidate.match(/.{1,8}/g) ?? []
+          totalEntries += chunks.filter((chunk) => chunk.trim() !== "").length
+          lookahead++
+        }
+        return { entriesFromDataLines: totalEntries, dataLineCount: lookahead - index }
+      })()
+
+      const countFromIneff = crossSection.ineffectiveFlowAreas?.length ?? 0
+      const expectedCount = countFromIneff > 0 ? countFromIneff : entriesFromDataLines
+
+      if (expectedCount === 0) {
+        crossSection.permanentIneffective = []
+        index += dataLineCount
+        continue
+      }
+
+      const { data, nextIndex } = parseMultilineArray({
+        width: 8,
+        maxWidth: 80,
+        numOfEntries: expectedCount,
+        currentIndex: index,
+        lines,
+      })
+
+      crossSection.permanentIneffective = data.map((value) => value.trim() === "T")
+      index = nextIndex
     } else if (currentLine.startsWith("Skew Angle=")) {
       const { value } = parseKeyValue(currentLine)
       crossSection.skewAngle = parseFloat(value.trim())

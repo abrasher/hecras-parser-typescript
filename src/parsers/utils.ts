@@ -37,6 +37,12 @@ export function parseBoolean(val: string): boolean {
     return true
   } else if (val.trim() === "0") {
     return false
+  }
+  // T/F is used when marking ineffective flow areas
+  else if (val.trim() === "F") {
+    return false
+  } else if (val.trim() === "T") {
+    return true
   } else {
     throw new Error(`Unable to parse boolean: ${val}`)
   }
