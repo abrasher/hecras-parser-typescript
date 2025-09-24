@@ -19,7 +19,7 @@ API Surface (type-first)
 - `include(subSchema)` → flattens another schema’s items into the parent (no nested key).
 - `Infer<typeof schema>` → produces the TypeScript model type from the schema (schema-first typing).
 - Optional: `schema([...]) satisfies Schema<ExistingType>` to assert compatibility with an existing domain model.
-- `opt(part)` → marks a field as optional; inferred type becomes `V | undefined`. Serialization: if the field participates in a multi-field line with 2+ fields, `undefined` emits a blank segment; if the field is the only field (non‑multipart), `undefined` omits the entire line.
+- `opt(part)` → marks a field as optional; inferred property becomes `field?: V`. Serialization: if the field participates in a multi-field line with 2+ fields, `undefined` emits a blank segment; if the field is the only field (non‑multipart), `undefined` omits the entire line.
 - `numberPart({ integer?: boolean, nullOnBlank?: boolean })` → when `nullOnBlank` is true, blanks parse to `null` and serialize as blanks; inferred type becomes `number | null`.
 
 Core Types (essentials only)
@@ -30,7 +30,7 @@ Core Types (essentials only)
 - Schema items are value-level objects with discriminated `kind` and enough metadata for both parsing/serialization and type inference.
 - Contextual parsing: `type ContextualParser<TContext, TValue> = (ctx: Partial<TContext>, lines: string[], start: number) => ParseResult<TValue> | null`
 - Parse result: `interface ParseResult<T> { value: T; nextIndex: number }`
-- Optional wrapper: `opt(part)` returns a `Part<InferPart<P> | undefined>`; useful for fields like `description?` or `lastEditedTime?`.
+- Optional wrapper: `opt(part)` returns a `Part<InferPart<P> | undefined>`; when lifted through `fields(...)`, `Infer` produces an optional property (`description?: InferPart<P>`), not a required `InferPart<P> | undefined` union. Useful for fields like `description?` or `lastEditedTime?`.
 - Numeric blank-to-null: `numberPart({ nullOnBlank: true })` returns a `Part<number | null>`; mirrors `parseMaybeFloat` behavior.
 
 Typing Strategy
@@ -40,7 +40,7 @@ Typing Strategy
 - Contextual fields infer `{ [K in Key]: ReturnType }` from the parser's return type.
 - The full schema type is the intersection of its item types.
   - `Infer<S> = Simplify<UnionToIntersection<InferItem<S[number]>>>`
-- Optional fields add `| undefined` to the field’s type when wrapped in `opt(...)`.
+- Optional fields become optional properties (`field?: V`) when wrapped in `opt(...)`.
 - Number parts with `nullOnBlank: true` add `| null` to the field’s type.
 
 Example (no generics at call sites)

@@ -1,7 +1,7 @@
 import { parseDuration } from "../parsers/utils"
 import { formatDuration } from "../serializers/atomic"
 import type { Part } from "./core"
-import { InferPart } from "./core"
+import type { InferPart } from "./core"
 
 interface StringPartOptions {
   trim?: boolean
@@ -172,7 +172,9 @@ export function durationPart(): Part<number> {
   }
 }
 
-export function opt<P extends Part<unknown>>(part: P): Part<InferPart<P> | undefined> {
+export function opt<P extends Part<unknown>>(
+  part: P,
+): Part<InferPart<P> | undefined> & { isOptional: true } {
   return {
     parse(segment) {
       return part.parse(segment) as InferPart<P>

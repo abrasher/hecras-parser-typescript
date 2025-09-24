@@ -9,6 +9,32 @@ export type UnionToIntersection<U> = (U extends unknown ? (arg: U) => void : nev
   ? R
   : never
 
+type SchemaDepthLimit = 7
+
+type DecrementDepth<D extends number> = D extends 0
+  ? 0
+  : D extends 1
+    ? 0
+    : D extends 2
+      ? 1
+      : D extends 3
+        ? 2
+        : D extends 4
+          ? 3
+          : D extends 5
+            ? 4
+            : D extends 6
+              ? 5
+              : D extends 7
+                ? 6
+                : 0
+
+type ExhaustiveInferFallback = Record<string, unknown>
+
+type InferWithDepth<Def extends SchemaDef, Depth extends number> = Depth extends 0
+  ? ExhaustiveInferFallback
+  : Simplify<UnionToIntersection<InferItemWithDepth<Def[number], Depth>>>
+
 export interface ParseResult<T> {
   value: T
   nextIndex: number
@@ -35,12 +61,26 @@ export interface Recognizer {
 
 type FieldSpec = Record<string, Part<unknown>>
 
+type OptionalFieldKeys<F extends FieldSpec> = {
+  [K in keyof F]: F[K] extends { isOptional: true } ? K : never
+}[keyof F]
+
+type RequiredFieldKeys<F extends FieldSpec> = Exclude<keyof F, OptionalFieldKeys<F>>
+
+type RequiredFields<F extends FieldSpec> = {
+  [K in RequiredFieldKeys<F>]: InferPart<F[K]>
+}
+
+type OptionalFields<F extends FieldSpec> = {
+  [K in OptionalFieldKeys<F>]?: Exclude<InferPart<F[K]>, undefined>
+}
+
 export function fields<const Spec extends FieldSpec>(spec: Spec): Spec {
   return spec
 }
 
 export type InferPart<P extends Part<unknown>> = P extends Part<infer V> ? V : never
-export type InferFields<F extends FieldSpec> = Simplify<{ [K in keyof F]: InferPart<F[K]> }>
+export type InferFields<F extends FieldSpec> = Simplify<RequiredFields<F> & OptionalFields<F>>
 
 export interface MultiFieldItem<F extends FieldSpec> {
   kind: "multiField"
@@ -109,20 +149,29 @@ export function schema<const Def extends SchemaDef>(def: Def): Def {
   return def
 }
 
-export type InferItem<I> = I extends MultiFieldItem<infer F>
-  ? InferFields<F>
-  : I extends CountedFixedWidthTuplesItem<infer Key, infer Tuple>
-    ? I["optional"] extends true
-      ? { [K in Key]?: TupleOf<Tuple, number>[] }
-      : { [K in Key]: TupleOf<Tuple, number>[] }
-    : I extends ContextualItem<infer Key, infer Value>
-      ? { [K in Key]?: Value }
-      : I extends SectionItem<infer Key, infer Schema>
-        ? { [K in Key]?: Infer<Schema> }
-        : I extends RepeatItem<infer Key, infer Schema>
-          ? { [K in Key]: Infer<Schema>[] }
-          : I extends IncludeItem<infer Schema>
-            ? Infer<Schema>
-            : {}
+type InferItemWithDepth<I, Depth extends number> =
+  I extends MultiFieldItem<infer F>
+    ? InferFields<F>
+    : I extends CountedFixedWidthTuplesItem<infer Key, infer Tuple>
+      ? I["optional"] extends true
+        ? { [K in Key]?: TupleOf<Tuple, number>[] }
+        : { [K in Key]: TupleOf<Tuple, number>[] }
+      : I extends ContextualItem<infer Key, infer Value>
+        ? { [K in Key]?: Value }
+        : I extends SectionItem<infer Key, infer Schema>
+          ? Depth extends 0
+            ? { [K in Key]?: ExhaustiveInferFallback }
+            : { [K in Key]?: InferWithDepth<Schema, DecrementDepth<Depth>> }
+          : I extends RepeatItem<infer Key, infer Schema>
+            ? Depth extends 0
+              ? { [K in Key]: ExhaustiveInferFallback[] }
+              : { [K in Key]: InferWithDepth<Schema, DecrementDepth<Depth>>[] }
+            : I extends IncludeItem<infer Schema>
+              ? Depth extends 0
+                ? ExhaustiveInferFallback
+                : InferWithDepth<Schema, DecrementDepth<Depth>>
+              : {}
 
-export type Infer<Def extends SchemaDef> = Simplify<UnionToIntersection<InferItem<Def[number]>>>
+export type InferItem<I> = InferItemWithDepth<I, SchemaDepthLimit>
+
+export type Infer<Def extends SchemaDef> = InferWithDepth<Def, SchemaDepthLimit>

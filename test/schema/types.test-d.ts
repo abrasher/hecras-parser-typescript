@@ -66,14 +66,17 @@ declare const rootValue: Root
 
 describe("schema types", () => {
   it("should infer the correct type", () => {
-    expectTypeOf(rootValue).toMatchTypeOf<{
+    type ExpectedRoot = {
       name: string
       version: number
       optionalNote?: string
       values: Array<[number, number]>
       items: Array<{ label: string; enabled: boolean }>
       detail?: { description: string; flag?: boolean }
-    }>()
+    }
+
+    expectTypeOf<Root>().toMatchTypeOf<ExpectedRoot>()
+    expectTypeOf<ExpectedRoot>().toMatchTypeOf<Root>()
     expectTypeOf(rootValue.values[0][0]).toEqualTypeOf<number>()
 
     const nullableNumberPart = numberPart({ nullOnBlank: true })
