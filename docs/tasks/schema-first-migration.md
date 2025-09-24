@@ -20,69 +20,86 @@ How to Use
 Milestones
 
 - [ ] Phase 1 — DSL scaffolding and docs
-- [ ] Phase 2 — Migrate header + one simple section (junction/break line)
+- [ ] Phase 2 — Migrate header + simple sections
 - [ ] Phase 3 — Migrate connections (incl. bridge/culvert subparts)
 - [ ] Phase 4 — Migrate river reaches (incl. cross‑sections + contextual items)
 - [ ] Phase 5 — Unify serializers to schema‑driven output
 - [ ] Phase 6 — Tighten strictness and remove legacy paths
 
-Framework & DSL
+Phases and Tasks
 
-- [ ] Create `src/schema/` module layout (`core.ts`, `parts.ts`, `driver.ts`, `combinators.ts`)
-- [ ] Implement `schema`, `fields`, `multiField`, `countedFixedWidthTuples`, `contextual`, `opt`
-- [ ] Implement parts: `numberPart({ integer?, nullOnBlank? })`, `stringPart({ trim? })`, `booleanPart({ mode: 'TF'|'10'|'trueFalse'|'enableDisable' })`, `durationPart()`
-- [ ] Driver functions: `parseWithSchema(schema, lines, start, { strict? })`, `serializeWithSchema(schema, obj)`
-- [ ] Blank control helpers: `blankLine()`, `blankLines(n)` (only where formatting requires)
-- [ ] Type inference helpers: tuple inference, `Infer<typeof schema>`, utility `Simplify`/`UnionToIntersection` if needed
-- [ ] Section adapter: `parseSectionWithSchema(schema, lines, start)` → `{ data, nextIndex }` for top‑level compatibility
-- [ ] Developer docs: brief DSL usage guide in `docs/` with examples
+Phase 1 — DSL scaffolding and docs
 
-Parsers → Schemas (Geometry)
+- [ ] Create `src/schema/` layout (`core.ts`, `parts.ts`, `driver.ts`, `combinators.ts`).
+- [ ] Implement item kinds: `multiField`, `countedFixedWidthTuples`, `contextual`.
+- [ ] Implement composition: `section`, `repeat`, `include` (see schema-first.md “Compositional Items”).
+- [ ] Implement parts: `stringPart({ trim?, width?, pad? })`, `numberPart({ integer?, nullOnBlank? })`, `booleanPart({ mode: 'TF'|'10'|'trueFalse'|'enableDisable' })`, `durationPart()`.
+- [ ] Driver: `parseWithSchema(schema, lines, start, { strict? })`, `serializeWithSchema(schema, obj)`.
+- [ ] Blank control: `blankLine()`, `blankLines(n)` (only where formatting requires).
+- [ ] Type inference helpers: tuple inference, `Infer<typeof schema>`, `Simplify`/`UnionToIntersection`.
+- [ ] Recognizer helpers: `startsWith('…')` to standardize sentinels.
+- [ ] Optional serialization rules: implement undefined vs null behavior per schema-first.md (“Optional serialization guide”).
+- [ ] Section adapter: `parseSectionWithSchema(schema, lines, start)` → `{ data, nextIndex }` for top‑level parity.
+- [ ] Documentation: update `.claude/prompts/dsl-refactor/schema-first.md` with composition + optional serialization (done; verify).
+- [ ] Unit tests for parts and driver (basic coverage: numbers, booleans, tuples, `section/repeat`).
 
-- [ ] Header → `headerSchema` (src/parsers/geometry/headerParser.ts)
-- [ ] Break Line → `breakLineSchema` (src/parsers/geometry/breakLineParser.ts)
-- [ ] Junction → `junctionSchema` (src/parsers/geometry/junctionParser.ts)
-- [ ] Land Cover → `landCoverSchema` (src/parsers/geometry/landCoverParser.ts)
-- [ ] Storage Area → `storageAreaSchema` (src/parsers/geometry/storageAreaParser.ts)
-- [ ] Boundary Condition → `boundaryConditionSchema` (src/parsers/geometry/boundaryConditionParser.ts)
-- [ ] IC Points → `icPointSchema` (src/parsers/geometry/icPointParser.ts)
-- [ ] Connection (core) → `connectionSchema` (src/parsers/geometry/connectionParser.ts)
-- [ ] Connection subpart → Bridge (`Conn BR: Bridge=`) (src/parsers/geometry/bridgeParser.ts)
-- [ ] Connection subpart → Culvert (`Connection Culv=`) (src/parsers/geometry/culvertParser.ts)
-- [ ] River Reach (core) → `riverReachSchema` (src/parsers/geometry/riverReachParser.ts)
-- [ ] River Reach subpart → Cross‑Section header (`Type RM Length L Ch R=`)
-- [ ] River Reach subpart → `#Sta/Elev=` tuples (counted fixed‑width)
-- [ ] River Reach subpart → `#XS Ineff=` tuples (counted fixed‑width)
-- [ ] River Reach subpart → `Permanent Ineff=` booleans (context‑dependent)
+Phase 2 — Header + simple sections
 
-Top‑Level Integration
+- [ ] Header → `headerSchema` + adapter; parser parity tests.
+- [ ] Break Line → `breakLineSchema` + adapter; parser parity tests.
+- [ ] Junction → `junctionSchema` + adapter; parser parity tests.
+- [ ] IC Points → `icPointSchema` + adapter; parser parity tests.
+- [ ] Land Cover → `landCoverSchema` (if simple enough) + adapter; parser parity tests.
+- [ ] Keep top‑level dispatch unchanged; do not wire schemas yet.
 
-- [ ] Add schema adapter calls in `src/parseGeometry.ts` for migrated sections
-- [ ] Preserve current behavior for unknown lines (skip), until coverage is near‑complete
-- [ ] Optional: introduce strict mode at top level when coverage is complete
+Phase 3 — Connections (with sub-schemas)
 
-Serializers Alignment
+- [ ] Connection core → `connectionSchema` fields (name/centroid, routing, SA links, tables).
+- [ ] Counted tuples: `Connection Line=`, `Connection Centerline Profile=`, `Conn Weir SE=`.
+- [ ] Optional numerics: `hTabHWMax|TWMax` with `nullOnBlank`; serializer parity.
+- [ ] Booleans: `Conn Use RC Family`, `Conn OverFlow Method 2D` (True/False mode).
+- [ ] Sub-schemas: `section('bridge', startsWith('Conn BR: Bridge='), bridgeSchema)`.
+- [ ] Sub-schemas: `repeat('culvert', startsWith('Connection Culv='), culvertSchema)`.
+- [ ] Adapters and parser parity tests against fixtures.
 
-- [ ] Implement schema‑driven serialization for migrated sections
-- [ ] Align field ordering to current output (tests under `test/serializers/**`)
-- [ ] Remove duplicated per‑section serializers once parity verified
+Phase 4 — River reaches (cross‑sections + contextual)
 
-Tests
+- [ ] River Reach core → `riverReachSchema` (names, coordinates, text position, flags).
+- [ ] Cross‑Section schema: header `Type RM Length L Ch R=`, `#Sta/Elev=`, `#XS Ineff=`, contextual `Permanent Ineff=`.
+- [ ] Compose: `repeat('crossSections', startsWith('Type RM Length'), crossSectionSchema)`.
+- [ ] Adapters and parser parity tests.
 
-- [ ] Add parser parity tests for each migrated section using existing fixtures (`test/data/**`)
-- [ ] Add serializer round‑trip tests (migrated section only)
-- [ ] Keep a temporary dual‑path test to compare legacy vs schema output where practical
+Phase 5 — Schema‑driven serialization
+
+- [ ] Add schema serializers for migrated sections (align field order/format to tests).
+- [ ] Reuse existing formatters (`formatFixedWidth`, `formatHECRASCoordinateNumber`) via parts/options where needed.
+- [ ] Compare against current `src/serializers/**`; ensure line‑for‑line parity.
+- [ ] Remove duplicated per‑section serializers once parity is verified.
+
+Phase 6 — Integration + cleanup
+
+- [ ] Wire `src/parseGeometry.ts` to call schema adapters for all migrated sections.
+- [ ] Preserve unknown‑line skip tolerance until full coverage; then consider `strict: true` at top level.
+- [ ] Remove legacy parsers behind a feature flag, then delete once stabilized.
+- [ ] Finalize docs: schema-first.md, usage notes, and migration summary.
+
+Tests (ongoing across phases)
+
+- [ ] Add parser parity tests for each migrated section using existing fixtures (`test/data/**`).
+- [ ] Add serializer round‑trip tests per section once schema serializers exist.
+- [ ] Keep temporary dual‑path tests (legacy vs schema) where practical during migration.
 
 Decisions & Risks (track as they resolve)
 
-- [ ] Null vs undefined: `numberPart({ nullOnBlank: true })` for `number | null`; `opt(...)` for `undefined`
-- [ ] Boolean encodings: ensure all modes covered (T/F, -1/0, True/False, Enable/Disable)
-- [ ] Section termination: use non‑strict per‑section, strict optional at top level
-- [ ] Unknown lines: maintain skip‑forward tolerance until strictness enabled
-- [ ] Mapping hooks: tuple arrays vs object pairs for station/elevation
+- [ ] Optionality: `null` vs `undefined` behavior (blank vs omit) adopted across drivers and serializers.
+- [ ] Boolean encodings: cover TF, -1/0, True/False, Enable/Disable.
+- [ ] Composition semantics: when to use `include` vs `section` vs `repeat`; ensure stable ordering with mixed blocks.
+- [ ] Recognizer precedence: avoid collisions; document order‑sensitive cases.
+- [ ] Formatting: align DSL parts with serializer formatting (padding, width) to avoid drift.
+- [ ] Section termination: non‑strict per‑section; consider strict at top level after coverage.
+- [ ] Unknown lines: maintain skip‑forward tolerance until strictness enabled.
 
 Stretch (optional, later)
 
-- [ ] Extend DSL to Unsteady Flow (`src/parseUnsteadyFlow.ts`, `src/serializers/unsteadyFlow.ts`)
-- [ ] Shared schema utilities for both geometry and unsteady flows
-
+- [ ] Extend DSL to Unsteady Flow (`src/parseUnsteadyFlow.ts`, `src/serializers/unsteadyFlow.ts`).
+- [ ] Shared schema utilities for both geometry and unsteady flows.
