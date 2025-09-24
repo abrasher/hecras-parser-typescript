@@ -170,7 +170,7 @@ type InferItemWithDepth<I, Depth extends number> =
               ? Depth extends 0
                 ? ExhaustiveInferFallback
                 : InferWithDepth<Schema, DecrementDepth<Depth>>
-              : {}
+              : object
 
 export type InferItem<I> = InferItemWithDepth<I, SchemaDepthLimit>
 
