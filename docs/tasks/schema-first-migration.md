@@ -19,7 +19,7 @@ How to Use
 
 Milestones
 
-- [ ] Phase 1 — DSL scaffolding and docs
+- [x] Phase 1 — DSL scaffolding and docs
 - [ ] Phase 2 — Migrate header + simple sections
 - [ ] Phase 3 — Migrate connections (incl. bridge/culvert subparts)
 - [ ] Phase 4 — Migrate river reaches (incl. cross‑sections + contextual items)
@@ -30,18 +30,18 @@ Phases and Tasks
 
 Phase 1 — DSL scaffolding and docs
 
-- [ ] Create `src/schema/` layout (`core.ts`, `parts.ts`, `driver.ts`, `combinators.ts`).
-- [ ] Implement item kinds: `multiField`, `countedFixedWidthTuples`, `contextual`.
-- [ ] Implement composition: `section`, `repeat`, `include` (see schema-first.md “Compositional Items”).
-- [ ] Implement parts: `stringPart({ trim?, width?, pad? })`, `numberPart({ integer?, nullOnBlank? })`, `booleanPart({ mode: 'TF'|'10'|'trueFalse'|'enableDisable' })`, `durationPart()`.
-- [ ] Driver: `parseWithSchema(schema, lines, start, { strict? })`, `serializeWithSchema(schema, obj)`.
-- [ ] Blank control: `blankLine()`, `blankLines(n)` (only where formatting requires).
-- [ ] Type inference helpers: tuple inference, `Infer<typeof schema>`, `Simplify`/`UnionToIntersection`.
-- [ ] Recognizer helpers: `startsWith('…')` to standardize sentinels.
-- [ ] Optional serialization rules: implement undefined vs null behavior per schema-first.md (“Optional serialization guide”).
-- [ ] Section adapter: `parseSectionWithSchema(schema, lines, start)` → `{ data, nextIndex }` for top‑level parity.
-- [ ] Documentation: update `.claude/prompts/dsl-refactor/schema-first.md` with composition + optional serialization (done; verify).
-- [ ] Unit tests for parts and driver (basic coverage: numbers, booleans, tuples, `section/repeat`).
+- [x] Create `src/schema/` layout (`core.ts`, `parts.ts`, `driver.ts`, `combinators.ts`).
+- [x] Implement item kinds: `multiField`, `countedFixedWidthTuples`, `contextual`.
+- [x] Implement composition: `section`, `repeat`, `include` (see schema-first.md “Compositional Items”).
+- [x] Implement parts: `stringPart({ trim?, width?, pad? })`, `numberPart({ integer?, nullOnBlank? })`, `booleanPart({ mode: 'TF'|'10'|'trueFalse'|'enableDisable' })`, `durationPart()`.
+- [x] Driver: `parseWithSchema(schema, lines, start, { strict? })`, `serializeWithSchema(schema, obj)`.
+- [x] Blank control: `blankLine()`, `blankLines(n)` (only where formatting requires).
+- [x] Type inference helpers: tuple inference, `Infer<typeof schema>`, `Simplify`/`UnionToIntersection`.
+- [x] Recognizer helpers: `startsWith('…')` to standardize sentinels.
+- [x] Optional serialization rules: implement undefined vs null behavior per schema-first.md (“Optional serialization guide”).
+- [x] Section adapter: `parseSectionWithSchema(schema, lines, start)` → `{ data, nextIndex }` for top‑level parity.
+- [x] Documentation: update `.claude/prompts/dsl-refactor/schema-first.md` with composition + optional serialization (done; verify).
+- [x] Unit tests for parts and driver (basic coverage: numbers, booleans, tuples, `section/repeat`).
 
 Phase 2 — Header + simple sections
 
