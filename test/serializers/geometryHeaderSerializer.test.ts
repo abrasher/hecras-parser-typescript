@@ -23,6 +23,12 @@ describe("GeometryHeaderSerializer", () => {
       riverReaches: [],
       breakLines: [],
       junctions: [],
+      landCover: {
+        lastEdited: "",
+        lastEditedRegion: "",
+        table: [],
+        regions: [],
+      },
     }
 
     const expectedDingmanOutput = [
@@ -62,6 +68,12 @@ describe("GeometryHeaderSerializer", () => {
       riverReaches: [],
       breakLines: [],
       junctions: [],
+      landCover: {
+        lastEdited: "",
+        lastEditedRegion: "",
+        table: [],
+        regions: [],
+      },
     }
 
     const expectedMuncieOutput = [
@@ -98,6 +110,12 @@ describe("GeometryHeaderSerializer", () => {
       riverReaches: [],
       breakLines: [],
       junctions: [],
+      landCover: {
+        lastEdited: "",
+        lastEditedRegion: "",
+        table: [],
+        regions: [],
+      },
     }
 
     const expectedNoDescOutput = [
@@ -135,6 +153,12 @@ describe("GeometryHeaderSerializer", () => {
       riverReaches: [],
       breakLines: [],
       junctions: [],
+      landCover: {
+        lastEdited: "",
+        lastEditedRegion: "",
+        table: [],
+        regions: [],
+      },
     }
 
     const expectedMultilineOutput = [
@@ -177,6 +201,12 @@ describe("GeometryHeaderSerializer", () => {
       riverReaches: [],
       breakLines: [],
       junctions: [],
+      landCover: {
+        lastEdited: "",
+        lastEditedRegion: "",
+        table: [],
+        regions: [],
+      },
     }
 
     const expectedEdgeOutput = [
