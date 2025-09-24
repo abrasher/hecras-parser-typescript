@@ -45,12 +45,14 @@ Phase 1 — DSL scaffolding and docs
 
 Phase 2 — Header + simple sections
 
-- [ ] Header → `headerSchema` + adapter; parser parity tests.
-- [ ] Break Line → `breakLineSchema` + adapter; parser parity tests.
-- [ ] Junction → `junctionSchema` + adapter; parser parity tests.
-- [ ] IC Points → `icPointSchema` + adapter; parser parity tests.
-- [ ] Land Cover → `landCoverSchema` (if simple enough) + adapter; parser parity tests.
-- [ ] Keep top‑level dispatch unchanged; do not wire schemas yet.
+Make the following schemas in src/schemas/schemaName.ts. You will need to review the original model types in `src/models/modelName.ts` to ensure parity.
+You need to review original parsing logic in `src/parsers/modelNameParser.ts` to ensure parity.
+You need to review original serialization logic in `src/serializers/modelNameSerializer.ts` to ensure parity.
+- [ ] Header → `headerSchema`
+- [ ] Break Line → `breakLineSchema`
+- [ ] Junction → `junctionSchema`
+- [ ] IC Points → `icPointSchema`
+- [ ] Land Cover → `landCoverSchema` 
 
 Phase 3 — Connections (with sub-schemas)
 

@@ -12,6 +12,7 @@ API Surface (type-first)
 - `schema(items)` → returns a typed schema definition object.
 - `fields(spec)` → identity helper to preserve literal keys and infer field types from `Part`s.
 - `multiField(label, fields(...))` → CSV multi-field line.
+- `stringField(key, label, opts?)` / `numberField(...)` / `booleanField(...)` → single-field helpers that wrap `multiField` + `stringPart`/`numberPart`/`booleanPart`; accept the underlying part options (e.g., `{ trim: true }`, `{ integer: true }`, `{ mode: 'tf' }`) plus field-level metadata like `{ length }`.
 - `countedFixedWidthTuples(label, key, { width, maxWidth, tuple })` → header with count + fixed-width number chunks, inferred tuple via `tuple` literal.
 - `contextual(key, parser, serializer?)` → context-dependent parsing where field depends on previously parsed data.
 - `section(key, recognizer, subSchema)` → optional sub-schema block keyed under `key`; omitted when `recognizer` does not match.
@@ -101,6 +102,20 @@ type CrossSection = Infer<typeof crossSectionSchema>;
 //     ineffectiveFlowAreas: Array<[number, number, number]>,
 //     permanentIneffective: boolean[]
 //   }
+```
+
+Shorthand helpers for single-field lines
+
+```ts
+const metadataSchema = schema([
+  stringField('name', 'Name=', { trim: true, length: 32 }),
+  numberField('count', 'Count=', { integer: true, length: 8 }),
+  booleanField('enabled', 'Enabled=', { mode: 'tf' }),
+])
+
+// Equivalent to multiField(...) + fields({ ... }) but terser for 1:1 key/value pairs.
+//   name: string; count: number; enabled: boolean
+type Metadata = Infer<typeof metadataSchema>
 ```
 
 Optional and blank-to-null examples (Connection‑style fields)
