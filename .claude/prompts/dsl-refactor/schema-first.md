@@ -14,6 +14,9 @@ API Surface (type-first)
 - `multiField(label, fields(...))` → CSV multi-field line.
 - `countedFixedWidthTuples(label, key, { width, maxWidth, tuple })` → header with count + fixed-width number chunks, inferred tuple via `tuple` literal.
 - `contextual(key, parser, serializer?)` → context-dependent parsing where field depends on previously parsed data.
+- `section(key, recognizer, subSchema)` → optional sub-schema block keyed under `key`; omitted when `recognizer` does not match.
+- `repeat(key, recognizer, subSchema)` → 0..n sub-schema blocks keyed under `key` as an array; consumes contiguous matches.
+- `include(subSchema)` → flattens another schema’s items into the parent (no nested key).
 - `Infer<typeof schema>` → produces the TypeScript model type from the schema (schema-first typing).
 - Optional: `schema([...]) satisfies Schema<ExistingType>` to assert compatibility with an existing domain model.
 - `opt(part)` → marks a field as optional; inferred type becomes `V | undefined`. Serialization: if the field participates in a multi-field line with 2+ fields, `undefined` emits a blank segment; if the field is the only field (non‑multipart), `undefined` omits the entire line.
@@ -185,12 +188,64 @@ const xsSchema = schema([
 ])
 ```
 
+Compositional Items (sub-schemas)
+
+- Use `section`, `repeat`, and `include` to compose larger schemas out of smaller ones (e.g., Geometry → Connection → Bridge/Culvert).
+- Prefer `section`/`repeat` for blocks; use `opt(...)` only for field-level optionality within a `multiField`.
+
+API
+
+- `section(key, recognizer, subSchema)`
+  - Parses at most one occurrence; if `recognizer(line)` is false at the current cursor, writes nothing and advances 0 lines.
+  - If true, parses the `subSchema` starting at the current line with non-strict behavior and assigns the result to `key`.
+- `repeat(key, recognizer, subSchema)`
+  - While `recognizer(line)` is true at the cursor, parse `subSchema` and push into an array at `key`.
+  - Stops on first non-matching line and returns control to the parent schema.
+- `include(subSchema)`
+  - Flattens the child items into the parent; useful when the child writes directly to the same object without its own nested key.
+
+Examples
+
+- Geometry with repeated sections:
+```ts
+const geometrySchema = schema([
+  // header fields…
+  repeat('storageAreas', (line) => line.startsWith('Storage Area='), storageAreaSchema),
+  repeat('connections',   (line) => line.startsWith('Connection='),   connectionSchema),
+  repeat('riverReaches',  (line) => line.startsWith('River Reach='),  riverReachSchema),
+  // trailing global settings as fields/sections…
+])
+```
+
+- Connection with optional Bridge and repeated Culvert groups:
+```ts
+const connectionSchema = schema([
+  multiField('Connection=', fields({
+    name: stringPart({ trim: true }),
+    centroidX: numberPart({ nullOnBlank: true }),
+    centroidY: numberPart({ nullOnBlank: true }),
+  })),
+  // …additional connection lines…
+  section('bridge', (line) => line.startsWith('Conn BR: Bridge='), bridgeSchema),
+  repeat('culvert', (line) => line.startsWith('Connection Culv='),  culvertSchema),
+])
+```
+
+Serialization rules for sections/repeats
+
+- `section`: undefined → omit entire block; defined → serialize sub-schema in place.
+- `repeat`: empty array → write nothing; non-empty → serialize each item in order.
+- Use `include` when you want the child’s items interleaved into the parent without a nested property.
+
 Proposed Runtime Shape (high level)
 
 - `schema([...])` returns a `SchemaDef` array of discriminated items:
   - `MultiFieldDef`: { kind: 'multiField'; label; fields }
   - `CountedTuplesDef`: { kind: 'countedFixedWidthTuples'; label; key; width; maxWidth; tuple }
   - `ContextualDef`: { kind: 'contextual'; key; parser; serializer? }
+  - `SectionDef`: { kind: 'section'; key; recognizer; schema }
+  - `RepeatDef`: { kind: 'repeat'; key; recognizer; schema }
+  - `IncludeDef`: { kind: 'include'; schema }
 - Parsing and serialization functions (driver) can be layered on top of these item defs or the existing `Rule<T>` layer can adapt to consume them.
 - Optional fields are expressed via `opt(part)` at the field level (no new schema item kind required).
 - Serialization rules for `opt`:
