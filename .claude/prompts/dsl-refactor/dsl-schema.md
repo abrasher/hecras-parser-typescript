@@ -1,178 +1,252 @@
-
 # 📑 Geometry Parser/Serializer Framework — Technical Specification
 
 ## 1. Core Concepts
 
-1. **Rule**  
-   A `Rule<T>` is the atomic unit of parsing.  
-   - It specifies *how to parse one or more lines* into a partial object of type `T`.  
-   - It specifies *how to serialize* the same object back into one or more lines.  
-   - Rules should be **pure functions**: for a given `lines` + index, they always return the same result or `null`.
+1. Rule
+   A `Rule<T>` is the atomic unit. It knows how to parse from lines into a partial object, and how to serialize the same object back to lines. Rules are pure and deterministic.
 
    ```ts
    interface ParseResult<T> {
-     value: Partial<T>      // properties parsed from these lines
-     nextIndex: number      // index in `lines` after parsing
+     value: Partial<T>
+     nextIndex: number
    }
 
    interface Rule<T> {
-     parse(lines: string[], start: number): ParseResult<T> | null
+     // acc is the current partial object; use it for context‑dependent parsing
+     parse(lines: string[], start: number, acc: Partial<T>): ParseResult<T> | null
      serialize(obj: T): string[]
    }
    ```
 
-2. **Schema**  
-   A `Schema<T>` is a collection of `Rule<T>`.  
-   - It defines how to fully parse and serialize an object of type `T`.  
-   - Executed sequentially: each line is offered to each rule.  
-   - If a rule matches, apply and advance index.  
-   - If no rule matches, stop and bubble up to the parent schema.
+2. Schema
+   A `Schema<T>` is an ordered list of rules. Parsing tries rules in order for each line; serialization emits rules in schema order.
 
    ```ts
    type Schema<T> = Rule<T>[]
    ```
 
-3. **Parser behavior**  
-   - Input: `lines[]`, starting index, schema.  
-   - For each line starting at `i`:
-     1. Try rules in schema order.
-     2. If a rule matches → apply it (`Object.assign` into accumulator).
-     3. Advance pointer to rule’s `nextIndex`.
-     4. If no rule matches → stop parsing this schema and return control to the parent.
+3. Driver Behavior
+   - Input: `lines`, `start`, `schema`, `strict` flag
+   - Loop from `start`:
+     - Do not skip empty lines; blank lines must be matched by rules (see `blankLine` / `blankLines`).
+     - Try each rule in order: the first that matches returns a result; merge into accumulator (`Object.assign`) and advance to `nextIndex`.
+     - If none match:
+       - If `strict: true` → throw (complete coverage required)
+       - If `strict: false` → stop (bubble up to parent)
 
-4. **Serialization behavior**  
-   - For each rule in schema → call `rule.serialize(obj)`;  
-   - Concatenate results in schema order.
+4. Serialization Behavior
+   - For each rule in schema order → append `rule.serialize(obj)`.
+   - Output order is exactly the schema declaration order.
 
----
-
-## 2. Rule Types
-
-The system must provide **primitive rules** and **combinators**:
-
-### 2.1 Primitive Rules
-- `stringField(prefix, key, opts)`  
-  - Matches: `prefix + value`  
-  - Populates string property.  
-- `numberField(prefix, key, opts)`  
-  - Same as above but parses number.  
-- `multiFieldRule(prefix, keys[], parsers[], serializers[])`  
-  - Matches a comma‑separated line.  
-  - Populates multiple properties.
-
-### 2.2 Combinators
-- `repeat(key, schema, recognizer)`  
-  - Repeated application of a **sub‑schema**.  
-  - Continues as long as `recognizer(line)` returns true at current index.  
-  - Collects parsed items into an array at property `key`.
+5. No implicit scoping / unknown passthrough
+   - No “scoped block” mechanism; termination relies only on “no rule matched → end section”.
+   - No capture of unexpected lines: top‑level uses `strict: true` to enforce full coverage.
 
 ---
 
-## 3. Parser Driver Functions
+## 2. Reusable Parts and Multi‑Field Lines
 
-### 3.1 ParseWithSchema
-- Input: schema, `lines[]`, starting index.
-- Output: `{ value: T, nextIndex: number }`
-- Behavior:
+To avoid parallel arrays of keys/parsers/serializers, rules can be built from reusable parts.
+
+- Part
   ```ts
-  function parseWithSchema<T>(
-    schema: Schema<T>,
-    lines: string[],
-    start: number
-  ): ParseResult<T>
+  interface Part<V> {
+    parse(s: string): V
+    serialize(v: V): string
+  }
   ```
-  - Initialize `obj = {} as T`
-  - For i from `start` until end of file:
-    - Try each rule in schema.
-    - If match → merge values, set new i.
-    - If none match → stop; return `{obj, nextIndex: i}`.
 
-### 3.2 SerializeWithSchema
-- Input: schema, object of type T.
-- Output: `string[]` lines
-- Behavior: apply all schema rules in order.
+- Common parts
+  - `numberPart(opts?)`
+  - `stringPart(opts?)`
+  - `booleanPart({ mode: 'TF'|'10'|'trueFalse'|'enableDisable' })`
+  - `durationPart()`
 
----
+- Multi‑field (CSV) rule
+  ```ts
+  type FieldSpec<T> = { key: keyof T; part: Part<any> }
 
-## 4. Nesting / Bubble‑Up Control Flow
-
-- **Nested schemas** (e.g., CrossSection inside RiverReach):  
-  - Implemented via `repeat` combinator.  
-  - Child schema stops when none of its rules match.  
-  - Control returns to parent, which decides whether to start another child, or close out.
-
-- This ensures: 
-  - Children don’t need explicit stop conditions for parents.  
-  - Parents are responsible for orchestration.
+  function multiField<T>(prefix: string, fields: FieldSpec<T>[]): Rule<T>
+  ```
+  - Parses `prefix + csv`, splitting by comma, applying parts in declared order.
+  - Serializes by joining per‑field outputs with commas in the same order.
 
 ---
 
-## 5. Example Implementation Requirements
+## 3. Primitive Rule Factories
 
-### 5.1 CrossSection Schema
-Must match lines beginning with `Type RM Length L Ch R=` etc., and capture properties.
+- `stringField(prefix, key, opts?)`
+- `numberField(prefix, key, opts?)`
+- `booleanField(prefix, key, { mode })`
+- `durationField(prefix, key)`
+- `multiField(prefix, fields)` (CSV only)
+- `delimitedBlock(begin, end, key)` — for BEGIN/END description blocks
+- `countedFixedWidthTuples(prefix, key, { width, maxWidth, tuple, map?, unmap?, allowNulls? })`
+  - Header line contains the tuple count. Body spans fixed‑width numeric chunks across as many lines as needed. Values are grouped by `tuple` and optionally mapped to/from typed items.
+- `csvTableAfterCount(prefix, key, rowParser)` — header contains row count; consume that many CSV lines
+
+Blank line handling (explicit formatting control):
+- `blankLine()` — matches and emits a single empty line
+- `blankLines(n)` — matches and emits exactly `n` consecutive empty lines
+
+All of the above return a Rule<T> with both `parse` and `serialize` defined.
+
+---
+
+## 4. Combinators
+
+- `repeat(key, schema, recognizer)`
+  - Repeats a sub‑schema as long as `recognizer(lines[i])` is true at the item start.
+  - Calls `parseWithSchema(sub, lines, i, { strict: false })` for each item.
+  - Collects results at `key`.
+
+No scoped blocks; section termination is “no rule matched → end”.
+
+---
+
+## 5. Driver Functions
+
+```ts
+function parseWithSchema<T>(
+  schema: Schema<T>,
+  lines: string[],
+  start: number,
+  opts?: { strict?: boolean },
+): ParseResult<T>
+
+function serializeWithSchema<T>(schema: Schema<T>, obj: T): string[]
+```
+
+- Top‑level parse uses `{ strict: true }` to enforce complete coverage (any non‑empty, unmatched line is an error).
+- Section parses (via `repeat`) use `{ strict: false }` to end cleanly when the next line doesn’t match any rule in the section.
+- Empty lines are not skipped; include `blankLine`/`blankLines` rules where formatting requires them.
+
+---
+
+## 6. Custom Rules (one‑offs)
+
+When a line depends on previously parsed values (e.g., the count is derived from another field in the same section), write a custom inline `Rule<T>`. The driver provides `acc` (current partial object) to support such logic.
+
+Example: “Permanent Ineff=” booleans sized by the number of previously parsed ineffectiveFlowAreas.
+
+```ts
+const permanentIneffRule: Rule<CrossSection> = {
+  parse(lines, i, acc) {
+    const line = lines[i]
+    if (!line.startsWith('Permanent Ineff=')) return null
+    const count = acc.ineffectiveFlowAreas?.length ?? 0
+    const width = 8, maxWidth = 80
+    const perLine = Math.floor(maxWidth / width)
+    let idx = i + 1
+    const values: boolean[] = []
+    for (; values.length < count; idx++) {
+      const chunks = (lines[idx] ?? '').match(/.{1,8}/g) ?? []
+      for (const c of chunks) {
+        const t = c.trim()
+        if (t) values.push(t === 'T')
+        if (values.length === count) break
+      }
+    }
+    if (count === 0) return { value: { permanentIneffective: [] }, nextIndex: i + 1 }
+    if (values.length !== count) throw new Error('Permanent Ineff count mismatch')
+    return { value: { permanentIneffective: values }, nextIndex: idx }
+  },
+  serialize(obj) {
+    const vals = obj.permanentIneffective ?? []
+    const count = obj.ineffectiveFlowAreas?.length ?? 0
+    if (vals.length !== count) throw new Error('Permanent Ineff must match ineffectiveFlowAreas length')
+    const width = 8, maxWidth = 80, perLine = Math.floor(maxWidth / width)
+    const out: string[] = ['Permanent Ineff=']
+    for (let i = 0; i < vals.length; i += perLine) {
+      const chunk = vals
+        .slice(i, i + perLine)
+        .map((b) => (b ? 'T' : 'F').padStart(width, ' '))
+        .join('')
+      out.push(chunk)
+    }
+    return out
+  },
+}
+```
+
+---
+
+## 7. Example Schemas
+
+- CrossSection (header line + a few common fields)
 
 ```ts
 const crossSectionSchema: Schema<CrossSection> = [
-  multiFieldRule("Type RM Length L Ch R=", 
-    ["type","riverMile","lengthLeft","lengthChannel","lengthRight"],
-    [Number, String, Number, Number, Number],
-    [String, String, String, String, String]
-  ),
-  // + additional rules for XS GIS, Bank Sta, etc.
+  multiField<CrossSection>('Type RM Length L Ch R=', [
+    { key: 'type', part: numberPart({ integer: true }) },
+    { key: 'riverMile', part: stringPart({ trim: true }) },
+    { key: 'lengthLeft', part: numberPart() },
+    { key: 'lengthChannel', part: numberPart() },
+    { key: 'lengthRight', part: numberPart() },
+  ]),
+  countedFixedWidthTuples<CrossSection, [number, number]>('#Sta/Elev=', 'stationElevation', {
+    width: 8,
+    maxWidth: 80,
+    tuple: 2,
+  }),
+  // Ineffective areas then the custom Permanent Ineff rule
+  countedFixedWidthTuples<CrossSection, [number, number, number]>('#XS Ineff=', 'ineffectiveFlowAreas', {
+    width: 8,
+    maxWidth: 72,
+    tuple: 3,
+  }),
+  permanentIneffRule,
 ]
 ```
 
-### 5.2 RiverReach Schema
-Must match lines beginning with `River Reach=...` and repeat cross section schema.
+- RiverReach (repeats CrossSections)
 
 ```ts
 const riverReachSchema: Schema<RiverReach> = [
-  multiFieldRule("River Reach=", ["riverName","reachName"], [s=>s.trim(), s=>s.trim()], [String, String]),
-  repeat("crossSections", crossSectionSchema, line => line.startsWith("Type RM Length"))
+  multiField<RiverReach>('River Reach=', [
+    { key: 'riverName', part: stringPart({ trim: true }) },
+    { key: 'reachName', part: stringPart({ trim: true }) },
+  ]),
+  countedFixedWidthTuples<RiverReach, [number, number]>('Reach XY=', 'coordinates', {
+    width: 16,
+    maxWidth: 64,
+    tuple: 2,
+  }),
+  repeat<RiverReach, CrossSection>('crossSections', crossSectionSchema, (line) =>
+    line.startsWith('Type RM Length L Ch R='),
+  ),
 ]
 ```
 
-### 5.3 Top Level (Whole File)
-File schema can simply be:
+- File‑level composition (declare in desired serialization order)
 
 ```ts
-const fileSchema: Schema<{ reaches: RiverReach[] }> = [
-  repeat("reaches", riverReachSchema, line => line.startsWith("River Reach="))
+const fileSchema: Schema<FileModel> = [
+  repeat('junctions', junctionSchema, (l) => l.startsWith('Junct Name=')),
+  repeat('riverReaches', riverReachSchema, (l) => l.startsWith('River Reach=')),
+  repeat('storageAreas', storageAreaSchema, (l) => l.startsWith('Storage Area=')),
+  repeat('breakLines', breakLineSchema, (l) => l.startsWith('BreakLine Name=')),
+  repeat('connections', connectionSchema, (l) => l.startsWith('Connection=')),
+  repeat('boundaryConditions', boundaryConditionSchema, (l) => l.startsWith('BC Line Name=')),
+  repeat('icPoints', icPointSchema, (l) => l.startsWith('IC Point Name=')),
+  // single land cover block
+  landCoverRule,
 ]
+
+// Parse with strict coverage at top level
+const { value: model } = parseWithSchema(fileSchema, lines, 0, { strict: true })
+
+// Serialize in the same order as declared above
+const out = serializeWithSchema(fileSchema, model)
 ```
 
 ---
 
-## 6. Design Principles
+## 8. Design Principles
 
-1. **Pure rules**: no mutation of index outside return value.
-2. **Bubble up errors**: if a rule can’t parse → parent decides. No hidden coupling.
-3. **Symmetry**: each rule implements both parse & serialize, guaranteeing round‑trippability.
-4. **Extensibility**: new line types = new rule. New entity = new schema.
-5. **Testability**: each schema & rule testable independently with line slices.
-
----
-
-## 7. Worked Use Case
-
-Input:
-
-```
-River Reach=Mississippi,Lower Delta
-Type RM Length L Ch R=1,12.3,45,67,89
-Type RM Length L Ch R=2,15.3,55,77,99
-River Reach=Ohio,Upper
-```
-
-Execution:
-
-```ts
-const { value: file } = parseWithSchema(fileSchema, lines, 0)
-
-console.log(file.reaches.length) // 2
-console.log(file.reaches[0].crossSections[1].riverMile) // "15.3"
-
-const serialized = serializeWithSchema(fileSchema, file)
-console.log(serialized.join("\n")) // round‑trips to original
-```
+- Pure rules and deterministic drivers
+- Complete coverage at the top level (strict mode), no unknown passthrough
+- Termination by “no rule matched → end section” (no scoped blocks)
+- Serialization order exactly matches schema order
+- Reusable parts for consistent CSV field parsing/formatting
+- Custom one‑off rules for context‑dependent cases
