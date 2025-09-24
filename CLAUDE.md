@@ -1,3 +1,8 @@
+### Schema-First Migration
+
+- We are actively migrating the DSL to the schema-first plan documented in `docs/tasks/schema-first-migration.md` and `.claude/prompts/dsl-refactor/schema-first.md`.
+- Review those documents before implementing parsing or DSL work so the changes align with the new schema.
+
 ### Development
 
 - `npm run build` - Build project (TypeScript compilation + Vite build)

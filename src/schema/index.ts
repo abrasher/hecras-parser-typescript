@@ -9,6 +9,10 @@ export {
   blankLine,
   blankLines,
   startsWith,
+  stringField,
+  numberField,
+  booleanField,
+  durationField,
 } from "./combinators"
 export { stringPart, numberPart, booleanPart, durationPart, opt } from "./parts"
 export { parseWithSchema, serializeWithSchema, parseSectionWithSchema } from "./driver"

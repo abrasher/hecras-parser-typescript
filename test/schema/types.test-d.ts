@@ -2,27 +2,26 @@
 import { describe, expectTypeOf, it } from "vitest"
 import type { Infer, InferPart } from "../../src/schema"
 import {
+  booleanField,
   booleanPart,
   countedFixedWidthTuples,
+  durationField,
   fields,
   multiField,
+  numberField,
   numberPart,
   opt,
   repeat,
   schema,
   section,
   startsWith,
+  stringField,
   stringPart,
 } from "../../src/schema"
 
 const detailSchema = schema([
-  multiField(
-    "Detail Line=",
-    fields({
-      description: stringPart({ trim: true }),
-      flag: opt(booleanPart({ mode: "TF" })),
-    }),
-  ),
+  stringField("description", "Detail Line=", { trim: true }),
+  booleanField("flag", "Detail Flag=", { mode: "TF", optional: true }),
 ])
 
 const rootSchema = schema([
@@ -39,6 +38,9 @@ const rootSchema = schema([
     maxWidth: 16,
     tuple: 2 as const,
   }),
+  stringField("alias", "Alias=", { optional: true, trim: true }),
+  numberField("nullableCount", "Nullable Count=", { nullOnBlank: true, optional: true }),
+  durationField("timeout", "Timeout=", {}),
   repeat(
     "items",
     startsWith('Item="'),
@@ -49,12 +51,7 @@ const rootSchema = schema([
           label: stringPart({ trim: true }),
         }),
       ),
-      multiField(
-        "Item Enabled=",
-        fields({
-          enabled: booleanPart({ mode: "trueFalse" }),
-        }),
-      ),
+      booleanField("enabled", "Item Enabled=", { mode: "trueFalse" }),
     ]),
   ),
   section("detail", startsWith("Detail Line="), detailSchema),
@@ -70,6 +67,9 @@ describe("schema types", () => {
       name: string
       version: number
       optionalNote?: string
+      alias?: string
+      nullableCount?: number | null
+      timeout: number
       values: Array<[number, number]>
       items: Array<{ label: string; enabled: boolean }>
       detail?: { description: string; flag?: boolean }

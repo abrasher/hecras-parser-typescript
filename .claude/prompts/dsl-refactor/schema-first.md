@@ -110,7 +110,7 @@ Shorthand helpers for single-field lines
 const metadataSchema = schema([
   stringField('name', 'Name=', { trim: true, length: 32 }),
   numberField('count', 'Count=', { integer: true, length: 8 }),
-  booleanField('enabled', 'Enabled=', { mode: 'tf' }),
+  booleanField('enabled', 'Enabled=', { mode: 'TF' }),
 ])
 
 // Equivalent to multiField(...) + fields({ ... }) but terser for 1:1 key/value pairs.

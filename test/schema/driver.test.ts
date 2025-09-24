@@ -1,9 +1,12 @@
 import { describe, expect, it } from "vitest"
 import {
+  booleanField,
+  booleanPart,
   countedFixedWidthTuples,
   contextual,
   fields,
   multiField,
+  numberField,
   numberPart,
   opt,
   parseSectionWithSchema,
@@ -13,17 +16,12 @@ import {
   section,
   serializeWithSchema,
   startsWith,
+  stringField,
   stringPart,
-  booleanPart,
 } from "../../src/schema"
 
 const detailSchema = schema([
-  multiField(
-    "Detail=",
-    fields({
-      note: opt(stringPart({ trim: true })),
-    }),
-  ),
+  stringField("note", "Detail=", { optional: true, trim: true }),
   contextual(
     "detailFlag",
     (_ctx, lines, startIndex) => {
@@ -47,24 +45,9 @@ const detailSchema = schema([
 ])
 
 const entrySchema = schema([
-  multiField(
-    "Entry=",
-    fields({
-      name: stringPart({ trim: true }),
-    }),
-  ),
-  multiField(
-    "Entry Number=",
-    fields({
-      value: numberPart({ integer: true }),
-    }),
-  ),
-  multiField(
-    "Entry Flag=",
-    fields({
-      enabled: booleanPart({ mode: "TF" }),
-    }),
-  ),
+  stringField("name", "Entry=", { trim: true }),
+  numberField("value", "Entry Number=", { integer: true }),
+  booleanField("enabled", "Entry Flag=", { mode: "TF" }),
 ])
 
 const testSchema = schema([
@@ -76,12 +59,7 @@ const testSchema = schema([
       optionalNote: opt(stringPart({ trim: true })),
     }),
   ),
-  multiField(
-    "Item Optional=",
-    fields({
-      maybe: opt(stringPart({ trim: true })),
-    }),
-  ),
+  stringField("maybe", "Item Optional=", { optional: true, trim: true }),
   countedFixedWidthTuples("Values=", "values", {
     width: 6,
     maxWidth: 12,
@@ -169,5 +147,24 @@ describe("schema driver", () => {
       detailFlag: true,
     })
     expect(detailResult.nextIndex).toBe(sampleLines.length)
+  })
+
+  it("respects fixed lengths for single-field helpers", () => {
+    const lengthSchema = schema([
+      stringField("title", "Title=", { length: 10 }),
+      numberField("count", "Count=", { integer: true, length: 3 }),
+      booleanField("enabled", "Enabled=", { mode: "TF", length: 1 }),
+    ])
+
+    const lines = serializeWithSchema(lengthSchema, {
+      title: "Hi",
+      count: 5,
+      enabled: true,
+    })
+
+    expect(lines).toEqual(["Title=Hi        ", "Count=  5", "Enabled=T"])
+
+    const parsed = parseWithSchema(lengthSchema, lines, 0)
+    expect(parsed.value).toMatchObject({ title: "Hi", count: 5, enabled: true })
   })
 })
