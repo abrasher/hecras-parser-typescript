@@ -16,7 +16,7 @@ API Surface (type-first)
 - `contextual(key, parser, serializer?)` → context-dependent parsing where field depends on previously parsed data.
 - `Infer<typeof schema>` → produces the TypeScript model type from the schema (schema-first typing).
 - Optional: `schema([...]) satisfies Schema<ExistingType>` to assert compatibility with an existing domain model.
-- `opt(part)` → marks a field as optional; inferred type becomes `V | undefined` and serialization emits a blank segment when undefined.
+- `opt(part)` → marks a field as optional; inferred type becomes `V | undefined`. Serialization: if the field participates in a multi-field line with 2+ fields, `undefined` emits a blank segment; if the field is the only field (non‑multipart), `undefined` omits the entire line.
 - `numberPart({ integer?: boolean, nullOnBlank?: boolean })` → when `nullOnBlank` is true, blanks parse to `null` and serialize as blanks; inferred type becomes `number | null`.
 
 Core Types (essentials only)
@@ -123,12 +123,66 @@ type ConnectionShape = Infer<typeof connectionSchema>
 // → { name: string; centroidX: number | null; centroidY: number | null; description?: string; hTabHWMax?: number | null }
 ```
 
+Serialization notes for the above:
+- `description === undefined` → do not write a `Connection Desc=` line at all.
+- `hTabHWMax === undefined` → do not write a `Conn HTab HWMax=` line at all.
+- `hTabHWMax === null` with `nullOnBlank: true` → write `Conn HTab HWMax=` with a blank value segment after the equals sign.
+
 Optional compatibility assertion with an existing model
 
 ```ts
 import type { CrossSection as ModelCrossSection } from "src/models/geometry/riverReach";
 
 const xsSchema = schema([ /* ... */ ]) satisfies Schema<ModelCrossSection>;
+```
+
+Optional serialization guide
+
+- Multi‑field (2+ fields):
+  - If at least one field is defined → write the line; each `undefined` field emits a blank segment to preserve column positions.
+  - If all fields are `undefined` → omit the entire line.
+- Single‑field (non‑multipart):
+  - `undefined` → omit the entire line (write nothing).
+  - For `numberPart({ nullOnBlank: true })`, `null` → write the line with a blank value after `=`.
+- Counted fixed‑width tuples (`countedFixedWidthTuples`):
+  - `value === undefined` → omit the header and all body lines (nothing written).
+  - `value` is an empty array → write header with count `0`, no body lines.
+- Contextual items (`contextual`):
+  - Default behavior without a custom serializer: `undefined` → omit; value present → write according to the contextual serializer’s logic.
+  - If the contextual item’s size depends on prior context (e.g., a count of 0), you may omit when empty to avoid stray headers/blank lines.
+
+Examples
+
+1) Optional counted tuples (connection weir SE)
+
+```ts
+const connSchema = schema([
+  countedFixedWidthTuples('Conn Weir SE=', 'weirSE', {
+    width: 8,
+    maxWidth: 80,
+    tuple: 2 as const,
+  }),
+])
+
+// Serialization behavior:
+// - weirSE === undefined → no 'Conn Weir SE=' line
+// - weirSE === []        → 'Conn Weir SE= 0' (header only)
+// - weirSE has pairs     → header + fixed-width rows
+```
+
+2) Optional contextual (cross‑section permanent ineffective)
+
+```ts
+const xsSchema = schema([
+  // ...ineffectiveFlowAreas parsed earlier…
+  contextual('permanentIneffective', (ctx, lines, i) => { /* parse */ }, (ctx, v) => {
+    const count = ctx.ineffectiveFlowAreas?.length ?? 0
+    if (v === undefined) return [] // omit entirely
+    if (count === 0 && v.length === 0) return [] // omit when nothing to express
+    // otherwise, emit header + rows (or single fixed-width line) per format
+    return ['Permanent Ineff=', formatBooleans(v)]
+  })
+])
 ```
 
 Proposed Runtime Shape (high level)
@@ -138,7 +192,11 @@ Proposed Runtime Shape (high level)
   - `CountedTuplesDef`: { kind: 'countedFixedWidthTuples'; label; key; width; maxWidth; tuple }
   - `ContextualDef`: { kind: 'contextual'; key; parser; serializer? }
 - Parsing and serialization functions (driver) can be layered on top of these item defs or the existing `Rule<T>` layer can adapt to consume them.
-- Optional fields are expressed as a wrapper `opt(part)` at the field level (no new schema item kind required). Drivers should treat `undefined` as “emit blank segment” for `multiField` serialization.
+- Optional fields are expressed via `opt(part)` at the field level (no new schema item kind required).
+- Serialization rules for `opt`:
+  - In a multi-field with 2+ fields: `undefined` → emit a blank segment to preserve column positions.
+  - In a single-field (non‑multipart) item: `undefined` → omit the entire item (write nothing).
+  - For `numberPart({ nullOnBlank: true })`, `null` still serializes as a blank value; this is distinct from `undefined` which controls presence/omission.
 - For `numberPart({ nullOnBlank: true })`, parsing a blank yields `null` and serialization of `null` emits a blank field, matching `parseMaybeFloat` semantics today.
 
 Migration Notes — From Current Parsers
