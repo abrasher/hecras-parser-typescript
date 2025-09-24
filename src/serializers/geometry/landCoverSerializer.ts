@@ -3,7 +3,11 @@ import type { LandCover } from "../../models/geometry/landCover"
 import { formatFixedWidth } from "../atomic"
 
 export function serializeLandCover(lc: LandCover): string[] {
-  const lines = []
+  if (!lc || !lc.table || !lc.regions) {
+    return []
+  }
+
+  const lines: string[] = []
 
   lines.push(`LCMann Time=${lc.lastEdited}`)
   lines.push(`LCMann Region Time=${lc.lastEditedRegion}`)

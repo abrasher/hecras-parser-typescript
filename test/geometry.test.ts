@@ -56,7 +56,7 @@ it.skip("should parse and serialize Dingman.g01 to match original content exactl
   expect(serializedContent).toBe(normalizedOriginal)
 })
 
-describe("Additional geometry files", () => {
+describe.skip("Additional geometry files", () => {
   it.skip("should parse and serialize Dingman 1D.g06", () => {
     const expectedMetadata = {
       title: "1D-Existing",

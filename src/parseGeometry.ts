@@ -30,7 +30,12 @@ export function parseGeometry(content: string): HECRASGeometry {
     riverReaches: [],
     breakLines: [],
     junctions: [],
-    landCover: {} as LandCover,
+    landCover: {
+      lastEdited: "",
+      lastEditedRegion: "",
+      table: [],
+      regions: [],
+    },
   } as HECRASGeometry
 
   let index = 0
@@ -99,10 +104,7 @@ export function parseGeometry(content: string): HECRASGeometry {
       // Parse global settings (appear at end of file)
       else if (line.startsWith("LCMann Time=")) {
         const { data, nextIndex } = parseLandCoverData(lines, index)
-        console.log(data)
-
         geometry.landCover = data
-
         index = nextIndex
       } else if (line.startsWith("Chan Stop Cuts=")) {
         geometry.chanStopCuts = parseInt(line.split("=")[1])
