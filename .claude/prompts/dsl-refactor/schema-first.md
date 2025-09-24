@@ -141,18 +141,78 @@ Proposed Runtime Shape (high level)
 - Optional fields are expressed as a wrapper `opt(part)` at the field level (no new schema item kind required). Drivers should treat `undefined` as “emit blank segment” for `multiField` serialization.
 - For `numberPart({ nullOnBlank: true })`, parsing a blank yields `null` and serialization of `null` emits a blank field, matching `parseMaybeFloat` semantics today.
 
-Migration Notes
+Migration Notes — From Current Parsers
 
-- Replace calls like `multiField<CrossSection>(...)` with `multiField(...)` and wrap the field map with `fields({...} as const)` to preserve literal keys.
-- Replace `countedFixedWidthTuples<CrossSection, [number, number]>(...)` with `countedFixedWidthTuples(..., { tuple: 2 as const })`.
-- Replace custom rules like `permanentIneffRule` with `contextual(key, parser)` - the parser receives the parsed context and can implement the same logic.
-- Get the model type from the schema with `Infer<typeof schemaDef>`; or keep your existing interfaces and assert with `satisfies`.
-- Start with leaf schemas (e.g., CrossSection) and compose up (e.g., RiverReach) to gain confidence incrementally.
-- Where you currently use `parseMaybeFloat`, use `numberPart({ nullOnBlank: true })` to preserve `number | null` behavior.
-- For fields that are optional in models (e.g., many in `src/models/geometry/connection.ts`), wrap their parts with `opt(...)` so inference adds `| undefined`.
+What you have today (quick recap)
+
+- Single‑pass, sentinel‑based driver in `src/parseGeometry.ts` that routes by `line.startsWith(...)` and advances a shared cursor.
+- One parser per section under `src/parsers/geometry/*Parser.ts` that:
+  - Scans while lines match section‑specific prefixes, returns `{ data, nextIndex }` or `{ data, linesConsumed }`.
+  - Uses helpers from `src/parsers/utils.ts` for key/value lines, fixed‑width blocks, tolerant numbers, tuples, CSV, and durations.
+- Unknown or unhandled lines are skipped at the top level (forward‑tolerant behavior).
+
+How to migrate incrementally
+
+1) Mirror one sub‑parser as a schema
+- Pick a contained section (e.g., header, junction, break line) and re‑express its logic as a `schema([...])` using `multiField`, `countedFixedWidthTuples`, and `contextual` where needed.
+- Keep the existing parser exported, add a sibling `...Schema` next to it, plus a small adapter `parseWithSchema(...Schema)` if you want to validate parity before swapping callers.
+
+2) Adapt top‑level dispatch without upheaval
+- In `src/parseGeometry.ts`, when a sentinel matches (e.g., `Connection=`), call your schema‑based adapter and continue to return `{ data, nextIndex }` so the loop semantics remain unchanged.
+- Per‑section parsing should run in non‑strict mode to stop at the first non‑matching line; keep top‑level strictness off (current behavior) until coverage is complete.
+
+3) Map existing helpers to parts
+- `parseKeyValue` + per‑field parsing → `multiField('Label=', fields({ ... }))` with `stringPart/numberPart/booleanPart/durationPart`.
+- `parseMultilineArray` + `splitIntoTuples` → `countedFixedWidthTuples('Header=', key, { width, maxWidth, tuple: N as const })`.
+- `parseMaybeFloat` / `parseMaybeInt` → `numberPart({ nullOnBlank: true })` for `number | null`.
+- Boolean variants ("-1/0", "True/False", "Enable/Disable", "T/F") → `booleanPart({ mode })`.
+
+4) Encode context‑dependent lines explicitly
+- Wherever a line depends on values parsed earlier in the same section (e.g., "Permanent Ineff=" sized by `ineffectiveFlowAreas.length` in river reaches), use `contextual(key, (ctx, lines, i) => ...)`.
+
+5) Keep return shapes compatible
+- Schema inference gives you `Infer<typeof xsSchema>`. If you already have model types in `src/models/...`, either:
+  - Make the schema the source of truth and export `Infer<typeof xsSchema>`; or
+  - Keep existing interfaces and assert compatibility via `schema([...]) satisfies Schema<ExistingType>`.
+
+6) Validate with existing tests
+- Reuse the current test suite: `test/parsers/**` for parsing parity and `test/serializers/**` for round‑trip checks. Start with a small section and ensure no output diffs before broadening scope.
+
+Section termination and unknown lines
+
+- Today, sub‑parsers stop when the next line doesn’t match their known prefixes. Model this by running section schemas with non‑strict parsing, so the driver returns on first mismatch.
+- At the top level, you currently skip unrecognized lines. You can keep that behavior while migrating; once coverage is high, consider a strict mode to catch drift in file formats.
+
+Serialization alignment
+
+- Serializers under `src/serializers/**` already encapsulate field order and formatting. When adopting schema‑first, the same item defs can drive both parse and serialize, removing duplication.
+- Optional fields: wrap parts with `opt(...)` so `undefined` omits content for that segment. For nullable numerics that must serialize as blanks, prefer `numberPart({ nullOnBlank: true })` to preserve `number | null` semantics seen in the current code.
+
+Recommended first targets
+
+- Header (`src/parsers/geometry/headerParser.ts`): simple key/value and optional description block.
+- Break lines (`src/parsers/geometry/breakLineParser.ts`): fixed‑width lists and small CSVs.
+- Junctions (`src/parsers/geometry/junctionParser.ts`): compact, low coupling to other sections.
+- After confidence, move to Connections and River Reaches where `contextual(...)` and counted tuples shine.
+
+Small mapping examples from today’s code
+
+- Connection header line in `src/parsers/geometry/connectionParser.ts:63`:
+  - Today: `parseKeyValue` → `parseCommaSeparated` → manual `parseFloat` with blanks considered invalid.
+  - Schema: `multiField('Connection=', fields({ name: stringPart({ trim: true }), centroidX: numberPart({ nullOnBlank: true }), centroidY: numberPart({ nullOnBlank: true }) }))`.
+- Weir station/elevation in `src/parsers/geometry/connectionParser.ts:212`:
+  - Today: `parseMultilineArray` → `splitIntoTuples(2)` → map to `{ station, elevation }[]`.
+  - Schema: `countedFixedWidthTuples('Conn Weir SE=', 'weirSE', { width: 8, maxWidth: 80, tuple: 2 as const })` then map to objects if desired via a `map` hook.
+- River reach “Permanent Ineff=” booleans sized by a prior count:
+  - Today: custom loop sized by `ineffectiveFlowAreas.length`.
+  - Schema: `contextual('permanentIneffective', (ctx, lines, i) => ...)` using the same count.
+
+Pragmatic rollout plan
+
+- Phase 1: Add schema defs alongside existing parsers for 1–2 sections, gate usage behind a flag or local adapter, and assert type compatibility with current models.
+- Phase 2: Switch top‑level dispatch to call schema‑based adapters for migrated sections; keep others untouched.
+- Phase 3: Consolidate serializers to read from the same schema items; delete per‑section duplication once tests pass.
 
 Nice‑to‑have (optional, later)
 
-- `defineSchema<T>(build: (s: SchemaHelpers) => SchemaDef) satisfies Schema<T>` for a one‑mention check without requiring a separate `satisfies` at the end.
 - `default` flags for schema items/fields to supply defaults on serialization.
-- Mapped tuples: `map/unmap` functions that transform `TupleOf<N, number>` to a typed object and back, with inference for the mapped type.
