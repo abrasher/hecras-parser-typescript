@@ -1,5 +1,5 @@
 import type {
-  CountedFixedWidthTuplesItem,
+  TupleArrayFieldItem,
   ContextualItem,
   Recognizer,
   MultiFieldItem,
@@ -26,21 +26,21 @@ export function multiField<const Spec extends Record<string, Part<unknown>>>(
   }
 }
 
-interface CountedFixedWidthTuplesConfig<Tuple extends number> {
+interface TupleArrayFieldConfig<Tuple extends number> {
   width: number
   maxWidth: number
   tuple: Tuple
   optional?: boolean
 }
 
-export function countedFixedWidthTuples<const Key extends string, const Tuple extends number>(
+export function tupleArrayField<const Key extends string, const Tuple extends number>(
   label: string,
   key: Key,
-  config: CountedFixedWidthTuplesConfig<Tuple>,
-): CountedFixedWidthTuplesItem<Key, Tuple> {
+  config: TupleArrayFieldConfig<Tuple>,
+): TupleArrayFieldItem<Key, Tuple> {
   const { width, maxWidth, tuple, optional } = config
   return {
-    kind: "countedFixedWidthTuples",
+    kind: "tupleArrayField",
     label,
     key,
     width,

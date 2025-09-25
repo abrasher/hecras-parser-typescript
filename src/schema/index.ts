@@ -1,7 +1,7 @@
 export { schema, fields, TupleOf, Simplify, UnionToIntersection, Infer, Part, InferPart } from "./core"
 export {
   multiField,
-  countedFixedWidthTuples,
+  tupleArrayField,
   contextual,
   section,
   repeat,

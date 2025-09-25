@@ -1,8 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   booleanField,
-  booleanPart,
-  countedFixedWidthTuples,
+  tupleArrayField,
   contextual,
   fields,
   multiField,
@@ -60,7 +59,7 @@ const testSchema = schema([
     }),
   ),
   stringField("maybe", "Item Optional=", { optional: true, trim: true }),
-  countedFixedWidthTuples("Values=", "values", {
+  tupleArrayField("Values=", "values", {
     width: 6,
     maxWidth: 12,
     tuple: 2 as const,
@@ -113,13 +112,8 @@ describe("schema driver", () => {
       name: "Sample",
       count: 3,
       optionalNote: undefined,
-      values: [
-        [1, 2],
-        [3, 4],
-      ],
-      entries: [
-        { name: "Alpha", value: 1, enabled: true },
-      ],
+      values: [[1, 2] as [number, number], [3, 4] as [number, number]],
+      entries: [{ name: "Alpha", value: 1, enabled: true }],
       detail: {
         note: undefined,
         detailFlag: false,

@@ -13,7 +13,7 @@ API Surface (type-first)
 - `fields(spec)` → identity helper to preserve literal keys and infer field types from `Part`s.
 - `multiField(label, fields(...))` → CSV multi-field line.
 - `stringField(key, label, opts?)` / `numberField(...)` / `booleanField(...)` → single-field helpers that wrap `multiField` + `stringPart`/`numberPart`/`booleanPart`; accept the underlying part options (e.g., `{ trim: true }`, `{ integer: true }`, `{ mode: 'tf' }`) plus field-level metadata like `{ length }`.
-- `countedFixedWidthTuples(label, key, { width, maxWidth, tuple })` → header with count + fixed-width number chunks, inferred tuple via `tuple` literal.
+- `tupleArrayField(label, key, { width, maxWidth, tuple })` → header with count + fixed-width number chunks, inferred tuple via `tuple` literal.
 - `contextual(key, parser, serializer?)` → context-dependent parsing where field depends on previously parsed data.
 - `section(key, recognizer, subSchema)` → optional sub-schema block keyed under `key`; omitted when `recognizer` does not match.
 - `repeat(key, recognizer, subSchema)` → 0..n sub-schema blocks keyed under `key` as an array; consumes contiguous matches.
@@ -37,7 +37,7 @@ Core Types (essentials only)
 Typing Strategy
 
 - Multi‑field lines infer an object `{ [K in keyof Spec]: InferPart<Spec[K]> }`.
-- Counted fixed‑width tuples infer `{ [K in Key]: Array<TupleOf<N, number>> }` directly from the `tuple` numeric literal.
+- Tuple array fields infer `{ [K in Key]: Array<TupleOf<N, number>> }` directly from the `tuple` numeric literal.
 - Contextual fields infer `{ [K in Key]: ReturnType }` from the parser's return type.
 - The full schema type is the intersection of its item types.
   - `Infer<S> = Simplify<UnionToIntersection<InferItem<S[number]>>>`
@@ -56,13 +56,13 @@ const crossSectionSchema = schema([
     lengthRight: numberPart(),
   } as const)),
 
-  countedFixedWidthTuples("#Sta/Elev=", "stationElevation", {
+  tupleArrayField("#Sta/Elev=", "stationElevation", {
     width: 8,
     maxWidth: 80,
     tuple: 2 as const, // → Array<[number, number]>
   }),
 
-  countedFixedWidthTuples("#XS Ineff=", "ineffectiveFlowAreas", {
+  tupleArrayField("#XS Ineff=", "ineffectiveFlowAreas", {
     width: 8,
     maxWidth: 72,
     tuple: 3 as const, // → Array<[number, number, number]>
@@ -162,7 +162,7 @@ Optional serialization guide
 - Single‑field (non‑multipart):
   - `undefined` → omit the entire line (write nothing).
   - For `numberPart({ nullOnBlank: true })`, `null` → write the line with a blank value after `=`.
-- Counted fixed‑width tuples (`countedFixedWidthTuples`):
+- Tuple array fields (`tupleArrayField`):
   - `value === undefined` → omit the header and all body lines (nothing written).
   - `value` is an empty array → write header with count `0`, no body lines.
 - Contextual items (`contextual`):
@@ -171,11 +171,11 @@ Optional serialization guide
 
 Examples
 
-1) Optional counted tuples (connection weir SE)
+1) Optional tuple array field (connection weir SE)
 
 ```ts
 const connSchema = schema([
-  countedFixedWidthTuples('Conn Weir SE=', 'weirSE', {
+  tupleArrayField('Conn Weir SE=', 'weirSE', {
     width: 8,
     maxWidth: 80,
     tuple: 2 as const,
@@ -256,7 +256,7 @@ Proposed Runtime Shape (high level)
 
 - `schema([...])` returns a `SchemaDef` array of discriminated items:
   - `MultiFieldDef`: { kind: 'multiField'; label; fields }
-  - `CountedTuplesDef`: { kind: 'countedFixedWidthTuples'; label; key; width; maxWidth; tuple }
+  - `TupleArrayFieldDef`: { kind: 'tupleArrayField'; label; key; width; maxWidth; tuple }
   - `ContextualDef`: { kind: 'contextual'; key; parser; serializer? }
   - `SectionDef`: { kind: 'section'; key; recognizer; schema }
   - `RepeatDef`: { kind: 'repeat'; key; recognizer; schema }
@@ -282,7 +282,7 @@ What you have today (quick recap)
 How to migrate incrementally
 
 1) Mirror one sub‑parser as a schema
-- Pick a contained section (e.g., header, junction, break line) and re‑express its logic as a `schema([...])` using `multiField`, `countedFixedWidthTuples`, and `contextual` where needed.
+- Pick a contained section (e.g., header, junction, break line) and re‑express its logic as a `schema([...])` using `multiField`, `tupleArrayField`, and `contextual` where needed.
 - Keep the existing parser exported, add a sibling `...Schema` next to it, plus a small adapter `parseWithSchema(...Schema)` if you want to validate parity before swapping callers.
 
 2) Adapt top‑level dispatch without upheaval
@@ -291,7 +291,7 @@ How to migrate incrementally
 
 3) Map existing helpers to parts
 - `parseKeyValue` + per‑field parsing → `multiField('Label=', fields({ ... }))` with `stringPart/numberPart/booleanPart/durationPart`.
-- `parseMultilineArray` + `splitIntoTuples` → `countedFixedWidthTuples('Header=', key, { width, maxWidth, tuple: N as const })`.
+- `parseMultilineArray` + `splitIntoTuples` → `tupleArrayField('Header=', key, { width, maxWidth, tuple: N as const })`.
 - `parseMaybeFloat` / `parseMaybeInt` → `numberPart({ nullOnBlank: true })` for `number | null`.
 - Boolean variants ("-1/0", "True/False", "Enable/Disable", "T/F") → `booleanPart({ mode })`.
 
@@ -321,7 +321,7 @@ Recommended first targets
 - Header (`src/parsers/geometry/headerParser.ts`): simple key/value and optional description block.
 - Break lines (`src/parsers/geometry/breakLineParser.ts`): fixed‑width lists and small CSVs.
 - Junctions (`src/parsers/geometry/junctionParser.ts`): compact, low coupling to other sections.
-- After confidence, move to Connections and River Reaches where `contextual(...)` and counted tuples shine.
+- After confidence, move to Connections and River Reaches where `contextual(...)` and tuple array fields shine.
 
 Small mapping examples from today’s code
 
@@ -330,7 +330,7 @@ Small mapping examples from today’s code
   - Schema: `multiField('Connection=', fields({ name: stringPart({ trim: true }), centroidX: numberPart({ nullOnBlank: true }), centroidY: numberPart({ nullOnBlank: true }) }))`.
 - Weir station/elevation in `src/parsers/geometry/connectionParser.ts:212`:
   - Today: `parseMultilineArray` → `splitIntoTuples(2)` → map to `{ station, elevation }[]`.
-  - Schema: `countedFixedWidthTuples('Conn Weir SE=', 'weirSE', { width: 8, maxWidth: 80, tuple: 2 as const })` then map to objects if desired via a `map` hook.
+  - Schema: `tupleArrayField('Conn Weir SE=', 'weirSE', { width: 8, maxWidth: 80, tuple: 2 as const })` then map to objects if desired via a `map` hook.
 - River reach “Permanent Ineff=” booleans sized by a prior count:
   - Today: custom loop sized by `ineffectiveFlowAreas.length`.
   - Schema: `contextual('permanentIneffective', (ctx, lines, i) => ...)` using the same count.

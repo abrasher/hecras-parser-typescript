@@ -96,7 +96,7 @@ export function numberPart<const Opts extends NumberPartOptions | undefined = un
   return part as Part<NumberPartValue<Opts>>
 }
 
-type BooleanMode = "TF" | "-1,0" | "trueFalse" | "enableDisable"
+type BooleanMode = "TF" | "-1,0" | "10" | "trueFalse" | "enableDisable"
 
 interface BooleanPartOptions {
   mode: BooleanMode
@@ -116,6 +116,11 @@ export function booleanPart(options: BooleanPartOptions): Part<boolean> {
         }
         case "-1,0": {
           if (value === "-1") return true
+          if (value === "0") return false
+          break
+        }
+        case "10": {
+          if (value === "1") return true
           if (value === "0") return false
           break
         }
@@ -143,6 +148,8 @@ export function booleanPart(options: BooleanPartOptions): Part<boolean> {
           return value ? "T" : "F"
         case "-1,0":
           return value ? "-1" : "0"
+        case "10":
+          return value ? "1" : "0"
         case "trueFalse":
           return value ? "True" : "False"
         case "enableDisable":

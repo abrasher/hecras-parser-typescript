@@ -88,8 +88,8 @@ export interface MultiFieldItem<F extends FieldSpec> {
   fields: F
 }
 
-export interface CountedFixedWidthTuplesItem<Key extends string, Tuple extends number> {
-  kind: "countedFixedWidthTuples"
+export interface TupleArrayFieldItem<Key extends string, Tuple extends number> {
+  kind: "tupleArrayField"
   label: string
   key: Key
   width: number
@@ -101,8 +101,12 @@ export interface CountedFixedWidthTuplesItem<Key extends string, Tuple extends n
 export interface ContextualItem<Key extends string, Value> {
   kind: "contextual"
   key: Key
-  parser: ContextualParser<Value>
-  serializer?: ContextualSerializer<Value>
+  parser(
+    context: Record<string, unknown>,
+    lines: string[],
+    startIndex: number,
+  ): ParseResult<Value> | null
+  serializer?(context: Record<string, unknown>, value: Value | undefined): string[]
 }
 
 export interface SectionItem<Key extends string, Def extends SchemaDef> {
@@ -135,7 +139,7 @@ export interface BlankLinesItem {
 
 export type SchemaItem =
   | MultiFieldItem<FieldSpec>
-  | CountedFixedWidthTuplesItem<string, number>
+  | TupleArrayFieldItem<string, number>
   | ContextualItem<string, unknown>
   | SectionItem<string, SchemaDef>
   | RepeatItem<string, SchemaDef>
@@ -152,7 +156,7 @@ export function schema<const Def extends SchemaDef>(def: Def): Def {
 type InferItemWithDepth<I, Depth extends number> =
   I extends MultiFieldItem<infer F>
     ? InferFields<F>
-    : I extends CountedFixedWidthTuplesItem<infer Key, infer Tuple>
+    : I extends TupleArrayFieldItem<infer Key, infer Tuple>
       ? I["optional"] extends true
         ? { [K in Key]?: TupleOf<Tuple, number>[] }
         : { [K in Key]: TupleOf<Tuple, number>[] }

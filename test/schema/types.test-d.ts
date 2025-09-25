@@ -4,7 +4,7 @@ import type { Infer, InferPart } from "../../src/schema"
 import {
   booleanField,
   booleanPart,
-  countedFixedWidthTuples,
+  tupleArrayField,
   durationField,
   fields,
   multiField,
@@ -33,7 +33,7 @@ const rootSchema = schema([
       optionalNote: opt(stringPart({ trim: true })),
     }),
   ),
-  countedFixedWidthTuples("Values=", "values", {
+  tupleArrayField("Values=", "values", {
     width: 8,
     maxWidth: 16,
     tuple: 2 as const,

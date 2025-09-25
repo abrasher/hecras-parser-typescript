@@ -31,7 +31,7 @@ Phases and Tasks
 Phase 1 — DSL scaffolding and docs
 
 - [x] Create `src/schema/` layout (`core.ts`, `parts.ts`, `driver.ts`, `combinators.ts`).
-- [x] Implement item kinds: `multiField`, `countedFixedWidthTuples`, `contextual`.
+- [x] Implement item kinds: `multiField`, `tupleArrayField`, `contextual`.
 - [x] Implement composition: `section`, `repeat`, `include` (see schema-first.md “Compositional Items”).
 - [x] Implement parts: `stringPart({ trim?, width?, pad? })`, `numberPart({ integer?, nullOnBlank? })`, `booleanPart({ mode: 'TF'|'10'|'trueFalse'|'enableDisable' })`, `durationPart()`.
 - [x] Driver: `parseWithSchema(schema, lines, start, { strict? })`, `serializeWithSchema(schema, obj)`.
@@ -50,14 +50,14 @@ You need to review original parsing logic in `src/parsers/modelNameParser.ts` to
 You need to review original serialization logic in `src/serializers/modelNameSerializer.ts` to ensure parity.
 - [x] Break Line → `breakLineSchema`
 - [x] Junction → `junctionSchema`
-- [ ] IC Points → `icPointSchema`
-- [ ] Land Cover → `landCoverSchema` 
-- [ ] Header → `headerSchema`
+- [x] IC Points → `icPointSchema`
+- [x] Land Cover → `landCoverSchema` 
+- [x] Header → `geometrySchema` (just a scaffold for now)
 
 Phase 3 — Connections (with sub-schemas)
 
 - [ ] Connection core → `connectionSchema` fields (name/centroid, routing, SA links, tables).
-- [ ] Counted tuples: `Connection Line=`, `Connection Centerline Profile=`, `Conn Weir SE=`.
+- [ ] Tuple array fields: `Connection Line=`, `Connection Centerline Profile=`, `Conn Weir SE=`.
 - [ ] Optional numerics: `hTabHWMax|TWMax` with `nullOnBlank`; serializer parity.
 - [ ] Booleans: `Conn Use RC Family`, `Conn OverFlow Method 2D` (True/False mode).
 - [ ] Sub-schemas: `section('bridge', startsWith('Conn BR: Bridge='), bridgeSchema)`.

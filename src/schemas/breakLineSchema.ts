@@ -1,4 +1,4 @@
-import { schema, countedFixedWidthTuples, stringField, numberField, type Infer } from "../schema"
+import { schema, tupleArrayField, stringField, numberField, type Infer } from "../schema"
 
 /**
  * Schema for parsing BreakLine geometry definitions from HEC-RAS format
@@ -18,7 +18,7 @@ export const breakLineSchema = schema([
   numberField("cellSizeMax", "BreakLine CellSize Max=", { nullOnBlank: true }),
   numberField("nearRepeats", "BreakLine Near Repeats="),
   numberField("protectionRadius", "BreakLine Protection Radius="),
-  countedFixedWidthTuples("BreakLine Polyline=", "polylinePoints", {
+  tupleArrayField("BreakLine Polyline=", "polylinePoints", {
     width: 16,
     maxWidth: 64, // 4 numbers per line * 16 chars = 64 chars max
     tuple: 2 as const, // [x, y] coordinate pairs

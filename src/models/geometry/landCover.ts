@@ -7,7 +7,7 @@ export interface LandCover {
 
 export interface LandCoverRegion {
   name: string
-  table: LandCoverTable
+  table: LandCoverTable | undefined
   polygon: [x: number, y: number][]
 }
 

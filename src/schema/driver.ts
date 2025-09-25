@@ -2,7 +2,7 @@ import { formatFixedWidth } from "../serializers/atomic"
 import type {
   BlankLineItem,
   BlankLinesItem,
-  CountedFixedWidthTuplesItem,
+  TupleArrayFieldItem,
   ContextualItem,
   Infer,
   MultiFieldItem,
@@ -90,8 +90,8 @@ function parseItem(
   switch (item.kind) {
     case "multiField":
       return parseMultiField(item, context, lines, index, options)
-    case "countedFixedWidthTuples":
-      return parseCountedTuples(item, context, lines, index, options)
+    case "tupleArrayField":
+      return parseTupleArrayField(item, context, lines, index, options)
     case "contextual":
       return parseContextual(item, context, lines, index)
     case "section":
@@ -154,8 +154,8 @@ function parseMultiField(
   return { status: "success", nextIndex: index + 1 }
 }
 
-function parseCountedTuples(
-  item: CountedFixedWidthTuplesItem<string, number>,
+function parseTupleArrayField(
+  item: TupleArrayFieldItem<string, number>,
   context: ParseContext,
   lines: string[],
   index: number,
@@ -350,8 +350,8 @@ function serializeSchemaInternal(
       case "multiField":
         serializeMultiField(item, data, lines, context)
         break
-      case "countedFixedWidthTuples":
-        serializeCountedTuples(item, data, lines, context)
+      case "tupleArrayField":
+        serializeTupleArrayField(item, data, lines, context)
         break
       case "contextual":
         serializeContextual(item, data, lines, context)
@@ -411,8 +411,8 @@ function serializeMultiField(
   }
 }
 
-function serializeCountedTuples(
-  item: CountedFixedWidthTuplesItem<string, number>,
+function serializeTupleArrayField(
+  item: TupleArrayFieldItem<string, number>,
   data: Record<string, unknown>,
   lines: string[],
   context: ParseContext,
