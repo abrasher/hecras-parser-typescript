@@ -132,14 +132,21 @@ function parseMultiField(
   }
 
   const raw = line.slice(item.label.length)
-  const segments = splitMultiFieldSegments(raw)
   const fieldEntries = Object.entries(item.fields)
   const updates: ParseContext = {}
 
-  for (let i = 0; i < fieldEntries.length; i++) {
-    const [key, part] = fieldEntries[i]
-    const segment = segments[i] ?? ""
-    updates[key] = part.parse(segment)
+  // Special handling for single-field items - don't split on commas
+  if (fieldEntries.length === 1) {
+    const [key, part] = fieldEntries[0]
+    updates[key] = part.parse(raw)
+  } else {
+    // Multi-field items split on commas
+    const segments = splitMultiFieldSegments(raw)
+    for (let i = 0; i < fieldEntries.length; i++) {
+      const [key, part] = fieldEntries[i]
+      const segment = segments[i] ?? ""
+      updates[key] = part.parse(segment)
+    }
   }
 
   Object.assign(context, updates)

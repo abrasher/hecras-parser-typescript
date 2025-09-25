@@ -48,11 +48,11 @@ Phase 2 — Header + simple sections
 Make the following schemas in src/schemas/schemaName.ts. You will need to review the original model types in `src/models/modelName.ts` to ensure parity.
 You need to review original parsing logic in `src/parsers/modelNameParser.ts` to ensure parity.
 You need to review original serialization logic in `src/serializers/modelNameSerializer.ts` to ensure parity.
-- [ ] Header → `headerSchema`
-- [ ] Break Line → `breakLineSchema`
-- [ ] Junction → `junctionSchema`
+- [x] Break Line → `breakLineSchema`
+- [x] Junction → `junctionSchema`
 - [ ] IC Points → `icPointSchema`
 - [ ] Land Cover → `landCoverSchema` 
+- [ ] Header → `headerSchema`
 
 Phase 3 — Connections (with sub-schemas)
 

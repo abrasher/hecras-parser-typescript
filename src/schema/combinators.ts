@@ -111,15 +111,34 @@ export function startsWith(prefix: string): Recognizer {
 export const schema = buildSchema
 export const fields = buildFields
 
-type BaseFieldOptions = {
-  optional?: boolean
+type LengthOption = {
   length?: number
 }
 
-type StringFieldOptions = BaseFieldOptions & Exclude<Parameters<typeof stringPart>[0], undefined>
-type NumberFieldOptions = BaseFieldOptions & Exclude<Parameters<typeof numberPart>[0], undefined>
-type BooleanFieldOptions = BaseFieldOptions & Parameters<typeof booleanPart>[0]
-type DurationFieldOptions = BaseFieldOptions
+type StringFieldOptions = LengthOption &
+  NonNullable<Parameters<typeof stringPart>[0]> & {
+    optional?: boolean
+  }
+
+type NumberFieldOptions = LengthOption &
+  NonNullable<Parameters<typeof numberPart>[0]> & {
+    optional?: boolean
+  }
+
+type BooleanFieldOptions = LengthOption &
+  Parameters<typeof booleanPart>[0] & {
+    optional?: boolean
+  }
+
+type DurationFieldOptions = LengthOption & {
+  optional?: boolean
+}
+
+type WithOptional<Value, Options> = Options extends { optional: true }
+  ? Part<Value | undefined> & { isOptional: true }
+  : Part<Value>
+
+type NumberFieldValue<Options> = Options extends { nullOnBlank: true } ? number | null : number
 
 function buildSingleFieldItem<Key extends string, P extends Part<unknown>>(
   key: Key,
@@ -139,9 +158,9 @@ function applyLength<P extends Part<unknown>>(
     return part
   }
 
-  const adjusted: Part<InferPart<P>> = {
+  const adjusted: P = {
     ...part,
-    serialize(value) {
+    serialize(value: InferPart<P>) {
       const raw = part.serialize(value)
       if (raw === "") {
         return raw
@@ -153,60 +172,89 @@ function applyLength<P extends Part<unknown>>(
     },
   }
 
-  if (part.isOptional) {
-    adjusted.isOptional = part.isOptional
-  }
-  if (part.nullOnBlank) {
-    adjusted.nullOnBlank = part.nullOnBlank
-  }
-
-  return adjusted as P
+  return adjusted
 }
 
-export function stringField<const Key extends string>(
+export function stringField<const Key extends string, const Options extends StringFieldOptions | undefined = undefined>(
   key: Key,
   label: string,
-  options: StringFieldOptions = {},
-) {
-  const { optional, length, ...stringOptions } = options
+  options?: Options,
+): MultiFieldItem<Record<Key, WithOptional<string, Options>>> {
+  const { optional, length, ...stringOptions } = (options ?? {}) as StringFieldOptions
   const basePart = stringPart(stringOptions)
-  const maybeOptional = optional ? opt(basePart) : basePart
-  const finalPart = applyLength(maybeOptional, length, "left")
-  return buildSingleFieldItem(key, label, finalPart)
+
+  if (optional) {
+    const finalPart = applyLength(opt(basePart), length, "left")
+    return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
+      Record<Key, WithOptional<string, Options>>
+    >
+  }
+
+  const finalPart = applyLength(basePart, length, "left")
+  return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
+    Record<Key, WithOptional<string, Options>>
+  >
 }
 
-export function numberField<const Key extends string>(
+export function numberField<const Key extends string, const Options extends NumberFieldOptions | undefined = undefined>(
   key: Key,
   label: string,
-  options: NumberFieldOptions = {},
-) {
-  const { optional, length, ...numberOptions } = options
+  options?: Options,
+): MultiFieldItem<Record<Key, WithOptional<NumberFieldValue<Options>, Options>>> {
+  const { optional, length, ...numberOptions } = (options ?? {}) as NumberFieldOptions
   const basePart = numberPart(numberOptions)
-  const maybeOptional = optional ? opt(basePart) : basePart
-  const finalPart = applyLength(maybeOptional, length, "right")
-  return buildSingleFieldItem(key, label, finalPart)
+
+  if (optional) {
+    const finalPart = applyLength(opt(basePart), length, "right")
+    return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
+      Record<Key, WithOptional<NumberFieldValue<Options>, Options>>
+    >
+  }
+
+  const finalPart = applyLength(basePart, length, "right")
+  return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
+    Record<Key, WithOptional<NumberFieldValue<Options>, Options>>
+  >
 }
 
-export function booleanField<const Key extends string>(
+export function booleanField<const Key extends string, const Options extends BooleanFieldOptions>(
   key: Key,
   label: string,
-  options: BooleanFieldOptions,
-) {
+  options: Options,
+): MultiFieldItem<Record<Key, WithOptional<boolean, Options>>> {
   const { optional, length, ...booleanOptions } = options
   const basePart = booleanPart(booleanOptions)
-  const maybeOptional = optional ? opt(basePart) : basePart
-  const finalPart = applyLength(maybeOptional, length, "left")
-  return buildSingleFieldItem(key, label, finalPart)
+
+  if (optional) {
+    const finalPart = applyLength(opt(basePart), length, "left")
+    return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
+      Record<Key, WithOptional<boolean, Options>>
+    >
+  }
+
+  const finalPart = applyLength(basePart, length, "left")
+  return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
+    Record<Key, WithOptional<boolean, Options>>
+  >
 }
 
-export function durationField<const Key extends string>(
+export function durationField<const Key extends string, const Options extends DurationFieldOptions | undefined = undefined>(
   key: Key,
   label: string,
-  options: DurationFieldOptions = {},
-) {
-  const { optional, length } = options
+  options?: Options,
+): MultiFieldItem<Record<Key, WithOptional<number, Options>>> {
+  const { optional, length } = (options ?? {}) as DurationFieldOptions
   const basePart = durationPart()
-  const maybeOptional = optional ? opt(basePart) : basePart
-  const finalPart = applyLength(maybeOptional, length, "right")
-  return buildSingleFieldItem(key, label, finalPart)
+
+  if (optional) {
+    const finalPart = applyLength(opt(basePart), length, "right")
+    return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
+      Record<Key, WithOptional<number, Options>>
+    >
+  }
+
+  const finalPart = applyLength(basePart, length, "right")
+  return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
+    Record<Key, WithOptional<number, Options>>
+  >
 }
