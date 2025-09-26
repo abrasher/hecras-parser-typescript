@@ -97,3 +97,17 @@ fs.writeFileSync("modified.g01", output)
 ## Contributing
 
 This library focuses on HEC-RAS geometry file parsing. For other file types (flow, plan, results), please open an issue to discuss implementation priorities.
+
+### Schema-First Migration (for contributors)
+
+- New parsing/serialization work should use the schema-first DSL.
+- Read the migration tracker `docs/tasks/schema-first-migration.md` and DSL reference `.claude/prompts/dsl-refactor/schema-first.md` before contributing.
+- Add schemas under `src/schemas/**` using helpers from `src/schema/**` and keep parity with existing models.
+
+Quick reference
+
+- Compose with `schema([...])`, `multiField`, `tupleArrayField`, `contextual`, `section`, `repeat`, `include`.
+- Use drivers `parseWithSchema` and `serializeWithSchema` for adapters and tests.
+- Preserve optional/blank semantics via `opt(part)` and `numberPart({ nullOnBlank: true })` as described in the DSL ref.
+
+During migration, legacy parsers in `src/parsers/**` and serializers in `src/serializers/**` remain for compatibility but are deprecated for new work.

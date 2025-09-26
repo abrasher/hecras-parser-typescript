@@ -1,7 +1,30 @@
-### Schema-First Migration
+### Schema-First Overview
 
-- We are actively migrating the DSL to the schema-first plan documented in `docs/tasks/schema-first-migration.md` and `.claude/prompts/dsl-refactor/schema-first.md`.
-- Review those documents before implementing parsing or DSL work so the changes align with the new schema.
+- We are actively migrating to a schema-first parser/serializer. Read:
+  - `docs/tasks/schema-first-migration.md` — milestones, parity goals, decisions/risks
+  - `.claude/prompts/dsl-refactor/schema-first.md` — DSL spec, typing, serialization rules
+- New work should define schemas under `src/schemas/**` using DSL items from `src/schema/**` and use the drivers in `src/schema/driver.ts`.
+
+Key directories
+
+- `src/schema/**` — DSL core: `core.ts` (types, Infer), `driver.ts` (parse/serialize), `combinators.ts`
+- `src/schemas/**` — Section schemas (e.g., `breakLineSchema.ts`, `junctionSchema.ts`, `geometrySchema.ts`)
+- `docs/tasks/schema-first-migration.md` — tracker for coverage and parity
+
+DSL quick reference (see full spec for details)
+
+- Structure: `schema([...])`, `fields({...})`, `multiField(label, fields)`, `tupleArrayField(label, key, { width, maxWidth, tuple })`, `contextual(key, parser, serializer?)`
+- Composition: `section(key, recognizer, subSchema)`, `repeat(key, recognizer, subSchema)`, `include(subSchema)`
+- Parts/semantics: `opt(part)` for optional fields; `numberPart({ nullOnBlank: true })` for blank→null; boolean modes `TF | 10 | trueFalse | enableDisable`
+- Drivers: `parseWithSchema(schema, lines, start, { strict? })`, `parseSectionWithSchema(schema, lines, start)`, `serializeWithSchema(schema, obj)`
+
+Migration workflow (summary)
+
+1) Identify target section from the tracker; review existing model and legacy parser/serializer for parity.
+2) Define schema in `src/schemas/<name>Schema.ts` using DSL items; prefer `tupleArrayField` for fixed‑width tables.
+3) Add adapter usage where appropriate; keep top-level tolerant until full coverage.
+4) Add tests for parser parity and serializer round‑trip where possible.
+5) Update the migration tracker and note any decisions/risks.
 
 ### Development
 
@@ -21,64 +44,21 @@
 
 ## Architecture
 
-This is a TypeScript library for parsing HEC-RAS geometry files (.g01, .g02, etc.) into structured data models.
+This library parses HEC-RAS geometry files (.g01, .g02, etc.) using a schema-first DSL that drives both parsing and serialization.
 
-### Core Components
+Key pieces
 
-**Main Parser**: `parseGeometry` (from `/src/parseGeometry.ts`) - The main entry point for parsing HEC-RAS geometry files. Uses a simplified, direct parsing approach with specialized parsers for different geometry components.
+- `src/schema/core.ts` — schema item types, `Infer` typing, parts/options
+- `src/schema/driver.ts` — schema-driven parse and serialize functions
+- `src/schema/combinators.ts` — composition helpers (`section`, `repeat`, `include`)
+- `src/schemas/**` — section schemas with domain-specific composition
+- `src/models/**` — TypeScript interfaces for domain models; use `Infer<typeof schema>` or `satisfies` for compatibility during migration
 
-**Atomic Parsers**: `/src/parsers/atomic.ts` - Low-level parsing primitives for extracting data from HEC-RAS file lines:
+Parsing strategy
 
-- Line parsing utilities
-- Data type extraction functions
-- Format-specific parsing helpers
-
-**Line Parsers**: `/src/parsers/lineParsers.ts` - Higher-level line-based parsing utilities for common HEC-RAS patterns:
-
-- `parseLineToCoordinates()` - Parse fixed-width coordinate data (16 chars per number)
-- `parseLineStationPairs()` - Parse station pair data (8 chars per number)
-- **Use these premade parsers when applicable** instead of reimplementing coordinate/station parsing logic
-
-**Specialized Parsers**: `/src/parsers/geometry/` - Component-specific parsers:
-
-- `culvertParser.ts` - Culvert connection parsing (modern implementation pattern)
-- `bridgeParser.ts` - Bridge connection parsing
-- `storageAreaParser.ts` - Storage area definitions
-- `connectionParser.ts` - General connection parsing utilities
-
-**Data Models**: `/src/models/` - TypeScript interfaces representing HEC-RAS geometry entities:
-
-**Core Models**:
-
-- `/src/models/geometry/geometryHeaders.ts` - Root geometry container and headers
-- `/src/models/geometry/storageArea.ts` - Storage area definitions
-- `/src/models/geometry/culvert.ts` - Comprehensive culvert connection interfaces with enums
-- `/src/models/geometry/bridge.ts` - Bridge connection interfaces and components
-- `/src/models/geometry/connection.ts` - General connection types
-- `/src/models/geometry/common.ts` - Common geometry interfaces and utilities
-
-### Parsing Strategy
-
-**Modern Parsing Pattern**: Follow the conventions established in `/src/parsers/geometry/culvertParser.ts`:
-
-- Use atomic parsing functions from `/src/parsers/atomic.ts`
-- **Use premade line parsers from `/src/parsers/lineParsers.ts`** for coordinate/station data when applicable
-- Implement structured parsing with clear data extraction phases
-- Return both parsed data and parsing metadata (lines consumed, etc.)
-- Use TypeScript interfaces for strong typing
-- Include comprehensive error handling
-
-**Atomic Parsing System**: The codebase uses a three-level parsing approach:
-
-1. **Atomic Level** (`/src/parsers/atomic.ts`) - Low-level line parsing, data type extraction
-2. **Line Level** (`/src/parsers/lineParsers.ts`) - Common line patterns (coordinates, station pairs) - **use these when applicable**
-3. **Component Level** (`/src/parsers/geometry/`) - Higher-level component assembly using atomic and line functions
-
-**Connection Types Supported**:
-
-- **Culvert Connections** - Full implementation with detailed flow characteristics
-- **Bridge Connections** - Comprehensive bridge geometry and hydraulic parameters
-- **Storage Area Connections** - Storage area definitions and connections
+- Prefer declarative schema items to encode sentinels, tuple arrays, and context-dependent lines.
+- Use recognizers (`startsWith('...')`) to bind sub-schemas; keep per-section non-strict until coverage is complete.
+- Encode optional and null/blank semantics at the Part level to preserve round-trip fidelity.
 
 ## HEC-RAS Format Gotchas
 
@@ -88,7 +68,7 @@ This is a TypeScript library for parsing HEC-RAS geometry files (.g01, .g02, etc
 
 **Important Parsing Note**:
 
-- Always use `wc -c` or similar commands to measure actual line widths instead of making assumptions about HEC-RAS format field widths. Use `cut -c` to verify field boundaries in fixed-width data.
+- For fixed-width tables, ensure tuple widths (`width`, `maxWidth`) match actual line widths; tests should verify column boundaries.
 
 ### General Parsing Principles
 
@@ -96,4 +76,21 @@ Always assume the format is wrong until proven right. Use comprehensive validati
 
 ## Core Philosophy
 
-**PRAGMATIC PARSING IS THE PRIORITY.** This library focuses on correctly parsing complex engineering file formats where clarity, maintainability, and correctness take precedence over abstract programming principles. The code should be readable by engineers familiar with HEC-RAS formats.
+PRAGMATIC PARSING IS THE PRIORITY. The schema-first DSL is designed for clarity, maintainability, and correctness while keeping the format specifics explicit and testable.
+
+## Deprecated: Legacy Parsing Approach
+
+The previous sentinel-based approach is retained temporarily for parity and fallback. Avoid adding new code to it.
+
+Legacy components
+
+- `src/parseGeometry.ts` — legacy entrypoint orchestrating per-section parsers
+- `src/parsers/atomic.ts`, `src/parsers/lineParsers.ts` — low/high-level line utilities
+- `src/parsers/geometry/**` — specialized per-component parsers (culvert, bridge, storage area, etc.)
+- `src/serializers/**` — per-section serializers
+
+Legacy parsing pattern
+
+- Use atomic parsing functions and line parsers to decode fixed-width segments.
+- Specialized parsers assemble component models and return data with line counts.
+- This pattern is deprecated in favor of the schema-first DSL; only apply targeted fixes during migration.
