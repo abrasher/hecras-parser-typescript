@@ -60,7 +60,7 @@ Phase 3 — Connections (with sub-schemas)
 - [ ] Tuple array fields: `Connection Line=`, `Connection Centerline Profile=`, `Conn Weir SE=`.
 - [ ] Optional numerics: `hTabHWMax|TWMax` with `nullOnBlank`; serializer parity.
 - [ ] Booleans: `Conn Use RC Family`, `Conn OverFlow Method 2D` (True/False mode).
-- [ ] Sub-schemas: `section('bridge', startsWith('Conn BR: Bridge='), bridgeSchema)`.
+- [x] Sub-schemas: `section('bridge', startsWith('Conn BR: Bridge='), bridgeSchema)`.
 - [ ] Sub-schemas: `repeat('culvert', startsWith('Connection Culv='), culvertSchema)`.
 - [ ] Adapters and parser parity tests against fixtures.
 

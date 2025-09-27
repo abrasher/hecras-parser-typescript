@@ -224,7 +224,7 @@ function parseContextual(
   lines: string[],
   index: number,
 ): ItemOutcome {
-  const result = item.parser(context, lines, index)
+  const result = item.parser(lines, index, context)
   if (!result) {
     return { status: "skipped" }
   }
@@ -464,7 +464,7 @@ function serializeContextual(
   }
 
   if (item.serializer) {
-    const produced = item.serializer(context, value)
+    const produced = item.serializer(value, context)
     lines.push(...produced)
   } else {
     throw new Error(`No serializer provided for contextual item "${item.key}"`)

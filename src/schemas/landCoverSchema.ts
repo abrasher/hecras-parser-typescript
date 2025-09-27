@@ -1,5 +1,13 @@
 import type { LandCoverTable } from "../models/geometry/landCover"
-import { tupleArrayField, contextual, repeat, schema, startsWith, stringField, type Infer } from "../schema"
+import {
+  tupleArrayField,
+  contextual,
+  repeat,
+  schema,
+  startsWith,
+  stringField,
+  type Infer,
+} from "../schema"
 
 function parseLandCoverTable(
   lines: string[],
@@ -57,14 +65,14 @@ const landCoverRegionSchema = schema([
   stringField("name", "LCMann Region Name="),
   contextual(
     "table",
-    (ctx, lines, startIndex) => {
+    (lines, startIndex, _ctx) => {
       const result = parseLandCoverTable(lines, startIndex, "LCMann Region Table=")
       if (!result) {
         throw new Error("Expected LCMann Region Table header")
       }
       return { value: result.table, nextIndex: result.nextIndex }
     },
-    (_ctx, value) => {
+    (value, _ctx) => {
       if (!value) {
         return []
       }
@@ -83,14 +91,14 @@ export const landCoverSchema = schema([
   stringField("lastEditedRegion", "LCMann Region Time="),
   contextual(
     "table",
-    (ctx, lines, startIndex) => {
+    (lines, startIndex, _ctx) => {
       const result = parseLandCoverTable(lines, startIndex, "LCMann Table=")
       if (!result) {
         throw new Error("Expected LCMann Table header")
       }
       return { value: result.table, nextIndex: result.nextIndex }
     },
-    (_ctx, value) => {
+    (value, _ctx) => {
       if (!value) {
         return []
       }

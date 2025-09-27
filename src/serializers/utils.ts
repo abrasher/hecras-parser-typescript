@@ -136,10 +136,8 @@ export function formatStationElevationPairs(stationElevationData: number[]): str
  * @example
  * `formatArray('Points',[1, 2, 3], 8, 80)` ->
  * [
- *    "Points= 3 ",
  *    "       1       2       3"
  * ]
- * @param key Header key to use
  * @param arr Array to convert
  * @param width Width of each field
  * @param maxWidth Maximum width of each line

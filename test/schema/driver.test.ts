@@ -23,7 +23,7 @@ const detailSchema = schema([
   stringField("note", "Detail=", { optional: true, trim: true }),
   contextual(
     "detailFlag",
-    (_ctx, lines, startIndex) => {
+    (lines, startIndex, _ctx) => {
       const line = lines[startIndex]
       if (!line || !line.startsWith("Detail Flag=")) {
         return null
@@ -34,7 +34,7 @@ const detailSchema = schema([
         nextIndex: startIndex + 1,
       }
     },
-    (_ctx, value) => {
+    (value, _ctx) => {
       if (value === undefined) {
         return []
       }

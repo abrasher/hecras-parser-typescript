@@ -48,11 +48,11 @@ export interface Part<T> {
 }
 
 export interface ContextualParser<V> {
-  (context: Record<string, unknown>, lines: string[], startIndex: number): ParseResult<V> | null
+  (lines: string[], startIndex: number, context: Record<string, unknown>): ParseResult<V> | null
 }
 
 export interface ContextualSerializer<V> {
-  (context: Record<string, unknown>, value: V | undefined): string[]
+  (value: V | undefined, context: Record<string, unknown>): string[]
 }
 
 export interface Recognizer {
@@ -102,11 +102,11 @@ export interface ContextualItem<Key extends string, Value> {
   kind: "contextual"
   key: Key
   parser(
-    context: Record<string, unknown>,
     lines: string[],
     startIndex: number,
+    context: Record<string, unknown>,
   ): ParseResult<Value> | null
-  serializer?(context: Record<string, unknown>, value: Value | undefined): string[]
+  serializer?(value: Value | undefined, context: Record<string, unknown>): string[]
 }
 
 export interface SectionItem<Key extends string, Def extends SchemaDef> {

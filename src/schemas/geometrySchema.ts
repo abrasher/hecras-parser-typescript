@@ -53,7 +53,7 @@ export const geometrySchema = schema([
   blankLine(),
   contextual(
     "description",
-    (_ctx, lines, startIndex) => {
+    (lines, startIndex, _ctx) => {
       const startLine = lines[startIndex]
       if (!startLine || !startLine.startsWith("BEGIN GEOM DESCRIPTION:")) {
         return null
@@ -75,7 +75,7 @@ export const geometrySchema = schema([
 
       throw new Error("Missing END GEOM DESCRIPTION: terminator")
     },
-    (_ctx, value) => {
+    (value, _ctx) => {
       if (value === undefined) {
         return []
       }
