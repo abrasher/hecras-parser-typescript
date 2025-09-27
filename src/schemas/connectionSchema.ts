@@ -14,7 +14,7 @@ import {
   numberPart,
   type Infer,
 } from "../schema"
-import { bridgeSchema } from "./bridgeSchema.bad"
+import { bridgeSchema } from "./bridgeSchema"
 import { culvertSchema } from "./culvertSchema"
 
 export interface OutletRatingCurveSchema {

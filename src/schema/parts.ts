@@ -98,12 +98,15 @@ export function numberPart<const Opts extends NumberPartOptions | undefined = un
 
 type BooleanMode = "TF" | "-1,0" | "10" | "trueFalse" | "enableDisable"
 
+type BooleanFormat = "trimmed" | "listDirected"
+
 interface BooleanPartOptions {
   mode: BooleanMode
+  format?: BooleanFormat
 }
 
 export function booleanPart(options: BooleanPartOptions): Part<boolean> {
-  const { mode } = options
+  const { mode, format = "trimmed" } = options
 
   return {
     parse(segment) {
@@ -143,20 +146,34 @@ export function booleanPart(options: BooleanPartOptions): Part<boolean> {
       if (value === undefined) {
         return ""
       }
+
+      let raw: string
       switch (mode) {
         case "TF":
-          return value ? "T" : "F"
+          raw = value ? "T" : "F"
+          break
         case "-1,0":
-          return value ? "-1" : "0"
+          raw = value ? "-1" : "0"
+          break
         case "10":
-          return value ? "1" : "0"
+          raw = value ? "1" : "0"
+          break
         case "trueFalse":
-          return value ? "True" : "False"
+          raw = value ? "True" : "False"
+          break
         case "enableDisable":
-          return value ? "Enable" : "Disable"
+          raw = value ? "Enable" : "Disable"
+          break
         default:
-          return value ? "True" : "False"
+          raw = value ? "True" : "False"
+          break
       }
+
+      if (format === "listDirected" && (mode === "-1,0" || mode === "10")) {
+        return raw.startsWith("-") ? raw : ` ${raw}`
+      }
+
+      return raw
     },
   }
 }

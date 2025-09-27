@@ -161,4 +161,29 @@ describe("schema driver", () => {
     const parsed = parseWithSchema(lengthSchema, lines, 0)
     expect(parsed.value).toMatchObject({ title: "Hi", count: 5, enabled: true })
   })
+
+  it("serializes numeric boolean modes using list-directed padding when requested", () => {
+    const paddedSchema = schema([
+      booleanField("legacy", "Legacy=", { mode: "-1,0", format: "listDirected" }),
+      booleanField("binary", "Binary=", { mode: "10", format: "listDirected" }),
+    ])
+
+    expect(serializeWithSchema(paddedSchema, { legacy: true, binary: true })).toEqual([
+      "Legacy=-1",
+      "Binary= 1",
+    ])
+
+    expect(serializeWithSchema(paddedSchema, { legacy: false, binary: false })).toEqual([
+      "Legacy= 0",
+      "Binary= 0",
+    ])
+
+    const parsed = parseWithSchema(
+      paddedSchema,
+      ["Legacy= 0", "Binary= 1"],
+      0,
+    )
+
+    expect(parsed.value).toMatchObject({ legacy: false, binary: true })
+  })
 })
