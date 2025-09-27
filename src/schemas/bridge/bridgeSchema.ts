@@ -1,13 +1,13 @@
 import { chunk, flatten } from "es-toolkit"
-import type { NTuple } from "../parsers/utils"
+import type { NTuple } from "../../parsers/utils"
 import {
   parseCommaSeparated,
   parseKeyValue,
   parseMaybeFloat,
   parseMultilineArray,
   splitIntoTuples,
-} from "../parsers/utils"
-import type { Infer } from "../schema"
+} from "../../parsers/utils"
+import type { Infer } from "../../schema"
 import {
   numberPart,
   schema,
@@ -16,11 +16,14 @@ import {
   contextual,
   numberField,
   stringField,
-} from "../schema"
-import { formatStationElevationPairs, toFixedWidthString } from "../serializers/utils"
+  repeat,
+  startsWith,
+} from "../../schema"
+import { formatStationElevationPairs, toFixedWidthString } from "../../serializers/utils"
+import { pierSchema } from "./pierSchema"
 
 const deckField = contextual(
-  "Conn BR: Deck Dist Width WeirC Skew NumUp NumDn",
+  "deck",
   (lines: string[], startIndex: number) => {
     let index = startIndex
     const paramsLine = lines[index]
@@ -121,7 +124,7 @@ const deckField = contextual(
   },
 )
 
-const xsField = (field: string, prefix: "BR" | "XS") =>
+const xsField = <Key extends string>(field: Key, prefix: "BR" | "XS") =>
   contextual(
     field,
     (lines: string[], startIndex: number) => {
@@ -225,11 +228,12 @@ const bridgeSchema = schema([
     }),
   ),
   deckField,
-  xsField("upstreamInside", "BR"),
-  xsField("downstreamInside", "BR"),
+  xsField("upstreamInside" as const, "BR"),
+  xsField("downstreamInside" as const, "BR"),
   numberField("skew", "Conn BR: BR Skew="),
   // TODO we are just storing this as a string, but it is a bunch of flags/numbers
   stringField("coef1", "Conn BR: BR Coef="),
+  repeat("piers", startsWith("Conn BR: Pier Skew, UpSta & Num, DnSta & Num="), pierSchema),
 ])
 
 type BridgeSchema = Infer<typeof bridgeSchema>
