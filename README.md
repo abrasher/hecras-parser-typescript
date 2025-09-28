@@ -9,11 +9,11 @@ Geometry
 - [x] Land Cover
 - [x] Break Line
 - [x] Junction
+- [x] IC Point
 - [ ] SA Connection
   - [ ] Bridge
   - [ ] Culvert
   - [ ] Weir
-- [ ] IC Point
 - [ ] Storage Area
 - [ ] Boundary Conditions
 - [ ] River Reach
