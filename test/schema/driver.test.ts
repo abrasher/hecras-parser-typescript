@@ -186,4 +186,22 @@ describe("schema driver", () => {
 
     expect(parsed.value).toMatchObject({ legacy: false, binary: true })
   })
+
+  it("pads tuple array counts when configured", () => {
+    const paddedTupleSchema = schema([
+      tupleArrayField("Polyline=", "polyline", {
+        width: 4,
+        maxWidth: 8,
+        tuple: 2 as const,
+        pad: true,
+      }),
+    ])
+
+    const lines = serializeWithSchema(paddedTupleSchema, {
+      polyline: [[1, 2] as [number, number]],
+    })
+
+    expect(lines[0]).toBe("Polyline= 1 ")
+    expect(lines).toHaveLength(2)
+  })
 })

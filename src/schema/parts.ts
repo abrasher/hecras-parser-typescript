@@ -1,5 +1,5 @@
 import { parseDuration } from "../parsers/utils"
-import { formatDuration } from "../serializers/atomic"
+import { formatDuration } from "./serializationUtils"
 import type { Part } from "./core"
 import type { InferPart } from "./core"
 

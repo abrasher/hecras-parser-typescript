@@ -14,6 +14,7 @@ import type {
 } from "./core"
 import { schema as buildSchema, fields as buildFields } from "./core"
 import { booleanPart, durationPart, numberPart, opt, stringPart } from "./parts"
+import { formatFixedWidth } from "./serializationUtils"
 
 export function multiField<const Spec extends Record<string, Part<unknown>>>(
   label: string,
@@ -31,6 +32,7 @@ interface TupleArrayFieldConfig<Tuple extends number> {
   maxWidth: number
   tuple: Tuple
   optional?: boolean
+  pad?: boolean
 }
 
 export function tupleArrayField<const Key extends string, const Tuple extends number>(
@@ -38,7 +40,7 @@ export function tupleArrayField<const Key extends string, const Tuple extends nu
   key: Key,
   config: TupleArrayFieldConfig<Tuple>,
 ): TupleArrayFieldItem<Key, Tuple> {
-  const { width, maxWidth, tuple, optional } = config
+  const { width, maxWidth, tuple, optional, pad } = config
   return {
     kind: "tupleArrayField",
     label,
@@ -47,6 +49,7 @@ export function tupleArrayField<const Key extends string, const Tuple extends nu
     maxWidth,
     tupleSize: tuple,
     optional,
+    pad,
   }
 }
 
@@ -165,10 +168,9 @@ function applyLength<P extends Part<unknown>>(
       if (raw === "") {
         return raw
       }
-      if (raw.length >= length) {
-        return raw
-      }
-      return alignment === "right" ? raw.padStart(length, " ") : raw.padEnd(length, " ")
+      return formatFixedWidth(raw, length, {
+        padDirection: alignment === "right" ? "start" : "end",
+      })
     },
   }
 

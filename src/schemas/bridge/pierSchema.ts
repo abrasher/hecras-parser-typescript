@@ -1,5 +1,4 @@
-import { formatFixedWidth } from "../../serializers/atomic"
-import { formatHECRASStationNumber } from "../../serializers/utils"
+import { formatFixedWidth, formatHECRASStationNumber } from "../../schema/serializationUtils"
 import { parseMultilineArray } from "../../parsers/utils"
 import {
   contextual,

@@ -10,9 +10,9 @@ describe("breakLineSchema", () => {
     "BreakLine CellSize Max=25.5",
     "BreakLine Near Repeats=0",
     "BreakLine Protection Radius=5.2",
-    "BreakLine Polyline= 3 ",
-    "            100.            200.            150.            250.",
-    "            175.            275.",
+    "BreakLine Polyline= 4 ",
+    "275702.2378993385274628.53927988275718.2256674615274621.13031416",
+    "275729.7290615985274615.86604905275736.8096161665274610.84529217",
   ]
 
   const sampleLinesWithBlankMax = [
@@ -35,9 +35,10 @@ describe("breakLineSchema", () => {
       nearRepeats: 0,
       protectionRadius: 5.2,
       polylinePoints: [
-        [100.0, 200.0],
-        [150.0, 250.0],
-        [175.0, 275.0],
+        [275702.237899338, 5274628.53927988],
+        [275718.225667461, 5274621.13031416],
+        [275729.729061598, 5274615.86604905],
+        [275736.809616166, 5274610.84529217],
       ],
     })
   })
@@ -64,9 +65,10 @@ describe("breakLineSchema", () => {
       nearRepeats: 0,
       protectionRadius: 5.2,
       polylinePoints: [
-        [100.0, 200.0],
-        [150.0, 250.0],
-        [175.0, 275.0],
+        [275702.237899338, 5274628.53927988],
+        [275718.225667461, 5274621.13031416],
+        [275729.729061598, 5274615.86604905],
+        [275736.809616166, 5274610.84529217],
       ],
     }
 
@@ -78,9 +80,9 @@ describe("breakLineSchema", () => {
       "BreakLine CellSize Max=25.5",
       "BreakLine Near Repeats=0",
       "BreakLine Protection Radius=5.2",
-      "BreakLine Polyline=3",
-      "           100.0           200.0           150.0           250.0",
-      "           175.0           275.0",
+      "BreakLine Polyline= 4 ",
+      "275702.2378993385274628.53927988275718.2256674615274621.13031416",
+      "275729.7290615985274615.86604905275736.8096161665274610.84529217",
     ])
   })
 
@@ -102,7 +104,7 @@ describe("breakLineSchema", () => {
       "BreakLine CellSize Max=",
       "BreakLine Near Repeats=0",
       "BreakLine Protection Radius=5.2",
-      "BreakLine Polyline=0",
+      "BreakLine Polyline= 0 ",
     ])
   })
 
@@ -114,7 +116,10 @@ describe("breakLineSchema", () => {
       cellSizeMax: 25.5,
       nearRepeats: 0,
       protectionRadius: 5.2,
-      polylinePoints: [[100, 200], [150, 250]],
+      polylinePoints: [
+        [100, 200],
+        [150, 250],
+      ],
     }
 
     // This should compile without error - schema-first typing

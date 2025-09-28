@@ -96,6 +96,7 @@ export interface TupleArrayFieldItem<Key extends string, Tuple extends number> {
   maxWidth: number
   tupleSize: Tuple
   optional?: boolean
+  pad?: boolean
 }
 
 export interface ContextualItem<Key extends string, Value> {

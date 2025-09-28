@@ -1,6 +1,5 @@
-import { formatFixedWidth } from "../serializers/atomic"
+import { formatChunkedLines } from "./serializationUtils"
 import type {
-  BlankLineItem,
   BlankLinesItem,
   TupleArrayFieldItem,
   ContextualItem,
@@ -427,7 +426,8 @@ function serializeTupleArrayField(
 
   const tuples = value as unknown[]
   const count = tuples.length
-  lines.push(`${item.label}${count}`)
+  const countSegment = item.pad ? ` ${count} ` : String(count)
+  lines.push(`${item.label}${countSegment}`)
 
   const flat: number[] = []
   for (const tuple of tuples) {
@@ -443,11 +443,12 @@ function serializeTupleArrayField(
   }
 
   const perLine = Math.max(1, Math.floor(item.maxWidth / item.width))
-  for (let i = 0; i < flat.length; i += perLine) {
-    const chunk = flat.slice(i, i + perLine)
-    const formatted = chunk.map((num) => formatFixedWidth(num, item.width)).join("")
-    lines.push(formatted)
-  }
+  const formattedLines = formatChunkedLines(flat, {
+    width: item.width,
+    perLine,
+    formatter: (num) => num.toString(),
+  })
+  lines.push(...formattedLines)
 
   context[item.key] = value
 }

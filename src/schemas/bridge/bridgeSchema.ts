@@ -19,7 +19,7 @@ import {
   repeat,
   startsWith,
 } from "../../schema"
-import { formatStationElevationPairs, toFixedWidthString } from "../../serializers/utils"
+import { formatStationElevationPairs, formatFixedWidth } from "../../schema/serializationUtils"
 import { pierSchema } from "./pierSchema"
 
 const deckField = contextual(
@@ -105,7 +105,7 @@ const deckField = contextual(
 
         chunk(values, 10).forEach((valueGroup) => {
           const formattedLine = valueGroup
-            .map((value) => (value === null ? "        " : toFixedWidthString(value.toString(), 8)))
+            .map((value) => (value === null ? "        " : formatFixedWidth(value.toString(), 8)))
             .join("")
           lines.push(formattedLine)
         })
@@ -204,7 +204,7 @@ const xsField = <Key extends string>(field: Key, prefix: "BR" | "XS") =>
     },
   )
 
-const bridgeSchema = schema([
+export const bridgeSchema = schema([
   multiField(
     "Conn BR: Bridge=",
     fields({
