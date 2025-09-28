@@ -1,4 +1,8 @@
-import { formatChunkedLines } from "./serializationUtils"
+import {
+  formatChunkedLines,
+  formatHECRASCoordinateNumber,
+  formatHECRASStationNumber,
+} from "./serializationUtils"
 import type {
   BlankLinesItem,
   TupleArrayFieldItem,
@@ -443,10 +447,22 @@ function serializeTupleArrayField(
   }
 
   const perLine = Math.max(1, Math.floor(item.maxWidth / item.width))
+  const valueFormatter = (() => {
+    if (item.formatter === "station") {
+      return (num: number) => formatHECRASStationNumber(num)
+    }
+    if (item.formatter === "coordinate") {
+      return (num: number) => formatHECRASCoordinateNumber(num)
+    }
+    if (typeof item.formatter === "function") {
+      return item.formatter
+    }
+    return (num: number) => num.toString()
+  })()
   const formattedLines = formatChunkedLines(flat, {
     width: item.width,
     perLine,
-    formatter: (num) => num.toString(),
+    formatter: valueFormatter,
   })
   lines.push(...formattedLines)
 

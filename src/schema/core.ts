@@ -97,6 +97,7 @@ export interface TupleArrayFieldItem<Key extends string, Tuple extends number> {
   tupleSize: Tuple
   optional?: boolean
   pad?: boolean
+  formatter?: "station" | "coordinate" | ((value: number) => string)
 }
 
 export interface ContextualItem<Key extends string, Value> {

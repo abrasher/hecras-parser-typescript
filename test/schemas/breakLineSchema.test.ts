@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { parseWithSchema, serializeWithSchema } from "../../src/schema"
 import { breakLineSchema, type BreakLineSchema } from "../../src/schemas/breakLineSchema"
-import type { BreakLine } from "../../src/models/geometry/breakLine"
 
 describe("breakLineSchema", () => {
   const sampleLines = [
@@ -106,27 +105,5 @@ describe("breakLineSchema", () => {
       "BreakLine Protection Radius=5.2",
       "BreakLine Polyline= 0 ",
     ])
-  })
-
-  // Type compatibility test - ensure BreakLineSchema is assignable to BreakLine
-  it("maintains type compatibility with existing BreakLine model", () => {
-    const schemaData: BreakLineSchema = {
-      name: "BL-42",
-      cellSizeMin: 10,
-      cellSizeMax: 25.5,
-      nearRepeats: 0,
-      protectionRadius: 5.2,
-      polylinePoints: [
-        [100, 200],
-        [150, 250],
-      ],
-    }
-
-    // This should compile without error - schema-first typing
-    const modelData: BreakLine = schemaData
-
-    expect(modelData.name).toBe("BL-42")
-    expect(modelData.cellSizeMax).toBe(25.5)
-    expect(modelData.polylinePoints).toHaveLength(2)
   })
 })

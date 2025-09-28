@@ -83,6 +83,7 @@ const landCoverRegionSchema = schema([
     width: 16,
     maxWidth: 64,
     tuple: 2 as const,
+    formatter: "coordinate",
   }),
 ])
 

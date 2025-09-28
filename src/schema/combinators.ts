@@ -33,6 +33,7 @@ interface TupleArrayFieldConfig<Tuple extends number> {
   tuple: Tuple
   optional?: boolean
   pad?: boolean
+  formatter?: "station" | "coordinate" | ((value: number) => string)
 }
 
 export function tupleArrayField<const Key extends string, const Tuple extends number>(
@@ -40,7 +41,7 @@ export function tupleArrayField<const Key extends string, const Tuple extends nu
   key: Key,
   config: TupleArrayFieldConfig<Tuple>,
 ): TupleArrayFieldItem<Key, Tuple> {
-  const { width, maxWidth, tuple, optional, pad } = config
+  const { width, maxWidth, tuple, optional, pad, formatter } = config
   return {
     kind: "tupleArrayField",
     label,
@@ -50,6 +51,7 @@ export function tupleArrayField<const Key extends string, const Tuple extends nu
     tupleSize: tuple,
     optional,
     pad,
+    formatter,
   }
 }
 

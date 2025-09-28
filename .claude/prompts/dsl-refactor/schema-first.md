@@ -13,7 +13,7 @@ API Surface (type-first)
 - `fields(spec)` → identity helper to preserve literal keys and infer field types from `Part`s.
 - `multiField(label, fields(...))` → CSV multi-field line.
 - `stringField(key, label, opts?)` / `numberField(...)` / `booleanField(...)` → single-field helpers that wrap `multiField` + `stringPart`/`numberPart`/`booleanPart`; accept the underlying part options (e.g., `{ trim: true }`, `{ integer: true }`, `{ mode: 'tf' }`) plus field-level metadata like `{ length }`.
-- `tupleArrayField(label, key, { width, maxWidth, tuple })` → header with count + fixed-width number chunks, inferred tuple via `tuple` literal.
+- `tupleArrayField(label, key, { width, maxWidth, tuple, formatter? })` → header with count + fixed-width number chunks, inferred tuple via `tuple` literal. Optional `formatter` may be `'station'`, `'coordinate'`, or a custom function `(value: number) => string`.
 - `contextual(key, parser, serializer?)` → context-dependent parsing where field depends on previously parsed data.
 - `section(key, recognizer, subSchema)` → optional sub-schema block keyed under `key`; omitted when `recognizer` does not match.
 - `repeat(key, recognizer, subSchema)` → 0..n sub-schema blocks keyed under `key` as an array; consumes contiguous matches.

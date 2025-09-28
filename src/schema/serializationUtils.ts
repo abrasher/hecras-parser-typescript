@@ -133,9 +133,7 @@ export function formatFixedWidth(
   }
 
   // Apply padding
-  return padDirection === "end"
-    ? str.padEnd(width, padChar)
-    : str.padStart(width, padChar)
+  return padDirection === "end" ? str.padEnd(width, padChar) : str.padStart(width, padChar)
 }
 
 /**
@@ -160,9 +158,7 @@ export function formatNullableNumber(
     return blankToken // Custom token for null
   }
 
-  return width !== undefined
-    ? formatFixedWidth(value, width)
-    : value.toString()
+  return width !== undefined ? formatFixedWidth(value, width) : value.toString()
 }
 
 // ============================================================================
@@ -200,11 +196,9 @@ export function formatChunkedLines<T>(
 ): string[] {
   const { width, perLine, formatter, nullFormatter, padDirection = "start" } = options
 
-  return chunk(values, perLine).map(valuesChunk => {
-    const formattedChunk = valuesChunk.map(value => {
-      const formatted = (nullFormatter && value === null)
-        ? nullFormatter(value)
-        : formatter(value)
+  return chunk(values, perLine).map((valuesChunk) => {
+    const formattedChunk = valuesChunk.map((value) => {
+      const formatted = nullFormatter && value === null ? nullFormatter(value) : formatter(value)
 
       return formatFixedWidth(formatted, width, { padDirection })
     })
@@ -277,10 +271,7 @@ export function formatHECRASStationNumber(num: number | null): string {
  * @returns Array of formatted coordinate lines
  */
 export function formatCoordinateChunks(coordinates: readonly Coordinate[]): string[] {
-  const numbers: number[] = []
-  for (const [x, y] of coordinates) {
-    numbers.push(x, y)
-  }
+  const numbers = coordinates.flat()
 
   return formatChunkedLines(numbers, {
     width: 16,
@@ -305,10 +296,7 @@ export function formatCoordinateMultipleLines(
     ? `${key}= ${coordinates.length} `
     : `${key}=${coordinates.length}`
 
-  return [
-    headerLine,
-    ...formatCoordinateChunks(coordinates),
-  ]
+  return [headerLine, ...formatCoordinateChunks(coordinates)]
 }
 
 /**
@@ -332,4 +320,3 @@ export function formatStationChunks(stationElevationData: readonly number[]): st
 export function formatStationElevationPairs(stationElevationData: readonly number[]): string[] {
   return formatStationChunks(stationElevationData)
 }
-

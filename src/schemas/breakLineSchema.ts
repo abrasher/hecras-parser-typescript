@@ -23,6 +23,7 @@ export const breakLineSchema = schema([
     maxWidth: 64, // 4 numbers per line * 16 chars = 64 chars max
     tuple: 2 as const, // [x, y] coordinate pairs
     pad: true,
+    formatter: "coordinate",
   }),
 ])
 

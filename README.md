@@ -4,6 +4,22 @@ A work-in-progress TypeScript library for parsing HEC-RAS geometry files (.gXX).
 
 Currently targetting HECRAS 6.6 as of August 2025.
 
+## Support
+Geometry
+- [x] Land Cover
+- [x] Break Line
+- [ ] Junction
+- [ ] SA Connection
+  - [ ] Bridge
+  - [ ] Culvert
+  - [ ] Weir
+- [ ] IC Point
+- [ ] Storage Area
+- [ ] Boundary Conditions
+- [ ] River Reach
+  - [ ] Cross Section
+  - [ ] Lateral Weir
+
 ## Installation
 
 ```bash
