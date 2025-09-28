@@ -1,5 +1,6 @@
 import type {
   TupleArrayFieldItem,
+  TupleFieldItem,
   ContextualItem,
   Recognizer,
   MultiFieldItem,
@@ -24,6 +25,28 @@ export function multiField<const Spec extends Record<string, Part<unknown>>>(
     kind: "multiField",
     label,
     fields: fieldSpec,
+  }
+}
+
+interface TupleFieldOptions {
+  optional?: boolean
+}
+
+export function tupleField<
+  const Key extends string,
+  const Parts extends readonly Part<unknown>[],
+>(
+  key: Key,
+  label: string,
+  parts: Parts,
+  options: TupleFieldOptions = {},
+): TupleFieldItem<Key, Parts> {
+  return {
+    kind: "tupleField",
+    key,
+    label,
+    parts,
+    optional: options.optional,
   }
 }
 

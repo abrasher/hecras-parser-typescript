@@ -6,6 +6,7 @@ import {
 import type {
   BlankLinesItem,
   TupleArrayFieldItem,
+  TupleFieldItem,
   ContextualItem,
   Infer,
   MultiFieldItem,
@@ -93,6 +94,8 @@ function parseItem(
   switch (item.kind) {
     case "multiField":
       return parseMultiField(item, context, lines, index, options)
+    case "tupleField":
+      return parseTupleField(item, context, lines, index, options)
     case "tupleArrayField":
       return parseTupleArrayField(item, context, lines, index, options)
     case "contextual":
@@ -153,6 +156,43 @@ function parseMultiField(
   }
 
   Object.assign(context, updates)
+
+  return { status: "success", nextIndex: index + 1 }
+}
+
+function parseTupleField(
+  item: TupleFieldItem<string, readonly Part<unknown>[]>,
+  context: ParseContext,
+  lines: string[],
+  index: number,
+  options: ParseOptions,
+): ItemOutcome {
+  const line = lines[index]
+  if (!line || !line.startsWith(item.label)) {
+    if (item.optional) {
+      return { status: "skipped" }
+    }
+    if (options.strict) {
+      throw new Error(`Expected line starting with "${item.label}" at index ${index}`)
+    }
+    return { status: "terminate", nextIndex: index }
+  }
+
+  const raw = line.slice(item.label.length)
+  const segments = splitMultiFieldSegments(raw)
+
+  if (segments.length < item.parts.length) {
+    throw new Error(`Insufficient segments for tuple field "${item.label}"`)
+  }
+
+  const values: unknown[] = []
+  for (let i = 0; i < item.parts.length; i++) {
+    const part = item.parts[i]
+    const segment = segments[i] ?? ""
+    values.push(part.parse(segment))
+  }
+
+  context[item.key] = values
 
   return { status: "success", nextIndex: index + 1 }
 }
@@ -353,6 +393,9 @@ function serializeSchemaInternal(
       case "multiField":
         serializeMultiField(item, data, lines, context)
         break
+      case "tupleField":
+        serializeTupleField(item, data, lines, context)
+        break
       case "tupleArrayField":
         serializeTupleArrayField(item, data, lines, context)
         break
@@ -466,6 +509,33 @@ function serializeTupleArrayField(
   })
   lines.push(...formattedLines)
 
+  context[item.key] = value
+}
+
+function serializeTupleField(
+  item: TupleFieldItem<string, readonly Part<unknown>[]>,
+  data: Record<string, unknown>,
+  lines: string[],
+  context: ParseContext,
+): void {
+  const value = data[item.key]
+  if (value === undefined) {
+    return
+  }
+
+  if (!Array.isArray(value)) {
+    throw new Error(`Expected array for tuple field key "${item.key}"`)
+  }
+
+  if (value.length !== item.parts.length) {
+    throw new Error(
+      `Tuple field "${item.key}" must contain exactly ${item.parts.length} entries`,
+    )
+  }
+
+  const segments = item.parts.map((part, index) => part.serialize(value[index]))
+  const serialized = ` ${segments.join(" , ")} `
+  lines.push(`${item.label}${serialized}`)
   context[item.key] = value
 }
 

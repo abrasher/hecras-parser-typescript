@@ -1,6 +1,17 @@
-export { schema, fields, TupleOf, Simplify, UnionToIntersection, Infer, Part, InferPart } from "./core"
+export {
+  schema,
+  fields,
+  TupleOf,
+  Simplify,
+  UnionToIntersection,
+  Infer,
+  Part,
+  InferPart,
+  InferTupleParts,
+} from "./core"
 export {
   multiField,
+  tupleField,
   tupleArrayField,
   contextual,
   section,

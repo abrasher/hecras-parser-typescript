@@ -5,6 +5,7 @@ import {
   booleanField,
   booleanPart,
   tupleArrayField,
+  tupleField,
   durationField,
   fields,
   multiField,
@@ -33,6 +34,7 @@ const rootSchema = schema([
       optionalNote: opt(stringPart({ trim: true })),
     }),
   ),
+  tupleField("coordinate", "Coordinate=", [numberPart(), numberPart()] as const),
   tupleArrayField("Values=", "values", {
     width: 8,
     maxWidth: 16,
@@ -67,6 +69,7 @@ describe("schema types", () => {
       name: string
       version: number
       optionalNote?: string
+      coordinate: [number, number]
       alias?: string
       nullableCount?: number | null
       timeout: number
