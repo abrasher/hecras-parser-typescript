@@ -88,6 +88,21 @@ export interface MultiFieldItem<F extends FieldSpec> {
   fields: F
 }
 
+export type InferTupleParts<Parts extends readonly Part<unknown>[]> = Simplify<{
+  [Index in keyof Parts]: InferPart<Parts[Index]>
+}>
+
+export interface TupleFieldItem<
+  Key extends string,
+  Parts extends readonly Part<unknown>[],
+> {
+  kind: "tupleField"
+  label: string
+  key: Key
+  parts: Parts
+  optional?: boolean
+}
+
 export interface TupleArrayFieldItem<Key extends string, Tuple extends number> {
   kind: "tupleArrayField"
   label: string
@@ -141,6 +156,7 @@ export interface BlankLinesItem {
 
 export type SchemaItem =
   | MultiFieldItem<FieldSpec>
+  | TupleFieldItem<string, readonly Part<unknown>[]>
   | TupleArrayFieldItem<string, number>
   | ContextualItem<string, unknown>
   | SectionItem<string, SchemaDef>
@@ -158,6 +174,10 @@ export function schema<const Def extends SchemaDef>(def: Def): Def {
 type InferItemWithDepth<I, Depth extends number> =
   I extends MultiFieldItem<infer F>
     ? InferFields<F>
+    : I extends TupleFieldItem<infer Key, infer Parts>
+      ? I["optional"] extends true
+        ? { [K in Key]?: InferTupleParts<Parts> }
+        : { [K in Key]: InferTupleParts<Parts> }
     : I extends TupleArrayFieldItem<infer Key, infer Tuple>
       ? I["optional"] extends true
         ? { [K in Key]?: TupleOf<Tuple, number>[] }

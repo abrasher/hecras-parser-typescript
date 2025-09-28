@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest"
 import {
   booleanField,
   tupleArrayField,
+  tupleField,
   contextual,
   fields,
   multiField,
@@ -58,6 +59,11 @@ const testSchema = schema([
       optionalNote: opt(stringPart({ trim: true })),
     }),
   ),
+  tupleField(
+    "coordinate",
+    "Coordinate=",
+    [numberPart(), numberPart()] as const,
+  ),
   stringField("maybe", "Item Optional=", { optional: true, trim: true }),
   tupleArrayField("Values=", "values", {
     width: 6,
@@ -71,6 +77,7 @@ const testSchema = schema([
 describe("schema driver", () => {
   const sampleLines = [
     "Item=Sample,3,Note",
+    "Coordinate= 1 , 2 ",
     "Values=2",
     "   1.0   2.0",
     "   3.0   4.0",
@@ -92,6 +99,7 @@ describe("schema driver", () => {
       name: "Sample",
       count: 3,
       optionalNote: "Note",
+      coordinate: [1, 2],
       values: [
         [1, 2],
         [3, 4],
@@ -112,6 +120,7 @@ describe("schema driver", () => {
       name: "Sample",
       count: 3,
       optionalNote: undefined,
+      coordinate: [1, 2] as [number, number],
       values: [[1, 2] as [number, number], [3, 4] as [number, number]],
       entries: [{ name: "Alpha", value: 1, enabled: true }],
       detail: {
@@ -124,9 +133,10 @@ describe("schema driver", () => {
 
     expect(lines).toEqual([
       "Item=Sample,3,",
+      "Coordinate= 1 , 2 ",
       "Values=2",
-      "   1.0   2.0",
-      "   3.0   4.0",
+      "     1     2",
+      "     3     4",
       "Entry=Alpha",
       "Entry Number=1",
       "Entry Flag=T",
@@ -135,7 +145,7 @@ describe("schema driver", () => {
   })
 
   it("parses detail section independently", () => {
-    const detailResult = parseSectionWithSchema(detailSchema, sampleLines, 10)
+    const detailResult = parseSectionWithSchema(detailSchema, sampleLines, 11)
     expect(detailResult.value).toMatchObject({
       note: "Provided",
       detailFlag: true,
