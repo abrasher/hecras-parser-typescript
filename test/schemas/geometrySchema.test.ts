@@ -78,8 +78,10 @@ describe("geometrySchema", () => {
       description: "Desc",
     }
 
-    const geometryHeader: Pick<HECRASGeometry, "geomTitle" | "programVersion" | "viewingRectangle" | "description"> =
-      schemaData
+    const geometryHeader: Pick<
+      HECRASGeometry,
+      "geomTitle" | "programVersion" | "viewingRectangle" | "description"
+    > = schemaData
 
     expect(geometryHeader.geomTitle).toBe("Example")
     expect(geometryHeader.viewingRectangle.left).toBe(1)

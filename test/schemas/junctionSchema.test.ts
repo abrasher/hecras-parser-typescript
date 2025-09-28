@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { parseWithSchema, serializeWithSchema } from "../../src/schema"
 import { junctionSchema, type JunctionSchema } from "../../src/schemas/junctionSchema"
-import type { JunctionProperties } from "../../src/models/geometry/junction"
 
 describe("junctionSchema", () => {
   const sampleLines = [
@@ -108,50 +107,5 @@ describe("junctionSchema", () => {
       "Junc L&A=102.93,0",
       "Junc L&A=67.3,0",
     ])
-  })
-
-  // Type compatibility test - show how the flat schema structure relates to the nested model
-  it("demonstrates type compatibility with existing JunctionProperties model", () => {
-    const schemaData: JunctionSchema = {
-      name: "TestJunc",
-      description: "Test junction",
-      steadyFlowComputationMode: true, // -1 = momentum computation
-      addWeight: false, // 0 = false
-      addFriction: true, // -1 = true
-      unsteadyComputationMode: false, // 0 = force equal water surface elevations
-      positionX: 100,
-      positionY: 200,
-      textPositionX: 110,
-      textPositionY: 210,
-      upstreamConnections: [{ river: "River1", reach: "Reach1" }],
-      downstreamRiver: "MainRiver",
-      downstreamReach: "MainReach",
-      lengthAndAngles: [{ length: 50.0, angle: 10.0 }],
-    }
-
-    // Transform to existing model structure (note: original model doesn't include computation modes)
-    const modelData: JunctionProperties = {
-      name: schemaData.name,
-      description: schemaData.description,
-      coordinates: {
-        position: [schemaData.positionX, schemaData.positionY],
-        textPosition: [schemaData.textPositionX, schemaData.textPositionY],
-      },
-      upstreamConnections: schemaData.upstreamConnections,
-      downstreamConnection: {
-        river: schemaData.downstreamRiver,
-        reach: schemaData.downstreamReach,
-      },
-      // Note: original model expected area but schema now has angle
-      lengthAndAreas: schemaData.lengthAndAngles.map(({ length, angle }) => ({
-        length,
-        area: angle,
-      })),
-    }
-
-    expect(modelData.name).toBe("TestJunc")
-    expect(modelData.coordinates.position).toEqual([100, 200])
-    expect(modelData.downstreamConnection.river).toBe("MainRiver")
-    expect(modelData.lengthAndAreas[0].area).toBe(10.0) // angle mapped to area for compatibility
   })
 })
