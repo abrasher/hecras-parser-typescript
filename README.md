@@ -8,7 +8,7 @@ Currently targetting HECRAS 6.6 as of August 2025.
 Geometry
 - [x] Land Cover
 - [x] Break Line
-- [ ] Junction
+- [x] Junction
 - [ ] SA Connection
   - [ ] Bridge
   - [ ] Culvert
