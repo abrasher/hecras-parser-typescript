@@ -1,4 +1,4 @@
-import type { Coordinate, VolumeElevationPoint } from "./common"
+import type { Coordinate } from "./common"
 
 export interface StorageArea {
   id: string
@@ -9,7 +9,7 @@ export interface StorageArea {
   type: number
   area: number | null
   minElevation: number | null
-  volumeElevationData: VolumeElevationPoint[]
+  volumeElevationData: [number, number][]
   is2D: number // 0 or 1
   pointGenerationData: string | null
   points2D: Coordinate[]
