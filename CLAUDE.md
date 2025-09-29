@@ -15,8 +15,17 @@ DSL quick reference (see full spec for details)
 
 - Structure: `schema([...])`, `fields({...})`, `multiField(label, fields)`, `tupleArrayField(label, key, { width, maxWidth, tuple })`, `contextual(key, parser, serializer?)`
 - Composition: `section(key, recognizer, subSchema)`, `repeat(key, recognizer, subSchema)`, `include(subSchema)`
-- Parts/semantics: `opt(part)` for optional fields; `numberPart({ nullOnBlank: true })` for blank→null; boolean modes `TF | 10 | trueFalse | enableDisable`
+- Parts/semantics: `opt(part)` for optional fields; `numberPart({ nullOnBlank: true })` for blank→null; boolean modes `TF | 10 | trueFalse | enableDisable | -1,0`
 - Drivers: `parseWithSchema(schema, lines, start, { strict? })`, `parseSectionWithSchema(schema, lines, start)`, `serializeWithSchema(schema, obj)`
+
+Common schema patterns from implemented schemas:
+
+- **Coordinates**: Use `tupleField("name", "Label=", [numberPart(), numberPart()])` for single coordinate pairs
+- **Coordinate arrays**: Use `tupleArrayField("Label=", "key", { width: 16, maxWidth: 64, tuple: 2, formatter: "coordinate", pad: true })` for coordinate tables
+- **Boolean encoding**: HEC-RAS uses `-1,0` encoding frequently (use `booleanPart({ mode: "-1,0" })` or `booleanField(key, label, { mode: "-1,0" })`)
+- **Optional numbers**: Use `numberField(key, label, { nullOnBlank: true })` to preserve blank→null semantics
+- **Variable sections**: Use `repeat(key, startsWith("Pattern"), subSchema)` for 0+ repeated sections
+- **String constraints**: Use `stringField(key, label, { length: 32, trim: true })` for fixed-length fields
 
 Migration workflow (summary)
 
@@ -66,13 +75,18 @@ Parsing strategy
 
 ### Parsing Challenges
 
-**Important Parsing Note**:
+**Important Parsing Notes**:
 
 - For fixed-width tables, ensure tuple widths (`width`, `maxWidth`) match actual line widths; tests should verify column boundaries.
+- **Coordinate formatting**: HEC-RAS uses 16-character fixed-width formatting for coordinates. Use `formatter: "coordinate"` for tupleArrayField.
+- **Boolean encoding variations**: Different sections use different boolean encodings (`-1,0`, `TF`, `0,1`). Check existing format before assuming.
+- **Blank vs null**: Many numeric fields preserve blank→null semantics. Use `nullOnBlank: true` to maintain round-trip fidelity.
+- **String trimming**: Many string fields have trailing spaces that should be preserved or trimmed consistently. Use `trim: true` where appropriate.
+
 
 ### General Parsing Principles
 
-Always assume the format is wrong until proven right. Use comprehensive validation and provide meaningful error messages for format inconsistencies.
+Always assume the format is wrong until proven right. Use comprehensive validation and provide meaningful error messages for format inconsistencies. Test round-trip serialization to ensure format preservation.
 
 ## Core Philosophy
 
