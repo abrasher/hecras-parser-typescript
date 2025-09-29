@@ -81,9 +81,26 @@ export function numberPart<const Opts extends NumberPartOptions | undefined = un
       }
 
       const numeric = integer ? Math.trunc(value) : value
+
+      // Handle HEC-RAS infinity representation
+      if (numeric === Infinity) {
+        return "1.79769313486232E+308"
+      }
+
       if (!Number.isFinite(numeric)) {
         throw new Error(`Cannot serialize non-finite number: ${numeric}`)
       }
+
+      // Check if we should use scientific notation (16+ digits before decimal)
+      const numStr = Math.abs(numeric).toString()
+      const decimalIndex = numStr.indexOf('.')
+      const digitsBeforeDecimal = decimalIndex === -1 ? numStr.length : decimalIndex
+
+      if (digitsBeforeDecimal >= 16) {
+        // Use scientific notation with appropriate precision
+        return numeric.toExponential()
+      }
+
       return numeric.toString()
     },
     nullOnBlank: nullOnBlank || undefined,

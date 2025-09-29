@@ -28,6 +28,24 @@ describe("schema parts", () => {
     expect(nullablePart.serialize(null)).toBe("")
   })
 
+  it("handles scientific notation for large numbers and HEC-RAS infinity", () => {
+    const part = numberPart()
+
+    // Test automatic scientific notation for numbers with 16+ digits before decimal
+    expect(part.serialize(1234567890123456)).toBe("1.234567890123456e+15")
+
+    // Test normal formatting for numbers with <16 digits before decimal
+    expect(part.serialize(123456789012345)).toBe("123456789012345")
+
+    // Test HEC-RAS infinity representation
+    expect(part.parse("1.79769313486232E+308")).toBe(Infinity)
+    expect(part.serialize(Infinity)).toBe("1.79769313486232E+308")
+
+    // Test round-trip for HEC-RAS infinity
+    const parsed = part.parse("1.79769313486232E+308")
+    expect(part.serialize(parsed)).toBe("1.79769313486232E+308")
+  })
+
   it("supports boolean encodings", () => {
     const tfPart = booleanPart({ mode: "TF" })
     expect(tfPart.parse("T")).toBe(true)

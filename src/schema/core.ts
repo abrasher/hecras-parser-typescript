@@ -89,13 +89,10 @@ export interface MultiFieldItem<F extends FieldSpec> {
 }
 
 export type InferTupleParts<Parts extends readonly Part<unknown>[]> = Simplify<{
-  [Index in keyof Parts]: InferPart<Parts[Index]>
+  -readonly [Index in keyof Parts]: InferPart<Parts[Index]>
 }>
 
-export interface TupleFieldItem<
-  Key extends string,
-  Parts extends readonly Part<unknown>[],
-> {
+export interface TupleFieldItem<Key extends string, Parts extends readonly Part<unknown>[]> {
   kind: "tupleField"
   label: string
   key: Key
@@ -178,25 +175,25 @@ type InferItemWithDepth<I, Depth extends number> =
       ? I["optional"] extends true
         ? { [K in Key]?: InferTupleParts<Parts> }
         : { [K in Key]: InferTupleParts<Parts> }
-    : I extends TupleArrayFieldItem<infer Key, infer Tuple>
-      ? I["optional"] extends true
-        ? { [K in Key]?: TupleOf<Tuple, number>[] }
-        : { [K in Key]: TupleOf<Tuple, number>[] }
-      : I extends ContextualItem<infer Key, infer Value>
-        ? { [K in Key]?: Value }
-        : I extends SectionItem<infer Key, infer Schema>
-          ? Depth extends 0
-            ? { [K in Key]?: ExhaustiveInferFallback }
-            : { [K in Key]?: InferWithDepth<Schema, DecrementDepth<Depth>> }
-          : I extends RepeatItem<infer Key, infer Schema>
+      : I extends TupleArrayFieldItem<infer Key, infer Tuple>
+        ? I["optional"] extends true
+          ? { [K in Key]?: TupleOf<Tuple, number>[] }
+          : { [K in Key]: TupleOf<Tuple, number>[] }
+        : I extends ContextualItem<infer Key, infer Value>
+          ? { [K in Key]?: Value }
+          : I extends SectionItem<infer Key, infer Schema>
             ? Depth extends 0
-              ? { [K in Key]: ExhaustiveInferFallback[] }
-              : { [K in Key]: InferWithDepth<Schema, DecrementDepth<Depth>>[] }
-            : I extends IncludeItem<infer Schema>
+              ? { [K in Key]?: ExhaustiveInferFallback }
+              : { [K in Key]?: InferWithDepth<Schema, DecrementDepth<Depth>> }
+            : I extends RepeatItem<infer Key, infer Schema>
               ? Depth extends 0
-                ? ExhaustiveInferFallback
-                : InferWithDepth<Schema, DecrementDepth<Depth>>
-              : object
+                ? { [K in Key]: ExhaustiveInferFallback[] }
+                : { [K in Key]: InferWithDepth<Schema, DecrementDepth<Depth>>[] }
+              : I extends IncludeItem<infer Schema>
+                ? Depth extends 0
+                  ? ExhaustiveInferFallback
+                  : InferWithDepth<Schema, DecrementDepth<Depth>>
+                : object
 
 export type InferItem<I> = InferItemWithDepth<I, SchemaDepthLimit>
 

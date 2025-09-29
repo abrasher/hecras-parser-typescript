@@ -15,7 +15,7 @@ Geometry
   - [ ] Culvert
   - [ ] Weir
 - [ ] Storage Area
-- [ ] Boundary Conditions
+- [x] Boundary Conditions
 - [ ] River Reach
   - [ ] Cross Section
   - [ ] Lateral Weir

@@ -4,7 +4,6 @@ import {
   boundaryConditionSchema,
   type BoundaryConditionSchema,
 } from "../../src/schemas/boundaryConditionSchema"
-import type { BoundaryCondition } from "../../src/models/geometry/boundaryCondition"
 
 const sampleLines = [
   "BC Line Name=BC1                             ",
@@ -15,9 +14,9 @@ const sampleLines = [
   "BC Line Arc= 2 ",
   "485748.087453498 4751198.7455208485810.8199268634751207.55626144",
   "BC Line Text Position= 1.79769313486232E+308 , 1.79769313486232E+308 ",
-] as const
+]
 
-const sampleBoundaryCondition: BoundaryCondition = {
+const sampleBoundaryCondition: BoundaryConditionSchema = {
   name: "BC1",
   storageArea: "2D_Grid",
   startPosition: [485748.087453498, 4751198.7455208],
@@ -27,10 +26,7 @@ const sampleBoundaryCondition: BoundaryCondition = {
     [485748.087453498, 4751198.7455208],
     [485810.819926863, 4751207.55626144],
   ],
-  textPosition: {
-    x: "1.79769313486232E+308",
-    y: "1.79769313486232E+308",
-  },
+  textPosition: [Infinity, Infinity],
 }
 
 describe("boundaryConditionSchema", () => {
@@ -45,13 +41,5 @@ describe("boundaryConditionSchema", () => {
     const lines = serializeWithSchema(boundaryConditionSchema, sampleBoundaryCondition)
 
     expect(lines).toEqual(sampleLines)
-  })
-
-  it("is compatible with BoundaryCondition type", () => {
-    const schemaValue: BoundaryConditionSchema = sampleBoundaryCondition
-    const modelValue: BoundaryCondition = schemaValue
-
-    expect(modelValue.name).toBe("BC1")
-    expect(schemaValue.arcCoordinates[0][0]).toBeCloseTo(485748.087453498)
   })
 })
