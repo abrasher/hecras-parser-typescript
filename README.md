@@ -14,7 +14,7 @@ Geometry
   - [ ] Bridge
   - [ ] Culvert
   - [ ] Weir
-- [ ] Storage Area
+- [x] Storage Area
 - [x] Boundary Conditions
 - [ ] River Reach
   - [ ] Cross Section
