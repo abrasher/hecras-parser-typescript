@@ -28,6 +28,13 @@ describe("schema parts", () => {
     expect(nullablePart.serialize(null)).toBe("")
   })
 
+  it("optionally pads serialized numbers when requested", () => {
+    const paddedPart = numberPart({ padded: true })
+    expect(paddedPart.serialize(3.5)).toBe(" 3.5 ")
+    expect(paddedPart.parse(" 3.5 ")).toBe(3.5)
+    expect(paddedPart.serialize(Infinity)).toBe(" 1.79769313486232E+308 ")
+  })
+
   it("handles scientific notation for large numbers and HEC-RAS infinity", () => {
     const part = numberPart()
 

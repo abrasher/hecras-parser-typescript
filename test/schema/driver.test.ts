@@ -62,7 +62,7 @@ const testSchema = schema([
   tupleField(
     "coordinate",
     "Coordinate=",
-    [numberPart(), numberPart()] as const,
+    [numberPart({ padded: true }), numberPart({ padded: true })] as const,
   ),
   stringField("maybe", "Item Optional=", { optional: true, trim: true }),
   tupleArrayField("Values=", "values", {
@@ -179,13 +179,13 @@ describe("schema driver", () => {
     ])
 
     expect(serializeWithSchema(paddedSchema, { legacy: true, binary: true })).toEqual([
-      "Legacy=-1",
-      "Binary= 1",
+      "Legacy=-1 ",
+      "Binary= 1 ",
     ])
 
     expect(serializeWithSchema(paddedSchema, { legacy: false, binary: false })).toEqual([
-      "Legacy= 0",
-      "Binary= 0",
+      "Legacy= 0 ",
+      "Binary= 0 ",
     ])
 
     const parsed = parseWithSchema(

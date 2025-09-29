@@ -534,7 +534,7 @@ function serializeTupleField(
   }
 
   const segments = item.parts.map((part, index) => part.serialize(value[index]))
-  const serialized = ` ${segments.join(" , ")} `
+  const serialized = segments.join(",")
   lines.push(`${item.label}${serialized}`)
   context[item.key] = value
 }

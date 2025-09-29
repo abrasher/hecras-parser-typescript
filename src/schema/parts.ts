@@ -39,6 +39,7 @@ export function stringPart(options: StringPartOptions = {}): Part<string> {
 interface NumberPartOptions {
   integer?: boolean
   nullOnBlank?: boolean
+  padded?: boolean
 }
 
 type NumberPartValue<Opts extends NumberPartOptions | undefined> = Opts extends {
@@ -50,7 +51,7 @@ type NumberPartValue<Opts extends NumberPartOptions | undefined> = Opts extends 
 export function numberPart<const Opts extends NumberPartOptions | undefined = undefined>(
   options?: Opts,
 ): Part<NumberPartValue<Opts>> {
-  const { integer = false, nullOnBlank = false } = options ?? {}
+  const { integer = false, nullOnBlank = false, padded = false } = options ?? {}
 
   const part: Part<number | null> = {
     parse(segment) {
@@ -84,7 +85,8 @@ export function numberPart<const Opts extends NumberPartOptions | undefined = un
 
       // Handle HEC-RAS infinity representation
       if (numeric === Infinity) {
-        return "1.79769313486232E+308"
+        const infinitySentinel = "1.79769313486232E+308"
+        return padded ? ` ${infinitySentinel} ` : infinitySentinel
       }
 
       if (!Number.isFinite(numeric)) {
@@ -93,15 +95,17 @@ export function numberPart<const Opts extends NumberPartOptions | undefined = un
 
       // Check if we should use scientific notation (16+ digits before decimal)
       const numStr = Math.abs(numeric).toString()
-      const decimalIndex = numStr.indexOf('.')
+      const decimalIndex = numStr.indexOf(".")
       const digitsBeforeDecimal = decimalIndex === -1 ? numStr.length : decimalIndex
+
+      let serialized = numeric.toString()
 
       if (digitsBeforeDecimal >= 16) {
         // Use scientific notation with appropriate precision
-        return numeric.toExponential()
+        serialized = numeric.toExponential()
       }
 
-      return numeric.toString()
+      return padded ? ` ${serialized} ` : serialized
     },
     nullOnBlank: nullOnBlank || undefined,
   }
@@ -187,7 +191,7 @@ export function booleanPart(options: BooleanPartOptions): Part<boolean> {
       }
 
       if (format === "listDirected" && (mode === "-1,0" || mode === "10")) {
-        return raw.startsWith("-") ? raw : ` ${raw}`
+        return raw.startsWith("-") ? `${raw} ` : ` ${raw} `
       }
 
       return raw

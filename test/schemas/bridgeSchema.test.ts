@@ -1,12 +1,11 @@
 import { describe, expect, it } from "vitest"
 import { parseWithSchema, serializeWithSchema } from "../../src/schema"
 import { bridgeSchema, type BridgeSchema } from "../../src/schemas/bridge/bridgeSchema"
-import type { BridgeConnection } from "../../src/models/geometry/bridge"
 
 describe("bridgeSchema", () => {
   it("parses bridge fixture data", () => {
     const { value, nextIndex } = parseWithSchema(bridgeSchema, bridgeLines, 0)
-    expect(value as unknown as BridgeConnection).toEqual(testBridgeConnection)
+    expect(value).toEqual(testBridgeConnection)
     expect(nextIndex).toBe(bridgeLines.length)
   })
 
@@ -102,24 +101,22 @@ Conn BR: DSXS Ineff=11.68,252.5,30,252.5`
 
 const bridgeLines = bridgeFixtureString.split("\n")
 
-const testBridgeConnection: BridgeConnection = {
-  bridge: {
-    momentumEquationAddFriction: -1,
-    momentumEquationAddWeight: 0,
-    pressureFlowCriteria: -1,
-    classBDefaults: -1,
-    param5: 0,
-    contractionCoefficient: 0.3,
-    expansionCoefficient: 0.5,
-  },
-  pressureWeir: {
-    value1: 0.08,
-    value2: null,
-    value3: 0.25,
-    value4: null,
-    value5: 0.016,
-  },
-  deckParameters: {
+const testBridgeConnection: BridgeSchema = {
+  momentumEquationAddFriction: true,
+  momentumEquationAddWeight: false,
+  pressureFlowCriteria: true,
+  classBDefaults: true,
+  param5: false,
+  contractionCoefficient: 0.3,
+  expansionCoefficient: 0.5,
+
+  weirValue1: 0.08,
+  weirValue2: null,
+  weirValue3: 0.25,
+  weirValue4: null,
+  weirValue5: 0.016,
+
+  deck: {
     deckDistance: 0.5,
     width: 10,
     weirCoefficient: 1.4,
@@ -135,43 +132,43 @@ const testBridgeConnection: BridgeConnection = {
     spillwayApproachHeight: 0,
     spillwayDesignHead: 0,
     upstream: [
-      { station: -24.11, highChord: 252.82, lowChord: null },
-      { station: -18.14, highChord: 252.78, lowChord: null },
-      { station: 3, highChord: 252.96, lowChord: null },
-      { station: 3.13, highChord: 253.54, lowChord: null },
-      { station: 10.68, highChord: 253.6, lowChord: 251.03 },
-      { station: 14.55, highChord: 253.65, lowChord: 251.5 },
-      { station: 18.58, highChord: 253.7, lowChord: 251.7 },
-      { station: 25.11, highChord: 253.75, lowChord: 251.57 },
-      { station: 29, highChord: 253.8, lowChord: 251.21 },
-      { station: 36.52, highChord: 253.85, lowChord: null },
-      { station: 36.78, highChord: 253.21, lowChord: null },
-      { station: 40.79, highChord: 253.3, lowChord: null },
-      { station: 59.86, highChord: 253.43, lowChord: null },
-      { station: 59.86, highChord: 253.19, lowChord: null },
-      { station: 72.15, highChord: 254.39, lowChord: null },
+      [-24.11, 252.82, null],
+      [-18.14, 252.78, null],
+      [3, 252.96, null],
+      [3.13, 253.54, null],
+      [10.68, 253.6, 251.03],
+      [14.55, 253.65, 251.5],
+      [18.58, 253.7, 251.7],
+      [25.11, 253.75, 251.57],
+      [29, 253.8, 251.21],
+      [36.52, 253.85, null],
+      [36.78, 253.21, null],
+      [40.79, 253.3, null],
+      [59.86, 253.43, null],
+      [59.86, 253.19, null],
+      [72.15, 254.39, null],
     ],
     downstream: [
-      { station: -23.11, highChord: 252.82, lowChord: null },
-      { station: -17.14, highChord: 252.78, lowChord: null },
-      { station: 4, highChord: 252.96, lowChord: null },
-      { station: 4.13, highChord: 253.54, lowChord: null },
-      { station: 11.68, highChord: 253.6, lowChord: 251.03 },
-      { station: 15.55, highChord: 253.65, lowChord: 251.5 },
-      { station: 19.58, highChord: 253.7, lowChord: 251.7 },
-      { station: 26.11, highChord: 253.75, lowChord: 251.57 },
-      { station: 30, highChord: 253.8, lowChord: 251.21 },
-      { station: 37.52, highChord: 253.85, lowChord: null },
-      { station: 37.78, highChord: 253.21, lowChord: null },
-      { station: 41.79, highChord: 253.3, lowChord: null },
-      { station: 60.86, highChord: 253.43, lowChord: null },
-      { station: 60.86, highChord: 253.19, lowChord: null },
-      { station: 73.15, highChord: 254.39, lowChord: null },
+      [-23.11, 252.82, null],
+      [-17.14, 252.78, null],
+      [4, 252.96, null],
+      [4.13, 253.54, null],
+      [11.68, 253.6, 251.03],
+      [15.55, 253.65, 251.5],
+      [19.58, 253.7, 251.7],
+      [26.11, 253.75, 251.57],
+      [30, 253.8, 251.21],
+      [37.52, 253.85, null],
+      [37.78, 253.21, null],
+      [41.79, 253.3, null],
+      [60.86, 253.43, null],
+      [60.86, 253.19, null],
+      [73.15, 254.39, null],
     ],
   },
-  insideUpstreamCrossSection: {
+  upstreamInside: {
     id: 1,
-    points: [
+    stationElevation: [
       [0, 252.093],
       [0.584, 252.088],
       [0.789, 252.069],
@@ -235,20 +232,19 @@ const testBridgeConnection: BridgeConnection = {
       [34.63, 252.176],
       [35.313, 252.103],
     ],
-    bankStations: {
-      sectionId: 1,
-      leftBank: 7.575,
-      rightBank: 30.44,
-    },
+
+    leftBank: 7.575,
+    rightBank: 30.44,
+
     manningCoefficients: [
       [0, 0.09],
       [7.575, 0.035],
       [33.923, 0.09],
     ],
   },
-  insideDownstreamCrossSection: {
+  downstreamInside: {
     id: 2,
-    points: [
+    stationElevation: [
       [0, 251.936],
       [0.563, 251.899],
       [1.286, 251.759],
@@ -288,33 +284,27 @@ const testBridgeConnection: BridgeConnection = {
       [34.667, 252.266],
       [35.313, 252.349],
     ],
-    bankStations: {
-      sectionId: 2,
-      leftBank: 7.521,
-      rightBank: 29.894,
-    },
+    leftBank: 7.521,
+    rightBank: 29.894,
     manningCoefficients: [
       [0, 0.09],
       [7.521, 0.035],
     ],
   },
-  bridgeCoefficients: {
-    coef1: -1,
-    coef2: 0,
-    coef3: 0,
-    coef4: null,
-    coef5: null,
-    coef6: null,
-    coef7: 0.8,
-    coef8: 0,
-    coef9: null,
-    coef10: 0,
-    coef11: null,
-  },
-  bridgeSkew: -15,
-  externalUpstreamCrossSection: {
+  bridgeCoefficient1: true,
+  bridgeCoefficient2: false,
+  bridgeCoefficient3: false,
+  bridgeCoefficient4: null,
+  bridgeCoefficient5: null,
+  bridgeCoefficient6: 0.8,
+  bridgeCoefficient7: false,
+  bridgeCoefficient8: null,
+  bridgeCoefficient9: false,
+  bridgeCoefficient10: null,
+  skew: -15,
+  upstreamExternal: {
     id: 1,
-    points: [
+    stationElevation: [
       [0, 251.968],
       [0.252, 251.943],
       [0.952, 251.932],
@@ -374,20 +364,19 @@ const testBridgeConnection: BridgeConnection = {
       [34.584, 251.966],
       [35.313, 251.841],
     ],
-    bankStations: {
-      sectionId: 1,
-      leftBank: 7.237,
-      rightBank: 30.193,
-    },
+
+    leftBank: 7.237,
+    rightBank: 30.193,
+
     manningCoefficients: [
       [0, 0.09],
       [7.761, 0.035],
       [31.855, 0.09],
     ],
   },
-  externalDownstreamCrossSection: {
+  downstreamExternal: {
     id: 2,
-    points: [
+    stationElevation: [
       [0, 251.773],
       [0.195, 251.798],
       [0.872, 251.72],
@@ -442,28 +431,17 @@ const testBridgeConnection: BridgeConnection = {
       [34.24, 252.089],
       [35.313, 252.233],
     ],
-    bankStations: {
-      sectionId: 2,
-      leftBank: 7.528,
-      rightBank: 30.014,
-    },
+
+    leftBank: 7.528,
+    rightBank: 30.014,
+
     manningCoefficients: [
       [0, 0.09],
       [7.528, 0.035],
       [33.193, 0.09],
     ],
   },
-  upstreamIneffectiveFlowArea: {
-    leftStation: 10.68,
-    leftElevation: 252.93,
-    rightStation: 29,
-    rightElevation: 253.8,
-  },
-  downstreamIneffectiveFlowArea: {
-    leftStation: 11.68,
-    leftElevation: 252.5,
-    rightStation: 30,
-    rightElevation: 252.5,
-  },
+  upstreamIneffectiveFlowArea: [10.68, 252.93, 29, 253.8],
+  downstreamIneffectiveFlowArea: [11.68, 252.5, 30, 252.5],
   piers: [],
 }
