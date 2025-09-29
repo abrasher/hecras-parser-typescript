@@ -1,39 +1,103 @@
-import { chunk } from "es-toolkit"
 import {
   schema,
   fields,
   multiField,
-  contextual,
+  numberField,
   stringPart,
   numberPart,
+  contextual,
+  repeat,
+  startsWith,
   type Infer,
-  type Part,
+  booleanPart,
 } from "../schema"
-import { formatStationPairs, coordinatePairToString } from "../serializers/utils"
-import type { CulvertBarrelProperties } from "../models/geometry/culvert"
-import type { UpstreamDownstreamPair, Coordinate } from "../models/geometry/common"
+import { parseMultilineArray, splitIntoTuples } from "../parsers/utils"
+import type { Coordinate } from "../models/geometry/common"
+import {
+  formatHECRASStationNumber,
+  formatChunkedLines,
+  formatFixedWidth,
+} from "../schema/serializationUtils"
 
-const spacedIntegerPart = (options: { trailingComma?: boolean } = {}): Part<number> => {
-  const { trailingComma = false } = options
-  return {
-    parse(segment: string) {
-      const numeric = parseInt(segment.trim(), 10)
-      if (Number.isNaN(numeric)) {
-        throw new Error(`Invalid integer segment: ${segment}`)
-      }
-      return numeric
-    },
-    serialize(value: number | null | undefined) {
-      if (value === undefined || value === null) {
-        return trailingComma ? "," : ""
-      }
-      const base = ` ${value} `
-      return trailingComma ? `${base},` : base
-    },
-  }
-}
+/**
+ * Schema for a single culvert barrel within a culvert group
+ *
+ * Format:
+ * Conn Culvert Barrel=<index>,<name>,<numberOfCoordinates>
+ * <coordinate data in 16-char fixed-width format, 2 coordinates per line>
+ */
+export const culvertBarrelSchema = schema([
+  // Conn Culvert Barrel=index,name,numberOfCoordinates
+  multiField(
+    "Conn Culvert Barrel=",
+    fields({
+      index: numberPart({ integer: true }),
+      name: stringPart({ trim: true }),
+      numberOfCoordinates: numberPart({ integer: true }),
+    }),
+  ),
 
+  // Barrel coordinates - contextual because count depends on numberOfCoordinates
+  contextual(
+    "coordinates",
+    (lines, startIndex, context) => {
+      const numberOfCoordinates = (context.numberOfCoordinates as number) ?? 0
+
+      if (numberOfCoordinates === 0) {
+        return {
+          value: [] as Coordinate[],
+          nextIndex: startIndex,
+        }
+      }
+
+      // Barrel coordinates are 64 characters wide, 16 characters a number, 2 pairs a line
+      // This means we can fit 2 coordinates per line
+      const pointsPerEntry = 2
+      const { data, nextIndex } = parseMultilineArray({
+        width: 16,
+        maxWidth: 64,
+        numOfEntries: numberOfCoordinates * pointsPerEntry,
+        currentIndex: startIndex,
+        lines,
+      })
+
+      const dataAsFloats = data.map((v) => parseFloat(v))
+      const coordinates = splitIntoTuples(dataAsFloats, 2) as Coordinate[]
+
+      return {
+        value: coordinates,
+        nextIndex,
+      }
+    },
+    (value) => {
+      if (!value || !Array.isArray(value)) {
+        return []
+      }
+
+      return formatChunkedLines(value.flat(), {
+        width: 16,
+        perLine: 4,
+        formatter: (coord) => formatFixedWidth(coord, 16, { padDirection: "start" }),
+      })
+    },
+  ),
+])
+
+export type CulvertBarrelSchema = Infer<typeof culvertBarrelSchema>
+
+/**
+ * Schema for a culvert group within a connection
+ *
+ * Format:
+ * Connection Culv=<shape>,<rise>,<span>,<length>,<nTop>,<entranceLoss>,<exitLoss>,<chart>,<scale>,<upstreamInvert>,<downstreamInvert>,<numberOfBarrels>,<culvertGroupName>,<unknownFlag>,
+ * <barrel station data in 8-char fixed-width format>
+ * Conn Culvert Barrel=... (repeated for each barrel)
+ * Conn Culv Bottom n=<nBottom> (optional)
+ * Conn Culv Bottom Depth=<nBottomDepth> (optional)
+ * Conn Culv Depth Blocked=<depthBlocked> (optional)
+ */
 export const culvertSchema = schema([
+  // Main header line with all culvert group properties
   multiField(
     "Connection Culv=",
     fields({
@@ -48,230 +112,64 @@ export const culvertSchema = schema([
       scale: numberPart({ integer: true }),
       upstreamInvert: numberPart(),
       downstreamInvert: numberPart(),
-      numberOfBarrels: spacedIntegerPart(),
+      numberOfBarrels: numberPart({ integer: true, padded: true }),
       culvertGroupName: stringPart({ trim: true, width: 12 }),
-      unknownFlag: spacedIntegerPart({ trailingComma: true }),
+      unknownFlag: booleanPart({ mode: "-1,0", format: "listDirected" }),
+      unknownParameter: numberPart({ nullOnBlank: true }),
     }),
   ),
-  contextual("barrelStations", parseCulvertBarrelStations, serializeCulvertBarrelStations),
-  contextual("barrels", parseCulvertBarrels, serializeCulvertBarrels),
+
+  // Barrel stations - contextual because count depends on numberOfBarrels
   contextual(
-    "nBottom",
-    parseOptionalInlineNumber("Conn Culv Bottom n="),
-    serializeSimpleNumber("Conn Culv Bottom n="),
+    "barrelStations",
+    (lines, startIndex, context) => {
+      const numberOfBarrels = (context.numberOfBarrels as number) ?? 0
+
+      if (numberOfBarrels === 0) {
+        return {
+          value: [],
+          nextIndex: startIndex,
+        }
+      }
+
+      // Barrel stations are defined on lines after the header
+      // The line is max width of 80, each number being 8 characters. You can fit 5 pairs per line
+      const { data: stationData, nextIndex } = parseMultilineArray({
+        width: 8,
+        maxWidth: 80,
+        numOfEntries: numberOfBarrels * 2,
+        currentIndex: startIndex,
+        lines,
+      })
+
+      const stationValues = stationData.map((value) => parseFloat(value))
+      const stationPairs = splitIntoTuples(stationValues, 2)
+
+      return {
+        value: stationPairs,
+        nextIndex,
+      }
+    },
+    (value) => {
+      if (!value || !Array.isArray(value) || value.length === 0) {
+        return []
+      }
+
+      return formatChunkedLines(value.flat(), {
+        width: 8,
+        perLine: 5,
+        formatter: (num) => formatHECRASStationNumber(num),
+      })
+    },
   ),
-  contextual(
-    "nBottomDepth",
-    parseOptionalInlineNumber("Conn Culv Bottom Depth="),
-    serializeSimpleNumber("Conn Culv Bottom Depth="),
-  ),
-  contextual(
-    "depthBlocked",
-    parseOptionalInlineNumber("Conn Culv Depth Blocked="),
-    serializeSimpleNumber("Conn Culv Depth Blocked="),
-  ),
+
+  // Culvert barrels (0 or more)
+  repeat("barrels", startsWith("Conn Culvert Barrel="), culvertBarrelSchema),
+
+  // Optional fields
+  numberField("nBottom", "Conn Culv Bottom n=", { optional: true }),
+  numberField("nBottomDepth", "Conn Culv Bottom Depth=", { optional: true }),
+  numberField("depthBlocked", "Conn Culv Depth Blocked=", { optional: true }),
 ])
 
 export type CulvertSchema = Infer<typeof culvertSchema>
-
-function parseCulvertBarrelStations(
-  lines: string[],
-  startIndex: number,
-  context: Record<string, unknown>,
-) {
-  const numberOfBarrels = Number(context.numberOfBarrels ?? 0)
-  if (!Number.isFinite(numberOfBarrels) || numberOfBarrels <= 0) {
-    return {
-      value: [] as UpstreamDownstreamPair[],
-      nextIndex: startIndex,
-    }
-  }
-
-  const totalSegments = numberOfBarrels * 2
-  const { segments, nextIndex } = readFixedWidthSegments(lines, startIndex, 8, 80, totalSegments)
-
-  const pairs: UpstreamDownstreamPair[] = []
-  for (let i = 0; i < segments.length; i += 2) {
-    const upstream = parseMaybeFloat(segments[i])
-    const downstream = parseMaybeFloat(segments[i + 1])
-    pairs.push({ upstreamStation: upstream, downstreamStation: downstream })
-  }
-
-  return {
-    value: pairs,
-    nextIndex,
-  }
-}
-
-function serializeCulvertBarrelStations(
-  value: UpstreamDownstreamPair[] | undefined,
-  _context: Record<string, unknown>,
-): string[] {
-  if (!value || value.length === 0) {
-    return []
-  }
-  return formatStationPairs(value)
-}
-
-function parseCulvertBarrels(
-  lines: string[],
-  startIndex: number,
-  _context: Record<string, unknown>,
-) {
-  const barrels: CulvertBarrelProperties[] = []
-  let index = startIndex
-
-  while (true) {
-    const line = lines[index]
-    if (!line?.startsWith("Conn Culvert Barrel=")) {
-      break
-    }
-
-    const raw = line.slice("Conn Culvert Barrel=".length)
-    const parts = raw.split(",")
-    const barrelIndex = parseInt(parts[0]?.trim() ?? "0", 10)
-    const name = parts[1]?.trim() ?? ""
-    const pointCount = parseInt(parts[2]?.trim() ?? "0", 10)
-    index += 1
-
-    const coordinates: Coordinate[] = []
-    if (pointCount > 0) {
-      const numbersRequired = pointCount * 2
-      const { segments, nextIndex } = readFixedWidthSegments(lines, index, 16, 64, numbersRequired)
-      const numbers = segments.map((segment) => parseFloatStrict(segment))
-      for (let i = 0; i < numbers.length; i += 2) {
-        coordinates.push([numbers[i], numbers[i + 1]])
-      }
-      index = nextIndex
-    }
-
-    barrels.push({
-      index: barrelIndex,
-      name,
-      coordinates,
-    })
-  }
-
-  return {
-    value: barrels,
-    nextIndex: index,
-  }
-}
-
-function serializeCulvertBarrels(
-  value: CulvertBarrelProperties[] | undefined,
-  _context: Record<string, unknown>,
-): string[] {
-  if (!value || value.length === 0) {
-    return []
-  }
-
-  const lines: string[] = []
-  for (const barrel of value) {
-    lines.push(`Conn Culvert Barrel=${barrel.index},${barrel.name},${barrel.coordinates.length}`)
-    if (barrel.coordinates.length > 0) {
-      for (const pair of toCoordinateLines(barrel.coordinates)) {
-        lines.push(pair)
-      }
-    }
-  }
-
-  return lines
-}
-
-function parseOptionalInlineNumber(label: string) {
-  return (
-    lines: string[],
-    startIndex: number,
-    _context: Record<string, unknown>,
-  ): { value: number | undefined; nextIndex: number } | null => {
-    const line = lines[startIndex]
-    if (!line?.startsWith(label)) {
-      return null
-    }
-    const valueSegment = line.slice(label.length).trim()
-    if (valueSegment === "") {
-      return {
-        value: undefined,
-        nextIndex: startIndex + 1,
-      }
-    }
-    const parsed = parseFloat(valueSegment)
-    if (Number.isNaN(parsed)) {
-      throw new Error(`Invalid number for ${label}: ${valueSegment}`)
-    }
-    return {
-      value: parsed,
-      nextIndex: startIndex + 1,
-    }
-  }
-}
-
-function serializeSimpleNumber(label: string) {
-  return (value: number | undefined, _context: Record<string, unknown>): string[] => {
-    if (value === undefined) {
-      return []
-    }
-    return [`${label}${value}`]
-  }
-}
-
-function readFixedWidthSegments(
-  lines: string[],
-  startIndex: number,
-  width: number,
-  maxWidth: number,
-  count: number,
-) {
-  const segments: string[] = []
-  const perLine = Math.max(1, Math.floor(maxWidth / width))
-  let index = startIndex
-
-  while (segments.length < count) {
-    const line = lines[index]
-    if (line === undefined) {
-      break
-    }
-
-    const limit = Math.min(line.length, maxWidth)
-    for (let offset = 0; offset < limit && segments.length < count; offset += width) {
-      const slice = line.slice(offset, offset + width)
-      segments.push(slice.trim())
-    }
-    index += 1
-  }
-
-  if (segments.length < count) {
-    throw new Error(`Insufficient data while reading fixed-width segments (expected ${count})`)
-  }
-
-  return { segments, nextIndex: index }
-}
-
-function parseMaybeFloat(value: string): number | null {
-  if (value === "") {
-    return null
-  }
-  const parsed = parseFloat(value)
-  if (Number.isNaN(parsed)) {
-    throw new Error(`Invalid float segment: ${value}`)
-  }
-  return parsed
-}
-
-function parseFloatStrict(value: string): number {
-  const parsed = parseFloat(value)
-  if (Number.isNaN(parsed)) {
-    throw new Error(`Invalid numeric segment: ${value}`)
-  }
-  return parsed
-}
-
-function toCoordinateLines(coordinates: Coordinate[]): string[] {
-  const lines: string[] = []
-  chunk(coordinates, 2).forEach((segment) => {
-    const formatted = segment.map((coord) => coordinatePairToString(coord, 16)).join("")
-    lines.push(formatted)
-  })
-  return lines
-}

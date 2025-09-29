@@ -58,21 +58,17 @@ const testCulvertData: CulvertSchema[] = [
     downstreamInvert: 260.64,
     numberOfBarrels: 2,
     culvertGroupName: "Group #1",
-    unknownFlag: 0,
+    unknownFlag: false,
+    unknownParameter: null,
     barrelStations: [
-      {
-        upstreamStation: 3.56,
-        downstreamStation: 4.96,
-      },
-      {
-        upstreamStation: 6.56,
-        downstreamStation: 9.96,
-      },
+      [3.56, 4.96],
+      [6.56, 9.96],
     ],
     barrels: [
       {
         index: 1,
         name: "Barrel #01",
+        numberOfCoordinates: 2,
         coordinates: [
           [484557.98934, 4751436.44773],
           [484544.9229, 4751438.60715],
@@ -81,6 +77,7 @@ const testCulvertData: CulvertSchema[] = [
       {
         index: 2,
         name: "Barrel #02",
+        numberOfCoordinates: 3,
         coordinates: [
           [414557.98934, 6744151436.44773],
           [434544.9229, 4351438.60715],
@@ -103,17 +100,14 @@ const testCulvertData: CulvertSchema[] = [
     downstreamInvert: 260.64,
     numberOfBarrels: 1,
     culvertGroupName: "Group #2",
-    unknownFlag: 0,
-    barrelStations: [
-      {
-        upstreamStation: 3.56,
-        downstreamStation: 4.96,
-      },
-    ],
+    unknownFlag: false,
+    unknownParameter: null,
+    barrelStations: [[3.56, 4.96]],
     barrels: [
       {
         index: 1,
         name: "Barrel #01",
+        numberOfCoordinates: 0,
         coordinates: [],
       },
     ],
