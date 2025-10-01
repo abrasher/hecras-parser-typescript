@@ -13,6 +13,7 @@ import {
   stringPart,
   numberPart,
   type Infer,
+  blankLine,
 } from "../schema"
 import { bridgeSchema } from "./bridge/bridgeSchema"
 import { culvertSchema } from "./culvertSchema"
@@ -52,7 +53,7 @@ export const connectionSchema = schema([
   numberField("protectionRadius", "Conn Protection Radius=", { optional: true }),
   stringField("upstreamStorageArea", "Connection Up SA=", { length: 16, trim: true }),
   stringField("downstreamStorageArea", "Connection Dn SA=", { length: 16, trim: true }),
-  numberField("routingType", "Conn Routing Type=", { integer: true, optional: true }),
+  numberField("routingType", "Conn Routing Type=", { integer: true, optional: true, padded: true }),
   booleanField("useRCFamily", "Conn Use RC Family=", { mode: "trueFalse", optional: true }),
   booleanField("overflowMethod2D", "Conn OverFlow Method 2D=", {
     mode: "trueFalse",
@@ -60,19 +61,23 @@ export const connectionSchema = schema([
   }),
   numberField("weirWD", "Conn Weir WD=", { optional: true }),
   numberField("weirCoefficient", "Conn Weir Coef=", { optional: true }),
-  numberField("weirIsOgee", "Conn Weir Is Ogee=", { integer: true, optional: true }),
+  numberField("weirIsOgee", "Conn Weir Is Ogee=", { integer: true, optional: true, padded: true }),
   numberField("weirDesignEG", "Conn Weir Design EG=", { integer: true, optional: true }),
   numberField("weirDesignHT", "Conn Weir Design HT=", { integer: true, optional: true }),
   numberField("simpleSpillPosCoef", "Conn Simple Spill Pos Coef=", { optional: true }),
-  numberField("simpleSpillNegCoef", "Conn Simple Spill Neg Coef=", { optional: true }),
+  numberField("simpleSpillNegCoef", "Conn Simple Spill Neg Coef=", {
+    optional: true,
+  }),
   tupleArrayField("Conn Weir SE=", "weirSE", {
     width: 8,
     maxWidth: 80,
     tuple: 2 as const,
     optional: true,
+    pad: true,
   }),
   numberField("hTabHWMax", "Conn HTab HWMax=", { nullOnBlank: true, optional: true }),
   numberField("hTabTWMax", "Conn HTab TWMax=", { optional: true, nullOnBlank: true }),
+  blankLine(),
   numberField("hTabMaxFlow", "Conn HTab MaxFlow=", { optional: true }),
   repeat("culvert", startsWith("Connection Culv="), culvertSchema),
   contextual("outletRatingCurve", parseOutletRatingCurve, serializeOutletRatingCurve),
