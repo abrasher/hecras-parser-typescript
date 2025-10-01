@@ -45,6 +45,10 @@ export interface Part<T> {
   serialize(value: T): string
   isOptional?: boolean
   nullOnBlank?: boolean
+  internal?: boolean
+  internalKey?: string
+  storeInternal?(state: Record<string, unknown>, value: T): void
+  derive?(data: Record<string, unknown>, state: Record<string, unknown>): T
 }
 
 export interface ContextualParser<V> {
@@ -61,18 +65,28 @@ export interface Recognizer {
 
 type FieldSpec = Record<string, Part<unknown>>
 
-type OptionalFieldKeys<F extends FieldSpec> = {
-  [K in keyof F]: F[K] extends { isOptional: true } ? K : never
-}[keyof F]
+type ExternalFields<F extends FieldSpec> = {
+  [K in keyof F as F[K] extends { internal: true } ? never : K]: F[K]
+}
 
-type RequiredFieldKeys<F extends FieldSpec> = Exclude<keyof F, OptionalFieldKeys<F>>
+type ExternalFieldKeys<F extends FieldSpec> = keyof ExternalFields<F>
+
+type OptionalFieldKeys<F extends FieldSpec> = ExternalFieldKeys<F> extends never
+  ? never
+  : {
+      [K in ExternalFieldKeys<F>]: ExternalFields<F>[K] extends { isOptional: true }
+        ? K
+        : never
+    }[ExternalFieldKeys<F>]
+
+type RequiredFieldKeys<F extends FieldSpec> = Exclude<ExternalFieldKeys<F>, OptionalFieldKeys<F>>
 
 type RequiredFields<F extends FieldSpec> = {
-  [K in RequiredFieldKeys<F>]: InferPart<F[K]>
+  [K in RequiredFieldKeys<F>]: InferPart<ExternalFields<F>[K]>
 }
 
 type OptionalFields<F extends FieldSpec> = {
-  [K in OptionalFieldKeys<F>]?: Exclude<InferPart<F[K]>, undefined>
+  [K in OptionalFieldKeys<F>]?: Exclude<InferPart<ExternalFields<F>[K]>, undefined>
 }
 
 export function fields<const Spec extends FieldSpec>(spec: Spec): Spec {
@@ -110,6 +124,19 @@ export interface TupleArrayFieldItem<Key extends string, Tuple extends number> {
   optional?: boolean
   pad?: boolean
   formatter?: "station" | "coordinate" | ((value: number) => string)
+}
+
+export interface CountedArrayFieldItem<Key extends string, Tuple extends number> {
+  kind: "countedArrayField"
+  key: Key
+  countKey: string
+  width: number
+  maxWidth: number
+  tupleSize: Tuple
+  optional?: boolean
+  pad?: boolean
+  formatter?: "station" | "coordinate" | ((value: number) => string)
+  parseValue?(segment: string): number
 }
 
 export interface ContextualItem<Key extends string, Value> {
@@ -155,6 +182,7 @@ export type SchemaItem =
   | MultiFieldItem<FieldSpec>
   | TupleFieldItem<string, readonly Part<unknown>[]>
   | TupleArrayFieldItem<string, number>
+  | CountedArrayFieldItem<string, number>
   | ContextualItem<string, unknown>
   | SectionItem<string, SchemaDef>
   | RepeatItem<string, SchemaDef>
@@ -176,6 +204,10 @@ type InferItemWithDepth<I, Depth extends number> =
         ? { [K in Key]?: InferTupleParts<Parts> }
         : { [K in Key]: InferTupleParts<Parts> }
       : I extends TupleArrayFieldItem<infer Key, infer Tuple>
+        ? I["optional"] extends true
+          ? { [K in Key]?: TupleOf<Tuple, number>[] }
+          : { [K in Key]: TupleOf<Tuple, number>[] }
+      : I extends CountedArrayFieldItem<infer Key, infer Tuple>
         ? I["optional"] extends true
           ? { [K in Key]?: TupleOf<Tuple, number>[] }
           : { [K in Key]: TupleOf<Tuple, number>[] }
