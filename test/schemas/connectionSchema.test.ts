@@ -426,6 +426,25 @@ describe("connectionSchema", () => {
       })
     })
 
+    describe("Modified Connection Serialization", () => {
+      it("should serialize updates made to connection data", () => {
+        const parsed = parseSectionWithSchema(connectionSchema, connectionLines, 0)
+        const modifiedConnection = parsed.value
+        const updatedDescription = "Updated connection description"
+
+        modifiedConnection.description = updatedDescription
+        modifiedConnection.weirWD = 6
+        modifiedConnection.useRCFamily = true
+
+        const updatedLines = serializeWithSchema(connectionSchema, modifiedConnection)
+        const joinedLines = updatedLines.join("\n")
+
+        expect(joinedLines).toContain(`Connection Desc=${updatedDescription}`)
+        expect(joinedLines).toContain("Conn Weir WD=6")
+        expect(joinedLines).toContain("Conn Use RC Family=True")
+      })
+    })
+
     describe("serializeWithSchema", () => {
       it("should serialize connection to string", () => {
         expect(serializedLines.join("\n")).toBe(lineString)
