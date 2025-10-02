@@ -117,6 +117,41 @@ export function numberPart<const Opts extends NumberPartOptions | undefined = un
   return part as Part<NumberPartValue<Opts>>
 }
 
+interface CountedArrayLengthPartOptions extends NumberPartOptions {}
+
+export function countedArrayLengthPart(
+  arrayKey: string,
+  options?: CountedArrayLengthPartOptions,
+): Part<number> {
+  const base = numberPart({ integer: true, ...(options ?? {}) }) as Part<number>
+
+  return {
+    ...base,
+    internal: true,
+    internalKey: arrayKey,
+    parse(segment) {
+      const value = base.parse(segment)
+      if (typeof value !== "number" || Number.isNaN(value)) {
+        throw new Error(`Invalid count for ${arrayKey}`)
+      }
+      return value
+    },
+    serialize(value) {
+      return base.serialize(value)
+    },
+    storeInternal(state, value) {
+      state[arrayKey] = value ?? 0
+    },
+    derive(data) {
+      const arrayValue = data[arrayKey]
+      if (!Array.isArray(arrayValue)) {
+        return 0
+      }
+      return arrayValue.length
+    },
+  }
+}
+
 type BooleanMode = "TF" | "-1,0" | "10" | "trueFalse" | "enableDisable"
 
 type BooleanFormat = "trimmed" | "listDirected"
