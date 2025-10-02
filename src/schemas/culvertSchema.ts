@@ -5,19 +5,13 @@ import {
   numberField,
   stringPart,
   numberPart,
-  contextual,
   repeat,
   startsWith,
+  countedFixedWidthArray,
+  countedArrayLengthPart,
   type Infer,
   booleanPart,
 } from "../schema"
-import { parseMultilineArray, splitIntoTuples } from "../parsers/utils"
-import type { Coordinate } from "../models/geometry/common"
-import {
-  formatHECRASStationNumber,
-  formatChunkedLines,
-  formatFixedWidth,
-} from "../schema/serializationUtils"
 
 /**
  * Schema for a single culvert barrel within a culvert group
@@ -25,6 +19,7 @@ import {
  * Format:
  * Conn Culvert Barrel=<index>,<name>,<numberOfCoordinates>
  * <coordinate data in 16-char fixed-width format, 2 coordinates per line>
+ *   - numberOfCoordinates is inferred from `coordinates.length`
  */
 export const culvertBarrelSchema = schema([
   // Conn Culvert Barrel=index,name,numberOfCoordinates
@@ -33,54 +28,16 @@ export const culvertBarrelSchema = schema([
     fields({
       index: numberPart({ integer: true }),
       name: stringPart({ trim: true }),
-      numberOfCoordinates: numberPart({ integer: true }),
+      numberOfCoordinates: countedArrayLengthPart("coordinates"),
     }),
   ),
 
-  // Barrel coordinates - contextual because count depends on numberOfCoordinates
-  contextual(
-    "coordinates",
-    (lines, startIndex, context) => {
-      const numberOfCoordinates = (context.numberOfCoordinates as number) ?? 0
-
-      if (numberOfCoordinates === 0) {
-        return {
-          value: [] as Coordinate[],
-          nextIndex: startIndex,
-        }
-      }
-
-      // Barrel coordinates are 64 characters wide, 16 characters a number, 2 pairs a line
-      // This means we can fit 2 coordinates per line
-      const pointsPerEntry = 2
-      const { data, nextIndex } = parseMultilineArray({
-        width: 16,
-        maxWidth: 64,
-        numOfEntries: numberOfCoordinates * pointsPerEntry,
-        currentIndex: startIndex,
-        lines,
-      })
-
-      const dataAsFloats = data.map((v) => parseFloat(v))
-      const coordinates = splitIntoTuples(dataAsFloats, 2) as Coordinate[]
-
-      return {
-        value: coordinates,
-        nextIndex,
-      }
-    },
-    (value) => {
-      if (!value || !Array.isArray(value)) {
-        return []
-      }
-
-      return formatChunkedLines(value.flat(), {
-        width: 16,
-        perLine: 4,
-        formatter: (coord) => formatFixedWidth(coord, 16, { padDirection: "start" }),
-      })
-    },
-  ),
+  countedFixedWidthArray("coordinates", {
+    width: 16,
+    maxWidth: 64,
+    tuple: 2 as const,
+    formatter: "coordinate",
+  }),
 ])
 
 export type CulvertBarrelSchema = Infer<typeof culvertBarrelSchema>
@@ -91,6 +48,7 @@ export type CulvertBarrelSchema = Infer<typeof culvertBarrelSchema>
  * Format:
  * Connection Culv=<shape>,<rise>,<span>,<length>,<nTop>,<entranceLoss>,<exitLoss>,<chart>,<scale>,<upstreamInvert>,<downstreamInvert>,<numberOfBarrels>,<culvertGroupName>,<unknownFlag>,
  * <barrel station data in 8-char fixed-width format>
+ *   - numberOfBarrels is inferred from `barrelStations.length` when serializing
  * Conn Culvert Barrel=... (repeated for each barrel)
  * Conn Culv Bottom n=<nBottom> (optional)
  * Conn Culv Bottom Depth=<nBottomDepth> (optional)
@@ -112,56 +70,19 @@ export const culvertSchema = schema([
       scale: numberPart({ integer: true }),
       upstreamInvert: numberPart(),
       downstreamInvert: numberPart(),
-      numberOfBarrels: numberPart({ integer: true, padded: true }),
+      numberOfBarrels: countedArrayLengthPart("barrelStations", { padded: true }),
       culvertGroupName: stringPart({ trim: true, width: 12 }),
       unknownFlag: booleanPart({ mode: "-1,0", format: "listDirected" }),
       unknownParameter: numberPart({ nullOnBlank: true }),
     }),
   ),
 
-  // Barrel stations - contextual because count depends on numberOfBarrels
-  contextual(
-    "barrelStations",
-    (lines, startIndex, context) => {
-      const numberOfBarrels = (context.numberOfBarrels as number) ?? 0
-
-      if (numberOfBarrels === 0) {
-        return {
-          value: [],
-          nextIndex: startIndex,
-        }
-      }
-
-      // Barrel stations are defined on lines after the header
-      // The line is max width of 80, each number being 8 characters. You can fit 5 pairs per line
-      const { data: stationData, nextIndex } = parseMultilineArray({
-        width: 8,
-        maxWidth: 80,
-        numOfEntries: numberOfBarrels * 2,
-        currentIndex: startIndex,
-        lines,
-      })
-
-      const stationValues = stationData.map((value) => parseFloat(value))
-      const stationPairs = splitIntoTuples(stationValues, 2)
-
-      return {
-        value: stationPairs,
-        nextIndex,
-      }
-    },
-    (value) => {
-      if (!value || !Array.isArray(value) || value.length === 0) {
-        return []
-      }
-
-      return formatChunkedLines(value.flat(), {
-        width: 8,
-        perLine: 5,
-        formatter: (num) => formatHECRASStationNumber(num),
-      })
-    },
-  ),
+  countedFixedWidthArray("barrelStations", {
+    width: 8,
+    maxWidth: 80,
+    tuple: 2 as const,
+    formatter: "station",
+  }),
 
   // Culvert barrels (0 or more)
   repeat("barrels", startsWith("Conn Culvert Barrel="), culvertBarrelSchema),

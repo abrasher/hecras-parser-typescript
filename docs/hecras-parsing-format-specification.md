@@ -130,7 +130,7 @@ Data Lines: [Fixed-width data based on count]
 
 ### Culvert Connections (`culvertParser.ts`)
 
-- **Barrel Count Calculation**: `Math.ceil(numberOfBarrels / 5)` station lines
+- **Barrel Count Calculation**: Header counts are derived from `barrelStations.length` (still emitted with 5 station pairs per line)
 - **Station Pair Width**: 8 characters, 5 pairs per 80-character line
 - **Coordinate Width**: 16 characters, 2 pairs per 64-character line
 - **Optional Sections**: Barrel definitions may be missing entirely

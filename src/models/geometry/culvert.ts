@@ -25,7 +25,6 @@ export interface CulvertGroupProperties {
   scale: number
   upstreamInvert: number // ft or m
   downstreamInvert: number // ft or m
-  numberOfBarrels: number
   culvertGroupName: string
   unknownFlag: number
   barrelStations: UpstreamDownstreamPair[]
