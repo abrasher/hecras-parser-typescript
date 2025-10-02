@@ -12,6 +12,7 @@ import type {
   BlankLineItem,
   BlankLinesItem,
   InferPart,
+  CountedArrayFieldItem,
 } from "./core"
 import { schema as buildSchema, fields as buildFields } from "./core"
 import { booleanPart, durationPart, numberPart, opt, stringPart } from "./parts"
@@ -75,6 +76,36 @@ export function tupleArrayField<const Key extends string, const Tuple extends nu
     optional,
     pad,
     formatter,
+  }
+}
+
+interface CountedFixedWidthArrayConfig<Tuple extends number> {
+  width: number
+  maxWidth: number
+  tuple: Tuple
+  countKey?: string
+  optional?: boolean
+  pad?: boolean
+  formatter?: "station" | "coordinate" | ((value: number) => string)
+  parseValue?(segment: string): number
+}
+
+export function countedFixedWidthArray<const Key extends string, const Tuple extends number>(
+  key: Key,
+  config: CountedFixedWidthArrayConfig<Tuple>,
+): CountedArrayFieldItem<Key, Tuple> {
+  const { width, maxWidth, tuple, countKey, optional, pad, formatter, parseValue } = config
+  return {
+    kind: "countedArrayField",
+    key,
+    countKey: countKey ?? key,
+    width,
+    maxWidth,
+    tupleSize: tuple,
+    optional,
+    pad,
+    formatter,
+    parseValue,
   }
 }
 
