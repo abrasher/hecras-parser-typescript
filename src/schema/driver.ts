@@ -16,74 +16,13 @@ import type {
   SchemaDef,
   SchemaItem,
   SectionItem,
-  CountedArrayFieldItem,
 } from "./core"
-import { parseMultilineArray, splitIntoTuples } from "../parsers/utils"
-
-const INTERNAL_STATE = Symbol("internalState")
-
-type InternalState = Record<string, unknown>
 
 interface ParseOptions {
   strict?: boolean
 }
 
-type ParseContext = Record<string, unknown> & { [INTERNAL_STATE]: InternalState }
-
-function createContext(): ParseContext {
-  const context = {} as ParseContext
-  context[INTERNAL_STATE] = {}
-  return context
-}
-
-function getInternalState(context: ParseContext): InternalState {
-  let state = context[INTERNAL_STATE]
-  if (!state) {
-    state = {}
-    context[INTERNAL_STATE] = state
-  }
-  return state
-}
-
-function isInternalPart(part: Part<unknown>): boolean {
-  return part.internal === true
-}
-
-function storeInternalValue(
-  part: Part<unknown>,
-  fieldKey: string,
-  context: ParseContext,
-  value: unknown,
-): void {
-  const state = getInternalState(context)
-  const key = (part.internalKey ?? fieldKey) as string
-  state[key] = value
-  if (part.storeInternal) {
-    part.storeInternal(state, value as never)
-  }
-}
-
-function deriveInternalValue(
-  part: Part<unknown>,
-  fieldKey: string,
-  data: Record<string, unknown>,
-  context: ParseContext,
-): unknown {
-  const state = getInternalState(context)
-  if (part.derive) {
-    const derived = part.derive(data, state)
-    storeInternalValue(part, fieldKey, context, derived)
-    return derived
-  }
-  const key = (part.internalKey ?? fieldKey) as string
-  const existing = state[key]
-  if (existing !== undefined) {
-    return existing
-  }
-  const fallback = data[fieldKey]
-  storeInternalValue(part, fieldKey, context, fallback)
-  return fallback
-}
+type ParseContext = Record<string, unknown>
 
 type ItemOutcome =
   | { status: "success"; nextIndex: number }
@@ -99,13 +38,11 @@ export function parseWithSchema<const Def extends SchemaDef>(
   options: ParseOptions = {},
 ): ParseResult<Infer<Def>> {
   const { strict = false } = options
-  const context = createContext()
+  const context: ParseContext = {}
 
   const { nextIndex } = parseSchemaInternal(schema, context, lines, startIndex, { strict })
-  const result = { ...context }
-  delete (result as ParseContext)[INTERNAL_STATE]
   return {
-    value: result as Infer<Def>,
+    value: context as Infer<Def>,
     nextIndex,
   }
 }
@@ -161,8 +98,6 @@ function parseItem(
       return parseTupleField(item, context, lines, index, options)
     case "tupleArrayField":
       return parseTupleArrayField(item, context, lines, index, options)
-    case "countedArrayField":
-      return parseCountedArrayField(item, context, lines, index)
     case "contextual":
       return parseContextual(item, context, lines, index)
     case "section":
@@ -204,29 +139,19 @@ function parseMultiField(
 
   const raw = line.slice(item.label.length)
   const fieldEntries = Object.entries(item.fields)
-  const updates: Record<string, unknown> = {}
+  const updates: ParseContext = {}
 
   // Special handling for single-field items - don't split on commas
   if (fieldEntries.length === 1) {
     const [key, part] = fieldEntries[0]
-    const parsed = part.parse(raw)
-    if (isInternalPart(part)) {
-      storeInternalValue(part, key, context, parsed)
-    } else {
-      updates[key] = parsed
-    }
+    updates[key] = part.parse(raw)
   } else {
     // Multi-field items split on commas
     const segments = splitMultiFieldSegments(raw)
     for (let i = 0; i < fieldEntries.length; i++) {
       const [key, part] = fieldEntries[i]
       const segment = segments[i] ?? ""
-      const parsed = part.parse(segment)
-      if (isInternalPart(part)) {
-        storeInternalValue(part, key, context, parsed)
-      } else {
-        updates[key] = parsed
-      }
+      updates[key] = part.parse(segment)
     }
   }
 
@@ -336,61 +261,6 @@ function parseTupleArrayField(
   return { status: "success", nextIndex: cursor }
 }
 
-function parseCountedArrayField(
-  item: CountedArrayFieldItem<string, number>,
-  context: ParseContext,
-  lines: string[],
-  index: number,
-): ItemOutcome {
-  const state = getInternalState(context)
-  const stored = state[item.countKey]
-
-  if (stored === undefined) {
-    if (item.optional) {
-      return { status: "skipped" }
-    }
-    context[item.key] = []
-    return { status: "success", nextIndex: index }
-  }
-
-  const count = typeof stored === "number" ? stored : parseInt(String(stored), 10)
-  if (!Number.isFinite(count) || Number.isNaN(count)) {
-    throw new Error(`Invalid count for counted array field "${item.key}"`)
-  }
-
-  if (count <= 0) {
-    context[item.key] = []
-    state[item.countKey] = 0
-    return { status: "success", nextIndex: index }
-  }
-
-  const totalNumbers = count * item.tupleSize
-  const { data, nextIndex } = parseMultilineArray({
-    lines,
-    width: item.width,
-    maxWidth: item.maxWidth,
-    numOfEntries: totalNumbers,
-    currentIndex: index,
-  })
-
-  const parser = item.parseValue ?? defaultCountedArrayParser
-  const values = data.map((segment, idx) => {
-    const value = parser(segment ?? "")
-    if (typeof value !== "number" || Number.isNaN(value)) {
-      throw new Error(
-        `Invalid numeric segment for counted array field "${item.key}" at index ${idx}`,
-      )
-    }
-    return value
-  })
-
-  const tuples = splitIntoTuples(values, item.tupleSize)
-  context[item.key] = tuples
-  state[item.countKey] = count
-
-  return { status: "success", nextIndex }
-}
-
 function parseContextual(
   item: ContextualItem<string, unknown>,
   context: ParseContext,
@@ -418,14 +288,12 @@ function parseSection(
     return { status: "skipped" }
   }
 
-  const nestedContext = createContext()
+  const nestedContext: ParseContext = {}
   const { nextIndex } = parseSchemaInternal(item.schema, nestedContext, lines, index, {
     strict: options.strict ?? false,
   })
 
-  const result = { ...nestedContext }
-  delete result[INTERNAL_STATE]
-  context[item.key] = result
+  context[item.key] = nestedContext
   return { status: "success", nextIndex }
 }
 
@@ -440,13 +308,11 @@ function parseRepeat(
   let cursor = index
 
   while (cursor < lines.length && item.recognizer(lines[cursor], lines, cursor)) {
-    const nestedContext = createContext()
+    const nestedContext: ParseContext = {}
     const { nextIndex } = parseSchemaInternal(item.schema, nestedContext, lines, cursor, {
       strict: options.strict ?? false,
     })
-    const result = { ...nestedContext }
-    delete result[INTERNAL_STATE]
-    items.push(result)
+    items.push(nestedContext)
     if (nextIndex === cursor) {
       break
     }
@@ -463,18 +329,6 @@ function parseBlankLine(lines: string[], index: number): ItemOutcome {
     return { status: "success", nextIndex: index + 1 }
   }
   return { status: "skipped" }
-}
-
-function defaultCountedArrayParser(segment: string): number {
-  const trimmed = segment.trim()
-  if (trimmed === "") {
-    throw new Error("Encountered blank segment when parsing counted array")
-  }
-  const value = parseFloat(trimmed)
-  if (Number.isNaN(value)) {
-    throw new Error(`Unable to parse counted array value: ${segment}`)
-  }
-  return value
 }
 
 function parseBlankLines(item: BlankLinesItem, lines: string[], index: number): ItemOutcome {
@@ -497,7 +351,7 @@ function parseBlankLines(item: BlankLinesItem, lines: string[], index: number): 
 }
 
 function areAllFieldsOptional(item: MultiFieldSpec): boolean {
-  return Object.values(item.fields).every((part) => part.isOptional === true || part.internal)
+  return Object.values(item.fields).every((part) => part.isOptional === true)
 }
 
 function splitMultiFieldSegments(value: string): string[] {
@@ -523,7 +377,7 @@ export function serializeWithSchema<const Def extends SchemaDef>(
   data: Infer<Def>,
 ): string[] {
   const lines: string[] = []
-  const context = createContext()
+  const context: ParseContext = {}
   serializeSchemaInternal(schema, data, lines, context)
   return lines
 }
@@ -544,9 +398,6 @@ function serializeSchemaInternal(
         break
       case "tupleArrayField":
         serializeTupleArrayField(item, data, lines, context)
-        break
-      case "countedArrayField":
-        serializeCountedArrayField(item, data, lines, context)
         break
       case "contextual":
         serializeContextual(item, data, lines, context)
@@ -579,22 +430,11 @@ function serializeMultiField(
   context: ParseContext,
 ): void {
   const entries = Object.entries(item.fields)
-  const hasExternalDefined = entries.some(([key, part]) => {
-    if (isInternalPart(part)) {
-      return false
-    }
-    return data[key] !== undefined
-  })
-  const allInternal = entries.every(([, part]) => isInternalPart(part))
+  const values = entries.map(([key]) => data[key])
+  const hasDefined = values.some((value) => value !== undefined)
 
   if (entries.length === 1) {
     const [key, part] = entries[0]
-    if (isInternalPart(part)) {
-      const derived = deriveInternalValue(part, key, data, context)
-      const serialized = part.serialize(derived as never)
-      lines.push(`${item.label}${serialized}`)
-      return
-    }
     const value = data[key]
     if (value === undefined) {
       return
@@ -605,23 +445,14 @@ function serializeMultiField(
     return
   }
 
-  if (!hasExternalDefined && !allInternal) {
+  if (!hasDefined) {
     return
   }
 
-  const segments = entries.map(([key, part]) => {
-    if (isInternalPart(part)) {
-      const derived = deriveInternalValue(part, key, data, context)
-      return part.serialize(derived as never)
-    }
-    return part.serialize(data[key])
-  })
+  const segments = entries.map(([key, part]) => part.serialize(data[key]))
   lines.push(`${item.label}${segments.join(",")}`)
 
-  for (const [key, part] of entries) {
-    if (isInternalPart(part)) {
-      continue
-    }
+  for (const [key] of entries) {
     context[key] = data[key]
   }
 }
@@ -671,73 +502,6 @@ function serializeTupleArrayField(
     }
     return (num: number) => num.toString()
   })()
-  const formattedLines = formatChunkedLines(flat, {
-    width: item.width,
-    perLine,
-    formatter: valueFormatter,
-  })
-  lines.push(...formattedLines)
-
-  context[item.key] = value
-}
-
-function serializeCountedArrayField(
-  item: CountedArrayFieldItem<string, number>,
-  data: Record<string, unknown>,
-  lines: string[],
-  context: ParseContext,
-): void {
-  const value = data[item.key]
-  const state = getInternalState(context)
-
-  if (value === undefined) {
-    state[item.countKey] = 0
-    return
-  }
-
-  if (!Array.isArray(value)) {
-    throw new Error(`Expected array for counted array field "${item.key}"`)
-  }
-
-  const tuples = value as unknown[]
-  state[item.countKey] = tuples.length
-
-  if (tuples.length === 0) {
-    context[item.key] = value
-    return
-  }
-
-  const flat: number[] = []
-  for (const tuple of tuples) {
-    if (!Array.isArray(tuple) || tuple.length !== item.tupleSize) {
-      throw new Error(
-        `Tuple for counted array field "${item.key}" must have length ${item.tupleSize}`,
-      )
-    }
-    for (const entry of tuple) {
-      if (typeof entry !== "number" || Number.isNaN(entry)) {
-        throw new Error(
-          `Entries for counted array field "${item.key}" must be finite numbers`,
-        )
-      }
-      flat.push(entry)
-    }
-  }
-
-  const perLine = Math.max(1, Math.floor(item.maxWidth / item.width))
-  const valueFormatter = (() => {
-    if (item.formatter === "station") {
-      return (num: number) => formatHECRASStationNumber(num)
-    }
-    if (item.formatter === "coordinate") {
-      return (num: number) => formatHECRASCoordinateNumber(num)
-    }
-    if (typeof item.formatter === "function") {
-      return item.formatter
-    }
-    return (num: number) => num.toString()
-  })()
-
   const formattedLines = formatChunkedLines(flat, {
     width: item.width,
     perLine,
@@ -811,8 +575,7 @@ function serializeSection(
     throw new Error(`Section "${item.key}" must be an object when serializing`)
   }
 
-  const nestedContext = createContext()
-  serializeSchemaInternal(item.schema, value as Record<string, unknown>, lines, nestedContext)
+  serializeSchemaInternal(item.schema, value as Record<string, unknown>, lines, {})
   context[item.key] = value
 }
 
@@ -833,8 +596,7 @@ function serializeRepeat(
     if (typeof entry !== "object" || entry === null) {
       throw new Error(`Repeat entry for "${item.key}" must be an object`)
     }
-    const nestedContext = createContext()
-    serializeSchemaInternal(item.schema, entry as Record<string, unknown>, lines, nestedContext)
+    serializeSchemaInternal(item.schema, entry as Record<string, unknown>, lines, {})
     serializedItems.push(entry)
   }
 

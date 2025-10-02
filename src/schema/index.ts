@@ -13,7 +13,6 @@ export {
   multiField,
   tupleField,
   tupleArrayField,
-  countedFixedWidthArray,
   contextual,
   section,
   repeat,
@@ -26,6 +25,6 @@ export {
   booleanField,
   durationField,
 } from "./combinators"
-export { stringPart, numberPart, booleanPart, durationPart, opt, countedArrayLengthPart } from "./parts"
+export { stringPart, numberPart, booleanPart, durationPart, opt } from "./parts"
 export { parseWithSchema, serializeWithSchema, parseSectionWithSchema } from "./driver"
 export type { SchemaDef } from "./core"

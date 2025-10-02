@@ -30,20 +30,6 @@ describe("culvertSchema", () => {
 
     expect(serialized).toEqual(testCulvertStrings.split("\n"))
   })
-
-  it("serializes a zero-count barrel station block when stations are undefined", () => {
-    const zeroStations = {
-      ...testCulvertData[1],
-      barrelStations: undefined,
-      barrels: [],
-    }
-
-    const serialized = serializeWithSchema(culvertSchema, zeroStations as unknown as CulvertSchema)
-
-    expect(serialized).toHaveLength(1)
-    const segments = serialized[0].split(",")
-    expect(segments[11]?.trim()).toBe("0")
-  })
 })
 
 const testCulvertStrings = `Connection Culv=1,1.5,1.5,13.24,0.024,0.9,1,2,3,260.71,260.64, 2 ,Group #1    , 0 ,
@@ -70,6 +56,7 @@ const testCulvertData: CulvertSchema[] = [
     scale: 3,
     upstreamInvert: 260.71,
     downstreamInvert: 260.64,
+    numberOfBarrels: 2,
     culvertGroupName: "Group #1",
     unknownFlag: false,
     unknownParameter: null,
@@ -81,6 +68,7 @@ const testCulvertData: CulvertSchema[] = [
       {
         index: 1,
         name: "Barrel #01",
+        numberOfCoordinates: 2,
         coordinates: [
           [484557.98934, 4751436.44773],
           [484544.9229, 4751438.60715],
@@ -89,6 +77,7 @@ const testCulvertData: CulvertSchema[] = [
       {
         index: 2,
         name: "Barrel #02",
+        numberOfCoordinates: 3,
         coordinates: [
           [414557.98934, 6744151436.44773],
           [434544.9229, 4351438.60715],
@@ -109,6 +98,7 @@ const testCulvertData: CulvertSchema[] = [
     scale: 3,
     upstreamInvert: 260.71,
     downstreamInvert: 260.64,
+    numberOfBarrels: 1,
     culvertGroupName: "Group #2",
     unknownFlag: false,
     unknownParameter: null,
@@ -117,6 +107,7 @@ const testCulvertData: CulvertSchema[] = [
       {
         index: 1,
         name: "Barrel #01",
+        numberOfCoordinates: 0,
         coordinates: [],
       },
     ],
