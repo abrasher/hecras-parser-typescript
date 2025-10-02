@@ -36,21 +36,17 @@ export function stringPart(options: StringPartOptions = {}): Part<string> {
   }
 }
 
-interface NumberPartOptions {
+export interface NumberPartOptions {
   integer?: boolean
   nullOnBlank?: boolean
   padded?: boolean
 }
 
-type NumberPartValue<Opts extends NumberPartOptions | undefined> = Opts extends {
-  nullOnBlank: true
-}
-  ? number | null
-  : number
-
-export function numberPart<const Opts extends NumberPartOptions | undefined = undefined>(
-  options?: Opts,
-): Part<NumberPartValue<Opts>> {
+export function numberPart(): Part<number>
+export function numberPart<const Opts extends NumberPartOptions>(
+  options: Opts,
+): Part<Opts extends { nullOnBlank: true } ? number | null : number>
+export function numberPart(options?: NumberPartOptions): Part<number> | Part<number | null> {
   const { integer = false, nullOnBlank = false, padded = false } = options ?? {}
 
   const part: Part<number | null> = {
@@ -110,14 +106,13 @@ export function numberPart<const Opts extends NumberPartOptions | undefined = un
     nullOnBlank: nullOnBlank || undefined,
   }
 
-  if (integer) {
-    return part as Part<NumberPartValue<Opts>>
+  if (nullOnBlank) {
+    return part
   }
 
-  return part as Part<NumberPartValue<Opts>>
+  return part as Part<number>
 }
-
-interface CountedArrayLengthPartOptions extends NumberPartOptions {}
+type CountedArrayLengthPartOptions = NumberPartOptions
 
 type CountedArrayLengthPart = Part<number> & { internal: true; internalKey: string }
 

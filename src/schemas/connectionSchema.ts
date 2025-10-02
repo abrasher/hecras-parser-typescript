@@ -6,7 +6,6 @@ import {
   stringField,
   numberField,
   booleanField,
-  contextual,
   section,
   repeat,
   startsWith,
@@ -14,6 +13,9 @@ import {
   numberPart,
   type Infer,
   blankLine,
+  countedArrayLengthPart,
+  booleanPart,
+  countedFixedWidthArray,
 } from "../schema"
 import { bridgeSchema } from "./bridge/bridgeSchema"
 import { culvertSchema } from "./culvertSchema"
@@ -80,57 +82,23 @@ export const connectionSchema = schema([
   blankLine(),
   numberField("hTabMaxFlow", "Conn HTab MaxFlow=", { optional: true }),
   repeat("culvert", startsWith("Connection Culv="), culvertSchema),
-  contextual("outletRatingCurve", parseOutletRatingCurve, serializeOutletRatingCurve),
+  multiField(
+    "Conn Outlet Rating Curve=",
+    fields({
+      numberOfPoints: countedArrayLengthPart("outletRatingCurve", { padded: true }),
+      param1: booleanPart({ mode: "trueFalse" }),
+      param2: numberPart({ nullOnBlank: true }),
+      param3: numberPart({ nullOnBlank: true }),
+    }),
+  ),
+  countedFixedWidthArray("outletRatingCurve", {
+    width: 8,
+    maxWidth: 80,
+    tuple: 2 as const,
+    formatter: "station",
+    optional: true,
+  }),
   section("bridge", startsWith("Conn BR: Bridge="), bridgeSchema),
 ])
 
 export type ConnectionSchema = Infer<typeof connectionSchema>
-
-function parseOutletRatingCurve(
-  lines: string[],
-  startIndex: number,
-  _context: Record<string, unknown>,
-) {
-  let index = startIndex
-  while (index < lines.length && lines[index]?.trim() === "") {
-    index += 1
-  }
-  const line = lines[index]
-  if (!line?.startsWith("Conn Outlet Rating Curve=")) {
-    return null
-  }
-
-  const raw = line.slice("Conn Outlet Rating Curve=".length)
-  const parts = raw.split(",").map((part) => part.trim())
-
-  const curve: OutletRatingCurveSchema = {
-    value: parseInt(parts[0] ?? "0", 10),
-    flag: (parts[1] ?? "").toLowerCase() === "true",
-  }
-
-  curve.param3 = parts[2] ?? ""
-  curve.param4 = parts[3] ?? ""
-
-  return {
-    value: curve,
-    nextIndex: index + 1,
-  }
-}
-
-function serializeOutletRatingCurve(
-  value: OutletRatingCurveSchema | undefined,
-  _context: Record<string, unknown>,
-): string[] {
-  if (!value) {
-    return []
-  }
-
-  const segments = [
-    `${value.value} `,
-    value.flag ? "True" : "False",
-    value.param3 ?? "",
-    value.param4 ?? "",
-  ]
-
-  return [`Conn Outlet Rating Curve= ${segments.join(",")}`]
-}

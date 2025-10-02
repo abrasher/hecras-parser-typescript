@@ -227,12 +227,10 @@ describe("connectionSchema", () => {
 
     describe("Outlet Rating Curve", () => {
       it("should parse outlet rating curve parameters", () => {
-        expect(connectionData.outletRatingCurve).toEqual({
-          value: 0,
-          flag: false,
-          param3: "",
-          param4: "",
-        })
+        expect(connectionData.param1).toBe(false)
+        expect(connectionData.param2).toBe(null)
+        expect(connectionData.param3).toBe(null)
+        expect(connectionData.outletRatingCurve).toEqual([])
       })
     })
 
