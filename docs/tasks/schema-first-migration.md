@@ -56,17 +56,17 @@ You need to review original serialization logic in `src/serializers/modelNameSer
 
 Phase 3 — Connections (with sub-schemas)
 
-- [ ] Connection core → `connectionSchema` fields (name/centroid, routing, SA links, tables).
-- [ ] Tuple array fields: `Connection Line=`, `Connection Centerline Profile=`, `Conn Weir SE=`.
-- [ ] Optional numerics: `hTabHWMax|TWMax` with `nullOnBlank`; serializer parity.
-- [ ] Booleans: `Conn Use RC Family`, `Conn OverFlow Method 2D` (True/False mode).
+- [x] Connection core → `connectionSchema` fields (name/centroid, routing, SA links, tables).
+- [x] Tuple array fields: `Connection Line=`, `Connection Centerline Profile=`, `Conn Weir SE=`.
+- [x] Optional numerics: `hTabHWMax|TWMax` with `nullOnBlank`; serializer parity.
+- [x] Booleans: `Conn Use RC Family`, `Conn OverFlow Method 2D` (True/False mode).
 - [x] Sub-schemas: `section('bridge', startsWith('Conn BR: Bridge='), bridgeSchema)`.
-- [ ] Sub-schemas: `repeat('culvert', startsWith('Connection Culv='), culvertSchema)`.
-- [ ] Adapters and parser parity tests against fixtures.
+- [x] Sub-schemas: `repeat('culvert', startsWith('Connection Culv='), culvertSchema)`.
+- [x] Adapters and parser parity tests against fixtures.
 
 Phase 4 — River reaches (cross‑sections + contextual)
 
-- [ ] River Reach core → `riverReachSchema` (names, coordinates, text position, flags).
+- [x] River Reach core → `riverReachSchema` (names, coordinates, text position, flags).
 - [ ] Cross‑Section schema: header `Type RM Length L Ch R=`, `#Sta/Elev=`, `#XS Ineff=`, contextual `Permanent Ineff=`.
 - [ ] Compose: `repeat('crossSections', startsWith('Type RM Length'), crossSectionSchema)`.
 - [ ] Adapters and parser parity tests.

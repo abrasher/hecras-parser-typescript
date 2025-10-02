@@ -1,3 +1,4 @@
+import type { RiverReachSchema as RiverReachSchemaType } from "../../schemas/riverReachSchema"
 import type { Coordinate } from "./common"
 import type { UpstreamDownstreamValue } from "./common"
 
@@ -52,13 +53,16 @@ export interface CrossSection {
   }
 }
 
-export interface RiverReach {
-  riverName: string
-  reachName: string
-  coordinateCount: number
+export type RiverReachCore = Omit<
+  RiverReachSchemaType,
+  "coordinates" | "textPosition" | "coordinateCount"
+> & {
   coordinates: Coordinate[]
   textPosition?: Coordinate
-  reverseRiverText?: number
+  coordinateCount: number
+}
+
+export interface RiverReach extends RiverReachCore {
   crossSections: CrossSection[]
 }
 
