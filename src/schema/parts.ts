@@ -39,7 +39,7 @@ export function stringPart(options: StringPartOptions = {}): Part<string> {
 export interface NumberPartOptions {
   integer?: boolean
   nullOnBlank?: boolean
-  padded?: boolean
+  pad?: boolean
 }
 
 export function numberPart(): Part<number>
@@ -47,7 +47,7 @@ export function numberPart<const Opts extends NumberPartOptions>(
   options: Opts,
 ): Part<Opts extends { nullOnBlank: true } ? number | null : number>
 export function numberPart(options?: NumberPartOptions): Part<number> | Part<number | null> {
-  const { integer = false, nullOnBlank = false, padded = false } = options ?? {}
+  const { integer = false, nullOnBlank = false, pad = false } = options ?? {}
 
   const part: Part<number | null> = {
     parse(segment) {
@@ -82,7 +82,7 @@ export function numberPart(options?: NumberPartOptions): Part<number> | Part<num
       // Handle HEC-RAS infinity representation
       if (numeric === Infinity) {
         const infinitySentinel = "1.79769313486232E+308"
-        return padded ? ` ${infinitySentinel} ` : infinitySentinel
+        return pad ? ` ${infinitySentinel} ` : infinitySentinel
       }
 
       if (!Number.isFinite(numeric)) {
@@ -101,7 +101,7 @@ export function numberPart(options?: NumberPartOptions): Part<number> | Part<num
         serialized = numeric.toExponential()
       }
 
-      return padded ? ` ${serialized} ` : serialized
+      return pad ? ` ${serialized} ` : serialized
     },
     nullOnBlank: nullOnBlank || undefined,
   }
@@ -153,15 +153,13 @@ export function countedArrayLengthPart(
 
 type BooleanMode = "TF" | "-1,0" | "10" | "trueFalse" | "enableDisable"
 
-type BooleanFormat = "trimmed" | "listDirected"
-
 interface BooleanPartOptions {
   mode: BooleanMode
-  format?: BooleanFormat
+  pad?: boolean
 }
 
 export function booleanPart(options: BooleanPartOptions): Part<boolean> {
-  const { mode, format = "trimmed" } = options
+  const { mode, pad = false } = options
 
   return {
     parse(segment) {
@@ -224,7 +222,7 @@ export function booleanPart(options: BooleanPartOptions): Part<boolean> {
           break
       }
 
-      if (format === "listDirected" && (mode === "-1,0" || mode === "10")) {
+      if (pad) {
         return raw.startsWith("-") ? `${raw} ` : ` ${raw} `
       }
 

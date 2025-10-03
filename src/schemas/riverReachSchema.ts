@@ -27,7 +27,7 @@ export const riverReachSchema = schema([
     formatter: "coordinate",
   }),
   tupleField("textPosition", "Rch Text X Y=", [numberPart(), numberPart()], { optional: true }),
-  booleanField("reversedText", "Reverse River Text=", { mode: "-1,0", format: "listDirected" }),
+  booleanField("reversedText", "Reverse River Text=", { mode: "-1,0", pad: true }),
   blankLine(),
 ])
 
