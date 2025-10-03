@@ -9,7 +9,7 @@ import {
   startsWith,
   type Infer,
   booleanPart,
-} from "../schema"
+} from "../../schema"
 
 /**
  * Schema for parsing Junction geometry definitions from HEC-RAS format

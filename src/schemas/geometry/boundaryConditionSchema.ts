@@ -1,4 +1,11 @@
-import { numberPart, schema, stringField, tupleArrayField, tupleField, type Infer } from "../schema"
+import {
+  numberPart,
+  schema,
+  stringField,
+  tupleArrayField,
+  tupleField,
+  type Infer,
+} from "../../schema"
 
 const coordinateParts = [numberPart({ pad: true }), numberPart({ pad: true })] as const
 

@@ -16,7 +16,7 @@ import {
   countedArrayLengthPart,
   booleanPart,
   countedFixedWidthArray,
-} from "../schema"
+} from "../../schema"
 import { bridgeSchema } from "./bridge/bridgeSchema"
 import { culvertSchema } from "./culvertSchema"
 

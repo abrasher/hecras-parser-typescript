@@ -1,4 +1,4 @@
-import { fields, multiField, numberPart, schema, stringField, type Infer } from "../schema"
+import { fields, multiField, numberPart, schema, stringField, type Infer } from "../../schema"
 
 export const icPointSchema = schema([
   stringField("name", "IC Point Name=", { length: 32 }),

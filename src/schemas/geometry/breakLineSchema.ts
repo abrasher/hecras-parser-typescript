@@ -1,4 +1,4 @@
-import { schema, tupleArrayField, stringField, numberField, type Infer } from "../schema"
+import { schema, tupleArrayField, stringField, numberField, type Infer } from "../../schema"
 
 /**
  * Schema for parsing BreakLine geometry definitions from HEC-RAS format

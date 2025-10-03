@@ -11,7 +11,7 @@ import {
   countedArrayLengthPart,
   type Infer,
   booleanPart,
-} from "../schema"
+} from "../../schema"
 
 /**
  * Schema for a single culvert barrel within a culvert group

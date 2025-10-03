@@ -1,4 +1,3 @@
-import type { LandCoverTable } from "../models/geometry/landCover"
 import {
   tupleArrayField,
   contextual,
@@ -7,76 +6,61 @@ import {
   startsWith,
   stringField,
   type Infer,
-} from "../schema"
-
-function parseLandCoverTable(
-  lines: string[],
-  startIndex: number,
-  label: string,
-): { table: LandCoverTable; nextIndex: number } | null {
-  const header = lines[startIndex]
-  if (!header || !header.startsWith(label)) {
-    return null
-  }
-
-  const countSegment = header.slice(label.length).trim()
-  const count = parseInt(countSegment, 10)
-  if (Number.isNaN(count)) {
-    throw new Error(`Invalid count for ${label}: ${countSegment}`)
-  }
-
-  const rows: LandCoverTable = []
-  let cursor = startIndex + 1
-
-  for (let i = 0; i < count; i++) {
-    const rowLine = lines[cursor]
-    if (rowLine === undefined) {
-      throw new Error(`Expected ${count} land cover rows for ${label} but only found ${i}`)
-    }
-
-    const [nameRaw, valueRaw] = rowLine.split(",")
-    if (nameRaw === undefined || valueRaw === undefined) {
-      throw new Error(`Invalid land cover row: ${rowLine}`)
-    }
-
-    const name = nameRaw.trim()
-    const value = parseFloat(valueRaw.trim())
-    if (Number.isNaN(value)) {
-      throw new Error(`Invalid numeric land cover value in row: ${rowLine}`)
-    }
-
-    rows.push([name, value])
-    cursor++
-  }
-
-  return { table: rows, nextIndex: cursor }
-}
-
-function serializeLandCoverTable(label: string, table: LandCoverTable): string[] {
-  const lines: string[] = []
-  lines.push(`${label}${table.length}`)
-  for (const [name, value] of table) {
-    lines.push(`${name},${value}`)
-  }
-  return lines
-}
+} from "../../schema"
 
 const landCoverRegionSchema = schema([
   stringField("name", "LCMann Region Name="),
   contextual(
     "table",
     (lines, startIndex, _ctx) => {
-      const result = parseLandCoverTable(lines, startIndex, "LCMann Region Table=")
-      if (!result) {
+      const label = "LCMann Region Table="
+      const header = lines[startIndex]
+      if (!header || !header.startsWith(label)) {
         throw new Error("Expected LCMann Region Table header")
       }
-      return { value: result.table, nextIndex: result.nextIndex }
+
+      const countSegment = header.slice(label.length).trim()
+      const count = parseInt(countSegment, 10)
+      if (Number.isNaN(count)) {
+        throw new Error(`Invalid count for ${label}: ${countSegment}`)
+      }
+
+      const rows: Array<[string, number]> = []
+      let cursor = startIndex + 1
+
+      for (let i = 0; i < count; i++) {
+        const rowLine = lines[cursor]
+        if (rowLine === undefined) {
+          throw new Error(`Expected ${count} land cover rows for ${label} but only found ${i}`)
+        }
+
+        const [nameRaw, valueRaw] = rowLine.split(",")
+        if (nameRaw === undefined || valueRaw === undefined) {
+          throw new Error(`Invalid land cover row: ${rowLine}`)
+        }
+
+        const name = nameRaw.trim()
+        const value = parseFloat(valueRaw.trim())
+        if (Number.isNaN(value)) {
+          throw new Error(`Invalid numeric land cover value in row: ${rowLine}`)
+        }
+
+        rows.push([name, value])
+        cursor++
+      }
+
+      return { value: rows, nextIndex: cursor }
     },
     (value, _ctx) => {
       if (!value) {
         return []
       }
-      return serializeLandCoverTable("LCMann Region Table=", value)
+      const label = "LCMann Region Table="
+      const linesOut: string[] = [`${label}${value.length}`]
+      for (const [name, numericValue] of value) {
+        linesOut.push(`${name},${numericValue}`)
+      }
+      return linesOut
     },
   ),
   tupleArrayField("LCMann Region Polygon=", "polygon", {
@@ -93,17 +77,54 @@ export const landCoverSchema = schema([
   contextual(
     "table",
     (lines, startIndex, _ctx) => {
-      const result = parseLandCoverTable(lines, startIndex, "LCMann Table=")
-      if (!result) {
+      const label = "LCMann Table="
+      const header = lines[startIndex]
+      if (!header || !header.startsWith(label)) {
         throw new Error("Expected LCMann Table header")
       }
-      return { value: result.table, nextIndex: result.nextIndex }
+
+      const countSegment = header.slice(label.length).trim()
+      const count = parseInt(countSegment, 10)
+      if (Number.isNaN(count)) {
+        throw new Error(`Invalid count for ${label}: ${countSegment}`)
+      }
+
+      const rows: Array<[string, number]> = []
+      let cursor = startIndex + 1
+
+      for (let i = 0; i < count; i++) {
+        const rowLine = lines[cursor]
+        if (rowLine === undefined) {
+          throw new Error(`Expected ${count} land cover rows for ${label} but only found ${i}`)
+        }
+
+        const [nameRaw, valueRaw] = rowLine.split(",")
+        if (nameRaw === undefined || valueRaw === undefined) {
+          throw new Error(`Invalid land cover row: ${rowLine}`)
+        }
+
+        const name = nameRaw.trim()
+        const value = parseFloat(valueRaw.trim())
+        if (Number.isNaN(value)) {
+          throw new Error(`Invalid numeric land cover value in row: ${rowLine}`)
+        }
+
+        rows.push([name, value])
+        cursor++
+      }
+
+      return { value: rows, nextIndex: cursor }
     },
     (value, _ctx) => {
       if (!value) {
         return []
       }
-      return serializeLandCoverTable("LCMann Table=", value)
+      const label = "LCMann Table="
+      const linesOut: string[] = [`${label}${value.length}`]
+      for (const [name, numericValue] of value) {
+        linesOut.push(`${name},${numericValue}`)
+      }
+      return linesOut
     },
   ),
   repeat("regions", startsWith("LCMann Region Name="), landCoverRegionSchema),

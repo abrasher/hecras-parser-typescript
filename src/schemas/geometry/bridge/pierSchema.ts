@@ -1,43 +1,9 @@
-import { formatFixedWidth, formatHECRASStationNumber } from "../../schema/serializationUtils"
-import { parseMultilineArray } from "../../parsers/utils"
-import {
-  contextual,
-  fields,
-  multiField,
-  numberPart,
-  schema,
-  stringPart,
-} from "../../schema"
-
-const PIER_HEADER = "Conn BR: Pier Skew, UpSta & Num, DnSta & Num="
+import { formatFixedWidth, formatHECRASStationNumber } from "../../../schema/serializationUtils"
+import { contextual, fields, multiField, numberPart, schema, stringPart } from "../../../schema"
+import { parseMultilineArray } from "../../../schema/parsingUtils"
 
 const WIDTH_FIELD_WIDTH = 8
 const MAX_VALUES_PER_LINE = 80 / WIDTH_FIELD_WIDTH
-
-const baseIntegerPart = numberPart({ integer: true })
-const baseNumberPart = numberPart()
-
-const spacedIntegerPart = () => ({
-  ...baseIntegerPart,
-  serialize(value: number | undefined) {
-    const raw = baseIntegerPart.serialize(value as number)
-    if (raw === "") {
-      return raw
-    }
-    return ` ${raw} `
-  },
-})
-
-const spacedNumberPart = () => ({
-  ...baseNumberPart,
-  serialize(value: number | undefined) {
-    const raw = baseNumberPart.serialize(value as number)
-    if (raw === "") {
-      return raw
-    }
-    return ` ${raw} `
-  },
-})
 
 const skewPart = (() => {
   const base = stringPart({ trim: true })
@@ -126,16 +92,16 @@ function formatFixedWidthSeries(values: number[]): string[] {
 
 export const pierSchema = schema([
   multiField(
-    PIER_HEADER,
+    "Conn BR: Pier Skew, UpSta & Num, DnSta & Num=",
     fields({
       skew: skewPart,
       centerlineStationUpstream: numberPart(),
-      upstreamPointCount: spacedIntegerPart(),
+      upstreamPointCount: numberPart({ integer: true, pad: true }),
       centerlineStationDownstream: numberPart(),
-      downstreamPointCount: spacedIntegerPart(),
-      unusedUpstream: spacedNumberPart(),
-      unusedDownstream: spacedNumberPart(),
-      applyFloatingDebris: spacedIntegerPart(),
+      downstreamPointCount: numberPart({ integer: true, pad: true }),
+      unusedUpstream: numberPart({ integer: true, pad: true }),
+      unusedDownstream: numberPart({ integer: true, pad: true }),
+      applyFloatingDebris: numberPart({ integer: true, pad: true }),
       debrisWidth: debrisPart,
       debrisHeight: debrisPart,
     }),

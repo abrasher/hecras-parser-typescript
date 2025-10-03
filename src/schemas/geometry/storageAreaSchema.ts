@@ -10,10 +10,9 @@ import {
   contextual,
   type Infer,
   booleanField,
-} from "../schema"
-import { parseKeyValue, parseMultilineArray, splitIntoTuples } from "../parsers/utils"
-import { formatHECRASCoordinateNumber } from "../schema/serializationUtils"
-import type { Coordinate } from "../models/geometry/common"
+} from "../../schema"
+import { splitIntoTuples, parseKeyValue, parseMultilineArray } from "../../schema/parsingUtils"
+import { formatHECRASCoordinateNumber } from "../../schema/serializationUtils"
 
 /**
  * Schema for parsing Storage Area geometry definitions from HEC-RAS format
@@ -75,7 +74,7 @@ export const storageAreaSchema = schema([
 
       // Convert to numbers and split into coordinate pairs
       const numbers = data.map((str) => parseFloat(str)).filter((num) => !isNaN(num))
-      const coordinates = splitIntoTuples(numbers, 2) as Coordinate[]
+      const coordinates = splitIntoTuples(numbers, 2)
 
       return {
         value: coordinates,
@@ -87,7 +86,7 @@ export const storageAreaSchema = schema([
         return []
       }
 
-      const coordinates = value as Coordinate[]
+      const coordinates = value
       const lines: string[] = []
 
       // Header line

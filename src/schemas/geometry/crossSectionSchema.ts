@@ -1,4 +1,3 @@
-import { parseMultilineArray } from "../parsers/utils"
 import {
   schema,
   fields,
@@ -14,8 +13,9 @@ import {
   booleanPart,
   countedFixedWidthArray,
   contextual,
-} from "../schema"
-import { formatChunkedLines } from "../schema/serializationUtils"
+} from "../../schema"
+import { parseMultilineArray } from "../../schema/parsingUtils"
+import { formatChunkedLines } from "../../schema/serializationUtils"
 
 export const crossSectionSchema = schema([
   multiField(

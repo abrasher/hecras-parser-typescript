@@ -9,7 +9,7 @@ import {
   tupleArrayField,
   tupleField,
   type Infer,
-} from "../schema"
+} from "../../schema"
 
 export const riverReachSchema = schema([
   multiField(

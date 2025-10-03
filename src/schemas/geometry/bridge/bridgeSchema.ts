@@ -1,14 +1,7 @@
 import { chunk, flatten } from "es-toolkit"
-import type { NTuple } from "../../parsers/utils"
+
 import {
-  parseCommaSeparated,
-  parseKeyValue,
-  parseMaybeFloat,
-  parseMultilineArray,
-  splitIntoTuples,
-} from "../../parsers/utils"
-import type { Infer } from "../../schema"
-import {
+  type Infer,
   numberPart,
   schema,
   fields,
@@ -19,9 +12,17 @@ import {
   startsWith,
   booleanPart,
   tupleField,
-} from "../../schema"
-import { formatStationElevationPairs, formatFixedWidth } from "../../schema/serializationUtils"
+} from "../../../schema"
+import { formatStationElevationPairs, formatFixedWidth } from "../../../schema/serializationUtils"
 import { pierSchema } from "./pierSchema"
+import type { NTuple } from "../../../schema/parsingUtils"
+import {
+  parseCommaSeparated,
+  parseKeyValue,
+  parseMaybeFloat,
+  parseMultilineArray,
+  splitIntoTuples,
+} from "../../../schema/parsingUtils"
 
 const deckField = contextual(
   "deck",
@@ -250,9 +251,9 @@ export const bridgeSchema = schema([
       bridgeCoefficient4: numberPart({ nullOnBlank: true }),
       bridgeCoefficient5: numberPart({ nullOnBlank: true }),
       bridgeCoefficient6: numberPart({ nullOnBlank: true }),
-      bridgeCoefficient7: booleanPart({ mode: "-1,0", format: "trimmed" }),
+      bridgeCoefficient7: booleanPart({ mode: "-1,0", pad: true }),
       bridgeCoefficient8: numberPart({ nullOnBlank: true }),
-      bridgeCoefficient9: booleanPart({ mode: "-1,0", format: "trimmed" }),
+      bridgeCoefficient9: booleanPart({ mode: "-1,0", pad: true }),
       bridgeCoefficient10: numberPart({ nullOnBlank: true }),
     }),
   ),
