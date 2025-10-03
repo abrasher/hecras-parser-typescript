@@ -8,8 +8,8 @@
  */
 
 import { readFileSync, writeFileSync } from "fs"
-import { parseGeometry } from "../src/parseGeometry"
-import { serializeGeometryString } from "../src/serializers"
+import { parseWithSchema, serializeWithSchema } from "../src/schema"
+import { geometrySchema } from "../src/schemas/geometrySchema"
 
 function testGeometry(testFilePath: string) {
   try {
@@ -20,17 +20,17 @@ function testGeometry(testFilePath: string) {
     const [name, extension] = testFilePath.split(".")
     const serializedOutputPath = `${name}.serialized.${extension}`
 
-    const geometryData = parseGeometry(originalContent)
+    const normalizedOriginal = originalContent.replace(/\r\n/g, "\n")
+    const originalLines = normalizedOriginal.split("\n")
+    const { value: geometryData } = parseWithSchema(geometrySchema, originalLines, 0)
 
-    const serializedContent = serializeGeometryString(geometryData)
+    const serializedLines = serializeWithSchema(geometrySchema, geometryData)
+    const serializedContent = serializedLines.join("\n")
 
     // Save serialized output to file for examination
     writeFileSync(serializedOutputPath, serializedContent, "utf-8")
 
     // Normalize line endings and split into lines
-    const originalLines = originalContent.replace(/\r\n/g, "\n").split("\n")
-    const serializedLines = serializedContent.split("\n")
-
     linesToLog.push(
       `\nComparing files: \n  "${testFilePath}" \n  "${serializedOutputPath}"\n`,
       `Original lines: ${originalLines.length}\nSerialized lines: ${serializedLines.length}`,

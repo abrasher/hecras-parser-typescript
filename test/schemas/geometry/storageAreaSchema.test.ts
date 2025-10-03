@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
 import { parseSectionWithSchema, serializeWithSchema } from "../../../src/schema/driver"
-import type { StorageAreaSchema } from "../../src/schemas/storageAreaSchema"
-import { storageAreaSchema } from "../../src/schemas/storageAreaSchema"
+import type { StorageAreaSchema } from "../../../src/schemas/geometry/storageAreaSchema"
+import { storageAreaSchema } from "../../../src/schemas/geometry/storageAreaSchema"
 
 describe("StorageAreaSchema", () => {
   describe("2D Storage Area parsing and serialization", () => {
