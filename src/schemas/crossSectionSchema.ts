@@ -63,7 +63,7 @@ export const crossSectionSchema = schema([
     "#XS Ineff=",
     fields({
       numberOfFlowAreas: countedArrayLengthPart("ineffectiveFlowAreas", { padded: true }),
-      multipleBlocks: booleanPart({ mode: "-1,0" }),
+      multipleBlocks: booleanPart({ mode: "-1,0", format: "listDirected" }),
     }),
   ),
   countedFixedWidthArray("ineffectiveFlowAreas", {
@@ -102,12 +102,15 @@ export const crossSectionSchema = schema([
       if (values === undefined) {
         return []
       }
-      return formatChunkedLines(values, {
-        width: 8,
-        perLine: 10,
-        formatter: (flag) => (flag ? "T" : "F"),
-        padDirection: "start",
-      })
+      return [
+        "Permanent Ineff=",
+        ...formatChunkedLines(values, {
+          width: 8,
+          perLine: 10,
+          formatter: (flag) => (flag ? "T" : "F"),
+          padDirection: "start",
+        }),
+      ]
     },
   ),
 
@@ -154,9 +157,9 @@ export const crossSectionSchema = schema([
   multiField(
     "XS HTab Horizontal Distribution=",
     fields({
-      horizontalHTabLeftBank: numberPart({ integer: true }),
-      horizontalHTabChannel: numberPart({ integer: true }),
-      horizontalHTabRightBank: numberPart({ integer: true }),
+      horizontalHTabLeftBank: numberPart({ integer: true, padded: true }),
+      horizontalHTabChannel: numberPart({ integer: true, padded: true }),
+      horizontalHTabRightBank: numberPart({ integer: true, padded: true }),
     }),
   ),
   numberField("skewAngle", "Skew Angle=", { optional: true, padded: true }),
