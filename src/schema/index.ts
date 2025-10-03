@@ -1,14 +1,5 @@
-export {
-  schema,
-  fields,
-  TupleOf,
-  Simplify,
-  UnionToIntersection,
-  Infer,
-  Part,
-  InferPart,
-  InferTupleParts,
-} from "./core"
+export { schema, fields, type Infer, type InferPart, type InferTupleParts } from "./core"
+export type { TupleOf, Simplify, UnionToIntersection, Part } from "./core"
 export {
   multiField,
   tupleField,
@@ -26,7 +17,14 @@ export {
   booleanField,
   durationField,
 } from "./combinators"
-export { stringPart, numberPart, booleanPart, durationPart, opt, countedArrayLengthPart } from "./parts"
+export {
+  stringPart,
+  numberPart,
+  booleanPart,
+  durationPart,
+  opt,
+  countedArrayLengthPart,
+} from "./parts"
 export type { NumberPartOptions } from "./parts"
 export { parseWithSchema, serializeWithSchema, parseSectionWithSchema } from "./driver"
 export type { SchemaDef } from "./core"
