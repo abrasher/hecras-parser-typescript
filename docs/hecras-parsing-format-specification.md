@@ -1,167 +1,96 @@
 # HEC-RAS File Format Parsing Documentation
 
-## Core Parsing Architecture
+## Schema-First Architecture
 
-The codebase uses a **three-tier parsing system**:
+The codebase is entirely schema-first. Parsing and serialization are defined via the DSL in `src/schema/**`, and concrete section schemas live under `src/schemas/geometry/**`. The drivers in `src/schema/driver.ts` power `parseWithSchema`, `parseSectionWithSchema`, and `serializeWithSchema`, so every data transformation flows through a schema definition. Tests in `test/schemas/geometry/**` exercise round-trip parity for each section.
 
-1. **Atomic Level** (`atomic.ts`) - Low-level field extraction
-2. **Line Level** (`lineParsers.ts`) - Single line parsing patterns
-3. **Component Level** (`geometry/*.ts`) - Multi-line component assembly
+### Key Modules
 
-## Fixed-Width Field Parsing Formats
+- `src/schema/core.ts` — schema item definitions and the `Infer` typing helpers
+- `src/schema/combinators.ts` — DSL building blocks (`multiField`, `tupleArrayField`, `contextual`, `repeat`, `include`, etc.)
+- `src/schema/parts.ts` — atomic parts such as `stringPart`, `numberPart`, `booleanPart`, and `opt`
+- `src/schema/serializationUtils.ts` — coordinate/station formatting helpers and fixed-width padding utilities
+- `src/schema/parsingUtils.ts` — contextual helpers (`parseKeyValue`, `parseMultilineArray`, `splitIntoTuples`)
+- `src/schemas/geometry/**` — section-specific schemas composed from the DSL
+
+## DSL Building Blocks
+
+- **`schema([...])`** defines the ordered items that make up a section.
+- **`fields({...})` + `multiField`** handle CSV-style lines by combining individual parts.
+- **`tupleField` / `tupleArrayField`** encode fixed-width tuples (single line vs. counted arrays).
+- **`contextual`** handles variable-length or custom-formatted blocks using helpers from `parsingUtils`.
+- **`repeat`** consumes contiguous sub-sections matched with `startsWith(...)` recognizers.
+- **`include`** inlines another schema when nesting is not desirable.
+- **Parts** (`stringPart`, `numberPart`, `booleanPart`, `durationPart`, `opt`, `numberPart({ nullOnBlank: true })`, etc.) encode per-field semantics for trimming, optionality, and formatting quirks.
+
+## Fixed-Width Patterns
 
 ### Coordinate Data Format
-
-**Field Layout**
 
 ```
 Position:  1-16      17-32     33-48     49-64
 Format:   [NNNNNNNN.NNNNNN][NNNNNNNN.NNNNNN][NNNNNNNN.NNNNNN][NNNNNNNN.NNNNNN]
 ```
 
-**Parsing Rules**
-
-- **Field Width**: 16 characters per coordinate value
-- **Data Type**: Float with variable decimal places
-- **Alignment**: Right-aligned, space-padded
-- **Coordinates per Line**: 4 values max (2 coordinate pairs)
-- **Line Width**: 64 characters maximum
-
-**Implementation**: `parseLineToCoordinates()` in `lineParsers.ts:15`
+- Use `tupleArrayField(..., { width: 16, maxWidth: 64, tuple: 2, formatter: "coordinate", pad: true })`.
+- Serialization uses `formatHECRASCoordinateNumber` to maintain width and alignment.
+- Tests ensure headers with counts (e.g., `"...= 2 "`) round-trip with identical whitespace.
 
 ### Station Pair Data Format
-
-**Field Layout**
-
-```
-Position:  1-8      9-16     17-24    25-32    33-40
-Format:   [NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN]
-```
-
-**Parsing Rules**
-
-- **Field Width**: 8 characters per station value
-- **Data Type**: Float with variable decimal places
-- **Alignment**: Right-aligned, space-padded
-- **Values per Line**: 10 values max (5 station pairs)
-- **Line Width**: 80 characters maximum
-- **Null Support**: Empty fields contain spaces, parsed as null
-
-**Implementation**: `parseLineStationPairs()` in `lineParsers.ts:24`
-
-### Bridge Deck Parameters Format
-
-**Field Layout**
 
 ```
 Position:  1-8      9-16     17-24    25-32    33-40    41-48    49-56    57-64    65-72    73-80
 Format:   [NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN]
 ```
 
-**Parsing Rules**
+- Represent with `tupleArrayField(..., { width: 8, maxWidth: 80, tuple: 2, formatter: "station" })`.
+- `nullOnBlank` keeps empty slots as blanks so downstream consumers receive `null` instead of zero.
+- Use `pad: true` when the format requires trailing spaces to reach 80 characters.
 
-- **Field Width**: 8 characters per value
-- **Values per Line**: 10 values maximum
-- **Line Width**: 80 characters
-- **Data Types**: Mixed floats and nulls for low chord elevations
-- **Multi-section Format**: Stations, high chords, low chords in sequence
+### Bridge Deck Parameters
 
-**Implementation**: `parseDeckParameters()` in `bridgeParser.ts:265`
+- Station/high/low chords are separate `tupleArrayField` blocks that reuse the station format configuration.
+- Keep arrays aligned by sharing the same `count` value computed in the schema object.
+- When low chords contain blanks, combine `tupleArrayField` with `numberPart({ nullOnBlank: true })` inside `fields(...)`.
 
-## Key-Value Parsing Format
+## Key-Value & CSV Patterns
 
-### Basic Key-Value Structure
+- Use `parseKeyValue` from `parsingUtils` inside `contextual` items when custom separators or padding matter.
+- Standard key/value lines prefer `stringField`/`numberField`/`booleanField` helpers which automatically trim and emit blanks.
+- CSV segments belong in `multiField` with `fields({...})` so each column can specify trimming and blank/null semantics.
 
-```
-Format: Key=Value
-Example: Connection Culv=1,2.5,3.0,150.0,0.045,0.5,0.5,1,1,100.0,99.5,2,CULV01,0
-```
+## Contextual Blocks
 
-**Parsing Rules**
+- `contextual` is the escape hatch for headers that announce a count followed by lines with bespoke padding (e.g., `Storage Area Surface Line=` blocks).
+- Pair `contextual` with helpers: `parseMultilineArray` to chunk fixed widths and `splitIntoTuples` for coordinate pairs.
+- Always serialize using the same helpers to guarantee padding symmetry.
 
-- **Separator**: `=` character (configurable)
-- **Value Processing**: Comma-separated values after `=`
-- **String Handling**: Values trimmed of whitespace
-- **Multi-value Support**: CSV parsing for complex data
+## Critical Formatting Rules
 
-**Implementation**: `parseKeyValue()` in `atomic.ts:14`
+- **16-char coordinates**: Always right-aligned with spaces; use the `coordinate` formatter.
+- **8-char stations**: Same alignment rules; leverage the `station` formatter.
+- **Boolean encodings**: Pick an explicit mode (`-1,0`, `TF`, `10`, etc.) rather than relying on defaults.
+- **Infinity sentinel**: `numberPart` emits `1.79769313486232E+308` for `Infinity`; tests cover sections that require it.
+- **Blank vs null vs undefined**:
+  - `undefined` on single-field lines omits the line entirely.
+  - `null` with `nullOnBlank: true` writes the key with an empty value segment.
+  - `multiField` blanks individual segments when set to `undefined`; the line emits if any segment is defined.
 
-## Multi-Line Data Block Parsing
+## Component Notes
 
-### Variable Length Blocks
+- **Storage Areas**: Surface lines use `contextual` with `parseMultilineArray`; 2D points reuse `tupleArrayField` with coordinate formatter; boolean flags use `booleanField(..., { mode: "-1,0" })`.
+- **Land Cover**: Region tables are handled with `contextual` blocks that read a count and emit CSV rows; polygons reuse the coordinate formatter.
+- **Boundary Conditions**: Arc and polyline coordinates employ padded `tupleArrayField` blocks to match legacy file spacing.
+- **Connections / Bridges / Culverts**: Share station and coordinate tuple arrays; tune blank handling per numeric field using `nullOnBlank`.
 
-**Parsing Pattern**
+## Testing Expectations
 
-```markdown
-Header Line: [Component Type]=[Count or Metadata]
-Data Lines: [Fixed-width data based on count]
-```
+- Every schema change should add or update tests in `test/schemas/geometry/**` covering parse → serialize → parse round-trips.
+- Tests must assert line-for-line parity (including whitespace) for critical sections such as coordinates, station tables, and boolean encodings.
+- Include focused cases for blank/null propagation, boolean mode output, and count headers when they affect serialization.
 
-**Calculation Logic**
+## Decisions & Risks
 
-- **Lines Required**: `Math.ceil(totalEntries / entriesPerLine)`
-- **Entries per Line**: `maxLineWidth / fieldWidth`
-- **Index Management**: Tracks current position through multi-line blocks
+Document new formatting discoveries, schema limitations, or trade-offs here. Include the relevant schema/test path and a short summary so future contributors understand the current state and open work.
 
-**Implementation**: `parseMultilineArray()` in `multiLineParsers.ts:19`
-
-## Critical Parsing Edge Cases
-
-### Empty Field Handling
-
-- **Numeric Fields**: Empty = spaces → parsed as `null` or skipped
-- **String Fields**: Empty = spaces → trimmed to empty string
-- **Boolean Fields**: Missing values default to `0` or `false`
-
-### Number Format Variations
-
-- **Decimal Points**: May be implicit (e.g., `123` = `1.23`)
-- **Scientific Notation**: Rare but supported in atomic parsers
-- **Negative Values**: Standard `-` prefix
-- **Zero Padding**: Not used in HEC-RAS format
-
-### Line Length Variations
-
-- **Fixed Sections**: Bridge deck data = exactly 80 characters
-- **Variable Sections**: Connection coordinates = up to 64 characters
-- **Partial Lines**: Last line may be shorter than expected width
-
-## Component-Specific Parsing Gotchas
-
-### Culvert Connections (`culvertParser.ts`)
-
-- **Barrel Count Calculation**: Header counts are derived from `barrelStations.length` (still emitted with 5 station pairs per line)
-- **Station Pair Width**: 8 characters, 5 pairs per 80-character line
-- **Coordinate Width**: 16 characters, 2 pairs per 64-character line
-- **Optional Sections**: Barrel definitions may be missing entirely
-
-### Bridge Connections (`bridgeParser.ts`)
-
-- **Deck Section Parsing**: Stations → High Chords → Low Chords sequence
-- **Null Handling**: Low chord elevations may contain null gaps
-- **Multi-ID Sections**: Cross sections identified by ID (1=upstream, 2=downstream)
-- **Pier Data**: Fixed 8-character width for width/elevation pairs
-
-### Storage Areas (`storageAreaParser.ts`)
-
-- **2D Points**: 16-character coordinates, 4 per 64-character line
-- **Surface Line**: 16-character coordinates, 2 per 32-character line
-- **Dynamic Properties**: Many optional fields based on storage area type
-
-## Parsing Error Handling
-
-### Validation Requirements
-
-- **Field Width Validation**: Exact character position checking
-- **Data Type Validation**: Number parsing with NaN detection
-- **Range Validation**: Logical bounds checking for engineering values
-- **Format Consistency**: Multi-line block integrity verification
-
-### Error Recovery Strategies
-
-- **Skip Invalid Lines**: Continue parsing valid sections
-- **Default Value Assignment**: Use engineering defaults for missing data
-- **Partial Data Acceptance**: Process incomplete but structurally valid blocks
-- **Detailed Error Messages**: Include line numbers and field positions
-
-This documentation captures the exact parsing requirements from the existing codebase, focusing on the character-level precision and format specifications needed for robust HEC-RAS file parsing.
+- _[Add entries as the migration progresses]_ 

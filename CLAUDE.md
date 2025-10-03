@@ -1,15 +1,15 @@
 ### Schema-First Overview
 
-- We are actively migrating to a schema-first parser/serializer. Read:
-  - `docs/tasks/schema-first-migration.md` — milestones, parity goals, decisions/risks
+- We build everything with a schema-first parser/serializer. Read:
+  - `docs/hecras-parsing-format-specification.md` — milestones, formatting constraints, decisions/risks
   - `.claude/prompts/dsl-refactor/schema-first.md` — DSL spec, typing, serialization rules
-- New work should define schemas under `src/schemas/**` using DSL items from `src/schema/**` and use the drivers in `src/schema/driver.ts`.
+- New work defines schemas under `src/schemas/**` using DSL items from `src/schema/**` and the drivers in `src/schema/driver.ts`.
 
 Key directories
 
-- `src/schema/**` — DSL core: `core.ts` (types, Infer), `driver.ts` (parse/serialize), `combinators.ts`
+- `src/schema/**` — DSL core: `core.ts` (types, Infer), `driver.ts` (parse/serialize), `combinators.ts`, `parts.ts`, `serializationUtils.ts`, `parsingUtils.ts`
 - `src/schemas/**` — Section schemas (e.g., `breakLineSchema.ts`, `junctionSchema.ts`, `geometrySchema.ts`)
-- `docs/tasks/schema-first-migration.md` — tracker for coverage and parity
+- `docs/hecras-parsing-format-specification.md` — tracker for schema coverage, format decisions, and risks
 
 DSL quick reference (see full spec for details)
 
@@ -29,11 +29,11 @@ Common schema patterns from implemented schemas:
 
 Migration workflow (summary)
 
-1) Identify target section from the tracker; review existing model and legacy parser/serializer for parity.
-2) Define schema in `src/schemas/<name>Schema.ts` using DSL items; prefer `tupleArrayField` for fixed‑width tables.
-3) Add adapter usage where appropriate; keep top-level tolerant until full coverage.
-4) Add tests for parser parity and serializer round‑trip where possible.
-5) Update the migration tracker and note any decisions/risks.
+1) Identify the target section; review existing models, schema tests, and representative HEC-RAS samples to understand requirements.
+2) Define a schema in `src/schemas/<name>Schema.ts` using DSL items; prefer `tupleArrayField` for fixed-width tables.
+3) Add adapters or recognizers where appropriate; keep top-level tolerant until the surrounding coverage is complete.
+4) Add tests for parser parity and serializer round-trip where possible.
+5) Update `docs/hecras-parsing-format-specification.md` with coverage status and any decisions/risks.
 
 ### Development
 
@@ -60,6 +60,8 @@ Key pieces
 - `src/schema/core.ts` — schema item types, `Infer` typing, parts/options
 - `src/schema/driver.ts` — schema-driven parse and serialize functions
 - `src/schema/combinators.ts` — composition helpers (`section`, `repeat`, `include`)
+- `src/schema/parsingUtils.ts` — shared helpers for contextual/custom blocks
+- `src/schema/serializationUtils.ts` — helpers for fixed-width formatting and chunking
 - `src/schemas/**` — section schemas with domain-specific composition
 - `src/models/**` — TypeScript interfaces for domain models; use `Infer<typeof schema>` or `satisfies` for compatibility during migration
 
@@ -68,21 +70,21 @@ Parsing strategy
 - Prefer declarative schema items to encode sentinels, tuple arrays, and context-dependent lines.
 - Use recognizers (`startsWith('...')`) to bind sub-schemas; keep per-section non-strict until coverage is complete.
 - Encode optional and null/blank semantics at the Part level to preserve round-trip fidelity.
+- When custom handling is unavoidable, isolate it in `contextual` blocks backed by helpers in `src/schema/parsingUtils.ts`.
 
 ## HEC-RAS Format Gotchas
 
-**CRITICAL**: HEC-RAS files have strict but weird formatting that can break parsers if not handled carefully. Always use a combination of atomic or line parsers if possible. Do not duplicate functionality.
+**CRITICAL**: HEC-RAS files have strict formatting that can break parsers if not handled carefully. Rely on DSL parts/utilities instead of bespoke parsing.
 
 ### Parsing Challenges
 
 **Important Parsing Notes**:
 
 - For fixed-width tables, ensure tuple widths (`width`, `maxWidth`) match actual line widths; tests should verify column boundaries.
-- **Coordinate formatting**: HEC-RAS uses 16-character fixed-width formatting for coordinates. Use `formatter: "coordinate"` for tupleArrayField.
-- **Boolean encoding variations**: Different sections use different boolean encodings (`-1,0`, `TF`, `0,1`). Check existing format before assuming.
+- **Coordinate formatting**: HEC-RAS uses 16-character fixed-width formatting for coordinates. Use `formatter: "coordinate"` with `tupleArrayField` or `countedFixedWidthArray`.
+- **Boolean encoding variations**: Different sections use different boolean encodings (`-1,0`, `TF`, `0,1`). Always set `booleanPart({ mode })` explicitly.
 - **Blank vs null**: Many numeric fields preserve blank→null semantics. Use `nullOnBlank: true` to maintain round-trip fidelity.
 - **String trimming**: Many string fields have trailing spaces that should be preserved or trimmed consistently. Use `trim: true` where appropriate.
-
 
 ### General Parsing Principles
 
@@ -92,19 +94,8 @@ Always assume the format is wrong until proven right. Use comprehensive validati
 
 PRAGMATIC PARSING IS THE PRIORITY. The schema-first DSL is designed for clarity, maintainability, and correctness while keeping the format specifics explicit and testable.
 
-## Deprecated: Legacy Parsing Approach
+## Shared Utilities
 
-The previous sentinel-based approach is retained temporarily for parity and fallback. Avoid adding new code to it.
-
-Legacy components
-
-- `src/parseGeometry.ts` — legacy entrypoint orchestrating per-section parsers
-- `src/parsers/atomic.ts`, `src/parsers/lineParsers.ts` — low/high-level line utilities
-- `src/parsers/geometry/**` — specialized per-component parsers (culvert, bridge, storage area, etc.)
-- `src/serializers/**` — per-section serializers
-
-Legacy parsing pattern
-
-- Use atomic parsing functions and line parsers to decode fixed-width segments.
-- Specialized parsers assemble component models and return data with line counts.
-- This pattern is deprecated in favor of the schema-first DSL; only apply targeted fixes during migration.
+- `src/schema/parsingUtils.ts` — contextual helpers such as `parseMultilineArray` and `splitIntoTuples`
+- `src/schema/serializationUtils.ts` — coordinate/station formatters and padding helpers
+- `docs/hecras-parsing-format-specification.md` — living log for tricky formatting, decisions, and open risks
