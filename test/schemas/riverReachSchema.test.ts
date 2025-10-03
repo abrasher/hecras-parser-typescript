@@ -25,9 +25,8 @@ describe("riverReachSchema", () => {
       riverName: "Trib 21 EE",
       reachName: "Trib 21 EE",
       coordinates: sampleCoordinates,
-      coordinateCount: 2,
       textPosition: [483651.1529, 4753544.9142],
-      reverseRiverText: 0,
+      reversedText: false,
     })
   })
 
@@ -36,9 +35,8 @@ describe("riverReachSchema", () => {
       riverName: "Trib 21 EE",
       reachName: "Trib 21 EE",
       coordinates: sampleCoordinates,
-      coordinateCount: 2,
       textPosition: [483651.1529, 4753544.9142],
-      reverseRiverText: 0,
+      reversedText: false,
     }
 
     const lines = serializeWithSchema(riverReachSchema, riverReach)
@@ -67,25 +65,24 @@ describe("riverReachSchema", () => {
       riverName: "River",
       reachName: "Reach",
       coordinates: sampleCoordinates,
-      coordinateCount: 2,
-      reverseRiverText: 5,
+      reversedText: true,
     }
 
     const lines = serializeWithSchema(riverReachSchema, riverReach)
 
-    expect(lines).toContain("Reverse River Text=5 ")
+    expect(lines).toContain("Reverse River Text=-1 ")
   })
 
-  it("throws if coordinateCount does not match coordinates length", () => {
+  it("throws if coordinates contain tuples with the wrong length", () => {
     const riverReach: RiverReachSchema = {
       riverName: "River",
       reachName: "Reach",
-      coordinates: sampleCoordinates,
-      coordinateCount: 999,
+      // @ts-expect-error – deliberately provide malformed data for the test
+      coordinates: [[1, 2, 3]],
     }
 
     expect(() => serializeWithSchema(riverReachSchema, riverReach)).toThrow(
-      /coordinateCount \(999\) does not match coordinates length \(2\)/,
+      /Tuple for key "coordinates" must have length 2/,
     )
   })
 

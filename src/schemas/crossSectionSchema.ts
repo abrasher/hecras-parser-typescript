@@ -21,7 +21,7 @@ export const crossSectionSchema = schema([
   multiField(
     "Type RM Length L Ch R =",
     fields({
-      type: numberPart({ integer: true, padded: true }),
+      type: numberPart({ integer: true, pad: true }),
       riverMile: stringPart({ trim: true, width: 8 }),
       lengthLeft: numberPart(),
       lengthChannel: numberPart(),
@@ -48,7 +48,7 @@ export const crossSectionSchema = schema([
   multiField(
     "#Mann=",
     fields({
-      numberOfMannings: countedArrayLengthPart("mannings", { padded: true }),
+      numberOfMannings: countedArrayLengthPart("mannings", { pad: true }),
       horizontalManning: booleanPart({ mode: "-1,0" }),
       horizontalK: booleanPart({ mode: "-1,0" }),
     }),
@@ -62,8 +62,8 @@ export const crossSectionSchema = schema([
   multiField(
     "#XS Ineff=",
     fields({
-      numberOfFlowAreas: countedArrayLengthPart("ineffectiveFlowAreas", { padded: true }),
-      multipleBlocks: booleanPart({ mode: "-1,0", format: "listDirected" }),
+      numberOfFlowAreas: countedArrayLengthPart("ineffectiveFlowAreas", { pad: true }),
+      multipleBlocks: booleanPart({ mode: "-1,0", pad: true }),
     }),
   ),
   countedFixedWidthArray("ineffectiveFlowAreas", {
@@ -125,7 +125,7 @@ export const crossSectionSchema = schema([
   multiField(
     "XS Rating Curve=",
     fields({
-      ratingCurveType: countedArrayLengthPart("ratingCurve", { padded: true }),
+      ratingCurveType: countedArrayLengthPart("ratingCurve", { pad: true }),
       checkHeadwaters: booleanPart({ mode: "-1,0" }),
     }),
   ),
@@ -151,18 +151,18 @@ export const crossSectionSchema = schema([
     fields({
       htabStartingElevation: opt(numberPart()),
       htabIncrement: opt(numberPart()),
-      htabCount: opt(numberPart({ integer: true, padded: true })),
+      htabCount: opt(numberPart({ integer: true, pad: true })),
     }),
   ),
   multiField(
     "XS HTab Horizontal Distribution=",
     fields({
-      horizontalHTabLeftBank: numberPart({ integer: true, padded: true }),
-      horizontalHTabChannel: numberPart({ integer: true, padded: true }),
-      horizontalHTabRightBank: numberPart({ integer: true, padded: true }),
+      horizontalHTabLeftBank: numberPart({ integer: true, pad: true }),
+      horizontalHTabChannel: numberPart({ integer: true, pad: true }),
+      horizontalHTabRightBank: numberPart({ integer: true, pad: true }),
     }),
   ),
-  numberField("skewAngle", "Skew Angle=", { optional: true, padded: true }),
+  numberField("skewAngle", "Skew Angle=", { optional: true, pad: true }),
   multiField(
     "Exp/Cntr=",
     fields({

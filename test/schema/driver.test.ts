@@ -62,7 +62,7 @@ const testSchema = schema([
   tupleField(
     "coordinate",
     "Coordinate=",
-    [numberPart({ padded: true }), numberPart({ padded: true })] as const,
+    [numberPart({ pad: true }), numberPart({ pad: true })] as const,
   ),
   stringField("maybe", "Item Optional=", { optional: true, trim: true }),
   tupleArrayField("Values=", "values", {
@@ -174,8 +174,8 @@ describe("schema driver", () => {
 
   it("serializes numeric boolean modes using list-directed padding when requested", () => {
     const paddedSchema = schema([
-      booleanField("legacy", "Legacy=", { mode: "-1,0", format: "listDirected" }),
-      booleanField("binary", "Binary=", { mode: "10", format: "listDirected" }),
+      booleanField("legacy", "Legacy=", { mode: "-1,0", pad: true }),
+      booleanField("binary", "Binary=", { mode: "10", pad: true }),
     ])
 
     expect(serializeWithSchema(paddedSchema, { legacy: true, binary: true })).toEqual([

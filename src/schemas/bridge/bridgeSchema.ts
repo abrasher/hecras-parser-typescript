@@ -222,7 +222,7 @@ export const bridgeSchema = schema([
       momentumEquationAddWeight: booleanPart({ mode: "-1,0" }),
       pressureFlowCriteria: booleanPart({ mode: "-1,0" }),
       classBDefaults: booleanPart({ mode: "-1,0" }),
-      param5: booleanPart({ mode: "-1,0", format: "listDirected" }),
+      param5: booleanPart({ mode: "-1,0", pad: true }),
       contractionCoefficient: numberPart(),
       expansionCoefficient: numberPart(),
     }),
@@ -244,9 +244,9 @@ export const bridgeSchema = schema([
   multiField(
     "Conn BR: BR Coef=",
     fields({
-      bridgeCoefficient1: booleanPart({ mode: "-1,0", format: "listDirected" }),
-      bridgeCoefficient2: booleanPart({ mode: "-1,0", format: "listDirected" }),
-      bridgeCoefficient3: booleanPart({ mode: "-1,0", format: "listDirected" }),
+      bridgeCoefficient1: booleanPart({ mode: "-1,0", pad: true }),
+      bridgeCoefficient2: booleanPart({ mode: "-1,0", pad: true }),
+      bridgeCoefficient3: booleanPart({ mode: "-1,0", pad: true }),
       bridgeCoefficient4: numberPart({ nullOnBlank: true }),
       bridgeCoefficient5: numberPart({ nullOnBlank: true }),
       bridgeCoefficient6: numberPart({ nullOnBlank: true }),

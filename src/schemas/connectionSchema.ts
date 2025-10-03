@@ -55,7 +55,7 @@ export const connectionSchema = schema([
   numberField("protectionRadius", "Conn Protection Radius=", { optional: true }),
   stringField("upstreamStorageArea", "Connection Up SA=", { length: 16, trim: true }),
   stringField("downstreamStorageArea", "Connection Dn SA=", { length: 16, trim: true }),
-  numberField("routingType", "Conn Routing Type=", { integer: true, optional: true, padded: true }),
+  numberField("routingType", "Conn Routing Type=", { integer: true, optional: true, pad: true }),
   booleanField("useRCFamily", "Conn Use RC Family=", { mode: "trueFalse", optional: true }),
   booleanField("overflowMethod2D", "Conn OverFlow Method 2D=", {
     mode: "trueFalse",
@@ -63,7 +63,7 @@ export const connectionSchema = schema([
   }),
   numberField("weirWD", "Conn Weir WD=", { optional: true }),
   numberField("weirCoefficient", "Conn Weir Coef=", { optional: true }),
-  numberField("weirIsOgee", "Conn Weir Is Ogee=", { integer: true, optional: true, padded: true }),
+  numberField("weirIsOgee", "Conn Weir Is Ogee=", { integer: true, optional: true, pad: true }),
   numberField("weirDesignEG", "Conn Weir Design EG=", { integer: true, optional: true }),
   numberField("weirDesignHT", "Conn Weir Design HT=", { integer: true, optional: true }),
   numberField("simpleSpillPosCoef", "Conn Simple Spill Pos Coef=", { optional: true }),
@@ -85,7 +85,7 @@ export const connectionSchema = schema([
   multiField(
     "Conn Outlet Rating Curve=",
     fields({
-      numberOfPoints: countedArrayLengthPart("outletRatingCurve", { padded: true }),
+      numberOfPoints: countedArrayLengthPart("outletRatingCurve", { pad: true }),
       param1: booleanPart({ mode: "trueFalse" }),
       param2: numberPart({ nullOnBlank: true }),
       param3: numberPart({ nullOnBlank: true }),

@@ -1,6 +1,6 @@
 import { numberPart, schema, stringField, tupleArrayField, tupleField, type Infer } from "../schema"
 
-const coordinateParts = [numberPart({ padded: true }), numberPart({ padded: true })] as const
+const coordinateParts = [numberPart({ pad: true }), numberPart({ pad: true })] as const
 
 export const boundaryConditionSchema = schema([
   stringField("name", "BC Line Name=", { length: 32 }),
