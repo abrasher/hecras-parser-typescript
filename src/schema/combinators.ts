@@ -13,6 +13,7 @@ import type {
   BlankLinesItem,
   InferPart,
   CountedArrayFieldItem,
+  TextBlockFieldItem,
 } from "./core"
 import { schema as buildSchema, fields as buildFields } from "./core"
 import { booleanPart, durationPart, numberPart, opt, stringPart } from "./parts"
@@ -106,6 +107,24 @@ export function countedFixedWidthArray<const Key extends string, const Tuple ext
     pad,
     formatter,
     parseValue,
+  }
+}
+
+interface TextBlockFieldOptions {
+  optional?: boolean
+}
+
+export function textBlockField<const Key extends string>(
+  key: Key,
+  label: string,
+  options: TextBlockFieldOptions = {},
+): TextBlockFieldItem<Key> {
+  const { optional = false } = options
+  return {
+    kind: "textBlockField",
+    key,
+    label,
+    optional,
   }
 }
 

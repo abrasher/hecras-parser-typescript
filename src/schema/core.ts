@@ -139,6 +139,13 @@ export interface CountedArrayFieldItem<Key extends string, Tuple extends number>
   parseValue?(segment: string): number
 }
 
+export interface TextBlockFieldItem<Key extends string> {
+  kind: "textBlockField"
+  key: Key
+  label: string
+  optional?: boolean
+}
+
 export interface ContextualItem<Key extends string, Value> {
   kind: "contextual"
   key: Key
@@ -183,6 +190,7 @@ export type SchemaItem =
   | TupleFieldItem<string, readonly Part<unknown>[]>
   | TupleArrayFieldItem<string, number>
   | CountedArrayFieldItem<string, number>
+  | TextBlockFieldItem<string>
   | ContextualItem<string, unknown>
   | SectionItem<string, SchemaDef>
   | RepeatItem<string, SchemaDef>
@@ -211,6 +219,10 @@ type InferItemWithDepth<I, Depth extends number> =
         ? I["optional"] extends true
           ? { [K in Key]?: TupleOf<Tuple, number>[] }
           : { [K in Key]: TupleOf<Tuple, number>[] }
+        : I extends TextBlockFieldItem<infer Key>
+          ? I["optional"] extends true
+            ? { [K in Key]?: string }
+            : { [K in Key]: string }
         : I extends ContextualItem<infer Key, infer Value>
           ? { [K in Key]?: Value }
           : I extends SectionItem<infer Key, infer Schema>

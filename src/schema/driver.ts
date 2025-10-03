@@ -17,6 +17,7 @@ import type {
   SchemaItem,
   SectionItem,
   CountedArrayFieldItem,
+  TextBlockFieldItem,
 } from "./core"
 import { parseMultilineArray, splitIntoTuples } from "./parsingUtils"
 
@@ -165,6 +166,8 @@ function parseItem(
       return parseCountedArrayField(item, context, lines, index)
     case "contextual":
       return parseContextual(item, context, lines, index)
+    case "textBlockField":
+      return parseTextBlockField(item, context, lines, index, options)
     case "section":
       return parseSection(item, context, lines, index, options)
     case "repeat":
@@ -406,6 +409,45 @@ function parseContextual(
   return { status: "success", nextIndex: result.nextIndex }
 }
 
+function parseTextBlockField(
+  item: TextBlockFieldItem<string>,
+  context: ParseContext,
+  lines: string[],
+  index: number,
+  options: ParseOptions,
+): ItemOutcome {
+  const startLine = `BEGIN ${item.label}:`
+  const endLine = `END ${item.label}:`
+  const line = lines[index]
+
+  if (line !== startLine) {
+    if (item.optional) {
+      return { status: "skipped" }
+    }
+    if (options.strict) {
+      throw new Error(`Expected line "${startLine}" at index ${index}`)
+    }
+    return { status: "terminate", nextIndex: index }
+  }
+
+  const blockLines: string[] = []
+  let cursor = index + 1
+
+  while (cursor < lines.length) {
+    const current = lines[cursor]
+    if (current === endLine) {
+      const value = blockLines.join("\n")
+      context[item.key] = value
+      return { status: "success", nextIndex: cursor + 1 }
+    }
+
+    blockLines.push(current ?? "")
+    cursor++
+  }
+
+  throw new Error(`Missing closing line "${endLine}" for block starting at index ${index}`)
+}
+
 function parseSection(
   item: SectionItem<string, SchemaDef>,
   context: ParseContext,
@@ -550,6 +592,9 @@ function serializeSchemaInternal(
         break
       case "contextual":
         serializeContextual(item, data, lines, context)
+        break
+      case "textBlockField":
+        serializeTextBlockField(item, data, lines)
         break
       case "section":
         serializeSection(item, data, lines, context)
@@ -790,6 +835,29 @@ function serializeContextual(
   }
 
   context[item.key] = value
+}
+
+function serializeTextBlockField(
+  item: TextBlockFieldItem<string>,
+  data: Record<string, unknown>,
+  lines: string[],
+): void {
+  const value = data[item.key]
+  if (value === undefined) {
+    return
+  }
+  if (typeof value !== "string") {
+    throw new Error(`Expected string value for text block field "${item.key}"`)
+  }
+
+  const startLine = `BEGIN ${item.label}:`
+  const endLine = `END ${item.label}:`
+
+  lines.push(startLine)
+  if (value !== "") {
+    lines.push(...value.split("\n"))
+  }
+  lines.push(endLine)
 }
 
 function serializeSection(
