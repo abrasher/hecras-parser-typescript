@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { parseWithSchema, serializeWithSchema } from "../../src/schema"
+import { parseWithSchema, serializeWithSchema } from "../../../src/schema"
 import { geometrySchema, type GeometrySchema } from "../../src/schemas/geometrySchema"
-import type { HECRASGeometry } from "../../src/models/geometry/geometryHeaders"
+import type { HECRASGeometry } from "../../../src/models/geometry/geometryHeaders"
 
 describe("geometrySchema", () => {
   const sampleLines = [

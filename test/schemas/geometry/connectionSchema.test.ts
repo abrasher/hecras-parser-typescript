@@ -1,6 +1,6 @@
 import { beforeAll, describe, expect, it } from "vitest"
 
-import { parseSectionWithSchema, serializeWithSchema } from "../../src/schema/driver"
+import { parseSectionWithSchema, serializeWithSchema } from "../../../src/schema/driver"
 import { connectionSchema, type ConnectionSchema } from "../../src/schemas/connectionSchema"
 
 const lineString = `Connection=DM22-38608      ,0,0

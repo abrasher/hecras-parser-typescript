@@ -1,4 +1,4 @@
-import { parseDuration } from "../parsers/utils"
+import { parseDuration } from "./parsingUtils"
 import { formatDuration } from "./serializationUtils"
 import type { Part } from "./core"
 import type { InferPart } from "./core"

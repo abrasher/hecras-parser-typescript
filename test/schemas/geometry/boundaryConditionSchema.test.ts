@@ -1,9 +1,7 @@
 import { describe, expect, it } from "vitest"
-import { parseWithSchema, serializeWithSchema } from "../../src/schema"
-import {
-  boundaryConditionSchema,
-  type BoundaryConditionSchema,
-} from "../../src/schemas/boundaryConditionSchema"
+import { parseWithSchema, serializeWithSchema } from "../../../src/schema"
+import type { BoundaryConditionSchema } from "../../../src/schemas/geometry/boundaryConditionSchema"
+import { boundaryConditionSchema } from "../../../src/schemas/geometry/boundaryConditionSchema"
 
 const sampleLines = [
   "BC Line Name=BC1                             ",

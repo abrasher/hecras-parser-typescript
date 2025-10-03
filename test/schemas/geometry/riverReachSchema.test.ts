@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { parseWithSchema, serializeWithSchema } from "../../src/schema"
+import { parseWithSchema, serializeWithSchema } from "../../../src/schema"
 import { riverReachSchema, type RiverReachSchema } from "../../src/schemas/riverReachSchema"
 
 describe("riverReachSchema", () => {
@@ -53,11 +53,7 @@ describe("riverReachSchema", () => {
 
     const lines = serializeWithSchema(riverReachSchema, riverReach)
 
-    expect(lines).toEqual([
-      "River Reach=River A         ,Reach B         ",
-      "Reach XY= 0 ",
-      "",
-    ])
+    expect(lines).toEqual(["River Reach=River A         ,Reach B         ", "Reach XY= 0 ", ""])
   })
 
   it("serializes non-zero reverse river text values without a leading pad", () => {

@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { parseWithSchema, serializeWithSchema } from "../../src/schema"
+import { parseWithSchema, serializeWithSchema } from "../../../src/schema"
 import { culvertSchema, type CulvertSchema } from "../../src/schemas/culvertSchema"
 import type { CulvertGroupProperties } from "../../src/models/geometry/culvert"
 

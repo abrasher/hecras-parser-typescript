@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { parseSectionWithSchema, serializeWithSchema } from "../../src/schema/driver"
+import { parseSectionWithSchema, serializeWithSchema } from "../../../src/schema/driver"
 import type { StorageAreaSchema } from "../../src/schemas/storageAreaSchema"
 import { storageAreaSchema } from "../../src/schemas/storageAreaSchema"
 

@@ -18,7 +18,7 @@ import type {
   SectionItem,
   CountedArrayFieldItem,
 } from "./core"
-import { parseMultilineArray, splitIntoTuples } from "../parsers/utils"
+import { parseMultilineArray, splitIntoTuples } from "./parsingUtils"
 
 const INTERNAL_STATE = Symbol("internalState")
 
@@ -716,9 +716,7 @@ function serializeCountedArrayField(
     }
     for (const entry of tuple) {
       if (typeof entry !== "number" || Number.isNaN(entry)) {
-        throw new Error(
-          `Entries for counted array field "${item.key}" must be finite numbers`,
-        )
+        throw new Error(`Entries for counted array field "${item.key}" must be finite numbers`)
       }
       flat.push(entry)
     }
@@ -764,9 +762,7 @@ function serializeTupleField(
   }
 
   if (value.length !== item.parts.length) {
-    throw new Error(
-      `Tuple field "${item.key}" must contain exactly ${item.parts.length} entries`,
-    )
+    throw new Error(`Tuple field "${item.key}" must contain exactly ${item.parts.length} entries`)
   }
 
   const segments = item.parts.map((part, index) => part.serialize(value[index]))

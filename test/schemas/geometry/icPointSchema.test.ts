@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest"
-import { parseWithSchema, serializeWithSchema } from "../../src/schema"
+import { parseWithSchema, serializeWithSchema } from "../../../src/schema"
 import { icPointSchema, type ICPointSchema } from "../../src/schemas/icPointSchema"
 
 describe("icPointSchema", () => {

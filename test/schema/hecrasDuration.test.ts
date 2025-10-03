@@ -1,6 +1,6 @@
 import { describe, it, expect } from "vitest"
-import { parseDuration } from "../src/parsers/utils"
-import { formatDuration } from "../src/serializers/atomic"
+import { parseDuration } from "../../src/schema/parsingUtils"
+import { formatDuration } from "../../src/schema/serializationUtils"
 
 describe("hecrasDuration", () => {
   describe("parseDuration", () => {
