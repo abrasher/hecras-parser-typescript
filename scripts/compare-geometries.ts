@@ -8,6 +8,8 @@
  */
 
 import { readFileSync, writeFileSync } from "fs"
+import { tmpdir } from "os"
+import { join } from "path"
 import { parseWithSchema, serializeWithSchema } from "../src/schema"
 import { geometrySchema } from "../src/schemas/geometrySchema"
 
@@ -22,7 +24,12 @@ const colors = {
 
 const divider = colors.dim("-".repeat(60))
 
-function formatLinePreview(label: string, line: string, fileRef: string, formatter: (text: string) => string) {
+function formatLinePreview(
+  label: string,
+  line: string,
+  fileRef: string,
+  formatter: (text: string) => string,
+) {
   const printableLine = line === "" ? colors.dim("<blank>") : formatter(line)
 
   return `${colors.blue(label)} ${colors.dim(fileRef)}\n  ${printableLine}`
@@ -86,6 +93,12 @@ function testGeometry(testFilePath: string): boolean {
       if (originalLine !== serializedLine) {
         const diffIndex = findDiffIndex(originalLine, serializedLine)
         const pointer = pointerLine(diffIndex)
+        const parsedOutputPath = join(
+          tmpdir(),
+          `geometry-parsed-${Date.now()}-${Math.random().toString(16).slice(2)}.json`,
+        )
+
+        writeFileSync(parsedOutputPath, JSON.stringify(geometryData, null, 2), "utf-8")
 
         linesToLog.push(
           colors.red(`Difference detected at line ${i + 1}`),
@@ -96,6 +109,7 @@ function testGeometry(testFilePath: string): boolean {
             `${serializedOutputPath}:${i + 1}`,
             colors.green,
           ),
+          `Parsed geometry saved to: ${parsedOutputPath}`,
         )
 
         if (pointer) {
@@ -118,6 +132,7 @@ function testGeometry(testFilePath: string): boolean {
 }
 
 const geometryFiles = [
+  "test/data/Dingman.g01",
   "test/data/Dingman 2D.g01",
   "scripts/geometries/Mitigation1.g01",
   "scripts/geometries/Mitigation2.g02",

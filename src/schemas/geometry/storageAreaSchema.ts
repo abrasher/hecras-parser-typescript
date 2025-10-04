@@ -10,6 +10,7 @@ import {
   contextual,
   type Infer,
   booleanField,
+  blankLine,
 } from "../../schema"
 import { splitIntoTuples, parseKeyValue, parseMultilineArray } from "../../schema/parsingUtils"
 import { formatHECRASCoordinateNumber } from "../../schema/serializationUtils"
@@ -46,7 +47,7 @@ export const storageAreaSchema = schema([
   multiField(
     "Storage Area=",
     fields({
-      id: stringPart({ trim: true }),
+      id: stringPart({ trim: true, width: 16 }),
       centroidX: numberPart({ nullOnBlank: true }),
       centroidY: numberPart({ nullOnBlank: true }),
     }),
@@ -105,10 +106,10 @@ export const storageAreaSchema = schema([
   ),
 
   // Storage Area Type
-  numberField("type", "Storage Area Type=", { integer: true }),
+  numberField("type", "Storage Area Type=", { integer: true, pad: true }),
 
-  // Storage Area Area (optional)
-  numberField("area", "Storage Area Area=", { nullOnBlank: true }),
+  // Storage Area Area (optional) stored as string for now as sometimes blank and somes a single space which we can't handle
+  stringField("area", "Storage Area Area=", { trim: false }),
 
   // Storage Area Min Elevation (optional)
   numberField("minElevation", "Storage Area Min Elev=", { nullOnBlank: true }),
@@ -195,6 +196,7 @@ export const storageAreaSchema = schema([
     integer: true,
     nullOnBlank: true,
   }),
+  blankLine(),
 ])
 
 export type StorageAreaSchema = Infer<typeof storageAreaSchema>

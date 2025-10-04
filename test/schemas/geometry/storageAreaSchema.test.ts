@@ -103,7 +103,7 @@ describe("StorageAreaSchema", () => {
       const result = serializeWithSchema(storageAreaSchema, testStorageArea2D)
 
       // Check key lines
-      expect(result[0]).toBe("Storage Area=2D_Grid,,")
+      expect(result[0]).toBe("Storage Area=2D_Grid         ,,")
       expect(result[1]).toBe("Storage Area Surface Line= 6 ")
       expect(result).toContain("Storage Area Type=1")
       expect(result).toContain("Storage Area Area=")

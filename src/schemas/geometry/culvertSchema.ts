@@ -11,6 +11,7 @@ import {
   countedArrayLengthPart,
   type Infer,
   booleanPart,
+  blankLine,
 } from "../../schema"
 
 /**
@@ -91,6 +92,7 @@ export const culvertSchema = schema([
   numberField("nBottom", "Conn Culv Bottom n=", { optional: true }),
   numberField("nBottomDepth", "Conn Culv Bottom Depth=", { optional: true }),
   numberField("depthBlocked", "Conn Culv Depth Blocked=", { optional: true }),
+  blankLine(),
 ])
 
 export type CulvertSchema = Infer<typeof culvertSchema>

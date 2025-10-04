@@ -13,7 +13,11 @@ import {
   booleanPart,
   tupleField,
 } from "../../../schema"
-import { formatStationElevationPairs, formatFixedWidth } from "../../../schema/serializationUtils"
+import {
+  formatStationElevationPairs,
+  formatFixedWidth,
+  formatNullableNumber,
+} from "../../../schema/serializationUtils"
 import { pierSchema } from "./pierSchema"
 import type { NTuple } from "../../../schema/parsingUtils"
 import {
@@ -160,7 +164,7 @@ const xsField = <Key extends string>(field: Key, prefix: "BR" | "XS") =>
       index = nextIndex
 
       const [_, leftBank, rightBank] = parseCommaSeparated(parseKeyValue(lines[index]).value).map(
-        (s) => parseFloat(s),
+        (s) => parseMaybeFloat(s),
       )
       index++
 
@@ -204,8 +208,9 @@ const xsField = <Key extends string>(field: Key, prefix: "BR" | "XS") =>
 
       lines.push(`Conn BR: ${prefix} SE=${xs.id},${stationElevation.length / 2}`)
       lines.push(...formatStationElevationPairs(stationElevation))
-
-      lines.push(`Conn BR: ${prefix} Bank Stations=${xs.id},${xs.leftBank},${xs.rightBank}`)
+      const leftBank = formatNullableNumber(xs.leftBank)
+      const rightBank = formatNullableNumber(xs.rightBank)
+      lines.push(`Conn BR: ${prefix} Bank Stations=${xs.id},${leftBank},${rightBank}`)
 
       const manningPairs = flatten(xs.manningCoefficients ?? [])
       lines.push(`Conn BR: ${prefix} Mann=${xs.id},${xs.manningCoefficients.length}`)
@@ -251,9 +256,9 @@ export const bridgeSchema = schema([
       bridgeCoefficient4: numberPart({ nullOnBlank: true }),
       bridgeCoefficient5: numberPart({ nullOnBlank: true }),
       bridgeCoefficient6: numberPart({ nullOnBlank: true }),
-      bridgeCoefficient7: booleanPart({ mode: "-1,0", pad: true }),
+      bridgeCoefficient7: booleanPart({ mode: "-1,0", pad: false }),
       bridgeCoefficient8: numberPart({ nullOnBlank: true }),
-      bridgeCoefficient9: booleanPart({ mode: "-1,0", pad: true }),
+      bridgeCoefficient9: booleanPart({ mode: "-1,0", pad: false }),
       bridgeCoefficient10: numberPart({ nullOnBlank: true }),
     }),
   ),
