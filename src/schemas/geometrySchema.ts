@@ -1,5 +1,8 @@
 import {
   blankLine,
+  blankLines,
+  booleanField,
+  numberField,
   numberPart,
   repeat,
   schema,
@@ -42,6 +45,14 @@ export const geometrySchema = schema([
   repeat("icPoints", startsWith("IC Point Name="), icPointSchema),
   repeat("crossSections", startsWith("Type RM Length L Ch R ="), crossSectionSchema),
   section("landCover", startsWith("LCMann Time="), landCoverSchema),
+  booleanField("channelStopCuts", "Chan Stop Cuts=", { mode: "-1,0", pad: true }),
+  blankLines(3),
+  booleanField("useUserSpecifiedReachOrder", "Use User Specified Reach Order=", {
+    mode: "-1,0",
+  }),
+  booleanField("gisRatioCutsToInvert", "GIS Ratio Cuts To Invert=", { mode: "-1,0" }),
+  booleanField("gisLimitAtBridges", "GIS Limit At Bridges=", { mode: "-1,0" }),
+  numberField("compositeChannelSlope", "Composite Channel Slope=", { integer: true }),
 ])
 
 export type GeometrySchema = Infer<typeof geometrySchema>

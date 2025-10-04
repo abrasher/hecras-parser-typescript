@@ -15,6 +15,7 @@ import {
   countedArrayLengthPart,
   booleanPart,
   countedFixedWidthArray,
+  blankLine,
 } from "../../schema"
 import { bridgeSchema } from "./bridge/bridgeSchema"
 import { culvertSchema } from "./culvertSchema"
@@ -82,6 +83,7 @@ export const connectionSchema = schema([
   // blankLine(),
   numberField("hTabMaxFlow", "Conn HTab MaxFlow=", { optional: true }),
   repeat("culvert", startsWith("Connection Culv="), culvertSchema),
+  blankLine(),
   multiField(
     "Conn Outlet Rating Curve=",
     fields({

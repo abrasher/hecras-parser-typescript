@@ -17,6 +17,7 @@ import {
   formatStationElevationPairs,
   formatFixedWidth,
   formatNullableNumber,
+  formatHECRASStationNumber,
 } from "../../../schema/serializationUtils"
 import { pierSchema } from "./pierSchema"
 import type { NTuple } from "../../../schema/parsingUtils"
@@ -120,7 +121,9 @@ const deckField = contextual(
 
         chunk(values, 10).forEach((valueGroup) => {
           const formattedLine = valueGroup
-            .map((value) => (value === null ? "        " : formatFixedWidth(value.toString(), 8)))
+            .map((value) =>
+              value === null ? "        " : formatFixedWidth(formatHECRASStationNumber(value), 8),
+            )
             .join("")
           lines.push(formattedLine)
         })
