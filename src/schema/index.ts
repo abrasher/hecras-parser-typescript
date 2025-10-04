@@ -5,6 +5,7 @@ export {
   tupleField,
   tupleArrayField,
   countedFixedWidthArray,
+  textBlockField,
   contextual,
   section,
   repeat,

@@ -13,6 +13,7 @@ import {
   booleanPart,
   countedFixedWidthArray,
   contextual,
+  textBlockField,
 } from "../../schema"
 import { parseMultilineArray } from "../../schema/parsingUtils"
 import { formatChunkedLines } from "../../schema/serializationUtils"
@@ -28,7 +29,7 @@ export const crossSectionSchema = schema([
       lengthRight: numberPart(),
     }),
   ),
-  // TODO ADD BEGIN DESCRIPTION: parsing and serialization
+  textBlockField("description", "DESCRIPTION", { optional: true }),
   tupleArrayField("XS GIS Cut Line=", "gisCutLine", {
     width: 16,
     maxWidth: 64,
