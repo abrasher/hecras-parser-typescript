@@ -721,7 +721,9 @@ function serializeTupleArrayField(
     perLine,
     formatter: valueFormatter,
   })
-  lines.push(...formattedLines)
+  for (const line of formattedLines) {
+    lines.push(line)
+  }
 
   context[item.key] = value
 }
@@ -786,7 +788,9 @@ function serializeCountedArrayField(
     perLine,
     formatter: valueFormatter,
   })
-  lines.push(...formattedLines)
+  for (const line of formattedLines) {
+    lines.push(line)
+  }
 
   context[item.key] = value
 }
@@ -829,7 +833,9 @@ function serializeContextual(
 
   if (item.serializer) {
     const produced = item.serializer(value, context)
-    lines.push(...produced)
+    for (const line of produced) {
+      lines.push(line)
+    }
   } else {
     throw new Error(`No serializer provided for contextual item "${item.key}"`)
   }

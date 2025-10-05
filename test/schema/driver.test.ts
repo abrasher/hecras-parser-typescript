@@ -214,4 +214,26 @@ describe("schema driver", () => {
     expect(lines[0]).toBe("Polyline= 1 ")
     expect(lines).toHaveLength(2)
   })
+
+  it("serializes large tuple arrays without overflowing the stack", () => {
+    const largeSchema = schema([
+      tupleArrayField("Large=", "values", {
+        width: 16,
+        maxWidth: 64,
+        tuple: 2 as const,
+        formatter: "coordinate",
+      }),
+    ])
+
+    const tupleCount = 150_000
+    const values = Array.from({ length: tupleCount }, (_, index) => [
+      index * 0.5,
+      index * 0.5 + 1,
+    ]) as Array<[number, number]>
+
+    const lines = serializeWithSchema(largeSchema, { values })
+
+    expect(lines).toHaveLength(1 + Math.ceil(tupleCount / 2))
+    expect(lines[0]).toBe(`Large=${tupleCount}`)
+  })
 })
