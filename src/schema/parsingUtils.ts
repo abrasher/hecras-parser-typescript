@@ -98,8 +98,9 @@ export function parseMultilineArray(params: {
   maxWidth: number
   numOfEntries: number
   currentIndex: number
+  onLine?: (lineIndex: number, line: string | undefined) => void
 }): { data: string[]; nextIndex: number } {
-  const { lines, width, maxWidth, numOfEntries, currentIndex } = params
+  const { lines, width, maxWidth, numOfEntries, currentIndex, onLine } = params
 
   function chunkString(str: string, width: number): string[] {
     const length = str.length
@@ -120,6 +121,10 @@ export function parseMultilineArray(params: {
   let lineIndex = currentIndex
   for (let i = 0; i < numOfLines; i++) {
     const line = lines[lineIndex]
+    onLine?.(lineIndex, line)
+    if (line === undefined) {
+      throw new Error(`Expected data line for fixed-width array at index ${lineIndex}`)
+    }
     const chunks = chunkString(line, width)
 
     for (let j = 0; j < chunks.length; j++) {

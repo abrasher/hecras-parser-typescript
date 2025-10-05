@@ -236,4 +236,14 @@ describe("schema driver", () => {
     expect(lines).toHaveLength(1 + Math.ceil(tupleCount / 2))
     expect(lines[0]).toBe(`Large=${tupleCount}`)
   })
+
+  it("annotates parse errors with last parsed line context", () => {
+    const numericSchema = schema([
+      numberField("value", "Value=", { integer: true }),
+    ])
+
+    expect(() => parseWithSchema(numericSchema, ["Value=abc"], 0)).toThrowError(
+      /\[ParseContext\] Last parsed line index: 0, content: "Value=abc"/,
+    )
+  })
 })

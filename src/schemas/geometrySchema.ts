@@ -38,10 +38,12 @@ export const geometrySchema = schema([
   repeat("rivers", startsWith("River Reach="), riverReachSchema),
   repeat("junctions", startsWith("Junct Name="), junctionSchema),
   repeat("storageAreas", startsWith("Storage Area="), storageAreaSchema),
+  blankLine(),
+  repeat("breakLines", startsWith("BreakLine Name="), breakLineSchema),
+
   repeat("connections", startsWith("Connection="), connectionSchema),
 
   repeat("boundaryConditions", startsWith("BC Line Name="), boundaryConditionSchema),
-  repeat("breakLines", startsWith("BreakLine Name="), breakLineSchema),
   repeat("icPoints", startsWith("IC Point Name="), icPointSchema),
   repeat("crossSections", startsWith("Type RM Length L Ch R ="), crossSectionSchema),
   section("landCover", startsWith("LCMann Time="), landCoverSchema),

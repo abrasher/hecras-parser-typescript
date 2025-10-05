@@ -22,6 +22,9 @@ import type {
 import { parseMultilineArray, splitIntoTuples } from "./parsingUtils"
 
 const INTERNAL_STATE = Symbol("internalState")
+const LAST_PARSED_LINE_INDEX = "__lastParsedLineIndex"
+const LAST_PARSED_LINE_CONTENT = "__lastParsedLineContent"
+const PARSE_CONTEXT_PREFIX = "[ParseContext]"
 
 type InternalState = Record<string, unknown>
 
@@ -44,6 +47,30 @@ function getInternalState(context: ParseContext): InternalState {
     context[INTERNAL_STATE] = state
   }
   return state
+}
+
+function recordLastParsedLine(
+  context: ParseContext,
+  index: number,
+  line: string | undefined,
+): void {
+  const state = getInternalState(context)
+  state[LAST_PARSED_LINE_INDEX] = index
+  state[LAST_PARSED_LINE_CONTENT] = line ?? "<EOF>"
+}
+
+function throwWithParseContext(error: unknown, context: ParseContext): never {
+  if (error instanceof Error) {
+    const state = getInternalState(context)
+    const index = state[LAST_PARSED_LINE_INDEX]
+    const line = state[LAST_PARSED_LINE_CONTENT]
+    if (!error.message.includes(PARSE_CONTEXT_PREFIX)) {
+      const indexText = index === undefined ? "unknown" : index
+      const contentText = line === undefined ? "<unknown>" : line
+      error.message = `${error.message}\n${PARSE_CONTEXT_PREFIX} Last parsed line index: ${indexText}, content: ${JSON.stringify(contentText)}`
+    }
+  }
+  throw error
 }
 
 function isInternalPart(part: Part<unknown>): boolean {
@@ -101,13 +128,16 @@ export function parseWithSchema<const Def extends SchemaDef>(
 ): ParseResult<Infer<Def>> {
   const { strict = false } = options
   const context = createContext()
-
-  const { nextIndex } = parseSchemaInternal(schema, context, lines, startIndex, { strict })
-  const result = { ...context }
-  delete (result as ParseContext)[INTERNAL_STATE]
-  return {
-    value: result as Infer<Def>,
-    nextIndex,
+  try {
+    const { nextIndex } = parseSchemaInternal(schema, context, lines, startIndex, { strict })
+    const result = { ...context }
+    delete (result as ParseContext)[INTERNAL_STATE]
+    return {
+      value: result as Infer<Def>,
+      nextIndex,
+    }
+  } catch (error) {
+    throwWithParseContext(error, context)
   }
 }
 
@@ -128,24 +158,28 @@ function parseSchemaInternal(
 ): { nextIndex: number } {
   let index = startIndex
 
-  for (const item of schema) {
-    const outcome = parseItem(item, context, lines, index, options)
+  try {
+    for (const item of schema) {
+      const outcome = parseItem(item, context, lines, index, options)
 
-    if (outcome.status === "success") {
-      index = outcome.nextIndex
-      continue
+      if (outcome.status === "success") {
+        index = outcome.nextIndex
+        continue
+      }
+
+      if (outcome.status === "skipped") {
+        continue
+      }
+
+      if (outcome.status === "terminate") {
+        return { nextIndex: outcome.nextIndex }
+      }
     }
 
-    if (outcome.status === "skipped") {
-      continue
-    }
-
-    if (outcome.status === "terminate") {
-      return { nextIndex: outcome.nextIndex }
-    }
+    return { nextIndex: index }
+  } catch (error) {
+    throwWithParseContext(error, context)
   }
-
-  return { nextIndex: index }
 }
 
 function parseItem(
@@ -177,9 +211,9 @@ function parseItem(
       return nextIndex === index ? { status: "skipped" } : { status: "success", nextIndex }
     }
     case "blankLine":
-      return parseBlankLine(lines, index)
+      return parseBlankLine(context, lines, index)
     case "blankLines":
-      return parseBlankLines(item, lines, index)
+      return parseBlankLines(item, context, lines, index)
     default:
       return { status: "skipped" }
   }
@@ -193,6 +227,7 @@ function parseMultiField(
   options: ParseOptions,
 ): ItemOutcome {
   const line = lines[index]
+  recordLastParsedLine(context, index, line)
   const allOptional = areAllFieldsOptional(item)
 
   if (!line || !line.startsWith(item.label)) {
@@ -246,6 +281,7 @@ function parseTupleField(
   options: ParseOptions,
 ): ItemOutcome {
   const line = lines[index]
+  recordLastParsedLine(context, index, line)
   if (!line || !line.startsWith(item.label)) {
     if (item.optional) {
       return { status: "skipped" }
@@ -283,6 +319,7 @@ function parseTupleArrayField(
   options: ParseOptions,
 ): ItemOutcome {
   const line = lines[index]
+  recordLastParsedLine(context, index, line)
   if (!line || !line.startsWith(item.label)) {
     if (item.optional) {
       return { status: "skipped" }
@@ -304,7 +341,9 @@ function parseTupleArrayField(
   let cursor = index + 1
 
   while (values.length < totalNumbers && cursor < lines.length) {
-    const row = lines[cursor] ?? ""
+    const rowLine = lines[cursor]
+    recordLastParsedLine(context, cursor, rowLine)
+    const row = rowLine ?? ""
     const chunks = chunkFixedWidth(row, item.width)
     for (const chunk of chunks) {
       if (values.length >= totalNumbers) {
@@ -374,6 +413,7 @@ function parseCountedArrayField(
     maxWidth: item.maxWidth,
     numOfEntries: totalNumbers,
     currentIndex: index,
+    onLine: (lineIndex, line) => recordLastParsedLine(context, lineIndex, line),
   })
 
   const parser = item.parseValue ?? defaultCountedArrayParser
@@ -400,6 +440,7 @@ function parseContextual(
   lines: string[],
   index: number,
 ): ItemOutcome {
+  recordLastParsedLine(context, index, lines[index])
   const result = item.parser(lines, index, context)
   if (!result) {
     return { status: "skipped" }
@@ -419,6 +460,7 @@ function parseTextBlockField(
   const startLine = `BEGIN ${item.label}:`
   const endLine = `END ${item.label}:`
   const line = lines[index]
+  recordLastParsedLine(context, index, line)
 
   if (line !== startLine) {
     if (item.optional) {
@@ -435,6 +477,7 @@ function parseTextBlockField(
 
   while (cursor < lines.length) {
     const current = lines[cursor]
+    recordLastParsedLine(context, cursor, current)
     if (current === endLine) {
       const value = blockLines.join("\n")
       context[item.key] = value
@@ -456,6 +499,7 @@ function parseSection(
   options: ParseOptions,
 ): ItemOutcome {
   const line = lines[index]
+  recordLastParsedLine(context, index, line)
   if (!item.recognizer(line, lines, index)) {
     return { status: "skipped" }
   }
@@ -482,6 +526,7 @@ function parseRepeat(
   let cursor = index
 
   while (cursor < lines.length && item.recognizer(lines[cursor], lines, cursor)) {
+    recordLastParsedLine(context, cursor, lines[cursor])
     const nestedContext = createContext()
     const { nextIndex } = parseSchemaInternal(item.schema, nestedContext, lines, cursor, {
       strict: options.strict ?? false,
@@ -499,8 +544,9 @@ function parseRepeat(
   return { status: "success", nextIndex: cursor }
 }
 
-function parseBlankLine(lines: string[], index: number): ItemOutcome {
+function parseBlankLine(context: ParseContext, lines: string[], index: number): ItemOutcome {
   const line = lines[index]
+  recordLastParsedLine(context, index, line)
   if (line !== undefined && line.trim() === "") {
     return { status: "success", nextIndex: index + 1 }
   }
@@ -519,11 +565,17 @@ function defaultCountedArrayParser(segment: string): number {
   return value
 }
 
-function parseBlankLines(item: BlankLinesItem, lines: string[], index: number): ItemOutcome {
+function parseBlankLines(
+  item: BlankLinesItem,
+  context: ParseContext,
+  lines: string[],
+  index: number,
+): ItemOutcome {
   let cursor = index
   let consumed = 0
   while (cursor < lines.length && consumed < item.count) {
     const line = lines[cursor]
+    recordLastParsedLine(context, cursor, line)
     if (line === undefined || line.trim() !== "") {
       break
     }

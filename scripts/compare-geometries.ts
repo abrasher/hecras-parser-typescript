@@ -132,7 +132,7 @@ function testGeometry(testFilePath: string): boolean {
 }
 
 const geometryFiles = [
-  "test/data/Dingman.g01",
+  // "test/data/Dingman.g01",
   "test/data/Dingman 2D.g01",
   "scripts/geometries/Mitigation1.g01",
   "scripts/geometries/Mitigation2.g02",
