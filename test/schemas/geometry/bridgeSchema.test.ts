@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { parseWithSchema, serializeWithSchema } from "../../../src/schema"
-import { bridgeSchema, type BridgeSchema } from "../../src/schemas/bridge/bridgeSchema"
+import { bridgeSchema, type BridgeSchema } from "../../../src/schemas/geometry/bridge/bridgeSchema"
 
 describe("bridgeSchema", () => {
   it("parses bridge fixture data", () => {

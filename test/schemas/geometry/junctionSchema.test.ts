@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { parseWithSchema, serializeWithSchema } from "../../../src/schema"
-import { junctionSchema, type JunctionSchema } from "../../src/schemas/junctionSchema"
+import { junctionSchema, type JunctionSchema } from "../../../src/schemas/geometry/junctionSchema"
 
 describe("junctionSchema", () => {
   const sampleLines = [

@@ -19,7 +19,7 @@ describe("StorageAreaSchema", () => {
       ],
       mannings: 0.06,
       type: 1,
-      area: null,
+      area: "",
       minElevation: null,
       volumeElevation: [],
       is2D: true,
@@ -88,7 +88,7 @@ describe("StorageAreaSchema", () => {
       expect(result.value.centroidY).toBeNull()
       expect(result.value.surfaceLine).toEqual(testStorageArea2D.surfaceLine)
       expect(result.value.type).toBe(1)
-      expect(result.value.area).toBeNull()
+      expect(result.value.area).toBe("")
       expect(result.value.minElevation).toBeNull()
       expect(result.value.is2D).toBe(true)
       expect(result.value.pointGenerationData).toBe(",,25,25")
@@ -105,7 +105,7 @@ describe("StorageAreaSchema", () => {
       // Check key lines
       expect(result[0]).toBe("Storage Area=2D_Grid         ,,")
       expect(result[1]).toBe("Storage Area Surface Line= 6 ")
-      expect(result).toContain("Storage Area Type=1")
+      expect(result).toContain("Storage Area Type= 1 ")
       expect(result).toContain("Storage Area Area=")
       expect(result).toContain("Storage Area Min Elev=")
       expect(result).toContain("Storage Area Is2D=-1")

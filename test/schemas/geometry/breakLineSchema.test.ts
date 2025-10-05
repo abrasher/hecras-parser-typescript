@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { parseWithSchema, serializeWithSchema } from "../../../src/schema"
-import { breakLineSchema, type BreakLineSchema } from "../../src/schemas/breakLineSchema"
+import {
+  breakLineSchema,
+  type BreakLineSchema,
+} from "../../../src/schemas/geometry/breakLineSchema"
 
 describe("breakLineSchema", () => {
   const sampleLines = [

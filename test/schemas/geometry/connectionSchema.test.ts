@@ -1,7 +1,10 @@
 import { beforeAll, describe, expect, it } from "vitest"
 
 import { parseSectionWithSchema, serializeWithSchema } from "../../../src/schema/driver"
-import { connectionSchema, type ConnectionSchema } from "../../src/schemas/connectionSchema"
+import {
+  connectionSchema,
+  type ConnectionSchema,
+} from "../../../src/schemas/geometry/connectionSchema"
 
 const lineString = `Connection=DM22-38608      ,0,0
 Connection Desc=2nd bridge downstream of Dingman Dr

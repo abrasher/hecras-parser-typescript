@@ -53,6 +53,7 @@ export const geometrySchema = schema([
   booleanField("gisRatioCutsToInvert", "GIS Ratio Cuts To Invert=", { mode: "-1,0" }),
   booleanField("gisLimitAtBridges", "GIS Limit At Bridges=", { mode: "-1,0" }),
   numberField("compositeChannelSlope", "Composite Channel Slope=", { integer: true }),
+  blankLine(),
 ])
 
 export type GeometrySchema = Infer<typeof geometrySchema>

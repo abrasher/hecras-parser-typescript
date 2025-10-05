@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { parseWithSchema, serializeWithSchema } from "../../../src/schema"
-import { riverReachSchema, type RiverReachSchema } from "../../src/schemas/riverReachSchema"
+import {
+  type RiverReachSchema,
+  riverReachSchema,
+} from "../../../src/schemas/geometry/riverReachSchema"
 
 describe("riverReachSchema", () => {
   const sampleLines = [

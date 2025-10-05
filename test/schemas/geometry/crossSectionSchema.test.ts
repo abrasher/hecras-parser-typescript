@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { parseWithSchema, serializeWithSchema } from "../../../src/schema"
-import { crossSectionSchema, type CrossSectionSchema } from "../../src/schemas/crossSectionSchema"
+import {
+  crossSectionSchema,
+  type CrossSectionSchema,
+} from "../../../src/schemas/geometry/crossSectionSchema"
 
 describe("crossSectionSchema", () => {
   const sampleLines = lineString.split("\n")

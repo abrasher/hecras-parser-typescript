@@ -1,7 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { parseWithSchema, serializeWithSchema } from "../../../src/schema"
-import { culvertSchema, type CulvertSchema } from "../../src/schemas/culvertSchema"
-import type { CulvertGroupProperties } from "../../src/models/geometry/culvert"
+import { culvertSchema, type CulvertSchema } from "../../../src/schemas/geometry/culvertSchema"
 
 describe("culvertSchema", () => {
   const parserLines = testCulvertStrings.split("\n")
@@ -20,7 +19,7 @@ describe("culvertSchema", () => {
       index = nextIndex
     }
 
-    expect(culvertData as unknown as CulvertGroupProperties[]).toEqual(testCulvertData)
+    expect(culvertData).toEqual(testCulvertData)
   })
 
   it("serializes parser fixture data", () => {

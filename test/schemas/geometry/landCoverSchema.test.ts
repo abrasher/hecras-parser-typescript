@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest"
 import { parseWithSchema, serializeWithSchema } from "../../../src/schema"
-import { landCoverSchema, type LandCoverSchema } from "../../src/schemas/landCoverSchema"
+import {
+  landCoverSchema,
+  type LandCoverSchema,
+} from "../../../src/schemas/geometry/landCoverSchema"
 
 describe("landCoverSchema", () => {
   const sampleLines = [

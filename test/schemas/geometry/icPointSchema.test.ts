@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest"
 import { parseWithSchema, serializeWithSchema } from "../../../src/schema"
-import { icPointSchema, type ICPointSchema } from "../../src/schemas/icPointSchema"
+import { icPointSchema, type ICPointSchema } from "../../../src/schemas/geometry/icPointSchema"
 
 describe("icPointSchema", () => {
   const sampleLines = ["IC Point Name=TestPoint", "IC Point Position=491202.53125,4753367.5"]
