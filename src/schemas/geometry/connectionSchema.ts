@@ -14,8 +14,8 @@ import {
   countedArrayLengthPart,
   booleanPart,
   countedFixedWidthArray,
-  blankLine,
   repeat,
+  blankLine,
 } from "../../schema"
 import { bridgeSchema } from "./bridge/bridgeSchema"
 import { culvertSchema } from "./culvertSchema"
@@ -41,6 +41,7 @@ export const connectionSchema = schema([
     width: 16,
     maxWidth: 64,
     tuple: 2 as const,
+    formatter: "coordinate",
   }),
   tupleArrayField("Connection Centerline Profile=", "centerlineProfile", {
     width: 8,
@@ -81,6 +82,11 @@ export const connectionSchema = schema([
   }),
   // culvertSection,
   repeat("culverts", startsWith("Connection Culv="), culvertSchema),
+  numberField("hTabHWMax", "Conn HTab HWMax=", { nullOnBlank: true, optional: true }),
+  numberField("hTabTWMax", "Conn HTab TWMax=", { optional: true, nullOnBlank: true }),
+  numberField("hTabMaxFlow", "Conn HTab MaxFlow=", { optional: true }),
+  blankLine(),
+
   multiField(
     "Conn Outlet Rating Curve=",
     fields({
@@ -90,6 +96,9 @@ export const connectionSchema = schema([
       param3: numberPart({ nullOnBlank: true }),
     }),
   ),
+
+  // blankLine(),
+
   countedFixedWidthArray("outletRatingCurve", {
     width: 8,
     maxWidth: 80,
@@ -98,10 +107,6 @@ export const connectionSchema = schema([
     optional: true,
   }),
   section("bridge", startsWith("Conn BR: Bridge="), bridgeSchema),
-  numberField("hTabHWMax", "Conn HTab HWMax=", { nullOnBlank: true, optional: true }),
-  numberField("hTabTWMax", "Conn HTab TWMax=", { optional: true, nullOnBlank: true }),
-  numberField("hTabMaxFlow", "Conn HTab MaxFlow=", { optional: true }),
-  blankLine(),
 ])
 
 export type ConnectionSchema = Infer<typeof connectionSchema>
