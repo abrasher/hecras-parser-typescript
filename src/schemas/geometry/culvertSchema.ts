@@ -86,7 +86,6 @@ export const culvertSchema = schema([
 
   // Culvert barrels (0 or more)
   repeat("barrels", startsWith("Conn Culvert Barrel="), culvertBarrelSchema),
-
   // Optional fields
   numberField("nBottom", "Conn Culv Bottom n=", { optional: true }),
   numberField("nBottomDepth", "Conn Culv Bottom Depth=", { optional: true }),

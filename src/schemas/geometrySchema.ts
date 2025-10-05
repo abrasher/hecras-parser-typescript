@@ -38,7 +38,6 @@ export const geometrySchema = schema([
   repeat("rivers", startsWith("River Reach="), riverReachSchema),
   repeat("junctions", startsWith("Junct Name="), junctionSchema),
   repeat("storageAreas", startsWith("Storage Area="), storageAreaSchema),
-  blankLine(),
   repeat("breakLines", startsWith("BreakLine Name="), breakLineSchema),
 
   repeat("connections", startsWith("Connection="), connectionSchema),

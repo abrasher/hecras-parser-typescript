@@ -195,6 +195,7 @@ export const storageAreaSchema = schema([
   numberField("locked", "2D Locked=", {
     integer: true,
     nullOnBlank: true,
+    optional: true,
   }),
   blankLine(),
 ])

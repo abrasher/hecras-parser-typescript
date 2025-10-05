@@ -12,6 +12,7 @@ import {
   startsWith,
   booleanPart,
   tupleField,
+  stringPart,
 } from "../../../schema"
 import {
   formatStationElevationPairs,
@@ -253,7 +254,10 @@ export const bridgeSchema = schema([
   multiField(
     "Conn BR: BR Coef=",
     fields({
-      bridgeCoefficient1: booleanPart({ mode: "-1,0", pad: true }),
+      // this is set as a string part even thought it a boolean.
+      // this is because hecras sometimes initially uses -1 as true, but then after it is set to 0, and then back, it for some reason changes to 1 instead of -1
+      //bridgeCoefficient1: booleanPart({ mode: "-1,0", pad: true }),
+      bridgeCoefficient1: stringPart({ trim: false }),
       bridgeCoefficient2: booleanPart({ mode: "-1,0", pad: true }),
       bridgeCoefficient3: booleanPart({ mode: "-1,0", pad: true }),
       bridgeCoefficient4: numberPart({ nullOnBlank: true }),
