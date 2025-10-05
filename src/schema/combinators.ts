@@ -11,6 +11,7 @@ import type {
   IncludeItem,
   BlankLineItem,
   BlankLinesItem,
+  ConditionalBlankLineItem,
   InferPart,
   CountedArrayFieldItem,
   TextBlockFieldItem,
@@ -180,6 +181,21 @@ export function blankLine(): BlankLineItem {
 
 export function blankLines(count: number): BlankLinesItem {
   return { kind: "blankLines", count }
+}
+
+interface BlankLineIfNotEmptyOptions {
+  predicate?: (value: unknown) => boolean
+}
+
+export function blankLineIfNotEmpty(
+  key: string,
+  options: BlankLineIfNotEmptyOptions = {},
+): ConditionalBlankLineItem {
+  return {
+    kind: "blankLineIfNotEmpty",
+    key,
+    predicate: options.predicate,
+  }
 }
 
 export function startsWith(prefix: string): Recognizer {

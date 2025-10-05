@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest"
 import {
   booleanField,
+  blankLineIfNotEmpty,
   tupleArrayField,
   tupleField,
   contextual,
@@ -213,6 +214,71 @@ describe("schema driver", () => {
 
     expect(lines[0]).toBe("Polyline= 1 ")
     expect(lines).toHaveLength(2)
+  })
+
+  it("conditionally emits trailing blank lines after repeats", () => {
+    const culvertSchema = schema([
+      stringField("name", "Culvert=", { trim: true }),
+    ])
+
+    const topSchema = schema([
+      stringField("key1", "Key1=", { trim: true }),
+      repeat("culverts", startsWith("Culvert"), culvertSchema),
+      blankLineIfNotEmpty("culverts"),
+      stringField("key2", "Key2=", { trim: true }),
+    ])
+
+    const withCulvertsLines = serializeWithSchema(topSchema, {
+      key1: "Upstream",
+      culverts: [{ name: "One" }, { name: "Two" }],
+      key2: "Downstream",
+    })
+
+    expect(withCulvertsLines).toEqual([
+      "Key1=Upstream",
+      "Culvert=One",
+      "Culvert=Two",
+      "",
+      "Key2=Downstream",
+    ])
+
+    const withoutCulvertsLines = serializeWithSchema(topSchema, {
+      key1: "Upstream",
+      culverts: [],
+      key2: "Downstream",
+    })
+
+    expect(withoutCulvertsLines).toEqual(["Key1=Upstream", "Key2=Downstream"])
+
+    const parsedWithBlank = parseWithSchema(
+      topSchema,
+      [
+        "Key1=Upstream",
+        "Culvert=One",
+        "Culvert=Two",
+        "",
+        "Key2=Downstream",
+      ],
+      0,
+    )
+
+    expect(parsedWithBlank.value).toMatchObject({
+      key1: "Upstream",
+      culverts: [{ name: "One" }, { name: "Two" }],
+      key2: "Downstream",
+    })
+
+    const parsedWithoutBlank = parseWithSchema(
+      topSchema,
+      ["Key1=Upstream", "Key2=Downstream"],
+      0,
+    )
+
+    expect(parsedWithoutBlank.value).toMatchObject({
+      key1: "Upstream",
+      culverts: [],
+      key2: "Downstream",
+    })
   })
 
   it("serializes large tuple arrays without overflowing the stack", () => {

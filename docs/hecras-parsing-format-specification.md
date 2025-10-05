@@ -21,6 +21,7 @@ The codebase is entirely schema-first. Parsing and serialization are defined via
 - **`contextual`** handles variable-length or custom-formatted blocks using helpers from `parsingUtils`.
 - **`repeat`** consumes contiguous sub-sections matched with `startsWith(...)` recognizers.
 - **`include`** inlines another schema when nesting is not desirable.
+- **`blankLineIfNotEmpty("key")`** emits a spacer line only when the referenced key resolves to a non-empty array (pass a custom predicate for other cases).
 - **Parts** (`stringPart`, `numberPart`, `booleanPart`, `durationPart`, `opt`, `numberPart({ nullOnBlank: true })`, etc.) encode per-field semantics for trimming, optionality, and formatting quirks.
 
 ## Fixed-Width Patterns

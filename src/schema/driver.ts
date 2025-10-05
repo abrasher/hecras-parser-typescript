@@ -18,6 +18,7 @@ import type {
   SectionItem,
   CountedArrayFieldItem,
   TextBlockFieldItem,
+  ConditionalBlankLineItem,
 } from "./core"
 import { parseMultilineArray, splitIntoTuples } from "./parsingUtils"
 
@@ -214,6 +215,8 @@ function parseItem(
       return parseBlankLine(context, lines, index)
     case "blankLines":
       return parseBlankLines(item, context, lines, index)
+    case "blankLineIfNotEmpty":
+      return parseBlankLine(context, lines, index)
     default:
       return { status: "skipped" }
   }
@@ -663,6 +666,9 @@ function serializeSchemaInternal(
       case "blankLines":
         lines.push(...Array.from({ length: item.count }, () => ""))
         break
+      case "blankLineIfNotEmpty":
+        serializeConditionalBlankLine(item, data, lines)
+        break
       default:
         break
     }
@@ -961,4 +967,25 @@ function serializeRepeat(
   }
 
   context[item.key] = serializedItems
+}
+
+function serializeConditionalBlankLine(
+  item: ConditionalBlankLineItem,
+  data: Record<string, unknown>,
+  lines: string[],
+): void {
+  const value = data[item.key]
+  const predicate = item.predicate ?? defaultConditionalBlankLinePredicate
+  if (!predicate(value)) {
+    return
+  }
+
+  lines.push("")
+}
+
+function defaultConditionalBlankLinePredicate(value: unknown): boolean {
+  if (Array.isArray(value)) {
+    return value.length > 0
+  }
+  return false
 }

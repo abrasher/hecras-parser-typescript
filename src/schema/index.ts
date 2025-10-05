@@ -12,6 +12,7 @@ export {
   include,
   blankLine,
   blankLines,
+  blankLineIfNotEmpty,
   startsWith,
   stringField,
   numberField,

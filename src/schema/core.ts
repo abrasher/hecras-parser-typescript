@@ -185,6 +185,12 @@ export interface BlankLinesItem {
   count: number
 }
 
+export interface ConditionalBlankLineItem {
+  kind: "blankLineIfNotEmpty"
+  key: string
+  predicate?: (value: unknown) => boolean
+}
+
 export type SchemaItem =
   | MultiFieldItem<FieldSpec>
   | TupleFieldItem<string, readonly Part<unknown>[]>
@@ -197,6 +203,7 @@ export type SchemaItem =
   | IncludeItem<SchemaDef>
   | BlankLineItem
   | BlankLinesItem
+  | ConditionalBlankLineItem
 
 export type SchemaDef = readonly SchemaItem[]
 
@@ -237,7 +244,9 @@ type InferItemWithDepth<I, Depth extends number> =
                 ? Depth extends 0
                   ? ExhaustiveInferFallback
                   : InferWithDepth<Schema, DecrementDepth<Depth>>
-                : object
+                : I extends ConditionalBlankLineItem
+                  ? {}
+                  : object
 
 export type InferItem<I> = InferItemWithDepth<I, SchemaDepthLimit>
 
