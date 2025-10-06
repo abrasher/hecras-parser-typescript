@@ -94,4 +94,5 @@ const expectedCrossSection: CrossSectionSchema = {
   horizontalHTabRightBank: 5,
   expansionCoefficient: 0.3,
   contractionCoefficient: 0.1,
+  lateralWeirs: [],
 }

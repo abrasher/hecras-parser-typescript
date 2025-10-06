@@ -1,0 +1,218 @@
+[
+  {
+    "timestamp": "2025-10-06T17:52:17.753Z",
+    "results": [
+      {
+        "file": "test/data/Dingman 2D.g01",
+        "status": "match",
+        "linesMatched": 244492,
+        "originalLines": 244492,
+        "serializedLines": 244492
+      },
+      {
+        "file": "scripts/geometries/Mitigation1.g01",
+        "status": "match",
+        "linesMatched": 19445,
+        "originalLines": 19445,
+        "serializedLines": 19445
+      },
+      {
+        "file": "scripts/geometries/Mitigation2.g02",
+        "status": "match",
+        "linesMatched": 19922,
+        "originalLines": 19922,
+        "serializedLines": 19922
+      },
+      {
+        "file": "scripts/geometries/Mitigation3.g03",
+        "status": "match",
+        "linesMatched": 19063,
+        "originalLines": 19063,
+        "serializedLines": 19063
+      },
+      {
+        "file": "scripts/geometries/Mitigation4.g04",
+        "status": "match",
+        "linesMatched": 21140,
+        "originalLines": 21140,
+        "serializedLines": 21140
+      },
+      {
+        "file": "scripts/geometries/Mitigation5.g05",
+        "status": "match",
+        "linesMatched": 20182,
+        "originalLines": 20182,
+        "serializedLines": 20182
+      },
+      {
+        "file": "scripts/geometries/Mitigation6.g06",
+        "status": "match",
+        "linesMatched": 19935,
+        "originalLines": 19935,
+        "serializedLines": 19935
+      },
+      {
+        "file": "scripts/geometries/Mitigation7.g07",
+        "status": "match",
+        "linesMatched": 18273,
+        "originalLines": 18273,
+        "serializedLines": 18273
+      },
+      {
+        "file": "scripts/geometries/Mitigation8.g08",
+        "status": "match",
+        "linesMatched": 31963,
+        "originalLines": 31963,
+        "serializedLines": 31963
+      },
+      {
+        "file": "scripts/geometries/Mitigation9.g09",
+        "status": "match",
+        "linesMatched": 20173,
+        "originalLines": 20173,
+        "serializedLines": 20173
+      },
+      {
+        "file": "scripts/geometries/Mitigation10.g10",
+        "status": "match",
+        "linesMatched": 20156,
+        "originalLines": 20156,
+        "serializedLines": 20156
+      },
+      {
+        "file": "test/data/BurntIslands.g01",
+        "status": "match",
+        "linesMatched": 98704,
+        "originalLines": 98704,
+        "serializedLines": 98704
+      },
+      {
+        "file": "test/data/Muncie.g01",
+        "status": "diff",
+        "diffLine": 555,
+        "diffIndex": 0,
+        "linesMatched": 554,
+        "originalLines": 3321,
+        "serializedLines": 559,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1759773137752-7b803e50ae5d6.json"
+      }
+    ],
+    "metrics": {
+      "filesMatched": 12,
+      "totalFiles": 13,
+      "status": "failed",
+      "failureFile": "test/data/Muncie.g01",
+      "failureLine": 555,
+      "linesMatchedInFailure": 554,
+      "diffIndex": 0
+    }
+  },
+  {
+    "timestamp": "2025-10-06T17:53:23.619Z",
+    "results": [
+      {
+        "file": "test/data/Dingman 2D.g01",
+        "status": "match",
+        "linesMatched": 244492,
+        "originalLines": 244492,
+        "serializedLines": 244492
+      },
+      {
+        "file": "scripts/geometries/Mitigation1.g01",
+        "status": "match",
+        "linesMatched": 19445,
+        "originalLines": 19445,
+        "serializedLines": 19445
+      },
+      {
+        "file": "scripts/geometries/Mitigation2.g02",
+        "status": "match",
+        "linesMatched": 19922,
+        "originalLines": 19922,
+        "serializedLines": 19922
+      },
+      {
+        "file": "scripts/geometries/Mitigation3.g03",
+        "status": "match",
+        "linesMatched": 19063,
+        "originalLines": 19063,
+        "serializedLines": 19063
+      },
+      {
+        "file": "scripts/geometries/Mitigation4.g04",
+        "status": "match",
+        "linesMatched": 21140,
+        "originalLines": 21140,
+        "serializedLines": 21140
+      },
+      {
+        "file": "scripts/geometries/Mitigation5.g05",
+        "status": "match",
+        "linesMatched": 20182,
+        "originalLines": 20182,
+        "serializedLines": 20182
+      },
+      {
+        "file": "scripts/geometries/Mitigation6.g06",
+        "status": "match",
+        "linesMatched": 19935,
+        "originalLines": 19935,
+        "serializedLines": 19935
+      },
+      {
+        "file": "scripts/geometries/Mitigation7.g07",
+        "status": "match",
+        "linesMatched": 18273,
+        "originalLines": 18273,
+        "serializedLines": 18273
+      },
+      {
+        "file": "scripts/geometries/Mitigation8.g08",
+        "status": "match",
+        "linesMatched": 31963,
+        "originalLines": 31963,
+        "serializedLines": 31963
+      },
+      {
+        "file": "scripts/geometries/Mitigation9.g09",
+        "status": "match",
+        "linesMatched": 20173,
+        "originalLines": 20173,
+        "serializedLines": 20173
+      },
+      {
+        "file": "scripts/geometries/Mitigation10.g10",
+        "status": "match",
+        "linesMatched": 20156,
+        "originalLines": 20156,
+        "serializedLines": 20156
+      },
+      {
+        "file": "test/data/BurntIslands.g01",
+        "status": "match",
+        "linesMatched": 98704,
+        "originalLines": 98704,
+        "serializedLines": 98704
+      },
+      {
+        "file": "test/data/Muncie.g01",
+        "status": "diff",
+        "diffLine": 555,
+        "diffIndex": 0,
+        "linesMatched": 554,
+        "originalLines": 3321,
+        "serializedLines": 559,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1759773203618-3da8aeab0c1e4.json"
+      }
+    ],
+    "metrics": {
+      "filesMatched": 12,
+      "totalFiles": 13,
+      "status": "failed",
+      "failureFile": "test/data/Muncie.g01",
+      "failureLine": 555,
+      "linesMatchedInFailure": 554,
+      "diffIndex": 0
+    }
+  }
+]
