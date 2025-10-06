@@ -4,6 +4,8 @@ import {
   blankLineIfNotEmpty,
   tupleArrayField,
   tupleField,
+  countedFixedWidthArray,
+  countedArrayLengthPart,
   contextual,
   fields,
   multiField,
@@ -254,6 +256,83 @@ describe("schema driver", () => {
 
     expect(lines[0]).toBe("Polyline= 1 ")
     expect(lines).toHaveLength(2)
+  })
+
+  it("parses station tuple arrays with blank segments as null", () => {
+    const stationsSchema = schema([
+      tupleArrayField("Stations=", "stations", {
+        width: 8,
+        maxWidth: 80,
+        tuple: 2 as const,
+        formatter: "station",
+      }),
+    ])
+
+    const blankStationLine = "        " + "       1" + "       2" + "        "
+    const lines = ["Stations=2", blankStationLine]
+
+    const result = parseWithSchema(stationsSchema, lines, 0)
+
+    expect(result.value.stations).toEqual([
+      [null, 1],
+      [2, null],
+    ])
+  })
+
+  it("serializes station tuple arrays with null entries as blank segments", () => {
+    const stationsSchema = schema([
+      tupleArrayField("Stations=", "stations", {
+        width: 8,
+        maxWidth: 80,
+        tuple: 2 as const,
+        formatter: "station",
+      }),
+    ])
+
+    const values: Array<[number | null, number | null]> = [
+      [null, 1],
+      [2, null],
+    ]
+
+    const lines = serializeWithSchema(stationsSchema, { stations: values })
+
+    expect(lines[0]).toBe("Stations=2")
+    expect(lines[1]).toBe("        " + "       1" + "       2" + "        ")
+  })
+
+  it("round-trips counted station arrays with blank segments", () => {
+    const countedSchema = schema([
+      multiField(
+        "CountHeader=",
+        fields({
+          count: countedArrayLengthPart("values"),
+        }),
+      ),
+      countedFixedWidthArray("values", {
+        width: 8,
+        maxWidth: 80,
+        tuple: 2 as const,
+        formatter: "station",
+      }),
+    ])
+
+    const blankStationLine = "        " + "       1" + "       2" + "        "
+    const lines = ["CountHeader=2", blankStationLine]
+
+    const parsed = parseWithSchema(countedSchema, lines, 0)
+    expect(parsed.value.values).toEqual([
+      [null, 1],
+      [2, null],
+    ])
+
+    const serialized = serializeWithSchema(countedSchema, {
+      values: [
+        [null, 1],
+        [2, null],
+      ] as Array<[number | null, number | null]>,
+    })
+
+    expect(serialized).toEqual(lines)
   })
 
   it("conditionally emits trailing blank lines after repeats", () => {

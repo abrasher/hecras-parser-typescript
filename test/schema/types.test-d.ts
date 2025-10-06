@@ -6,6 +6,8 @@ import {
   booleanPart,
   tupleArrayField,
   tupleField,
+  countedFixedWidthArray,
+  countedArrayLengthPart,
   durationField,
   fields,
   multiField,
@@ -99,5 +101,35 @@ describe("schema types", () => {
     expectTypeOf<InferPart<typeof optionalNullableNumber>>().toEqualTypeOf<
       number | null | undefined
     >()
+
+    const stationSchema = schema([
+      tupleArrayField("Stations=", "stations", {
+        width: 8,
+        maxWidth: 80,
+        tuple: 2 as const,
+        formatter: "station",
+      }),
+    ])
+
+    type Station = Infer<typeof stationSchema>
+    expectTypeOf<Station["stations"][number][number]>().toEqualTypeOf<number | null>()
+
+    const countedSchema = schema([
+      multiField(
+        "Header=",
+        fields({
+          count: countedArrayLengthPart("values"),
+        }),
+      ),
+      countedFixedWidthArray("values", {
+        width: 8,
+        maxWidth: 80,
+        tuple: 2 as const,
+        formatter: "station",
+      }),
+    ])
+
+    type Counted = Infer<typeof countedSchema>
+    expectTypeOf<Counted["values"][number][number]>().toEqualTypeOf<number | null>()
   })
 })

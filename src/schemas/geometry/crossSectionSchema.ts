@@ -14,6 +14,7 @@ import {
   countedFixedWidthArray,
   contextual,
   textBlockField,
+  blankLine,
 } from "../../schema"
 import { parseMultilineArray } from "../../schema/parsingUtils"
 import { formatChunkedLines } from "../../schema/serializationUtils"
@@ -24,9 +25,9 @@ export const crossSectionSchema = schema([
     fields({
       type: numberPart({ integer: true, pad: true }),
       riverMile: stringPart({ trim: true, width: 8 }),
-      lengthLeft: numberPart(),
-      lengthChannel: numberPart(),
-      lengthRight: numberPart(),
+      lengthLeft: numberPart({ nullOnBlank: true }),
+      lengthChannel: numberPart({ nullOnBlank: true }),
+      lengthRight: numberPart({ nullOnBlank: true }),
     }),
   ),
   textBlockField("description", "DESCRIPTION", { optional: true }),
@@ -50,8 +51,8 @@ export const crossSectionSchema = schema([
     "#Mann=",
     fields({
       numberOfMannings: countedArrayLengthPart("mannings", { pad: true }),
-      horizontalManning: booleanPart({ mode: "-1,0" }),
-      horizontalK: booleanPart({ mode: "-1,0" }),
+      horizontalManning: booleanPart({ mode: "-1,0", pad: true }),
+      horizontalK: booleanPart({ mode: "-1,0", pad: true }),
     }),
   ),
   countedFixedWidthArray("mannings", {
@@ -66,12 +67,14 @@ export const crossSectionSchema = schema([
       numberOfFlowAreas: countedArrayLengthPart("ineffectiveFlowAreas", { pad: true }),
       multipleBlocks: booleanPart({ mode: "-1,0", pad: true }),
     }),
+    { optional: true },
   ),
   countedFixedWidthArray("ineffectiveFlowAreas", {
     maxWidth: 72,
     width: 8,
     tuple: 3 as const,
     formatter: "station",
+    optional: true,
   }),
   contextual(
     "permanentIneffective",
@@ -171,6 +174,7 @@ export const crossSectionSchema = schema([
       contractionCoefficient: numberPart(),
     }),
   ),
+  blankLine(),
 ])
 
 export type CrossSectionSchema = Infer<typeof crossSectionSchema>

@@ -72,9 +72,20 @@ interface TupleArrayFieldConfig<Tuple extends number> {
 export function tupleArrayField<const Key extends string, const Tuple extends number>(
   label: string,
   key: Key,
+  config: TupleArrayFieldConfig<Tuple> & { formatter: "station" },
+): TupleArrayFieldItem<Key, Tuple, true>
+export function tupleArrayField<const Key extends string, const Tuple extends number>(
+  label: string,
+  key: Key,
   config: TupleArrayFieldConfig<Tuple>,
-): TupleArrayFieldItem<Key, Tuple> {
+): TupleArrayFieldItem<Key, Tuple, false>
+export function tupleArrayField<const Key extends string, const Tuple extends number>(
+  label: string,
+  key: Key,
+  config: TupleArrayFieldConfig<Tuple>,
+): TupleArrayFieldItem<Key, Tuple, boolean> {
   const { width, maxWidth, tuple, optional, pad, formatter } = config
+  const nullable = formatter === "station"
   return {
     kind: "tupleArrayField",
     label,
@@ -85,6 +96,7 @@ export function tupleArrayField<const Key extends string, const Tuple extends nu
     optional,
     pad,
     formatter,
+    nullable,
   }
 }
 
@@ -96,14 +108,23 @@ interface CountedFixedWidthArrayConfig<Tuple extends number> {
   optional?: boolean
   pad?: boolean
   formatter?: "station" | "coordinate" | ((value: number) => string)
-  parseValue?(segment: string): number
+  parseValue?(segment: string): number | null
 }
 
 export function countedFixedWidthArray<const Key extends string, const Tuple extends number>(
   key: Key,
+  config: CountedFixedWidthArrayConfig<Tuple> & { formatter: "station" },
+): CountedArrayFieldItem<Key, Tuple, true>
+export function countedFixedWidthArray<const Key extends string, const Tuple extends number>(
+  key: Key,
   config: CountedFixedWidthArrayConfig<Tuple>,
-): CountedArrayFieldItem<Key, Tuple> {
+): CountedArrayFieldItem<Key, Tuple, false>
+export function countedFixedWidthArray<const Key extends string, const Tuple extends number>(
+  key: Key,
+  config: CountedFixedWidthArrayConfig<Tuple>,
+): CountedArrayFieldItem<Key, Tuple, boolean> {
   const { width, maxWidth, tuple, countKey, optional, pad, formatter, parseValue } = config
+  const nullable = formatter === "station"
   return {
     kind: "countedArrayField",
     key,
@@ -114,6 +135,7 @@ export function countedFixedWidthArray<const Key extends string, const Tuple ext
     optional,
     pad,
     formatter,
+    nullable,
     parseValue,
   }
 }

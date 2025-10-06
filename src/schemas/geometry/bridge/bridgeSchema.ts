@@ -233,8 +233,8 @@ export const bridgeSchema = schema([
       pressureFlowCriteria: booleanPart({ mode: "-1,0" }),
       classBDefaults: booleanPart({ mode: "-1,0" }),
       param5: booleanPart({ mode: "-1,0", pad: true }),
-      contractionCoefficient: numberPart(),
-      expansionCoefficient: numberPart(),
+      contractionCoefficient: numberPart({ nullOnBlank: true }),
+      expansionCoefficient: numberPart({ nullOnBlank: true }),
     }),
   ),
   multiField(

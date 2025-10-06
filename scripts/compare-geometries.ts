@@ -7,9 +7,10 @@
  * Note: This file may cause stack overflow issues due to parsing complexity.
  */
 
-import { readFileSync, writeFileSync } from "fs"
+import { existsSync, readFileSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
-import { join } from "path"
+import { dirname, join } from "path"
+import { fileURLToPath } from "url"
 import { parseWithSchema, serializeWithSchema } from "../src/schema"
 import { geometrySchema } from "../src/schemas/geometrySchema"
 
@@ -55,7 +56,39 @@ function pointerLine(diffIndex: number) {
   return `  ${colors.yellow(" ".repeat(diffIndex) + "^")}`
 }
 
-function testGeometry(testFilePath: string): boolean {
+type FileRunResult = {
+  file: string
+  status: "match" | "diff" | "error" | "skipped"
+  diffLine?: number
+  diffIndex?: number
+  linesMatched?: number
+  originalLines?: number
+  serializedLines?: number
+  parsedOutputPath?: string
+  message?: string
+}
+
+type RunMetrics = {
+  filesMatched: number
+  totalFiles: number
+  status: "all_matched" | "failed" | "error"
+  failureFile?: string
+  failureLine?: number
+  linesMatchedInFailure?: number
+  diffIndex?: number
+}
+
+type RunHistoryEntry = {
+  timestamp: string
+  results: FileRunResult[]
+  metrics: RunMetrics
+}
+
+const __filename = fileURLToPath(import.meta.url)
+const __dirname = dirname(__filename)
+const historyFilePath = join(__dirname, ".compare-geometries-history.json")
+
+function testGeometry(testFilePath: string): FileRunResult {
   try {
     console.log(`${divider}\n${colors.cyan(`Comparing "${testFilePath}"`)}`)
     const linesToLog: string[] = []
@@ -117,17 +150,35 @@ function testGeometry(testFilePath: string): boolean {
         }
 
         console.log(linesToLog.join("\n"))
-        return false
+        return {
+          file: testFilePath,
+          status: "diff",
+          diffLine: i + 1,
+          diffIndex,
+          linesMatched: i,
+          originalLines: originalLines.length,
+          serializedLines: serializedLines.length,
+          parsedOutputPath,
+        }
       }
     }
 
     linesToLog.push(colors.green(`No differences for "${testFilePath}"`))
     console.log(linesToLog.join("\n"))
-    return true
+    return {
+      file: testFilePath,
+      status: "match",
+      linesMatched: originalLines.length,
+      originalLines: originalLines.length,
+      serializedLines: serializedLines.length,
+    }
   } catch (error) {
     console.error(`Error during comparison of ${testFilePath}:`, error)
-
-    process.exit(1)
+    return {
+      file: testFilePath,
+      status: "error",
+      message: error instanceof Error ? error.message : String(error),
+    }
   }
 }
 
@@ -148,10 +199,225 @@ const geometryFiles = [
   "test/data/Muncie.g01",
 ]
 
-for (const file of geometryFiles) {
-  const matches = testGeometry(file)
+function computeRunMetrics(results: FileRunResult[]): RunMetrics {
+  const totalFiles = geometryFiles.length
+  let filesMatched = 0
 
-  if (!matches) {
-    break
+  for (const result of results) {
+    if (result.status === "match") {
+      filesMatched += 1
+      continue
+    }
+
+    if (result.status === "diff") {
+      return {
+        filesMatched,
+        totalFiles,
+        status: "failed",
+        failureFile: result.file,
+        failureLine: result.diffLine,
+        linesMatchedInFailure: result.linesMatched,
+        diffIndex: result.diffIndex,
+      }
+    }
+
+    if (result.status === "error") {
+      return {
+        filesMatched,
+        totalFiles,
+        status: "error",
+      }
+    }
+
+    if (result.status === "skipped") {
+      return {
+        filesMatched,
+        totalFiles,
+        status: "failed",
+      }
+    }
   }
+
+  return {
+    filesMatched,
+    totalFiles,
+    status: "all_matched",
+  }
+}
+
+function compareWithPreviousRun(
+  previous: RunHistoryEntry | undefined,
+  current: RunHistoryEntry,
+): { outcome: "further" | "regressed" | "first"; details: string } {
+  if (!previous) {
+    return {
+      outcome: "first",
+      details: "No previous run data to compare against.",
+    }
+  }
+
+  const prev = previous.metrics
+  const curr = current.metrics
+
+  if (curr.status === "error" && prev.status !== "error") {
+    return {
+      outcome: "regressed",
+      details: "Current run encountered an error.",
+    }
+  }
+
+  if (curr.filesMatched > prev.filesMatched) {
+    return {
+      outcome: "further",
+      details: `Matched ${curr.filesMatched} files compared to ${prev.filesMatched} previously.`,
+    }
+  }
+
+  if (curr.filesMatched < prev.filesMatched) {
+    return {
+      outcome: "regressed",
+      details: `Matched ${curr.filesMatched} files compared to ${prev.filesMatched} previously.`,
+    }
+  }
+
+  if (curr.status === "all_matched" && prev.status !== "all_matched") {
+    return {
+      outcome: "further",
+      details: "All geometries matched this run.",
+    }
+  }
+
+  if (curr.status === "failed" && prev.status === "failed") {
+    const currentLines = curr.linesMatchedInFailure ?? -1
+    const previousLines = prev.linesMatchedInFailure ?? -1
+
+    if (currentLines > previousLines) {
+      return {
+        outcome: "further",
+        details: `Progressed ${currentLines - previousLines} more matching lines before divergence in ${curr.failureFile}.`,
+      }
+    }
+
+    if (currentLines < previousLines) {
+      return {
+        outcome: "regressed",
+        details: `Matched ${previousLines - currentLines} fewer lines before divergence in ${curr.failureFile}.`,
+      }
+    }
+
+    const currentDiffIndex = curr.diffIndex ?? -1
+    const previousDiffIndex = prev.diffIndex ?? -1
+
+    if (currentDiffIndex > previousDiffIndex) {
+      return {
+        outcome: "further",
+        details: `Difference occurs ${currentDiffIndex - previousDiffIndex} characters later in ${curr.failureFile}.`,
+      }
+    }
+
+    if (currentDiffIndex < previousDiffIndex) {
+      return {
+        outcome: "regressed",
+        details: `Difference occurs ${previousDiffIndex - currentDiffIndex} characters earlier in ${curr.failureFile}.`,
+      }
+    }
+  }
+
+  if (curr.status === "error" && prev.status === "error") {
+    return {
+      outcome: "regressed",
+      details: "Consecutive runs encountered errors with no additional progress.",
+    }
+  }
+
+  return {
+    outcome: "regressed",
+    details: "No additional progress compared to the previous run.",
+  }
+}
+
+function loadHistory(): RunHistoryEntry[] {
+  if (!existsSync(historyFilePath)) {
+    return []
+  }
+
+  try {
+    const raw = readFileSync(historyFilePath, "utf-8")
+    const parsed = JSON.parse(raw) as RunHistoryEntry[]
+    return Array.isArray(parsed) ? parsed : []
+  } catch (error) {
+    console.warn(
+      colors.yellow(
+        `Unable to read previous compare-geometries history. Starting fresh. ${error instanceof Error ? error.message : String(error)}`,
+      ),
+    )
+    return []
+  }
+}
+
+function saveHistory(history: RunHistoryEntry[]) {
+  writeFileSync(historyFilePath, JSON.stringify(history, null, 2), "utf-8")
+}
+
+const runResults: FileRunResult[] = []
+let shouldSkipRemaining = false
+
+for (const file of geometryFiles) {
+  if (shouldSkipRemaining) {
+    runResults.push({ file, status: "skipped" })
+    continue
+  }
+
+  const result = testGeometry(file)
+  runResults.push(result)
+
+  if (result.status === "diff" || result.status === "error") {
+    shouldSkipRemaining = true
+  }
+}
+
+const metrics = computeRunMetrics(runResults)
+const currentRun: RunHistoryEntry = {
+  timestamp: new Date().toISOString(),
+  results: runResults,
+  metrics,
+}
+
+const history = loadHistory()
+const previousRun = history.at(-1)
+const comparison = compareWithPreviousRun(previousRun, currentRun)
+
+const updatedHistory = [...history.slice(-1), currentRun]
+saveHistory(updatedHistory)
+
+console.log(divider)
+console.log(colors.cyan("Run summary"))
+console.log(
+  `  Matched files: ${colors.green(`${metrics.filesMatched}/${metrics.totalFiles}`)} (${metrics.status})`,
+)
+
+if (metrics.status === "failed") {
+  if (metrics.failureFile && metrics.failureLine) {
+    console.log(
+      `  Failure: ${colors.red(metrics.failureFile)} at line ${colors.yellow(String(metrics.failureLine))}`,
+    )
+  } else {
+    console.log(`  Failure: ${colors.red("Comparison stopped before completing all files")}`)
+  }
+}
+
+if (metrics.status === "error") {
+  console.log(colors.red("  Encountered an error during comparison."))
+}
+
+console.log(`  History stored at: ${colors.dim(historyFilePath)}`)
+
+if (comparison.outcome === "first") {
+  console.log(colors.blue(comparison.details))
+} else if (comparison.outcome === "further") {
+  console.log(colors.green("we got further"))
+  console.log(colors.green(`  ${comparison.details}`))
+} else {
+  console.log(colors.red("we regressed"))
+  console.log(colors.red(`  ${comparison.details}`))
 }

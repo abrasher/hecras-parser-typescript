@@ -20,7 +20,7 @@ import type {
   TextBlockFieldItem,
   ConditionalBlankLineItem,
 } from "./core"
-import { parseMultilineArray, splitIntoTuples } from "./parsingUtils"
+import { parseMaybeFloat, parseMultilineArray, splitIntoTuples } from "./parsingUtils"
 
 const INTERNAL_STATE = Symbol("internalState")
 const LAST_PARSED_LINE_INDEX = "__lastParsedLineIndex"
@@ -316,7 +316,7 @@ function parseTupleField(
 }
 
 function parseTupleArrayField(
-  item: TupleArrayFieldItem<string, number>,
+  item: TupleArrayFieldItem<string, number, boolean>,
   context: ParseContext,
   lines: string[],
   index: number,
@@ -341,28 +341,41 @@ function parseTupleArrayField(
   }
 
   const totalNumbers = count * item.tupleSize
-  const values: number[] = []
+  const values: (number | null)[] = []
   let cursor = index + 1
 
   while (values.length < totalNumbers && cursor < lines.length) {
     const rowLine = lines[cursor]
     recordLastParsedLine(context, cursor, rowLine)
+    if (item.formatter === "station" && rowLine === "") {
+      throw new Error(`Encountered blank line for "${item.label}" while parsing station values`)
+    }
     const row = rowLine ?? ""
     const chunks = chunkFixedWidth(row, item.width)
     for (const chunk of chunks) {
       if (values.length >= totalNumbers) {
         break
       }
+      if (item.formatter === "station") {
+        if (chunk === "" && rowLine === "") {
+          throw new Error(
+            `Encountered blank segment for "${item.label}" while parsing station values`,
+          )
+        }
+        const parsed = parseMaybeFloat(chunk)
+        values.push(parsed)
+        continue
+      }
       const trimmed = chunk.trim()
       if (trimmed === "") {
         values.push(0)
-      } else {
-        const num = parseFloat(trimmed)
-        if (Number.isNaN(num)) {
-          throw new Error(`Invalid numeric chunk "${chunk}" for "${item.label}"`)
-        }
-        values.push(num)
+        continue
       }
+      const num = parseFloat(trimmed)
+      if (Number.isNaN(num)) {
+        throw new Error(`Invalid numeric chunk "${chunk}" for "${item.label}"`)
+      }
+      values.push(num)
     }
     cursor++
   }
@@ -371,7 +384,7 @@ function parseTupleArrayField(
     throw new Error(`Insufficient data for "${item.label}" tuples`)
   }
 
-  const tuples: number[][] = []
+  const tuples: (number | null)[][] = []
   for (let i = 0; i < values.length; i += item.tupleSize) {
     const slice = values.slice(i, i + item.tupleSize)
     tuples.push(slice)
@@ -383,7 +396,7 @@ function parseTupleArrayField(
 }
 
 function parseCountedArrayField(
-  item: CountedArrayFieldItem<string, number>,
+  item: CountedArrayFieldItem<string, number, boolean>,
   context: ParseContext,
   lines: string[],
   index: number,
@@ -417,12 +430,32 @@ function parseCountedArrayField(
     maxWidth: item.maxWidth,
     numOfEntries: totalNumbers,
     currentIndex: index,
-    onLine: (lineIndex, line) => recordLastParsedLine(context, lineIndex, line),
+    onLine: (lineIndex, line) => {
+      recordLastParsedLine(context, lineIndex, line)
+      if (item.formatter === "station" && line === "") {
+        throw new Error(
+          `Encountered blank line for counted array field "${item.key}" while parsing station values`,
+        )
+      }
+    },
   })
 
-  const parser = item.parseValue ?? defaultCountedArrayParser
+  const parser =
+    item.parseValue ??
+    (item.formatter === "station"
+      ? (segment: string) => parseMaybeFloat(segment)
+      : defaultCountedArrayParser)
+
   const values = data.map((segment, idx) => {
     const value = parser(segment ?? "")
+    if (value === null) {
+      if (!item.nullable) {
+        throw new Error(
+          `Null segment encountered for counted array field "${item.key}" at index ${idx}`,
+        )
+      }
+      return value
+    }
     if (typeof value !== "number" || Number.isNaN(value)) {
       throw new Error(
         `Invalid numeric segment for counted array field "${item.key}" at index ${idx}`,
@@ -731,7 +764,7 @@ function serializeMultiField(
 }
 
 function serializeTupleArrayField(
-  item: TupleArrayFieldItem<string, number>,
+  item: TupleArrayFieldItem<string, number, boolean>,
   data: Record<string, unknown>,
   lines: string[],
   context: ParseContext,
@@ -749,12 +782,19 @@ function serializeTupleArrayField(
   const countSegment = item.pad ? ` ${count} ` : String(count)
   lines.push(`${item.label}${countSegment}`)
 
-  const flat: number[] = []
+  const flat: (number | null)[] = []
   for (const tuple of tuples) {
     if (!Array.isArray(tuple) || tuple.length !== item.tupleSize) {
       throw new Error(`Tuple for key "${item.key}" must have length ${item.tupleSize}`)
     }
     for (const entry of tuple) {
+      if (entry === null) {
+        if (!item.nullable) {
+          throw new Error(`Tuple entries for key "${item.key}" must be numbers`)
+        }
+        flat.push(null)
+        continue
+      }
       if (typeof entry !== "number" || Number.isNaN(entry)) {
         throw new Error(`Tuple entries for key "${item.key}" must be numbers`)
       }
@@ -764,16 +804,23 @@ function serializeTupleArrayField(
 
   const perLine = Math.max(1, Math.floor(item.maxWidth / item.width))
   const valueFormatter = (() => {
+    const requireNumber = (num: number | null): number => {
+      if (typeof num !== "number") {
+        throw new Error(`Expected numeric value when serializing "${item.key}"`)
+      }
+      return num
+    }
+
     if (item.formatter === "station") {
-      return (num: number) => formatHECRASStationNumber(num)
+      return (num: number | null) => formatHECRASStationNumber(num)
     }
     if (item.formatter === "coordinate") {
-      return (num: number) => formatHECRASCoordinateNumber(num)
+      return (num: number | null) => formatHECRASCoordinateNumber(requireNumber(num))
     }
     if (typeof item.formatter === "function") {
-      return item.formatter
+      return (num: number | null) => item.formatter(requireNumber(num))
     }
-    return (num: number) => num.toString()
+    return (num: number | null) => String(requireNumber(num))
   })()
   const formattedLines = formatChunkedLines(flat, {
     width: item.width,
@@ -788,7 +835,7 @@ function serializeTupleArrayField(
 }
 
 function serializeCountedArrayField(
-  item: CountedArrayFieldItem<string, number>,
+  item: CountedArrayFieldItem<string, number, boolean>,
   data: Record<string, unknown>,
   lines: string[],
   context: ParseContext,
@@ -813,7 +860,7 @@ function serializeCountedArrayField(
     return
   }
 
-  const flat: number[] = []
+  const flat: (number | null)[] = []
   for (const tuple of tuples) {
     if (!Array.isArray(tuple) || tuple.length !== item.tupleSize) {
       throw new Error(
@@ -821,6 +868,15 @@ function serializeCountedArrayField(
       )
     }
     for (const entry of tuple) {
+      if (entry === null) {
+        if (!item.nullable) {
+          throw new Error(
+            `Entries for counted array field "${item.key}" must be finite numbers`,
+          )
+        }
+        flat.push(null)
+        continue
+      }
       if (typeof entry !== "number" || Number.isNaN(entry)) {
         throw new Error(`Entries for counted array field "${item.key}" must be finite numbers`)
       }
@@ -830,16 +886,23 @@ function serializeCountedArrayField(
 
   const perLine = Math.max(1, Math.floor(item.maxWidth / item.width))
   const valueFormatter = (() => {
+    const requireNumber = (num: number | null): number => {
+      if (typeof num !== "number") {
+        throw new Error(`Expected numeric value when serializing "${item.key}"`)
+      }
+      return num
+    }
+
     if (item.formatter === "station") {
-      return (num: number) => formatHECRASStationNumber(num)
+      return (num: number | null) => formatHECRASStationNumber(num)
     }
     if (item.formatter === "coordinate") {
-      return (num: number) => formatHECRASCoordinateNumber(num)
+      return (num: number | null) => formatHECRASCoordinateNumber(requireNumber(num))
     }
     if (typeof item.formatter === "function") {
-      return item.formatter
+      return (num: number | null) => item.formatter(requireNumber(num))
     }
-    return (num: number) => num.toString()
+    return (num: number | null) => String(requireNumber(num))
   })()
 
   const formattedLines = formatChunkedLines(flat, {

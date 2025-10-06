@@ -115,7 +115,11 @@ export interface TupleFieldItem<Key extends string, Parts extends readonly Part<
   optional?: boolean
 }
 
-export interface TupleArrayFieldItem<Key extends string, Tuple extends number> {
+export interface TupleArrayFieldItem<
+  Key extends string,
+  Tuple extends number,
+  Nullable extends boolean = false,
+> {
   kind: "tupleArrayField"
   label: string
   key: Key
@@ -125,9 +129,14 @@ export interface TupleArrayFieldItem<Key extends string, Tuple extends number> {
   optional?: boolean
   pad?: boolean
   formatter?: "station" | "coordinate" | ((value: number) => string)
+  nullable: Nullable
 }
 
-export interface CountedArrayFieldItem<Key extends string, Tuple extends number> {
+export interface CountedArrayFieldItem<
+  Key extends string,
+  Tuple extends number,
+  Nullable extends boolean = false,
+> {
   kind: "countedArrayField"
   key: Key
   countKey: string
@@ -137,7 +146,8 @@ export interface CountedArrayFieldItem<Key extends string, Tuple extends number>
   optional?: boolean
   pad?: boolean
   formatter?: "station" | "coordinate" | ((value: number) => string)
-  parseValue?(segment: string): number
+  nullable: Nullable
+  parseValue?(segment: string): number | null
 }
 
 export interface TextBlockFieldItem<Key extends string> {
@@ -195,8 +205,8 @@ export interface ConditionalBlankLineItem {
 export type SchemaItem =
   | MultiFieldItem<FieldSpec>
   | TupleFieldItem<string, readonly Part<unknown>[]>
-  | TupleArrayFieldItem<string, number>
-  | CountedArrayFieldItem<string, number>
+  | TupleArrayFieldItem<string, number, boolean>
+  | CountedArrayFieldItem<string, number, boolean>
   | TextBlockFieldItem<string>
   | ContextualItem<string, unknown>
   | SectionItem<string, SchemaDef>
@@ -219,14 +229,14 @@ type InferItemWithDepth<I, Depth extends number> =
       ? I["optional"] extends true
         ? { [K in Key]?: InferTupleParts<Parts> }
         : { [K in Key]: InferTupleParts<Parts> }
-      : I extends TupleArrayFieldItem<infer Key, infer Tuple>
+      : I extends TupleArrayFieldItem<infer Key, infer Tuple, infer Nullable>
         ? I["optional"] extends true
-          ? { [K in Key]?: TupleOf<Tuple, number>[] }
-          : { [K in Key]: TupleOf<Tuple, number>[] }
-      : I extends CountedArrayFieldItem<infer Key, infer Tuple>
+          ? { [K in Key]?: TupleOf<Tuple, Nullable extends true ? number | null : number>[] }
+          : { [K in Key]: TupleOf<Tuple, Nullable extends true ? number | null : number>[] }
+      : I extends CountedArrayFieldItem<infer Key, infer Tuple, infer Nullable>
         ? I["optional"] extends true
-          ? { [K in Key]?: TupleOf<Tuple, number>[] }
-          : { [K in Key]: TupleOf<Tuple, number>[] }
+          ? { [K in Key]?: TupleOf<Tuple, Nullable extends true ? number | null : number>[] }
+          : { [K in Key]: TupleOf<Tuple, Nullable extends true ? number | null : number>[] }
         : I extends TextBlockFieldItem<infer Key>
           ? I["optional"] extends true
             ? { [K in Key]?: string }
