@@ -152,14 +152,17 @@ export const storageAreaSchema = schema([
   // 2D specific parameters (all optional)
   numberField("cellVolumeFilterTolerance", "2D Cell Volume Filter Tolerance=", {
     nullOnBlank: true,
+    optional: true,
   }),
 
   numberField("cellMinimumAreaFraction", "2D Cell Minimum Area Fraction=", {
     nullOnBlank: true,
+    optional: true,
   }),
 
   numberField("faceProfileFilterTolerance", "2D Face Profile Filter Tolerance=", {
     nullOnBlank: true,
+    optional: true,
   }),
 
   numberField(
@@ -167,29 +170,35 @@ export const storageAreaSchema = schema([
     "2D Face Area Elevation Profile Filter Tolerance=",
     {
       nullOnBlank: true,
+      optional: true,
     },
   ),
 
   numberField("faceAreaElevationConveyanceRatio", "2D Face Area Elevation Conveyance Ratio=", {
     nullOnBlank: true,
+    optional: true,
   }),
 
   numberField("faceMinLengthRatio", "2D Face Min Length Ratio=", {
     nullOnBlank: true,
+    optional: true,
   }),
 
   numberField("faceAreaLaminarDepth", "2D Face Area Laminar Depth=", {
     nullOnBlank: true,
+    optional: true,
   }),
 
   numberField("multipleFaceMannN", "2D Multiple Face Mann n=", {
     integer: true,
     nullOnBlank: true,
+    optional: true,
   }),
 
   numberField("compositeLC", "2D Composite LC=", {
     integer: true,
     nullOnBlank: true,
+    optional: true,
   }),
 
   numberField("locked", "2D Locked=", {

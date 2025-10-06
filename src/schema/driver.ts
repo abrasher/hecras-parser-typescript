@@ -232,9 +232,10 @@ function parseMultiField(
   const line = lines[index]
   recordLastParsedLine(context, index, line)
   const allOptional = areAllFieldsOptional(item)
+  const isOptional = item.optional === true || allOptional
 
   if (!line || !line.startsWith(item.label)) {
-    if (allOptional) {
+    if (isOptional) {
       return { status: "skipped" }
     }
     if (options.strict) {

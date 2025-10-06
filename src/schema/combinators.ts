@@ -20,14 +20,21 @@ import { schema as buildSchema, fields as buildFields } from "./core"
 import { booleanPart, durationPart, numberPart, opt, stringPart } from "./parts"
 import { formatFixedWidth } from "./serializationUtils"
 
+interface MultiFieldOptions {
+  optional?: boolean
+}
+
 export function multiField<const Spec extends Record<string, Part<unknown>>>(
   label: string,
   fieldSpec: Spec,
+  options: MultiFieldOptions = {},
 ): MultiFieldItem<Spec> {
+  const { optional } = options
   return {
     kind: "multiField",
     label,
     fields: fieldSpec,
+    optional,
   }
 }
 

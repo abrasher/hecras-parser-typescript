@@ -100,6 +100,7 @@ export interface MultiFieldItem<F extends FieldSpec> {
   kind: "multiField"
   label: string
   fields: F
+  optional?: boolean
 }
 
 export type InferTupleParts<Parts extends readonly Part<unknown>[]> = Simplify<{
@@ -213,7 +214,7 @@ export function schema<const Def extends SchemaDef>(def: Def): Def {
 
 type InferItemWithDepth<I, Depth extends number> =
   I extends MultiFieldItem<infer F>
-    ? InferFields<F>
+    ? Simplify<I["optional"] extends true ? Partial<InferFields<F>> : InferFields<F>>
     : I extends TupleFieldItem<infer Key, infer Parts>
       ? I["optional"] extends true
         ? { [K in Key]?: InferTupleParts<Parts> }

@@ -75,6 +75,18 @@ const testSchema = schema([
   section("detail", startsWith("Detail="), detailSchema),
 ])
 
+const optionalMultiFieldSchema = schema([
+  multiField(
+    "Optional Header=",
+    fields({
+      requiredValue: numberPart({ integer: true }),
+      requiredLabel: stringPart({ trim: true }),
+    }),
+    { optional: true },
+  ),
+  stringField("after", "After=", { trim: true }),
+])
+
 describe("schema driver", () => {
   const sampleLines = [
     "Item=Sample,3,Note",
@@ -171,6 +183,34 @@ describe("schema driver", () => {
 
     const parsed = parseWithSchema(lengthSchema, lines, 0)
     expect(parsed.value).toMatchObject({ title: "Hi", count: 5, enabled: true })
+  })
+
+  it("handles optional multiField groups that may be omitted entirely", () => {
+    const linesWithoutHeader = ["After=Done"]
+    const parsedWithoutHeader = parseWithSchema(optionalMultiFieldSchema, linesWithoutHeader, 0)
+
+    expect(parsedWithoutHeader.nextIndex).toBe(1)
+    expect(parsedWithoutHeader.value).toEqual({ after: "Done" })
+
+    const linesWithHeader = ["Optional Header=1,Present", "After=Done"]
+    const parsedWithHeader = parseWithSchema(optionalMultiFieldSchema, linesWithHeader, 0)
+
+    expect(parsedWithHeader.nextIndex).toBe(2)
+    expect(parsedWithHeader.value).toEqual({
+      requiredValue: 1,
+      requiredLabel: "Present",
+      after: "Done",
+    })
+
+    const serializedWithoutHeader = serializeWithSchema(optionalMultiFieldSchema, { after: "Done" })
+    expect(serializedWithoutHeader).toEqual(["After=Done"])
+
+    const serializedWithHeader = serializeWithSchema(optionalMultiFieldSchema, {
+      requiredValue: 1,
+      requiredLabel: "Present",
+      after: "Done",
+    })
+    expect(serializedWithHeader).toEqual(["Optional Header=1,Present", "After=Done"])
   })
 
   it("serializes numeric boolean modes using list-directed padding when requested", () => {

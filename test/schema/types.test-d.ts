@@ -34,6 +34,14 @@ const rootSchema = schema([
       optionalNote: opt(stringPart({ trim: true })),
     }),
   ),
+  multiField(
+    "Optional Block=",
+    fields({
+      altitude: numberPart({ integer: true }),
+      comment: stringPart({ trim: true }),
+    }),
+    { optional: true },
+  ),
   tupleField("coordinate", "Coordinate=", [numberPart(), numberPart()] as const),
   tupleArrayField("Values=", "values", {
     width: 8,
@@ -69,6 +77,8 @@ describe("schema types", () => {
       name: string
       version: number
       optionalNote?: string
+      altitude?: number
+      comment?: string
       coordinate: [number, number]
       alias?: string
       nullableCount?: number | null

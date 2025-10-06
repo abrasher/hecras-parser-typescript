@@ -291,7 +291,7 @@ const testBridgeConnection: BridgeSchema = {
       [7.521, 0.035],
     ],
   },
-  bridgeCoefficient1: true,
+  bridgeCoefficient1: "-1 ",
   bridgeCoefficient2: false,
   bridgeCoefficient3: false,
   bridgeCoefficient4: null,

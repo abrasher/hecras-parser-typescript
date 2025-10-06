@@ -297,7 +297,7 @@ describe("connectionSchema", () => {
 
       it("should parse bridge coefficients", () => {
         expect(connectionData.bridge).toMatchObject({
-          bridgeCoefficient1: true,
+          bridgeCoefficient1: "-1 ",
           bridgeCoefficient2: false,
           bridgeCoefficient3: false,
           bridgeCoefficient4: null,

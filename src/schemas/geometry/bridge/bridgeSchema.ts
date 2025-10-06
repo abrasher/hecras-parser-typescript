@@ -240,12 +240,13 @@ export const bridgeSchema = schema([
   multiField(
     "Conn BR: Pressure-Weir=",
     fields({
-      weirValue1: numberPart(),
+      weirValue1: numberPart({ nullOnBlank: true }),
       weirValue2: numberPart({ nullOnBlank: true }),
-      weirValue3: numberPart(),
+      weirValue3: numberPart({ nullOnBlank: true }),
       weirValue4: numberPart({ nullOnBlank: true }),
-      weirValue5: numberPart(),
+      weirValue5: numberPart({ nullOnBlank: true }),
     }),
+    { optional: true },
   ),
   deckField,
   xsField("upstreamInside" as const, "BR"),
@@ -268,8 +269,9 @@ export const bridgeSchema = schema([
       bridgeCoefficient9: booleanPart({ mode: "-1,0", pad: false }),
       bridgeCoefficient10: numberPart({ nullOnBlank: true }),
     }),
+    { optional: true },
   ),
-  numberField("skew", "Conn BR: BR Skew="),
+  numberField("skew", "Conn BR: BR Skew=", { optional: true }),
   xsField("upstreamExternal" as const, "XS"),
   xsField("downstreamExternal" as const, "XS"),
   tupleField("upstreamIneffectiveFlowArea", "Conn BR: USXS Ineff=", [

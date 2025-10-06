@@ -13,7 +13,7 @@ Key directories
 
 DSL quick reference (see full spec for details)
 
-- Structure: `schema([...])`, `fields({...})`, `multiField(label, fields)`, `tupleArrayField(label, key, { width, maxWidth, tuple })`, `contextual(key, parser, serializer?)`
+- Structure: `schema([...])`, `fields({...})`, `multiField(label, fields, { optional? })`, `tupleArrayField(label, key, { width, maxWidth, tuple })`, `contextual(key, parser, serializer?)`
 - Composition: `section(key, recognizer, subSchema)`, `repeat(key, recognizer, subSchema)`, `include(subSchema)`
 - Parts/semantics: `opt(part)` for optional fields; `numberPart({ nullOnBlank: true })` for blank→null; boolean modes `TF | 10 | trueFalse | enableDisable | -1,0`
 - Drivers: `parseWithSchema(schema, lines, start, { strict? })`, `parseSectionWithSchema(schema, lines, start)`, `serializeWithSchema(schema, obj)`
