@@ -1,15 +1,31 @@
 import {
   blankLine,
   booleanField,
+  contextual,
   fields,
   multiField,
   numberPart,
+  parseSectionWithSchema,
   schema,
+  serializeWithSchema,
   stringPart,
   tupleArrayField,
   tupleField,
   type Infer,
 } from "../../schema"
+import { crossSectionSchema } from "./crossSectionSchema"
+import { lateralWeirSchema } from "./lateralWeirSchema"
+
+const typeLinePattern = /Type RM Length L Ch R =\s*(\d+)/
+
+const schemaByType = {
+  1: crossSectionSchema,
+  6: lateralWeirSchema,
+} as const
+
+type SupportedRiverStationType = keyof typeof schemaByType
+
+type RiverStationEntryData = Infer<(typeof schemaByType)[SupportedRiverStationType]>
 
 export const riverReachSchema = schema([
   multiField(
@@ -29,6 +45,56 @@ export const riverReachSchema = schema([
   tupleField("textPosition", "Rch Text X Y=", [numberPart(), numberPart()], { optional: true }),
   booleanField("reversedText", "Reverse River Text=", { mode: "-1,0", pad: true }),
   blankLine(),
+  contextual(
+    "riverStationEntries",
+    (lines, startIndex) => {
+      let cursor = startIndex
+      const entries: RiverStationEntryData[] = []
+
+      while (cursor < lines.length) {
+        const line = lines[cursor]
+        if (!line?.startsWith("Type RM Length L Ch R =")) {
+          break
+        }
+
+        const match = line.match(typeLinePattern)
+        if (!match) {
+          break
+        }
+
+        const typeValue = Number(match[1]) as SupportedRiverStationType
+        const entrySchema = schemaByType[typeValue]
+
+        if (!entrySchema) {
+          break
+        }
+
+        const { value, nextIndex } = parseSectionWithSchema(entrySchema, lines, cursor)
+        entries.push(value)
+        cursor = nextIndex
+      }
+
+      if (entries.length === 0) {
+        return null
+      }
+
+      return { value: entries, nextIndex: cursor }
+    },
+    (entries) => {
+      if (!entries || entries.length === 0) {
+        return []
+      }
+
+      return entries.flatMap((entry) => {
+        const entrySchema = schemaByType[entry.type as SupportedRiverStationType]
+        if (!entrySchema) {
+          throw new Error(`Unsupported river station entry type: ${entry.type}`)
+        }
+        return serializeWithSchema(entrySchema, entry)
+      })
+    },
+  ),
 ])
 
 export type RiverReachSchema = Infer<typeof riverReachSchema>
+export type RiverStationEntry = RiverStationEntryData

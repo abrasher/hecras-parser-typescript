@@ -83,6 +83,7 @@ Format:   [NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.N
 - **Land Cover**: Region tables are handled with `contextual` blocks that read a count and emit CSV rows; polygons reuse the coordinate formatter.
 - **Boundary Conditions**: Arc and polyline coordinates employ padded `tupleArrayField` blocks to match legacy file spacing.
 - **Connections / Bridges / Culverts**: Share station and coordinate tuple arrays; tune blank handling per numeric field using `nullOnBlank`.
+- **River Reaches**: The `riverReachSchema` now emits `riverStationEntries`, an ordered list of cross sections (`type = 1`) and lateral weirs (`type = 6`). Entries are parsed/serialized via a `contextual` dispatcher that preserves file ordering while letting downstream code discriminate by the existing `type` field.
 
 ## Testing Expectations
 
@@ -95,3 +96,4 @@ Format:   [NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.N
 Document new formatting discoveries, schema limitations, or trade-offs here. Include the relevant schema/test path and a short summary so future contributors understand the current state and open work.
 
 - _[Add entries as the migration progresses]_ 
+- _2025-10-06_ — River reaches represent cross sections and lateral weirs as a single `riverStationEntries` union keyed by `type`. This mirrors the HEC-RAS interleaving (e.g., XS/XSLW/XS…) and keeps serialization stable. Callers that previously expected `crossSections` must filter by `entry.type === 1`.

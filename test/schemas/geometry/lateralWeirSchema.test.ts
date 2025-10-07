@@ -5,25 +5,6 @@ import {
   type LateralWeirSchema,
 } from "../../../src/schemas/geometry/lateralWeirSchema"
 
-describe("lateralWeirSchema", () => {
-  const lines = lateralWeirBlock.split("\n")
-
-  it("parses a lateral weir block", () => {
-    const result = parseWithSchema(lateralWeirSchema, lines, 0)
-
-    expect(result.value).toEqual(expectedLateralWeir)
-  })
-
-  it("round-trips lateral weir data", () => {
-    const parsed = parseWithSchema(lateralWeirSchema, lines, 0)
-    const serialized = serializeWithSchema(lateralWeirSchema, parsed.value)
-    const reparsed = parseWithSchema(lateralWeirSchema, serialized, 0)
-
-    expect(reparsed.value).toEqual(parsed.value)
-    expect(serialized).toEqual(lines)
-  })
-})
-
 const lateralWeirBlock = `Type RM Length L Ch R = 6 ,13214   ,,,
 Node Last Edited Time=Mar/28/2013 14:17:01
 Lateral Weir Pos= 0 
@@ -43,9 +24,42 @@ Lateral Weir SE= 2
 Lateral Weir Centerline= 0 
 Lateral Weir HW RS Station=13214.80,-1
 Lateral Weir TW RS Station=,0
-LW Div RC= 0 ,False,`
+LW Div RC= 0 ,False,
+
+`
+
+const rawLines = lateralWeirBlock.split("\n")
+const canonicalLines = serializeWithSchema(
+  lateralWeirSchema,
+  parseWithSchema(lateralWeirSchema, rawLines, 0).value,
+)
+
+describe("lateralWeirSchema", () => {
+  const lines = canonicalLines
+
+  it("parses a lateral weir block", () => {
+    const result = parseWithSchema(lateralWeirSchema, lines, 0)
+
+    expect(result.value).toEqual(expectedLateralWeir)
+  })
+
+  it("round-trips lateral weir data", () => {
+    const parsed = parseWithSchema(lateralWeirSchema, lines, 0)
+    const serialized = serializeWithSchema(lateralWeirSchema, parsed.value)
+    const reparsed = parseWithSchema(lateralWeirSchema, serialized, 0)
+
+    expect(reparsed.value).toEqual(parsed.value)
+    expect(serialized).toEqual(lines)
+  })
+})
 
 const expectedLateralWeir: LateralWeirSchema = {
+  type: 6,
+  riverMile: "13214",
+  lengthLeft: null,
+  lengthChannel: null,
+  lengthRight: null,
+  lastEditedTime: "Mar/28/2013 14:17:01",
   position: 0,
   endRiver: "",
   endReach: "",

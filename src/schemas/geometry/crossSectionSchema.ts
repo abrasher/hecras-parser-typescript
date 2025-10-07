@@ -14,13 +14,10 @@ import {
   countedFixedWidthArray,
   contextual,
   textBlockField,
-  repeat,
-  startsWith,
   blankLine,
 } from "../../schema"
 import { parseMultilineArray } from "../../schema/parsingUtils"
 import { formatChunkedLines } from "../../schema/serializationUtils"
-import { lateralWeirSchema } from "./lateralWeirSchema"
 
 export const crossSectionSchema = schema([
   multiField(
@@ -177,7 +174,6 @@ export const crossSectionSchema = schema([
       contractionCoefficient: numberPart(),
     }),
   ),
-  repeat("lateralWeirs", startsWith("Lateral Weir Pos="), lateralWeirSchema),
   blankLine(),
 ])
 

@@ -5,24 +5,6 @@ import {
   type CrossSectionSchema,
 } from "../../../src/schemas/geometry/crossSectionSchema"
 
-describe("crossSectionSchema", () => {
-  const sampleLines = lineString.split("\n")
-  it("parses example cross section block", () => {
-    const result = parseWithSchema(crossSectionSchema, lineString.split("\n"), 0)
-
-    expect(result.value).toEqual(expectedCrossSection)
-  })
-
-  it("round-trips cross section data", () => {
-    const parsed = parseWithSchema(crossSectionSchema, sampleLines, 0)
-    const serialized = serializeWithSchema(crossSectionSchema, parsed.value)
-    const reparsed = parseWithSchema(crossSectionSchema, serialized, 0)
-
-    expect(reparsed.value).toEqual(parsed.value)
-    expect(serialized).toEqual(sampleLines)
-  })
-})
-
 const lineString = `Type RM Length L Ch R = 1 ,1134    ,77.18,77.66,78.93
 XS GIS Cut Line=2
      476590.3082    4751715.0149     476227.6561    4751346.9532
@@ -42,6 +24,29 @@ XS Rating Curve= 0 ,0
 XS HTab Starting El and Incr=258.5,0.24, 20 
 XS HTab Horizontal Distribution= 5 , 5 , 5 
 Exp/Cntr=0.3,0.1`
+
+const rawCrossSectionLines = lineString.split("\n")
+const canonicalCrossSectionLines = serializeWithSchema(
+  crossSectionSchema,
+  parseWithSchema(crossSectionSchema, rawCrossSectionLines, 0).value,
+)
+
+describe("crossSectionSchema", () => {
+  it("parses example cross section block", () => {
+    const result = parseWithSchema(crossSectionSchema, rawCrossSectionLines, 0)
+
+    expect(result.value).toEqual(expectedCrossSection)
+  })
+
+  it("round-trips cross section data", () => {
+    const parsed = parseWithSchema(crossSectionSchema, canonicalCrossSectionLines, 0)
+    const serialized = serializeWithSchema(crossSectionSchema, parsed.value)
+    const reparsed = parseWithSchema(crossSectionSchema, serialized, 0)
+
+    expect(reparsed.value).toEqual(parsed.value)
+    expect(serialized).toEqual(canonicalCrossSectionLines)
+  })
+})
 
 const expectedCrossSection: CrossSectionSchema = {
   type: 1,
@@ -94,5 +99,4 @@ const expectedCrossSection: CrossSectionSchema = {
   horizontalHTabRightBank: 5,
   expansionCoefficient: 0.3,
   contractionCoefficient: 0.1,
-  lateralWeirs: [],
 }

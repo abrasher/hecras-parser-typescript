@@ -11,7 +11,11 @@ import {
   type Infer,
   type Part,
   booleanField,
+  stringField,
+  blankLine,
 } from "../../schema"
+
+const typePart = numberPart({ integer: true, pad: true })
 
 const endStationBasePart = numberPart()
 
@@ -36,6 +40,17 @@ const endStationPart: Part<number> = {
 }
 
 export const lateralWeirSchema = schema([
+  multiField(
+    "Type RM Length L Ch R =",
+    fields({
+      type: typePart,
+      riverMile: stringPart({ trim: true, width: 8 }),
+      lengthLeft: numberPart({ nullOnBlank: true }),
+      lengthChannel: numberPart({ nullOnBlank: true }),
+      lengthRight: numberPart({ nullOnBlank: true }),
+    }),
+  ),
+  stringField("lastEditedTime", "Node Last Edited Time=", { optional: true, trim: true }),
   numberField("position", "Lateral Weir Pos=", { integer: true, pad: true }),
   multiField(
     "Lateral Weir End=",
@@ -117,6 +132,7 @@ export const lateralWeirSchema = schema([
       ratingCurveLabel: stringPart({ trim: true }),
     }),
   ),
+  blankLine(),
 ])
 
 export type LateralWeirSchema = Infer<typeof lateralWeirSchema>

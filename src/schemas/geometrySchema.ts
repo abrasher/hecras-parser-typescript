@@ -16,7 +16,6 @@ import {
 import { boundaryConditionSchema } from "./geometry/boundaryConditionSchema"
 import { breakLineSchema } from "./geometry/breakLineSchema"
 import { connectionSchema } from "./geometry/connectionSchema"
-import { crossSectionSchema } from "./geometry/crossSectionSchema"
 import { icPointSchema } from "./geometry/icPointSchema"
 import { junctionSchema } from "./geometry/junctionSchema"
 import { landCoverSchema } from "./geometry/landCoverSchema"
@@ -44,7 +43,6 @@ export const geometrySchema = schema([
 
   repeat("boundaryConditions", startsWith("BC Line Name="), boundaryConditionSchema),
   repeat("icPoints", startsWith("IC Point Name="), icPointSchema),
-  repeat("crossSections", startsWith("Type RM Length L Ch R ="), crossSectionSchema),
   section("landCover", startsWith("LCMann Time="), landCoverSchema),
   booleanField("channelStopCuts", "Chan Stop Cuts=", { mode: "-1,0", pad: true }),
   blankLines(3),
