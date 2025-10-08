@@ -53,8 +53,8 @@ export function formatBoolean(
     case "TF":
       return value ? "T" : "F"
     case "10":
-      if (value) return "-1"
-      return extraSpaceBeforeZero ? " 0" : "0"
+      if (value) return "-1 "
+      return extraSpaceBeforeZero ? " 0 " : "0"
     case "trueFalse":
       return value ? "True" : "False"
     case "enableDisable":

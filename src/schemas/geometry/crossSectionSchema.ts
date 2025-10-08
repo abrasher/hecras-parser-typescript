@@ -172,6 +172,7 @@ export const crossSectionSchema = schema([
       htabIncrement: opt(numberPart()),
       htabCount: opt(numberPart({ integer: true, pad: true })),
     }),
+    { optional: true },
   ),
   multiField(
     "XS HTab Horizontal Distribution=",
@@ -180,7 +181,9 @@ export const crossSectionSchema = schema([
       horizontalHTabChannel: numberPart({ integer: true, pad: true }),
       horizontalHTabRightBank: numberPart({ integer: true, pad: true }),
     }),
+    { optional: true },
   ),
+  numberField("sedimentElevation", "Sediment Elevation=", { optional: true }),
   numberField("skewAngle", "Skew Angle=", { optional: true, pad: true }),
   multiField(
     "Exp/Cntr=",

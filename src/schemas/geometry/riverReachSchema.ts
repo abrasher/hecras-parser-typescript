@@ -14,12 +14,14 @@ import {
   type Infer,
 } from "../../schema"
 import { crossSectionSchema } from "./crossSectionSchema"
+import { inlineWeirSchema } from "./inlineWeirSchema"
 import { lateralWeirSchema } from "./lateralWeirSchema"
 
 const typeLinePattern = /Type RM Length L Ch R =\s*(\d+)/
 
 const schemaByType = {
   1: crossSectionSchema,
+  5: inlineWeirSchema,
   6: lateralWeirSchema,
 } as const
 
