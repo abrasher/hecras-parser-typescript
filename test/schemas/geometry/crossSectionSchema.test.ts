@@ -46,6 +46,12 @@ describe("crossSectionSchema", () => {
     expect(reparsed.value).toEqual(parsed.value)
     expect(serialized).toEqual(canonicalCrossSectionLines)
   })
+
+  it("omits block obstruction lines when absent", () => {
+    expect(
+      canonicalCrossSectionLines.some((line) => line.startsWith("#Block Obstruct=")),
+    ).toBe(false)
+  })
 })
 
 const expectedCrossSection: CrossSectionSchema = {
@@ -86,7 +92,7 @@ const expectedCrossSection: CrossSectionSchema = {
     [320, 516.71, 262],
   ],
   ratingCurve: [],
-  multipleBlocks: true,
+  ineffectiveFlowMultipleBlocks: true,
   permanentIneffective: [false, false],
   leftBankStation: 305.19,
   rightBankStation: 308.78,

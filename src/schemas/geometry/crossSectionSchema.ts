@@ -62,10 +62,25 @@ export const crossSectionSchema = schema([
     formatter: "station",
   }),
   multiField(
+    "#Block Obstruct=",
+    fields({
+      numberOfBlocks: countedArrayLengthPart("obstructions", { pad: true }),
+      multipleObstructions: booleanPart({ mode: "-1,0", pad: true }),
+    }),
+    { optional: true },
+  ),
+  countedFixedWidthArray("obstructions", {
+    maxWidth: 72,
+    width: 8,
+    tuple: 3 as const,
+    formatter: "station",
+    optional: true,
+  }),
+  multiField(
     "#XS Ineff=",
     fields({
       numberOfFlowAreas: countedArrayLengthPart("ineffectiveFlowAreas", { pad: true }),
-      multipleBlocks: booleanPart({ mode: "-1,0", pad: true }),
+      ineffectiveFlowMultipleBlocks: booleanPart({ mode: "-1,0", pad: true }),
     }),
     { optional: true },
   ),

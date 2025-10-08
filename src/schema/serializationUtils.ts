@@ -229,11 +229,6 @@ export function formatHECRASCoordinateNumber(num: number): string {
     return str + "."
   }
 
-  // Remove leading zero from decimals
-  // if (str[0] === "0" && str[1] === ".") {
-  //   return " " + str.slice(1)
-  // }
-
   return str
 }
 

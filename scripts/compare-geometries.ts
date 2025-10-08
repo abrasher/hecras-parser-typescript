@@ -7,7 +7,7 @@
  * Note: This file may cause stack overflow issues due to parsing complexity.
  */
 
-import { existsSync, readFileSync, writeFileSync } from "fs"
+import { existsSync, readdirSync, readFileSync, writeFileSync } from "fs"
 import { tmpdir } from "os"
 import { dirname, join } from "path"
 import { fileURLToPath } from "url"
@@ -182,6 +182,15 @@ function testGeometry(testFilePath: string): FileRunResult {
   }
 }
 
+// Dynamically load all geometry files from test/data/example_geometries
+const exampleGeometriesDir = "test/data/example_geometries"
+const exampleGeometryFiles = existsSync(exampleGeometriesDir)
+  ? readdirSync(exampleGeometriesDir)
+      .filter((file) => file.match(/\.g\d+$/))
+      .map((file) => join(exampleGeometriesDir, file))
+      .sort()
+  : []
+
 const geometryFiles = [
   // "test/data/Dingman.g01",
   "test/data/Dingman 2D.g01",
@@ -197,6 +206,7 @@ const geometryFiles = [
   "scripts/geometries/Mitigation10.g10",
   "test/data/BurntIslands.g01",
   "test/data/Muncie.g01",
+  ...exampleGeometryFiles,
 ]
 
 function computeRunMetrics(results: FileRunResult[]): RunMetrics {

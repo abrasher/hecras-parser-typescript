@@ -73,7 +73,7 @@ const landCoverRegionSchema = schema([
 
 export const landCoverSchema = schema([
   stringField("lastEdited", "LCMann Time="),
-  stringField("lastEditedRegion", "LCMann Region Time="),
+  stringField("lastEditedRegion", "LCMann Region Time=", { optional: true }),
   contextual(
     "table",
     (lines, startIndex, _ctx) => {
@@ -116,7 +116,7 @@ export const landCoverSchema = schema([
       return { value: rows, nextIndex: cursor }
     },
     (value, _ctx) => {
-      if (!value) {
+      if (value === undefined) {
         return []
       }
       const label = "LCMann Table="
