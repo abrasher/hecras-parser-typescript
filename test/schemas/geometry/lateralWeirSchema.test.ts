@@ -88,10 +88,18 @@ const expectedLateralWeir: LateralWeirSchema = {
     [903, 952],
   ],
   centerlineOption: 0,
-  headwaterStation: "13214.80",
-  headwaterCrossSection: true,
-  tailwaterStation: null,
-  tailwaterCrossSection: 0,
+  headwaterConnections: [
+    {
+      elevation: "-1",
+      station: "13214.80",
+    },
+  ],
+  tailwaterConnections: [
+    {
+      elevation: "0",
+      station: "",
+    },
+  ],
   ratingCurveId: 0,
   useRatingCurve: false,
   ratingCurveLabel: "",
