@@ -26,6 +26,7 @@ import { junctionSchema } from "./geometry/junctionSchema"
 import { landCoverSchema } from "./geometry/landCoverSchema"
 import { riverReachSchema } from "./geometry/riverReachSchema"
 import { storageAreaSchema } from "./geometry/storageAreaSchema"
+import { streamNodeSchema } from "./geometry/streamNodeSchema"
 
 export const geometrySchema = schema([
   stringField("geomTitle", "Geom Title=", { trim: true }),
@@ -48,6 +49,9 @@ export const geometrySchema = schema([
 
   repeat("boundaryConditions", startsWith("BC Line Name="), boundaryConditionSchema),
   repeat("icPoints", startsWith("IC Point Name="), icPointSchema),
+
+  repeat("streamNodes", startsWith("Stream Node="), streamNodeSchema),
+
   section("landCover", startsWith("LCMann Time="), landCoverSchema),
   booleanField("channelStopCuts", "Chan Stop Cuts=", { mode: "-1,0", pad: true }),
   blankLines(3),
