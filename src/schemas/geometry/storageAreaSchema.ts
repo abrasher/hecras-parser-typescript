@@ -121,6 +121,7 @@ export const storageAreaSchema = schema([
     tuple: 2 as const,
     formatter: "station",
     optional: true,
+    pad: true,
   }),
 
   // Is2D flag

@@ -1,7 +1,11 @@
 import {
   blankLine,
+  blankLineIfNotEmpty,
   blankLines,
   booleanField,
+  booleanPart,
+  fields,
+  multiField,
   numberField,
   numberPart,
   repeat,
@@ -9,6 +13,7 @@ import {
   section,
   startsWith,
   stringField,
+  stringPart,
   textBlockField,
   tupleField,
   type Infer,
@@ -46,12 +51,61 @@ export const geometrySchema = schema([
   section("landCover", startsWith("LCMann Time="), landCoverSchema),
   booleanField("channelStopCuts", "Chan Stop Cuts=", { mode: "-1,0", pad: true }),
   blankLines(3),
+  multiField(
+    "Geom Raster=",
+    fields({
+      geomRasterPath: stringPart({ trim: true }),
+      geomRasterEnabled: booleanPart({ mode: "trueFalse" }),
+      geomRasterType: stringPart({ trim: true }),
+      // cellSize is just a guess, need to confirm
+      geomRasterCellSize: numberPart({ nullOnBlank: true }),
+      geomRasterClipToGeometry: booleanPart({ mode: "-1,0", pad: true }),
+    }),
+    { optional: true },
+  ),
   booleanField("useUserSpecifiedReachOrder", "Use User Specified Reach Order=", {
     mode: "-1,0",
+    optional: true,
   }),
-  booleanField("gisRatioCutsToInvert", "GIS Ratio Cuts To Invert=", { mode: "-1,0" }),
-  booleanField("gisLimitAtBridges", "GIS Limit At Bridges=", { mode: "-1,0" }),
-  numberField("compositeChannelSlope", "Composite Channel Slope=", { integer: true }),
+  multiField(
+    "User Specified Reach Order=",
+    fields({
+      userSpecifiedReachOrderRiver: stringPart({ trim: true, width: 16 }),
+      userSpecifiedReachOrderReach: stringPart({ trim: true, width: 16 }),
+    }),
+    { optional: true },
+  ),
+  stringField("gisUnits", "GIS Units=", { optional: true, trim: true }),
+  stringField("gisDtmType", "GIS DTM Type=", { optional: true, trim: true }),
+  stringField("gisDtmPath", "GIS DTM=", { optional: true, trim: true }),
+  stringField("gisStreamLayer", "GIS Stream Layer=", { optional: true, trim: true }),
+  stringField("gisCrossSectionLayer", "GIS Cross Section Layer=", {
+    optional: true,
+    trim: true,
+  }),
+  stringField("gisMapProjection", "GIS Map Projection=", { optional: true, trim: true }),
+  stringField("gisProjectionZone", "GIS Projection Zone=", { optional: true, trim: true }),
+  stringField("gisDatum", "GIS Datum=", { optional: true, trim: true }),
+  stringField("gisVerticalDatum", "GIS Vertical Datum=", { optional: true, trim: true }),
+  tupleField(
+    "gisDataExtents",
+    "GIS Data Extents=",
+    [numberPart(), numberPart(), numberPart(), numberPart()],
+    { optional: true },
+  ),
+  blankLineIfNotEmpty("gisDataExtents"),
+  booleanField("gisRatioCutsToInvert", "GIS Ratio Cuts To Invert=", {
+    mode: "-1,0",
+    optional: true,
+  }),
+  booleanField("gisLimitAtBridges", "GIS Limit At Bridges=", {
+    mode: "-1,0",
+    optional: true,
+  }),
+  numberField("compositeChannelSlope", "Composite Channel Slope=", {
+    integer: true,
+    optional: true,
+  }),
   blankLine(),
 ])
 

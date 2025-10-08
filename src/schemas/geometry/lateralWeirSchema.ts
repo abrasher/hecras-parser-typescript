@@ -13,6 +13,8 @@ import {
   booleanField,
   stringField,
   blankLine,
+  startsWith,
+  repeat,
 } from "../../schema"
 
 const typePart = numberPart({ integer: true, pad: true })
@@ -110,20 +112,34 @@ export const lateralWeirSchema = schema([
     formatter: "station",
   }),
   numberField("centerlineOption", "Lateral Weir Centerline=", { integer: true, pad: true }),
-  multiField(
-    "Lateral Weir HW RS Station=",
-    fields({
-      headwaterStation: stringPart(),
-      headwaterCrossSection: booleanPart({ mode: "-1,0" }),
-    }),
+
+  repeat(
+    "headwaterConnections",
+    startsWith("Lateral Weir HW RS Station="),
+    schema([
+      multiField(
+        "Lateral Weir HW RS Station=",
+        fields({
+          station: stringPart(),
+          elevation: stringPart(),
+        }),
+      ),
+    ]),
   ),
-  multiField(
-    "Lateral Weir TW RS Station=",
-    fields({
-      tailwaterStation: numberPart({ nullOnBlank: true }),
-      tailwaterCrossSection: numberPart({ integer: true }),
-    }),
+  repeat(
+    "tailwaterConnections",
+    startsWith("Lateral Weir TW RS Station="),
+    schema([
+      multiField(
+        "Lateral Weir TW RS Station=",
+        fields({
+          station: stringPart(),
+          elevation: stringPart(),
+        }),
+      ),
+    ]),
   ),
+
   multiField(
     "LW Div RC=",
     fields({

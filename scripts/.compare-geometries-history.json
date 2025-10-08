@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2025-10-06T17:52:17.753Z",
+    "timestamp": "2025-10-08T16:25:34.703Z",
     "results": [
       {
         "file": "test/data/Dingman 2D.g01",
@@ -89,12 +89,12 @@
       {
         "file": "test/data/Muncie.g01",
         "status": "diff",
-        "diffLine": 555,
+        "diffLine": 3318,
         "diffIndex": 0,
-        "linesMatched": 554,
+        "linesMatched": 3317,
         "originalLines": 3321,
-        "serializedLines": 559,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1759773137752-7b803e50ae5d6.json"
+        "serializedLines": 3317,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1759940734699-65aa64f37474.json"
       }
     ],
     "metrics": {
@@ -102,13 +102,13 @@
       "totalFiles": 13,
       "status": "failed",
       "failureFile": "test/data/Muncie.g01",
-      "failureLine": 555,
-      "linesMatchedInFailure": 554,
+      "failureLine": 3318,
+      "linesMatchedInFailure": 3317,
       "diffIndex": 0
     }
   },
   {
-    "timestamp": "2025-10-06T17:53:23.619Z",
+    "timestamp": "2025-10-08T16:27:42.629Z",
     "results": [
       {
         "file": "test/data/Dingman 2D.g01",
@@ -196,23 +196,16 @@
       },
       {
         "file": "test/data/Muncie.g01",
-        "status": "diff",
-        "diffLine": 555,
-        "diffIndex": 0,
-        "linesMatched": 554,
+        "status": "match",
+        "linesMatched": 3321,
         "originalLines": 3321,
-        "serializedLines": 559,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1759773203618-3da8aeab0c1e4.json"
+        "serializedLines": 3321
       }
     ],
     "metrics": {
-      "filesMatched": 12,
+      "filesMatched": 13,
       "totalFiles": 13,
-      "status": "failed",
-      "failureFile": "test/data/Muncie.g01",
-      "failureLine": 555,
-      "linesMatchedInFailure": 554,
-      "diffIndex": 0
+      "status": "all_matched"
     }
   }
 ]
