@@ -30,3 +30,4 @@ geometry-roundtrip-report.txt
 
 .chunkhound.json
 .chunkhound/
+test/data/example_geometries
