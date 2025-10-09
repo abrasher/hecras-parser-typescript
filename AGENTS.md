@@ -73,6 +73,36 @@ Below are concrete patterns we’ve adopted across real sections. Use these as r
 - Boolean encoding: `booleanField("is2D", "Storage Area Is2D=", { mode: "-1,0" })`.
 - Station/elevation pairs: for two-column tables use `tupleArrayField(..., { width: 8, maxWidth: 80, tuple: 2, formatter: "station" })` to match the 8-char, 10-values-per-line convention.
 
+7) River Reach (`src/schemas/geometry/riverReachSchema.ts`)
+
+- Use `tupleArrayField("Reach XY=", ...)` with `formatter: "coordinate"` and `pad: true` for planform coordinates.
+- River-station entries follow `Type RM Length L Ch R =`; map the type code to the correct sub-schema and stream the block with a `contextual` parser that delegates to `parseSectionWithSchema` / `serializeWithSchema`.
+- Supported types today: `1` → cross section, `3` → one-dimensional bridge, `5` → inline weir, `6` → lateral weir. Extend `schemaByType` when new station types appear.
+
+8) Cross Section (`src/schemas/geometry/crossSectionSchema.ts`)
+
+- Station/elevation tables: `tupleArrayField("#Sta/Elev=", ..., { formatter: "station", pad: true })`.
+- Counted CSV blocks (`#Mann=`, `#Block Obstruct=`, `#XS Ineff=`, `XS Rating Curve=`) pair `countedArrayLengthPart` with `countedFixedWidthArray(..., { width: 8, maxWidth: 80, formatter: "station" })`.
+- Persistent flags like `Permanent Ineff=` rely on `contextual` plus `parseMultilineArray` to honor the count and convert `"T"/"F"` segments.
+
+9) Inline & Lateral Weirs (`src/schemas/geometry/inlineWeirSchema.ts`, `src/schemas/geometry/lateralWeirSchema.ts`)
+
+- Share the `Type RM Length L Ch R =` header and stage/elevation count handled by `countedArrayLengthPart` + `countedFixedWidthArray("stageElevationPairs", { width: 8, maxWidth: 80, formatter: "station", pad: true })`.
+- Keep weir metadata lines (`Lateral Weir End`, `IW Outlet Rating Curve=`, etc.) with `multiField` so blanks remain explicit via `{ nullOnBlank: true }` where needed.
+- Inline weirs include a comma-separated parameter block (`IW Dist,WD,...`). Parse/serialize it through a `contextual` item with `parseCommaSeparated` / `formatCommaSeparated` and use `formatBoolean(..., "10")` for the embedded boolean.
+- Lateral weirs expose repeated headwater/tailwater connections; model them with `repeat(..., startsWith("Lateral Weir HW/TW RS Station="), schema([...]))`.
+
+10) One-Dimensional Bridge (`src/schemas/geometry/oneDimBridgeSchema.ts`)
+
+- Bridge decks and piers interleave counts with fixed-width numeric grids. Use `contextual` helpers that call `parseMultilineArray` to read values and `formatFixedWidth` + `formatHECRASStationNumber` to write them back.
+- Preserve blank skew strings by wrapping `stringPart` in a custom serializer that emits two spaces when the source value is absent.
+- Boolean switches within numbered sequences (e.g., `wsproParam17`) stay in sync by using `booleanPart({ mode: "-1,0", pad: true })` and reusing the same ordering in serialization.
+
+11) Stream Node (`src/schemas/geometry/streamNodeSchema.ts`)
+
+- Compact CSV line: `multiField("Stream Node=", fields({ river: stringPart({ width: 16, trim: true }), reach: stringPart({ width: 16, trim: true }), index1: numberPart({ pad: true }), index2: numberPart({ pad: true }), description: stringPart({ width: 64, trim: true }) }))`.
+- Finish the block with `blankLine()` to mirror the trailing spacer in geometry files.
+
 ## Formatting Rules That Bite
 
 - Coordinates are 16-char fixed width, and some blocks require per-line padding to a fixed total width (`maxWidth`); set `pad: true` for `tupleArrayField` when needed.
@@ -134,6 +164,12 @@ Utilities to know:
 - Junction: `src/schemas/junctionSchema.ts`
 - Land cover: `src/schemas/landCoverSchema.ts`
 - Storage area: `src/schemas/storageAreaSchema.ts`
+- River reach: `src/schemas/geometry/riverReachSchema.ts`
+- Cross section: `src/schemas/geometry/crossSectionSchema.ts`
+- Inline weir: `src/schemas/geometry/inlineWeirSchema.ts`
+- Lateral weir: `src/schemas/geometry/lateralWeirSchema.ts`
+- One-dimensional bridge: `src/schemas/geometry/oneDimBridgeSchema.ts`
+- Stream node: `src/schemas/geometry/streamNodeSchema.ts`
 - DSL core: `src/schema/core.ts`, `src/schema/combinators.ts`, `src/schema/driver.ts`, `src/schema/parts.ts`, `src/schema/serializationUtils.ts`
 
 ## If Blocked

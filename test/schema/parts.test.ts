@@ -31,6 +31,7 @@ describe("schema parts", () => {
   it("optionally pads serialized numbers when requested", () => {
     const paddedPart = numberPart({ pad: true })
     expect(paddedPart.serialize(3.5)).toBe(" 3.5 ")
+    expect(paddedPart.serialize(-3.5)).toBe("-3.5 ")
     expect(paddedPart.parse(" 3.5 ")).toBe(3.5)
     expect(paddedPart.serialize(Infinity)).toBe(" 1.79769313486232E+308 ")
   })

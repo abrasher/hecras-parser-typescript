@@ -25,6 +25,8 @@ Common schema patterns from implemented schemas:
 - **Boolean encoding**: HEC-RAS uses `-1,0` encoding frequently (use `booleanPart({ mode: "-1,0" })` or `booleanField(key, label, { mode: "-1,0" })`)
 - **Optional numbers**: Use `numberField(key, label, { nullOnBlank: true })` to preserve blank→null semantics
 - **Variable sections**: Use `repeat(key, startsWith("Pattern"), subSchema)` for 0+ repeated sections
+- **Typed river station entries**: When headers such as `Type RM Length L Ch R =` determine the downstream schema, map the numeric type to a schema and use a `contextual` block with `parseSectionWithSchema` / `serializeWithSchema` to stream each entry (see `src/schemas/geometry/riverReachSchema.ts`).
+- **Stage/elevation tables**: Pair `countedArrayLengthPart` with `countedFixedWidthArray(..., { formatter: "station", pad: true })` to respect the recorded count and 8-character fixed-width formatting common to weir and cross-section data.
 - **String constraints**: Use `stringField(key, label, { length: 32, trim: true })` for fixed-length fields
 
 Migration workflow (summary)

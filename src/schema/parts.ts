@@ -79,29 +79,35 @@ export function numberPart(options?: NumberPartOptions): Part<number> | Part<num
 
       const numeric = integer ? Math.trunc(value) : value
 
+      let serialized: string
+
       // Handle HEC-RAS infinity representation
       if (numeric === Infinity) {
-        const infinitySentinel = "1.79769313486232E+308"
-        return pad ? ` ${infinitySentinel} ` : infinitySentinel
+        serialized = "1.79769313486232E+308"
+      } else {
+        if (!Number.isFinite(numeric)) {
+          throw new Error(`Cannot serialize non-finite number: ${numeric}`)
+        }
+
+        // Check if we should use scientific notation (16+ digits before decimal)
+        const numStr = Math.abs(numeric).toString()
+        const decimalIndex = numStr.indexOf(".")
+        const digitsBeforeDecimal = decimalIndex === -1 ? numStr.length : decimalIndex
+
+        serialized = numeric.toString()
+
+        if (digitsBeforeDecimal >= 16) {
+          // Use scientific notation with appropriate precision
+          serialized = numeric.toExponential()
+        }
       }
 
-      if (!Number.isFinite(numeric)) {
-        throw new Error(`Cannot serialize non-finite number: ${numeric}`)
+      if (pad) {
+        const leftPad = numeric < 0 ? "" : " "
+        return `${leftPad}${serialized} `
       }
 
-      // Check if we should use scientific notation (16+ digits before decimal)
-      const numStr = Math.abs(numeric).toString()
-      const decimalIndex = numStr.indexOf(".")
-      const digitsBeforeDecimal = decimalIndex === -1 ? numStr.length : decimalIndex
-
-      let serialized = numeric.toString()
-
-      if (digitsBeforeDecimal >= 16) {
-        // Use scientific notation with appropriate precision
-        serialized = numeric.toExponential()
-      }
-
-      return pad ? ` ${serialized} ` : serialized
+      return serialized
     },
     nullOnBlank: nullOnBlank || undefined,
   }
