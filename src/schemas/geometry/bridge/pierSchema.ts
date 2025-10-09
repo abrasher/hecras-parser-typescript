@@ -1,3 +1,4 @@
+import type { Infer } from "./../../../schema/core"
 import { formatFixedWidth, formatHECRASStationNumber } from "../../../schema/serializationUtils"
 import { contextual, fields, multiField, numberPart, schema, stringPart } from "../../../schema"
 import { parseMultilineArray } from "../../../schema/parsingUtils"
@@ -152,4 +153,4 @@ export const pierSchema = schema([
   ),
 ])
 
-export type PierSchema = typeof pierSchema
+export type PierSchema = Infer<typeof pierSchema>

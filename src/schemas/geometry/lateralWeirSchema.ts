@@ -9,7 +9,6 @@ import {
   stringPart,
   booleanPart,
   type Infer,
-  type Part,
   booleanField,
   stringField,
   blankLine,
@@ -18,28 +17,6 @@ import {
 } from "../../schema"
 
 const typePart = numberPart({ integer: true, pad: true })
-
-const endStationBasePart = numberPart()
-
-const endStationPart: Part<number> = {
-  parse(segment) {
-    return endStationBasePart.parse(segment)
-  },
-  serialize(value) {
-    const serialized = endStationBasePart.serialize(value)
-
-    if (serialized === "") {
-      return "".padEnd(16, " ")
-    }
-
-    if (serialized.length >= 16) {
-      return serialized.slice(0, 16)
-    }
-
-    return serialized.padEnd(16, " ")
-  },
-  nullOnBlank: endStationBasePart.nullOnBlank,
-}
 
 export const lateralWeirSchema = schema([
   multiField(
@@ -60,7 +37,7 @@ export const lateralWeirSchema = schema([
       endRiver: stringPart({ trim: true, width: 16 }),
       endReach: stringPart({ trim: true, width: 16 }),
       endCrossSection: stringPart({ trim: true, width: 8 }),
-      endStation: endStationPart,
+      endStation: stringPart({ trim: true, width: 16 }),
     }),
   ),
   numberField("distance", "Lateral Weir Distance=", { integer: true }),

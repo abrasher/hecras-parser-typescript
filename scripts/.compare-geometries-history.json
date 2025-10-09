@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2025-10-08T23:38:24.789Z",
+    "timestamp": "2025-10-09T15:14:34.983Z",
     "results": [
       {
         "file": "test/data/Dingman 2D.g01",
@@ -179,29 +179,36 @@
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_SIAM Example_hick85.g01",
-        "status": "diff",
-        "diffLine": 23,
-        "diffIndex": 0,
-        "linesMatched": 22,
+        "status": "match",
+        "linesMatched": 1953,
         "originalLines": 1953,
-        "serializedLines": 27,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1759966704789-43384ce1b64dc.json"
+        "serializedLines": 1953
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_SIAM Example_hick85.serialized.g01",
-        "status": "skipped"
+        "status": "match",
+        "linesMatched": 1953,
+        "originalLines": 1953,
+        "serializedLines": 1953
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.g01",
-        "status": "skipped"
+        "status": "match",
+        "linesMatched": 528,
+        "originalLines": 528,
+        "serializedLines": 528
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.g02",
-        "status": "skipped"
+        "status": "match",
+        "linesMatched": 528,
+        "originalLines": 528,
+        "serializedLines": 528
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Unsteady Sediment with Concentration Rules_SedRuleLat.g03",
-        "status": "skipped"
+        "status": "error",
+        "message": "Invalid number segment: STo #1          \n[ParseContext] Last parsed line index: 475, content: \"Lateral Weir End=                ,                ,        ,STo #1          \""
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Video Tutorial (Sediment Intro)_Data Files_OverbankDeposition.g01",
@@ -669,17 +676,13 @@
       }
     ],
     "metrics": {
-      "filesMatched": 25,
+      "filesMatched": 29,
       "totalFiles": 146,
-      "status": "failed",
-      "failureFile": "test/data/example_geometries/1D Sediment Transport_SIAM Example_hick85.g01",
-      "failureLine": 23,
-      "linesMatchedInFailure": 22,
-      "diffIndex": 0
+      "status": "error"
     }
   },
   {
-    "timestamp": "2025-10-08T23:39:04.381Z",
+    "timestamp": "2025-10-09T15:17:59.809Z",
     "results": [
       {
         "file": "test/data/Dingman 2D.g01",
@@ -858,29 +861,55 @@
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_SIAM Example_hick85.g01",
-        "status": "diff",
-        "diffLine": 66,
-        "diffIndex": 0,
-        "linesMatched": 65,
+        "status": "match",
+        "linesMatched": 1953,
         "originalLines": 1953,
-        "serializedLines": 69,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1759966744379-3cff2c578d99a.json"
+        "serializedLines": 1953
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_SIAM Example_hick85.serialized.g01",
-        "status": "skipped"
+        "status": "match",
+        "linesMatched": 1953,
+        "originalLines": 1953,
+        "serializedLines": 1953
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.g01",
-        "status": "skipped"
+        "status": "match",
+        "linesMatched": 528,
+        "originalLines": 528,
+        "serializedLines": 528
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.g02",
-        "status": "skipped"
+        "status": "match",
+        "linesMatched": 528,
+        "originalLines": 528,
+        "serializedLines": 528
+      },
+      {
+        "file": "test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.serialized.g01",
+        "status": "match",
+        "linesMatched": 528,
+        "originalLines": 528,
+        "serializedLines": 528
+      },
+      {
+        "file": "test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.serialized.g02",
+        "status": "match",
+        "linesMatched": 528,
+        "originalLines": 528,
+        "serializedLines": 528
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Unsteady Sediment with Concentration Rules_SedRuleLat.g03",
-        "status": "skipped"
+        "status": "diff",
+        "diffLine": 3,
+        "diffIndex": 18,
+        "linesMatched": 2,
+        "originalLines": 885,
+        "serializedLines": 486,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760023079809-cae84bb5798d9.json"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Video Tutorial (Sediment Intro)_Data Files_OverbankDeposition.g01",
@@ -1348,13 +1377,13 @@
       }
     ],
     "metrics": {
-      "filesMatched": 25,
-      "totalFiles": 146,
+      "filesMatched": 31,
+      "totalFiles": 148,
       "status": "failed",
-      "failureFile": "test/data/example_geometries/1D Sediment Transport_SIAM Example_hick85.g01",
-      "failureLine": 66,
-      "linesMatchedInFailure": 65,
-      "diffIndex": 0
+      "failureFile": "test/data/example_geometries/1D Sediment Transport_Unsteady Sediment with Concentration Rules_SedRuleLat.g03",
+      "failureLine": 3,
+      "linesMatchedInFailure": 2,
+      "diffIndex": 18
     }
   }
 ]

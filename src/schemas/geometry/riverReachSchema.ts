@@ -16,11 +16,13 @@ import {
 import { crossSectionSchema } from "./crossSectionSchema"
 import { inlineWeirSchema } from "./inlineWeirSchema"
 import { lateralWeirSchema } from "./lateralWeirSchema"
+import { oneDimBridgeSchema } from "./oneDimBridgeSchema"
 
 const typeLinePattern = /Type RM Length L Ch R =\s*(\d+)/
 
 const schemaByType = {
   1: crossSectionSchema,
+  3: oneDimBridgeSchema,
   5: inlineWeirSchema,
   6: lateralWeirSchema,
 } as const
