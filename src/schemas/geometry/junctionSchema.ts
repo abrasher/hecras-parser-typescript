@@ -9,6 +9,7 @@ import {
   startsWith,
   type Infer,
   booleanPart,
+  blankLine,
 } from "../../schema"
 
 /**
@@ -32,7 +33,7 @@ import {
 // Sub-schemas for repeated items
 
 export const junctionSchema = schema([
-  stringField("name", "Junct Name="),
+  stringField("name", "Junct Name=", { width: 16 }),
 
   multiField(
     "Junct Desc=",
@@ -66,7 +67,7 @@ export const junctionSchema = schema([
       multiField(
         "Up River,Reach=",
         fields({
-          river: stringPart({ trim: true }),
+          river: stringPart({ trim: true, width: 16 }),
           reach: stringPart({ trim: true }),
         }),
       ),
@@ -76,7 +77,7 @@ export const junctionSchema = schema([
   multiField(
     "Dn River,Reach=",
     fields({
-      downstreamRiver: stringPart({ trim: true }),
+      downstreamRiver: stringPart({ trim: true, width: 16 }),
       downstreamReach: stringPart({ trim: true }),
     }),
   ),
@@ -88,12 +89,13 @@ export const junctionSchema = schema([
       multiField(
         "Junc L&A=",
         fields({
-          length: numberPart(),
-          angle: numberPart(),
+          length: numberPart({ nullOnBlank: true }),
+          angle: numberPart({ nullOnBlank: true }),
         }),
       ),
     ]),
   ),
+  blankLine(),
 ])
 
 export type JunctionSchema = Infer<typeof junctionSchema>

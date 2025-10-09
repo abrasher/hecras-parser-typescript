@@ -14,9 +14,27 @@ import {
   blankLine,
   startsWith,
   repeat,
+  contextual,
 } from "../../schema"
+import {
+  parseBoolean,
+  parseCommaSeparated,
+  parseMaybeFloat,
+  parseMaybeInt,
+  parseMultilineArray,
+} from "../../schema/parsingUtils"
+import {
+  formatCommaSeparated,
+  formatChunkedLines,
+  formatFixedWidth,
+  formatBoolean,
+} from "../../schema/serializationUtils"
 
 const typePart = numberPart({ integer: true, pad: true })
+
+const gateHeader =
+  "LW Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings"
+const gateOpeningPrefix = "LW Gate Opening="
 
 export const lateralWeirSchema = schema([
   multiField(
@@ -46,6 +64,16 @@ export const lateralWeirSchema = schema([
   }),
   numberField("weirWidth", "Lateral Weir WD="),
   numberField("weirCoefficient", "Lateral Weir Coef="),
+  booleanField("overflow2DMethod", "LW OverFlow Method 2D=", {
+    mode: "-1,0",
+    pad: false,
+    optional: true,
+  }),
+  booleanField("overflowUseVelocityInto2D", "LW OverFlow Use Velocity Into 2D=", {
+    mode: "-1,0",
+    pad: false,
+    optional: true,
+  }),
   booleanField("wsCriteria", "Lateral Weir WSCriteria=", { mode: "-1,0", pad: true }),
   numberField("flapGateCount", "Lateral Weir Flap Gates=", { integer: true, pad: true }),
   multiField(
@@ -97,7 +125,7 @@ export const lateralWeirSchema = schema([
       multiField(
         "Lateral Weir HW RS Station=",
         fields({
-          station: stringPart(),
+          station: stringPart({ width: 8, trim: true }),
           elevation: stringPart(),
         }),
       ),
@@ -117,12 +145,199 @@ export const lateralWeirSchema = schema([
     ]),
   ),
 
+  contextual(
+    "gate",
+    (lines, startIndex) => {
+      if (lines[startIndex] !== gateHeader) {
+        return null
+      }
+
+      const gateLine = lines[startIndex + 1]
+      if (gateLine === undefined) {
+        throw new Error("Expected gate definition line after gate header")
+      }
+
+      const segments = parseCommaSeparated(gateLine)
+
+      const [
+        gateName,
+        widthSegment,
+        heightSegment,
+        invertSegment,
+        gCoefSegment,
+        expTSegment,
+        expOSegment,
+        expHSegment,
+        typeSegment,
+        wCoefSegment,
+        isOgeeSegment,
+        spillwayHeightSegment,
+        designHeadSegment,
+        numberOfOpeningsSegment,
+        unknown1Segment,
+        unknown2Segment,
+        unknown3Segment,
+        unknown4Segment,
+        unknown5Segment,
+        unknown6Segment,
+        unknown7Segment,
+        unknown8Segment,
+        unknown9Segment,
+      ] = segments
+      //gateName,width,height,invert,gateCoefficient,expT,expO,expH,type,wCoeff,isOgee,spillwayHeight,designHead, 12 ,unknown1,unknown2,unknown3,unknown4,unknown5,unknown6,unknown7,unknown8,unknown9
+
+      const toBoolean = (segment: string) => {
+        const value = segment.trim().toLowerCase()
+        return value === "-1" || value === "1" || value === "true"
+      }
+
+      const numberOfOpenings = parseMaybeInt(numberOfOpeningsSegment) ?? 0
+
+      const gatePositions: number[] = []
+      let index = startIndex + 2
+
+      if (numberOfOpenings > 0) {
+        const { data, nextIndex } = parseMultilineArray({
+          lines,
+          width: 8,
+          maxWidth: 80,
+          numOfEntries: numberOfOpenings,
+          currentIndex: index,
+        })
+
+        for (let i = 0; i < data.length; i++) {
+          const parsed = parseMaybeFloat(data[i])
+          if (parsed === null) {
+            throw new Error(`Missing gate position at index ${i}`)
+          }
+          gatePositions.push(parsed)
+        }
+
+        index = nextIndex
+      }
+
+      const gateOpenings = []
+      for (let i = 0; i < numberOfOpenings; i++) {
+        const openingLine = lines[index + i]
+        if (!openingLine?.startsWith(gateOpeningPrefix)) {
+          throw new Error(`Expected gate opening line at index ${index + i} for opening ${i + 1}`)
+        }
+        const openingSegments = parseCommaSeparated(openingLine.slice(gateOpeningPrefix.length))
+        const [idSegment, nameSegment = "", flagSegment = "0"] = openingSegments
+        const openingId = parseMaybeInt(idSegment) ?? i + 1
+        const gateFlag = toBoolean(flagSegment)
+        gateOpenings.push({
+          id: openingId,
+          name: nameSegment,
+          gateFlag,
+        })
+      }
+      index += numberOfOpenings
+
+      const gateValue = {
+        gateName,
+        width: parseMaybeFloat(widthSegment),
+        height: parseMaybeFloat(heightSegment),
+        invert: parseMaybeFloat(invertSegment),
+        gCoef: parseMaybeFloat(gCoefSegment),
+        expT: parseMaybeFloat(expTSegment),
+        expO: parseMaybeFloat(expOSegment),
+        expH: parseMaybeFloat(expHSegment),
+        type: parseMaybeInt(typeSegment),
+        wCoef: parseMaybeFloat(wCoefSegment),
+        isOgee: parseBoolean(isOgeeSegment),
+        spillwayHeight: parseMaybeFloat(spillwayHeightSegment),
+        designHead: parseMaybeFloat(designHeadSegment),
+        unknown1: parseMaybeFloat(unknown1Segment),
+        unknown2: parseMaybeFloat(unknown2Segment),
+        unknown3: parseBoolean(unknown3Segment),
+        unknown4: parseMaybeFloat(unknown4Segment),
+        unknown5: parseMaybeFloat(unknown5Segment),
+        unknown6: parseMaybeFloat(unknown6Segment),
+        unknown7: parseMaybeFloat(unknown7Segment),
+        unknown8: parseMaybeFloat(unknown8Segment),
+        unknown9: parseBoolean(unknown9Segment),
+        gatePositions,
+        gateOpenings,
+      }
+
+      return {
+        value: gateValue,
+        nextIndex: index,
+      }
+    },
+    (gate) => {
+      if (!gate) {
+        return []
+      }
+
+      const baseSegments = [
+        formatFixedWidth(gate.gateName, 12, { padDirection: "end" }),
+        gate.width?.toString() ?? "",
+        gate.height?.toString() ?? "",
+        gate.invert?.toString() ?? "",
+        gate.gCoef?.toString() ?? "",
+        gate.expT?.toString() ?? "",
+        gate.expO?.toString() ?? "",
+        gate.expH?.toString() ?? "",
+        ` ${gate.type?.toString() ?? ""} `,
+        gate.wCoef?.toString() ?? "",
+        formatBoolean(gate.isOgee, "10", true),
+        gate.spillwayHeight?.toString() ?? "",
+        gate.designHead?.toString() ?? "",
+        ` ${gate.gateOpenings?.length?.toString() ?? ""} `,
+        gate.unknown1?.toString() ?? "",
+        gate.unknown2?.toString() ?? "",
+        formatBoolean(gate.unknown3, "10", true),
+        gate.unknown4?.toString() ?? "",
+        gate.unknown5?.toString() ?? "",
+        gate.unknown6?.toString() ?? "",
+        gate.unknown7?.toString() ?? "",
+        gate.unknown8?.toString() ?? "",
+        formatBoolean(gate.unknown9, "10", true),
+      ]
+
+      const lines: string[] = [gateHeader, formatCommaSeparated([...baseSegments])]
+
+      if (gate.gatePositions.length > 0) {
+        const formatPosition = (value: number) => {
+          if (!Number.isFinite(value)) {
+            throw new Error("Cannot serialize non-finite gate position")
+          }
+          const text = value.toString()
+          return text.length >= 8 ? text.slice(0, 8) : text.padStart(8, " ")
+        }
+        lines.push(
+          ...formatChunkedLines(gate.gatePositions, {
+            width: 8,
+            perLine: 10,
+            formatter: formatPosition,
+          }),
+        )
+      }
+
+      const openings = (gate.gateOpenings ?? []) as Array<{
+        id: number
+        name: string
+        gateFlag: boolean
+      }>
+
+      openings.forEach((opening) => {
+        lines.push(
+          `${gateOpeningPrefix}${opening.id},${opening.name},${formatBoolean(opening.gateFlag, "10", false)}`,
+        )
+      })
+
+      return lines
+    },
+  ),
   multiField(
     "LW Div RC=",
     fields({
       ratingCurveId: numberPart({ integer: true, pad: true }),
       useRatingCurve: booleanPart({ mode: "trueFalse" }),
       ratingCurveLabel: stringPart({ trim: true }),
+      ratingCurveUnknown: stringPart({ trim: true }),
     }),
   ),
   blankLine(),

@@ -61,21 +61,7 @@ export const crossSectionSchema = schema([
     tuple: 3 as const,
     formatter: "station",
   }),
-  multiField(
-    "#Block Obstruct=",
-    fields({
-      numberOfBlocks: countedArrayLengthPart("obstructions", { pad: true }),
-      multipleObstructions: booleanPart({ mode: "-1,0", pad: true }),
-    }),
-    { optional: true },
-  ),
-  countedFixedWidthArray("obstructions", {
-    maxWidth: 72,
-    width: 8,
-    tuple: 3 as const,
-    formatter: "station",
-    optional: true,
-  }),
+
   multiField(
     "#XS Ineff=",
     fields({
@@ -111,7 +97,7 @@ export const crossSectionSchema = schema([
           numOfEntries: numAreas,
           currentIndex: index + 1,
         })
-        const booleans = data.map((seg) => seg === "       T")
+        const booleans = data.map((seg) => seg === "T")
         return { value: booleans, nextIndex }
       } else {
         throw new Error("ineffectiveFlowAreas is not an array")
@@ -132,7 +118,21 @@ export const crossSectionSchema = schema([
       ]
     },
   ),
-
+  multiField(
+    "#Block Obstruct=",
+    fields({
+      numberOfBlocks: countedArrayLengthPart("obstructions", { pad: true }),
+      multipleObstructions: booleanPart({ mode: "-1,0", pad: true }),
+    }),
+    { optional: true },
+  ),
+  countedFixedWidthArray("obstructions", {
+    maxWidth: 72,
+    width: 8,
+    tuple: 3 as const,
+    formatter: "station",
+    optional: true,
+  }),
   multiField(
     "Bank Sta=",
     fields({

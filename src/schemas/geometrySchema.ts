@@ -40,8 +40,9 @@ export const geometrySchema = schema([
   blankLine(),
   textBlockField("description", "GEOM DESCRIPTION", { optional: true }),
 
-  repeat("rivers", startsWith("River Reach="), riverReachSchema),
   repeat("junctions", startsWith("Junct Name="), junctionSchema),
+
+  repeat("rivers", startsWith("River Reach="), riverReachSchema),
   repeat("storageAreas", startsWith("Storage Area="), storageAreaSchema),
   repeat("breakLines", startsWith("BreakLine Name="), breakLineSchema),
 

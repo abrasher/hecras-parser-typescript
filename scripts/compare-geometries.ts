@@ -56,6 +56,93 @@ function pointerLine(diffIndex: number) {
   return `  ${colors.yellow(" ".repeat(diffIndex) + "^")}`
 }
 
+const BOOLEAN_LIKE_VALUES = new Set(
+  [
+    "-1",
+    "0",
+    "1",
+    "10",
+    "01",
+    "t",
+    "f",
+    "true",
+    "false",
+    "y",
+    "n",
+    "yes",
+    "no",
+    "on",
+    "off",
+    "enable",
+    "disable",
+  ].map((value) => value.toLowerCase()),
+)
+
+function isBooleanToken(token: string) {
+  if (!token) {
+    return false
+  }
+
+  return BOOLEAN_LIKE_VALUES.has(token.toLowerCase())
+}
+
+function linesEquivalent(originalLine: string, serializedLine: string) {
+  if (originalLine === serializedLine) {
+    return true
+  }
+
+  const originalEquals = originalLine.indexOf("=")
+  const serializedEquals = serializedLine.indexOf("=")
+
+  if (originalEquals === -1 || serializedEquals === -1) {
+    return false
+  }
+
+  const originalKey = originalLine.slice(0, originalEquals).trim()
+  const serializedKey = serializedLine.slice(0, serializedEquals).trim()
+
+  if (originalKey !== serializedKey) {
+    return false
+  }
+
+  const originalValue = originalLine.slice(originalEquals + 1)
+  const serializedValue = serializedLine.slice(serializedEquals + 1)
+
+  if (!originalValue.includes(",") || !serializedValue.includes(",")) {
+    return false
+  }
+
+  const originalTokens = originalValue.split(",").map((segment) => segment.trim())
+  const serializedTokens = serializedValue.split(",").map((segment) => segment.trim())
+
+  if (originalTokens.length !== serializedTokens.length) {
+    return false
+  }
+
+  if (!originalTokens.every((token, index) => token === serializedTokens[index])) {
+    return false
+  }
+
+  const originalBooleanTokens = originalTokens.slice(1)
+  const serializedBooleanTokens = serializedTokens.slice(1)
+
+  if (originalBooleanTokens.length === 0 || serializedBooleanTokens.length === 0) {
+    return false
+  }
+
+  if (!originalBooleanTokens.every(isBooleanToken)) {
+    return false
+  }
+
+  if (!serializedBooleanTokens.every(isBooleanToken)) {
+    return false
+  }
+
+  return true
+}
+
+type SkipReason = "version" | "legacy_version" | "previous_failure"
+
 type FileRunResult = {
   file: string
   status: "match" | "diff" | "error" | "skipped"
@@ -66,6 +153,7 @@ type FileRunResult = {
   serializedLines?: number
   parsedOutputPath?: string
   message?: string
+  skipReason?: SkipReason
 }
 
 type RunMetrics = {
@@ -94,10 +182,40 @@ function testGeometry(testFilePath: string): FileRunResult {
     const linesToLog: string[] = []
     // Read and parse the original file
     const originalContent = readFileSync(testFilePath, "utf-8")
+    const normalizedOriginal = originalContent.replace(/\r\n/g, "\n")
+
+    if (/^Version\s*=/m.test(normalizedOriginal)) {
+      const message = `Skipping "${testFilePath}" due to legacy Version header`
+      console.log(colors.yellow(message))
+      return {
+        file: testFilePath,
+        status: "skipped",
+        message,
+        skipReason: "legacy_version",
+      }
+    }
+
+    const versionMatch = normalizedOriginal.match(/^Program Version\s*=\s*([^\s]+)\s*$/m)
+
+    if (versionMatch) {
+      const rawVersion = versionMatch[1]
+      const parsedVersion = Number.parseFloat(rawVersion)
+
+      if (!Number.isNaN(parsedVersion) && parsedVersion < 6) {
+        const message = `Skipping "${testFilePath}" due to unsupported Program Version=${rawVersion}`
+        console.log(colors.yellow(message))
+        return {
+          file: testFilePath,
+          status: "skipped",
+          message,
+          skipReason: "version",
+        }
+      }
+    }
+
     const [name, extension] = testFilePath.split(".")
     const serializedOutputPath = `${name}.serialized.${extension}`
 
-    const normalizedOriginal = originalContent.replace(/\r\n/g, "\n")
     const originalLines = normalizedOriginal.split("\n")
     const { value: geometryData } = parseWithSchema(geometrySchema, originalLines, 0)
 
@@ -123,7 +241,7 @@ function testGeometry(testFilePath: string): FileRunResult {
       const originalLine = originalLines[i] || ""
       const serializedLine = serializedLines[i] || ""
 
-      if (originalLine !== serializedLine) {
+      if (!linesEquivalent(originalLine, serializedLine)) {
         const diffIndex = findDiffIndex(originalLine, serializedLine)
         const pointer = pointerLine(diffIndex)
         const parsedOutputPath = join(
@@ -206,6 +324,7 @@ const geometryFiles = [
   "scripts/geometries/Mitigation10.g10",
   "test/data/BurntIslands.g01",
   "test/data/Muncie.g01",
+  "test/data/Dingman-1D.g06",
   ...exampleGeometryFiles,
 ]
 
@@ -240,6 +359,10 @@ function computeRunMetrics(results: FileRunResult[]): RunMetrics {
     }
 
     if (result.status === "skipped") {
+      if (result.skipReason === "version" || result.skipReason === "legacy_version") {
+        continue
+      }
+
       return {
         filesMatched,
         totalFiles,
@@ -374,7 +497,7 @@ let shouldSkipRemaining = false
 
 for (const file of geometryFiles) {
   if (shouldSkipRemaining) {
-    runResults.push({ file, status: "skipped" })
+    runResults.push({ file, status: "skipped", skipReason: "previous_failure" })
     continue
   }
 

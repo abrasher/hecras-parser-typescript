@@ -24,6 +24,22 @@ Lateral Weir SE= 2
 Lateral Weir Centerline= 0 
 Lateral Weir HW RS Station=13214.80,-1
 Lateral Weir TW RS Station=,0
+LW Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings
+Gate #1     ,10,5,205,0.6,0,1,0.5, 0 ,3, 0 ,,, 12 ,0,0.8, 0 ,0.6,,0,0,0, 0 
+      80     100     120     140     160     180     200     220     240     260
+     280     300
+LW Gate Opening=1,Opening #1,0
+LW Gate Opening=2,Opening #2,0
+LW Gate Opening=3,Opening #3,0
+LW Gate Opening=4,Opening #4,0
+LW Gate Opening=5,Opening #5,0
+LW Gate Opening=6,Opening #6,0
+LW Gate Opening=7,Opening #7,0
+LW Gate Opening=8,Opening #8,0
+LW Gate Opening=9,Opening #9,0
+LW Gate Opening=10,Opening #10,0
+LW Gate Opening=11,Opening #11,0
+LW Gate Opening=12,Opening #12,0
 LW Div RC= 0 ,False,
 
 `
@@ -64,7 +80,7 @@ const expectedLateralWeir: LateralWeirSchema = {
   endRiver: "",
   endReach: "",
   endCrossSection: "",
-  endStation: 150,
+  endStation: "150",
   distance: 1,
   tailwaterMultipleCrossSections: 0,
   weirWidth: 20,
@@ -100,6 +116,45 @@ const expectedLateralWeir: LateralWeirSchema = {
       station: "",
     },
   ],
+  gate: {
+    gateName: "Gate #1",
+    width: 10,
+    height: 5,
+    invert: 205,
+    gCoef: 0.6,
+    expT: 0,
+    expO: 1,
+    expH: 0.5,
+    type: 0,
+    wCoef: 3,
+    isOgee: false,
+    spillwayHeight: null,
+    designHead: null,
+    unknownParam1: 0,
+    unknownParam2: 0.8,
+    unknownParam3: 0,
+    unknownParam4: 0.6,
+    unknownParam5: null,
+    unknownParam6: 0,
+    unknownParam7: 0,
+    unknownParam8: 0,
+    unknownParam9: 0,
+    gatePositions: [80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300],
+    gateOpenings: [
+      { id: 1, name: "Opening #1", gateFlag: false },
+      { id: 2, name: "Opening #2", gateFlag: false },
+      { id: 3, name: "Opening #3", gateFlag: false },
+      { id: 4, name: "Opening #4", gateFlag: false },
+      { id: 5, name: "Opening #5", gateFlag: false },
+      { id: 6, name: "Opening #6", gateFlag: false },
+      { id: 7, name: "Opening #7", gateFlag: false },
+      { id: 8, name: "Opening #8", gateFlag: false },
+      { id: 9, name: "Opening #9", gateFlag: false },
+      { id: 10, name: "Opening #10", gateFlag: false },
+      { id: 11, name: "Opening #11", gateFlag: false },
+      { id: 12, name: "Opening #12", gateFlag: false },
+    ],
+  },
   ratingCurveId: 0,
   useRatingCurve: false,
   ratingCurveLabel: "",
