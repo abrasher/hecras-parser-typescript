@@ -58,7 +58,7 @@ export const lateralWeirSchema = schema([
       endStation: stringPart({ trim: true, width: 16 }),
     }),
   ),
-  numberField("distance", "Lateral Weir Distance=", { integer: true }),
+  numberField("distance", "Lateral Weir Distance="),
   numberField("tailwaterMultipleCrossSections", "Lateral Weir TW Multiple XS=", {
     integer: true,
   }),

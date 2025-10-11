@@ -14,7 +14,7 @@ import { schema, tupleArrayField, stringField, numberField, type Infer } from ".
  */
 export const breakLineSchema = schema([
   stringField("name", "BreakLine Name=", { trim: true }),
-  numberField("cellSizeMin", "BreakLine CellSize Min="),
+  numberField("cellSizeMin", "BreakLine CellSize Min=", { nullOnBlank: true }),
   numberField("cellSizeMax", "BreakLine CellSize Max=", { nullOnBlank: true }),
   numberField("nearRepeats", "BreakLine Near Repeats="),
   numberField("protectionRadius", "BreakLine Protection Radius="),
