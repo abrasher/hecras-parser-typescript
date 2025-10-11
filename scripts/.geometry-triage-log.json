@@ -1,0 +1,557 @@
+[
+  {
+    "timestamp": "2025-10-10T17:13:15.895Z",
+    "file": "test/data/Dingman-1D.g06",
+    "status": "diff",
+    "note": "1D: Multiple Barrel Culv not support yet",
+    "diffLine": 25175,
+    "diffIndex": 0,
+    "originalLine": "Multiple Barrel Culv=2,1.88,2.42,49.54,0.017,0.5,1,58,1,261.2,261.1, 2,Culvert #1  , 0 ,3.79",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760116359885-283dcc2509dd6.json",
+    "linesMatched": 25174
+  },
+  {
+    "timestamp": "2025-10-10T17:14:42.811Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g02",
+    "status": "error",
+    "note": "1D: BR Coef= may not be boolean for first 3 parts, or maybe booleans can include 1 as well as -1?",
+    "errorMessage": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 110, content: \"BR Coef= 1 , 1 , 1 ,1.05, 0 ,,,0.8,0,1.33,0,\""
+  },
+  {
+    "timestamp": "2025-10-10T17:15:30.090Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.serialized.g02",
+    "status": "diff",
+    "note": "1D: Up River,Reach=REACH reach should be a width of 16, padded on end",
+    "diffLine": 5,
+    "diffIndex": 17,
+    "originalLine": "Junct Name=Sutter",
+    "serializedLine": "Junct Name=Sutter          ",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760116482816-85a5542ca055d.json",
+    "linesMatched": 4
+  },
+  {
+    "timestamp": "2025-10-10T17:16:25.319Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.g02",
+    "status": "diff",
+    "note": "1D: crossSectionSchema.ts sediment elevation should be before \"XS HTab Starting El and Incr=\"",
+    "diffLine": 31,
+    "diffIndex": 0,
+    "originalLine": "XS HTab Starting El and Incr=436.8,1, 63 ",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760116530104-25e65910fd2fe.json",
+    "linesMatched": 30
+  },
+  {
+    "timestamp": "2025-10-10T17:17:20.647Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Unsteady Flow Encroachment Analysis_UnsteadyEncroachment.g01",
+    "status": "diff",
+    "note": "1D: BC HTab HWMax= is not handled in schema for 1D bridges",
+    "diffLine": 550,
+    "diffIndex": 0,
+    "originalLine": "BC HTab HWMax=220",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760116585347-a7d0ae0f27e63.json",
+    "linesMatched": 549
+  },
+  {
+    "timestamp": "2025-10-10T17:18:07.115Z",
+    "file": "test/data/example_geometries/2D Sediment Transport_Weise_2D_Backup_Weise.2022-Dec-08(1).g08",
+    "status": "diff",
+    "note": "2D: Storage Area Surface Line= it appears coordinates that are whole numbers end in a decimal?",
+    "diffLine": 7,
+    "diffIndex": 14,
+    "originalLine": "              0.              0.                ",
+    "serializedLine": "               0               0                ",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760116640664-ad3b0c5e1b74e.json",
+    "linesMatched": 6
+  },
+  {
+    "timestamp": "2025-10-10T17:18:29.701Z",
+    "file": "test/data/example_geometries/2D Sediment Transport_Weise_2D_Weise.g08",
+    "status": "diff",
+    "note": "2D: Storage Area Surface Line= it appears coordinates that are whole numbers end in a decimal?",
+    "diffLine": 7,
+    "diffIndex": 14,
+    "originalLine": "              0.              0.                ",
+    "serializedLine": "               0               0                ",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760116687125-08818c04d4561.json",
+    "linesMatched": 6
+  },
+  {
+    "timestamp": "2025-10-10T17:18:53.818Z",
+    "file": "test/data/example_geometries/2D Unsteady Flow Hydraulics_BaldEagleCrkMulti2D_BaldEagleDamBrk.g02",
+    "status": "error",
+    "note": "BreakLine CellSize Min= should have blankOnNull: true",
+    "errorMessage": "Expected number but found blank segment\n[ParseContext] Last parsed line index: 14786, content: \"BreakLine CellSize Min=\""
+  },
+  {
+    "timestamp": "2025-10-10T17:19:15.710Z",
+    "file": "test/data/example_geometries/2D Unsteady Flow Hydraulics_BaldEagleCrkMulti2D_BaldEagleDamBrk.g03",
+    "status": "error",
+    "note": "BreakLine CellSize Min= should have blankOnNull: true",
+    "errorMessage": "Expected number but found blank segment\n[ParseContext] Last parsed line index: 12918, content: \"BreakLine CellSize Min=\""
+  },
+  {
+    "timestamp": "2025-10-10T17:20:59.367Z",
+    "file": "test/data/example_geometries/Applications Guide_Example 14 - Ice Covered River_thames.g02",
+    "status": "diff",
+    "note": "ProgramVersion can be omitted sometimes, but I don't want to support these files as they are likely very old",
+    "diffLine": 2,
+    "diffIndex": 0,
+    "originalLine": "Viewing Rectangle= 7.81008166957784E-02 , 0.894100828855126 , 0.908000006079674 , 9.19999939203262E-02 ",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760116755752-2bf9531c87033.json",
+    "linesMatched": 1
+  },
+  {
+    "timestamp": "2025-10-10T17:21:29.970Z",
+    "file": "test/data/example_geometries/Applications Guide_Example 22 - Groundwater Interflow_BeaverSALeak.g01",
+    "status": "diff",
+    "note": "1D: Multiple Barrel Culv= needs to be added to the schema for 1d culverts",
+    "diffLine": 1029,
+    "diffIndex": 0,
+    "originalLine": "Multiple Barrel Culv=2,10,20,90,0.03,0.5,1,8,1,203,202, 6,Culvert #1  , 0 ,5",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760116859400-d5a525edbbd68.json",
+    "linesMatched": 1028
+  },
+  {
+    "timestamp": "2025-10-10T17:22:19.589Z",
+    "file": "test/data/example_geometries/Applications Guide_Example 24 - Mannings-n-Calibration_Manning'snCalibra.g01",
+    "status": "diff",
+    "note": "1D: lateral weir schema needs to add geometry decription block support BEGIN DESCRIPTION:",
+    "diffLine": 263,
+    "diffIndex": 0,
+    "originalLine": "BEGIN DESCRIPTION:",
+    "serializedLine": "Lateral Weir SE= 0 ",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760116890003-72ba7d19cce9e.json",
+    "linesMatched": 262
+  },
+  {
+    "timestamp": "2025-10-10T17:34:33.279Z",
+    "file": "test/data/Muncie.g01",
+    "status": "diff",
+    "note": "1D: some lines like LW Div RC= appear to have new parts in newer versions (v5 vs v6). Not sure how we are going to handle this. It used to have 3 parts (2 commas) but now has 4 parts (3 commas) so it outputs an extra comma that wasn't there in the old version",
+    "diffLine": 572,
+    "diffIndex": 20,
+    "originalLine": "LW Div RC= 0 ,False,",
+    "serializedLine": "LW Div RC= 0 ,False,,",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760117485835-410065eebc461.json",
+    "linesMatched": 571
+  },
+  {
+    "timestamp": "2025-10-10T17:34:39.108Z",
+    "file": "test/data/Dingman-1D.g06",
+    "status": "diff",
+    "note": "1D: Multiple Barrel Culv not support yet",
+    "diffLine": 25175,
+    "diffIndex": 0,
+    "originalLine": "Multiple Barrel Culv=2,1.88,2.42,49.54,0.017,0.5,1,58,1,261.2,261.1, 2,Culvert #1  , 0 ,3.79",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760117673409-5823b7c28960b.json",
+    "linesMatched": 25174
+  },
+  {
+    "timestamp": "2025-10-10T17:35:28.898Z",
+    "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Baxter RAS Mapper_RAS Model_Baxter.g02",
+    "status": "diff",
+    "note": "1D: the Up River,Reach= field, for the 2nd part (reach) should have a length of 12, padded to the end",
+    "diffLine": 8,
+    "diffIndex": 43,
+    "originalLine": "Up River,Reach=Baxter River    ,Upper Reach     ",
+    "serializedLine": "Up River,Reach=Baxter River    ,Upper Reach",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760117679173-e19f91f1789eb.json",
+    "linesMatched": 7
+  },
+  {
+    "timestamp": "2025-10-10T17:37:50.250Z",
+    "file": "test/data/example_geometries/1D Steady Flow Hydraulics_ConSpan Culvert_ConSpan.g01",
+    "status": "error",
+    "note": "1D: for Bridge Culvert-, either one of the parts are not actually booleans (3rd part in particular) or sometimes booleans can be 1 which would not be good",
+    "errorMessage": "Invalid boolean segment for mode -1,0: 1\n[ParseContext] Last parsed line index: 96, content: \"Bridge Culvert-0,0,1,-1, 0 \""
+  },
+  {
+    "timestamp": "2025-10-10T17:39:00.219Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g01",
+    "status": "error",
+    "note": "1D: for Bridge Culvert-, either one of the parts are not actually booleans (3rd part in particular) or sometimes booleans can be 1 which would not be good",
+    "errorMessage": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 96, content: \"BR Coef= 1 , 1 , 1 ,1.05, 0 ,,,0.8,0,1.33,0,\""
+  },
+  {
+    "timestamp": "2025-10-10T17:39:03.577Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g02",
+    "status": "error",
+    "note": "1D: BR Coef= may not be boolean for first 3 parts, or maybe booleans can include 1 as well as -1?",
+    "errorMessage": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 110, content: \"BR Coef= 1 , 1 , 1 ,1.05, 0 ,,,0.8,0,1.33,0,\""
+  },
+  {
+    "timestamp": "2025-10-10T17:39:06.806Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.serialized.g02",
+    "status": "diff",
+    "note": "1D: Up River,Reach=REACH reach should be a width of 16, padded on end",
+    "diffLine": 5,
+    "diffIndex": 17,
+    "originalLine": "Junct Name=Sutter",
+    "serializedLine": "Junct Name=Sutter          ",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760117943581-fbfe028484f0a.json",
+    "linesMatched": 4
+  },
+  {
+    "timestamp": "2025-10-10T17:40:01.685Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure connected to a River Reach_3Reach_with_Lat.g01",
+    "status": "error",
+    "note": "1D: for Bridge Culvert-, either one of the parts are not actually booleans (3rd part in particular) or sometimes booleans can be 1 which would not be good",
+    "errorMessage": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 96, content: \"BR Coef= 1 , 1 , 1 ,1.05, 0 ,,,0.8,0,1.33,0,\""
+  },
+  {
+    "timestamp": "2025-10-10T17:41:05.943Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure with Culverts and Gates_Beav_Lateral.g01",
+    "status": "error",
+    "note": "1D: #Mann= 6 , 1 , 0 the 2nd part is a boolean in the schema but here it is 1 for some reason",
+    "errorMessage": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 64, content: \"#Mann= 6 , 1 , 0 \""
+  },
+  {
+    "timestamp": "2025-10-10T17:41:21.322Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Levee Breaching_LeveeBreach.g01",
+    "status": "error",
+    "note": "either not a boolean or booleans can be 1",
+    "errorMessage": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 72, content: \"#Mann= 6 , 1 , 0 \""
+  },
+  {
+    "timestamp": "2025-10-10T17:41:41.644Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Multiple Reaches with Hydraulic Structures_3ReachUnsteady.g01",
+    "status": "error",
+    "note": "booleans being 1 or wrong schema",
+    "errorMessage": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 96, content: \"BR Coef= 1 , 1 , 1 ,1.05, 0 ,,,0.8,0,1.33,0,\""
+  },
+  {
+    "timestamp": "2025-10-10T17:41:44.495Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.g02",
+    "status": "diff",
+    "note": "1D: crossSectionSchema.ts sediment elevation should be before \"XS HTab Starting El and Incr=\"",
+    "diffLine": 31,
+    "diffIndex": 0,
+    "originalLine": "XS HTab Starting El and Incr=436.8,1, 63 ",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118101652-f39737d3ed535.json",
+    "linesMatched": 30
+  },
+  {
+    "timestamp": "2025-10-10T17:42:45.721Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_StPaul.g02",
+    "status": "diff",
+    "note": "1D: cross section can have \"Node Name=\" which is not in the schema",
+    "diffLine": 597,
+    "diffIndex": 0,
+    "originalLine": "Node Name=LD5HW",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118104504-c4c2919957418.json",
+    "linesMatched": 596
+  },
+  {
+    "timestamp": "2025-10-10T17:43:05.435Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Pumping Station_Pumps.g01",
+    "status": "error",
+    "note": "boolean is 1",
+    "errorMessage": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 29, content: \"#Mann= 4 , 1 , 0 \""
+  },
+  {
+    "timestamp": "2025-10-10T17:43:34.226Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Simplified Physical Breaching_L40_Levee_Outflow_H.g02",
+    "status": "diff",
+    "note": "extra comma because file didn't have 4 parts like new files do",
+    "diffLine": 3588,
+    "diffIndex": 20,
+    "originalLine": "LW Div RC= 0 ,False,",
+    "serializedLine": "LW Div RC= 0 ,False,,",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118185458-5bd012d90b5e1.json",
+    "linesMatched": 3587
+  },
+  {
+    "timestamp": "2025-10-10T17:43:39.767Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Storage Area Hydraulic Connection_Beaver_LS_SAConn.g01",
+    "status": "error",
+    "note": "booleans being 1",
+    "errorMessage": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 29, content: \"#Mann= 4 , 1 , 0 \""
+  },
+  {
+    "timestamp": "2025-10-10T17:43:43.627Z",
+    "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Unsteady Flow Encroachment Analysis_UnsteadyEncroachment.g01",
+    "status": "diff",
+    "note": "1D: BC HTab HWMax= is not handled in schema for 1D bridges",
+    "diffLine": 550,
+    "diffIndex": 0,
+    "originalLine": "BC HTab HWMax=220",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118219786-c3a5b6b96ef4c.json",
+    "linesMatched": 549
+  },
+  {
+    "timestamp": "2025-10-10T17:45:07.268Z",
+    "file": "test/data/example_geometries/2D Sediment Transport_Weise_2D_Backup.g01",
+    "status": "diff",
+    "note": "coordinates that are whole numbers appear to have a decimal at the end",
+    "diffLine": 7,
+    "diffIndex": 14,
+    "originalLine": "              0.              0.                ",
+    "serializedLine": "               0               0                ",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118223652-3ebed14d96724.json",
+    "linesMatched": 6
+  },
+  {
+    "timestamp": "2025-10-10T17:45:11.109Z",
+    "file": "test/data/example_geometries/2D Sediment Transport_Weise_2D_Backup_Weise.2022-Dec-08(1).g08",
+    "status": "diff",
+    "note": "2D: Storage Area Surface Line= it appears coordinates that are whole numbers end in a decimal?",
+    "diffLine": 7,
+    "diffIndex": 14,
+    "originalLine": "              0.              0.                ",
+    "serializedLine": "               0               0                ",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118307275-29799da8c509b.json",
+    "linesMatched": 6
+  },
+  {
+    "timestamp": "2025-10-10T17:45:14.022Z",
+    "file": "test/data/example_geometries/2D Sediment Transport_Weise_2D_Weise.g08",
+    "status": "diff",
+    "note": "2D: Storage Area Surface Line= it appears coordinates that are whole numbers end in a decimal?",
+    "diffLine": 7,
+    "diffIndex": 14,
+    "originalLine": "              0.              0.                ",
+    "serializedLine": "               0               0                ",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118311117-22370a6be09ac.json",
+    "linesMatched": 6
+  },
+  {
+    "timestamp": "2025-10-10T17:45:42.719Z",
+    "file": "test/data/example_geometries/2D Unsteady Flow Hydraulics_BaldEagleCrkMulti2D_BaldEagleDamBrk.g01",
+    "status": "diff",
+    "note": "we don't support gates at all yet",
+    "diffLine": 44168,
+    "diffIndex": 0,
+    "originalLine": "Conn Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118314115-db04a1a094679.json",
+    "linesMatched": 44167
+  },
+  {
+    "timestamp": "2025-10-10T17:45:46.736Z",
+    "file": "test/data/example_geometries/2D Unsteady Flow Hydraulics_BaldEagleCrkMulti2D_BaldEagleDamBrk.g02",
+    "status": "error",
+    "note": "BreakLine CellSize Min= should have blankOnNull: true",
+    "errorMessage": "Expected number but found blank segment\n[ParseContext] Last parsed line index: 14786, content: \"BreakLine CellSize Min=\""
+  },
+  {
+    "timestamp": "2025-10-10T17:45:47.309Z",
+    "file": "test/data/example_geometries/2D Unsteady Flow Hydraulics_BaldEagleCrkMulti2D_BaldEagleDamBrk.g03",
+    "status": "error",
+    "note": "BreakLine CellSize Min= should have blankOnNull: true",
+    "errorMessage": "Expected number but found blank segment\n[ParseContext] Last parsed line index: 12918, content: \"BreakLine CellSize Min=\""
+  },
+  {
+    "timestamp": "2025-10-10T17:46:15.872Z",
+    "file": "test/data/example_geometries/2D Unsteady Flow Hydraulics_BaldEagleCrkMulti2D_BaldEagleDamBrk.g06",
+    "status": "diff",
+    "note": "node name is not in our schema yet, it is optional",
+    "diffLine": 276,
+    "diffIndex": 0,
+    "originalLine": "Node Name=Low Water Bridge",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118347321-8f44e4ecee671.json",
+    "linesMatched": 275
+  },
+  {
+    "timestamp": "2025-10-10T17:46:44.327Z",
+    "file": "test/data/example_geometries/2D Unsteady Flow Hydraulics_BaldEagleCrkMulti2D_BaldEagleDamBrk.g08",
+    "status": "diff",
+    "note": "Reach Downstream Storage Area= is not in our schema for riverReach",
+    "diffLine": 78,
+    "diffIndex": 0,
+    "originalLine": "Reach Downstream Storage Area=BaldEagleCr     ",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118375882-6cb1a071e39e7.json",
+    "linesMatched": 77
+  },
+  {
+    "timestamp": "2025-10-10T17:47:15.272Z",
+    "file": "test/data/example_geometries/2D Unsteady Flow Hydraulics_BaldEagleCrkMulti2D_BaldEagleDamBrk.g09",
+    "status": "error",
+    "note": "we need to adjust BreakLine CellSize Min= to have nullOnBlank",
+    "errorMessage": "Expected number but found blank segment\n[ParseContext] Last parsed line index: 9592, content: \"BreakLine CellSize Min=\""
+  },
+  {
+    "timestamp": "2025-10-10T17:47:34.146Z",
+    "file": "test/data/example_geometries/2D Unsteady Flow Hydraulics_BaldEagleCrkMulti2D_BaldEagleDamBrk.g10",
+    "status": "diff",
+    "note": "Reach Upstream Storage Area= needs to be added to riverReach schema",
+    "diffLine": 86,
+    "diffIndex": 0,
+    "originalLine": "Reach Upstream Storage Area=Upstream2D      ",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118435281-96b4e2ea83af2.json",
+    "linesMatched": 85
+  },
+  {
+    "timestamp": "2025-10-10T17:48:01.786Z",
+    "file": "test/data/example_geometries/2D Unsteady Flow Hydraulics_BaldEagleCrkMulti2D_BaldEagleDamBrk.g11",
+    "status": "error",
+    "note": "BreakLine CellSize Min= needs to have nullOnBlank",
+    "errorMessage": "Expected number but found blank segment\n[ParseContext] Last parsed line index: 2860, content: \"BreakLine CellSize Min=\""
+  },
+  {
+    "timestamp": "2025-10-10T17:48:18.973Z",
+    "file": "test/data/example_geometries/2D Unsteady Flow Hydraulics_BaldEagleCrkMulti2D_BaldEagleDamBrk.g12",
+    "status": "diff",
+    "note": "2D: need to add gate to connectionSchema",
+    "diffLine": 2945,
+    "diffIndex": 0,
+    "originalLine": "Conn Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118481800-d4fd545df0d7c.json",
+    "linesMatched": 2944
+  },
+  {
+    "timestamp": "2025-10-10T17:48:29.760Z",
+    "file": "test/data/example_geometries/2D Unsteady Flow Hydraulics_BaldEagleCrkMulti2D_BaldEagleDamBrk.g13",
+    "status": "diff",
+    "note": "2D: need to add gate to connection schema",
+    "diffLine": 8538,
+    "diffIndex": 0,
+    "originalLine": "Conn Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118499010-3fe7e8fb5cfeb.json",
+    "linesMatched": 8537
+  },
+  {
+    "timestamp": "2025-10-10T17:48:48.682Z",
+    "file": "test/data/example_geometries/2D Unsteady Flow Hydraulics_Muncie_Muncie.g02",
+    "status": "diff",
+    "note": "Lateral Weir Distance= is not an integar like we have in the schema",
+    "diffLine": 557,
+    "diffIndex": 23,
+    "originalLine": "Lateral Weir Distance=3.4",
+    "serializedLine": "Lateral Weir Distance=3",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118509770-2ea3298b73c15.json",
+    "linesMatched": 556
+  },
+  {
+    "timestamp": "2025-10-10T17:48:55.402Z",
+    "file": "test/data/example_geometries/2D Unsteady Flow Hydraulics_Muncie_Muncie.g04",
+    "status": "diff",
+    "note": "Lateral Weir Distance= is not an int",
+    "diffLine": 557,
+    "diffIndex": 23,
+    "originalLine": "Lateral Weir Distance=3.6",
+    "serializedLine": "Lateral Weir Distance=3",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118528694-a02d8562d2997.json",
+    "linesMatched": 556
+  },
+  {
+    "timestamp": "2025-10-10T17:49:01.960Z",
+    "file": "test/data/example_geometries/Applications Guide_Example 14 - Ice Covered River_thames.g02",
+    "status": "diff",
+    "note": "ProgramVersion can be omitted sometimes, but I don't want to support these files as they are likely very old",
+    "diffLine": 2,
+    "diffIndex": 0,
+    "originalLine": "Viewing Rectangle= 7.81008166957784E-02 , 0.894100828855126 , 0.908000006079674 , 9.19999939203262E-02 ",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118535427-ca0ad689087a1.json",
+    "linesMatched": 1
+  },
+  {
+    "timestamp": "2025-10-10T17:49:23.473Z",
+    "file": "test/data/example_geometries/Applications Guide_Example 17 - Unsteady Flow Application_Diamond.g01",
+    "status": "diff",
+    "note": "reach needs to be added to 12",
+    "diffLine": 8,
+    "diffIndex": 37,
+    "originalLine": "Up River,Reach=Diamond         ,North           ",
+    "serializedLine": "Up River,Reach=Diamond         ,North",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118541967-e0d73f15e0b3b.json",
+    "linesMatched": 7
+  },
+  {
+    "timestamp": "2025-10-10T17:49:35.056Z",
+    "file": "test/data/example_geometries/Applications Guide_Example 18 - Advanced Inline Structure_InlineStructureE.g01",
+    "status": "error",
+    "note": "booleans being 1 instead of -1",
+    "errorMessage": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 72, content: \"#Mann= 6 , 1 , 0 \""
+  },
+  {
+    "timestamp": "2025-10-10T17:49:39.224Z",
+    "file": "test/data/example_geometries/Applications Guide_Example 2 - Beaver Creek_BEAVCREK.g04",
+    "status": "error",
+    "note": "booleans being 1 instead of -1",
+    "errorMessage": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 29, content: \"#Mann= 4 , 1 , 0 \""
+  },
+  {
+    "timestamp": "2025-10-10T17:50:01.931Z",
+    "file": "test/data/example_geometries/Applications Guide_Example 20 - HagerLatWeir_HagerLatWeir.g04",
+    "status": "diff",
+    "note": "Lateral Weir Is Sharp= is not in the schema",
+    "diffLine": 157,
+    "diffIndex": 13,
+    "originalLine": "Lateral Weir Is Sharp=-1 ",
+    "serializedLine": "Lateral Weir SE= 0 ",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118579227-92900d709be37.json",
+    "linesMatched": 156
+  },
+  {
+    "timestamp": "2025-10-10T17:50:26.679Z",
+    "file": "test/data/example_geometries/Applications Guide_Example 21 - Overflow Gates_Overflow.g03",
+    "status": "error",
+    "note": "lateral weir schema needs to have gates",
+    "errorMessage": "Expected gate opening line at index 62 for opening 1\n[ParseContext] Last parsed line index: 59, content: \"LW Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings\""
+  },
+  {
+    "timestamp": "2025-10-10T17:50:44.496Z",
+    "file": "test/data/example_geometries/Applications Guide_Example 22 - Groundwater Interflow_BeaverSALeak.g01",
+    "status": "diff",
+    "note": "1D: Multiple Barrel Culv= needs to be added to the schema for 1d culverts",
+    "diffLine": 1029,
+    "diffIndex": 0,
+    "originalLine": "Multiple Barrel Culv=2,10,20,90,0.03,0.5,1,8,1,203,202, 6,Culvert #1  , 0 ,5",
+    "serializedLine": "",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118626693-6de63a3f4262b.json",
+    "linesMatched": 1028
+  },
+  {
+    "timestamp": "2025-10-10T17:50:59.915Z",
+    "file": "test/data/example_geometries/Applications Guide_Example 23 - Urban Modeling_OrleansEx.g04",
+    "status": "diff",
+    "note": "ignore, issue already reported",
+    "diffLine": 9,
+    "diffIndex": 33,
+    "originalLine": "Up River,Reach=17th Street     ,3               ",
+    "serializedLine": "Up River,Reach=17th Street     ,3",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118644518-a81f74aed2788.json",
+    "linesMatched": 8
+  },
+  {
+    "timestamp": "2025-10-10T17:51:14.742Z",
+    "file": "test/data/example_geometries/Applications Guide_Example 24 - Mannings-n-Calibration_Manning'snCalibra.g01",
+    "status": "diff",
+    "note": "1D: lateral weir schema needs to add geometry decription block support BEGIN DESCRIPTION:",
+    "diffLine": 263,
+    "diffIndex": 0,
+    "originalLine": "BEGIN DESCRIPTION:",
+    "serializedLine": "Lateral Weir SE= 0 ",
+    "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760118659940-c28f1e0eec649.json",
+    "linesMatched": 262
+  },
+  {
+    "timestamp": "2025-10-10T17:51:24.294Z",
+    "file": "test/data/example_geometries/Applications Guide_Example 3 - Single Culvert_TWINPIPE.g01",
+    "status": "error",
+    "note": "booleans being 1",
+    "errorMessage": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 100, content: \"#Mann= 3 , 1 , 0 \""
+  },
+  {
+    "timestamp": "2025-10-10T17:51:26.599Z",
+    "file": "test/data/example_geometries/Applications Guide_Example 5 - Multiple Openings_MULTOPEN.g01",
+    "status": "error",
+    "note": "booleans being 1",
+    "errorMessage": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 29, content: \"#Mann= 4 , 1 , 0 \""
+  }
+]
