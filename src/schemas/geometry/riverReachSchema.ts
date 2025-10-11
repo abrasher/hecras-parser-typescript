@@ -8,6 +8,7 @@ import {
   parseSectionWithSchema,
   schema,
   serializeWithSchema,
+  stringField,
   stringPart,
   tupleArrayField,
   tupleField,
@@ -50,6 +51,14 @@ export const riverReachSchema = schema([
   }),
   tupleField("textPosition", "Rch Text X Y=", [numberPart(), numberPart()], { optional: true }),
   booleanField("reversedText", "Reverse River Text=", { mode: "-1,0", pad: true }),
+  stringField("downstreamStorageArea", "Reach Downstream Storage Area=", {
+    optional: true,
+    trim: true,
+  }),
+  stringField("upstreamStorageArea", "Reach Upstream Storage Area=", {
+    optional: true,
+    trim: true,
+  }),
   blankLine(),
   contextual(
     "riverStationEntries",

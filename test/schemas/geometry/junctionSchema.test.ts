@@ -98,14 +98,15 @@ describe("junctionSchema", () => {
     const lines = serializeWithSchema(junctionSchema, junctionData)
 
     expect(lines).toEqual([
-      "Junct Name=1",
-      "Junct Desc=,0,0,-1,0", // Now using proper "-1,0" mode
+      "Junct Name=1               ",
+      "Junct Desc=,0,0,-1,0",
       "Junct X Y & Text X Y=491202.53125,4753367.5,491202.53125,4753367.5",
-      "Up River,Reach=DM,29",
-      "Up River,Reach=Trib 29,Trib 29",
-      "Dn River,Reach=DM,28",
+      "Up River,Reach=DM              ,29          ",
+      "Up River,Reach=Trib 29         ,Trib 29     ",
+      "Dn River,Reach=DM              ,28          ",
       "Junc L&A=102.93,0",
       "Junc L&A=67.3,0",
+      "",
     ])
   })
 })
