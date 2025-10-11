@@ -9,7 +9,7 @@ const lateralWeirBlock = `Type RM Length L Ch R = 6 ,13214   ,,,
 Node Last Edited Time=Mar/28/2013 14:17:01
 Lateral Weir Pos= 0 
 Lateral Weir End=                ,                ,        ,150             
-Lateral Weir Distance=1
+Lateral Weir Distance=1.25
 Lateral Weir TW Multiple XS=0
 Lateral Weir WD=20
 Lateral Weir Coef=2
@@ -81,7 +81,7 @@ const expectedLateralWeir: LateralWeirSchema = {
   endReach: "",
   endCrossSection: "",
   endStation: "150",
-  distance: 1,
+  distance: 1.25,
   tailwaterMultipleCrossSections: 0,
   weirWidth: 20,
   weirCoefficient: 2,
@@ -130,16 +130,17 @@ const expectedLateralWeir: LateralWeirSchema = {
     isOgee: false,
     spillwayHeight: null,
     designHead: null,
-    unknownParam1: 0,
-    unknownParam2: 0.8,
-    unknownParam3: 0,
-    unknownParam4: 0.6,
-    unknownParam5: null,
-    unknownParam6: 0,
-    unknownParam7: 0,
-    unknownParam8: 0,
-    unknownParam9: 0,
+    unknown1: 0,
+    unknown2: 0.8,
+    unknown3: false,
+    unknown4: 0.6,
+    unknown5: null,
+    unknown6: 0,
+    unknown7: 0,
+    unknown8: 0,
+    unknown9: false,
     gatePositions: [80, 100, 120, 140, 160, 180, 200, 220, 240, 260, 280, 300],
+
     gateOpenings: [
       { id: 1, name: "Opening #1", gateFlag: false },
       { id: 2, name: "Opening #2", gateFlag: false },
@@ -158,4 +159,5 @@ const expectedLateralWeir: LateralWeirSchema = {
   ratingCurveId: 0,
   useRatingCurve: false,
   ratingCurveLabel: "",
+  ratingCurveUnknown: "",
 }
