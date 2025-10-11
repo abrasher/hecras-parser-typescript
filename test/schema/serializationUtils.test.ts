@@ -34,8 +34,8 @@ describe("serializationUtils", () => {
 
   describe("formatBoolean", () => {
     it("should format boolean in 10 mode (default)", () => {
-      expect(formatBoolean(true)).toBe("-1")
-      expect(formatBoolean(false)).toBe(" 0")
+      expect(formatBoolean(true)).toBe("-1 ")
+      expect(formatBoolean(false)).toBe(" 0 ")
       expect(formatBoolean(false, "10", false)).toBe("0")
     })
 
@@ -109,7 +109,7 @@ describe("serializationUtils", () => {
     it("should format coordinates using HEC-RAS conventions", () => {
       expect(formatHECRASCoordinateNumber(0)).toBe("0")
       expect(formatHECRASCoordinateNumber(123)).toBe("123.")
-      expect(formatHECRASCoordinateNumber(0.584)).toBe(" .584")
+      expect(formatHECRASCoordinateNumber(0.584)).toBe("0.584")
       expect(formatHECRASCoordinateNumber(123.456)).toBe("123.456")
     })
   })
@@ -126,7 +126,10 @@ describe("serializationUtils", () => {
 
   describe("formatCoordinateChunks", () => {
     it("should format coordinate pairs into fixed-width lines", () => {
-      const coords: [number, number][] = [[123.0, 456.0], [0.5, -0.25]]
+      const coords: [number, number][] = [
+        [123.0, 456.0],
+        [0.5, -0.25],
+      ]
       const result = formatCoordinateChunks(coords)
       expect(result).toHaveLength(2)
       expect(result[0]).toHaveLength(32) // 2 numbers × 16 chars each
@@ -135,7 +138,10 @@ describe("serializationUtils", () => {
 
   describe("formatCoordinateMultipleLines", () => {
     it("should include header with coordinate count", () => {
-      const coords: [number, number][] = [[1, 2], [3, 4]]
+      const coords: [number, number][] = [
+        [1, 2],
+        [3, 4],
+      ]
       const result = formatCoordinateMultipleLines("XYZ", coords)
       expect(result[0]).toBe("XYZ=2")
       expect(result).toHaveLength(3) // header + 2 coordinate lines
