@@ -39,6 +39,7 @@ export const crossSectionSchema = schema([
     pad: false,
     formatter: "coordinate",
   }),
+  stringField("nodeName", "Node Name=", { optional: true, trim: true }),
   stringField("lastEditedTime", "Node Last Edited Time=", { optional: true, trim: true }),
   tupleArrayField("#Sta/Elev=", "stationElevation", {
     width: 8,
@@ -165,6 +166,7 @@ export const crossSectionSchema = schema([
       Vertical n Flow=0
    */
 
+  numberField("sedimentElevation", "Sediment Elevation=", { optional: true }),
   multiField(
     "XS HTab Starting El and Incr=",
     fields({
@@ -183,7 +185,6 @@ export const crossSectionSchema = schema([
     }),
     { optional: true },
   ),
-  numberField("sedimentElevation", "Sediment Elevation=", { optional: true }),
   numberField("skewAngle", "Skew Angle=", { optional: true, pad: true }),
   multiField(
     "Exp/Cntr=",

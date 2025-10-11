@@ -299,6 +299,7 @@ export const oneDimBridgeSchema = schema([
     }),
   ),
   textBlockField("description", "DESCRIPTION", { optional: true }),
+  stringField("nodeName", "Node Name=", { optional: true, trim: true }),
   stringField("lastEditedTime", "Node Last Edited Time=", { optional: true, trim: true }),
 
   multiField(
@@ -380,6 +381,7 @@ export const oneDimBridgeSchema = schema([
   ),
   numberField("bcUseUserHTables", "BC Use User HTab Curves=", { integer: true }),
   numberField("bcUserHTabFreeFlow", "BC User HTab FreeFlow(D)=", { integer: true, pad: true }),
+  numberField("bcHTabHWMax", "BC HTab HWMax=", { optional: true }),
   blankLine(),
 ])
 
