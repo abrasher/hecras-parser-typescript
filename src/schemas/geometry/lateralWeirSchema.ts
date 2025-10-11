@@ -64,6 +64,11 @@ export const lateralWeirSchema = schema([
   }),
   numberField("weirWidth", "Lateral Weir WD="),
   numberField("weirCoefficient", "Lateral Weir Coef="),
+  booleanField("isSharp", "Lateral Weir Is Sharp=", {
+    mode: "-1,0",
+    pad: true,
+    optional: true,
+  }),
   booleanField("overflow2DMethod", "LW OverFlow Method 2D=", {
     mode: "-1,0",
     pad: false,
