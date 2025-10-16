@@ -1,3 +1,42 @@
+### Schema-First Overview
+
+- We build everything with a schema-first parser/serializer. Read:
+  - `docs/hecras-parsing-format-specification.md` — milestones, formatting constraints, decisions/risks
+  - `.claude/prompts/dsl-refactor/schema-first.md` — DSL spec, typing, serialization rules
+- New work defines schemas under `src/schemas/**` using DSL items from `src/schema/**` and the drivers in `src/schema/driver.ts`.
+
+Key directories
+
+- `src/schema/**` — DSL core: `core.ts` (types, Infer), `driver.ts` (parse/serialize), `combinators.ts`, `parts.ts`, `serializationUtils.ts`, `parsingUtils.ts`
+- `src/schemas/**` — Section schemas (e.g., `breakLineSchema.ts`, `junctionSchema.ts`, `geometrySchema.ts`)
+- `docs/hecras-parsing-format-specification.md` — tracker for schema coverage, format decisions, and risks
+
+DSL quick reference (see full spec for details)
+
+- Structure: `schema([...])`, `fields({...})`, `multiField(label, fields, { optional? })`, `tupleArrayField(label, key, { width, maxWidth, tuple })`, `contextual(key, parser, serializer?)`
+- Composition: `section(key, recognizer, subSchema)`, `repeat(key, recognizer, subSchema)`, `include(subSchema)`
+- Parts/semantics: `opt(part)` for optional fields; `numberPart({ nullOnBlank: true })` for blank→null; boolean modes `TF | 10 | trueFalse | enableDisable | -1,0`
+- Drivers: `parseWithSchema(schema, lines, start, { strict? })`, `parseSectionWithSchema(schema, lines, start)`, `serializeWithSchema(schema, obj)`
+
+Common schema patterns from implemented schemas:
+
+- **Coordinates**: Use `tupleField("name", "Label=", [numberPart(), numberPart()])` for single coordinate pairs
+- **Coordinate arrays**: Use `tupleArrayField("Label=", "key", { width: 16, maxWidth: 64, tuple: 2, formatter: "coordinate", pad: true })` for coordinate tables
+- **Boolean encoding**: HEC-RAS uses `-1,0` encoding frequently (use `booleanPart({ mode: "-1,0" })` or `booleanField(key, label, { mode: "-1,0" })`)
+- **Optional numbers**: Use `numberField(key, label, { nullOnBlank: true })` to preserve blank→null semantics
+- **Variable sections**: Use `repeat(key, startsWith("Pattern"), subSchema)` for 0+ repeated sections
+- **Typed river station entries**: When headers such as `Type RM Length L Ch R =` determine the downstream schema, map the numeric type to a schema and use a `contextual` block with `parseSectionWithSchema` / `serializeWithSchema` to stream each entry (see `src/schemas/geometry/riverReachSchema.ts`).
+- **Stage/elevation tables**: Pair `countedArrayLengthPart` with `countedFixedWidthArray(..., { formatter: "station", pad: true })` to respect the recorded count and 8-character fixed-width formatting common to weir and cross-section data.
+- **String constraints**: Use `stringField(key, label, { length: 32, trim: true })` for fixed-length fields
+
+Migration workflow (summary)
+
+1) Identify the target section; review existing models, schema tests, and representative HEC-RAS samples to understand requirements.
+2) Define a schema in `src/schemas/<name>Schema.ts` using DSL items; prefer `tupleArrayField` for fixed-width tables.
+3) Add adapters or recognizers where appropriate; keep top-level tolerant until the surrounding coverage is complete.
+4) Add tests for parser parity and serializer round-trip where possible.
+5) Update `docs/hecras-parsing-format-specification.md` with coverage status and any decisions/risks.
+
 ### Development
 
 - `npm run build` - Build project (TypeScript compilation + Vite build)
@@ -16,79 +55,49 @@
 
 ## Architecture
 
-This is a TypeScript library for parsing HEC-RAS geometry files (.g01, .g02, etc.) into structured data models.
+This library parses HEC-RAS geometry files (.g01, .g02, etc.) using a schema-first DSL that drives both parsing and serialization.
 
-### Core Components
+Key pieces
 
-**Main Parser**: `parseGeometry` (from `/src/parseGeometry.ts`) - The main entry point for parsing HEC-RAS geometry files. Uses a simplified, direct parsing approach with specialized parsers for different geometry components.
+- `src/schema/core.ts` — schema item types, `Infer` typing, parts/options
+- `src/schema/driver.ts` — schema-driven parse and serialize functions
+- `src/schema/combinators.ts` — composition helpers (`section`, `repeat`, `include`)
+- `src/schema/parsingUtils.ts` — shared helpers for contextual/custom blocks
+- `src/schema/serializationUtils.ts` — helpers for fixed-width formatting and chunking
+- `src/schemas/**` — section schemas with domain-specific composition
+- `src/models/**` — TypeScript interfaces for domain models; use `Infer<typeof schema>` or `satisfies` for compatibility during migration
 
-**Atomic Parsers**: `/src/parsers/atomic.ts` - Low-level parsing primitives for extracting data from HEC-RAS file lines:
+Parsing strategy
 
-- Line parsing utilities
-- Data type extraction functions
-- Format-specific parsing helpers
-
-**Line Parsers**: `/src/parsers/lineParsers.ts` - Higher-level line-based parsing utilities for common HEC-RAS patterns:
-
-- `parseLineToCoordinates()` - Parse fixed-width coordinate data (16 chars per number)
-- `parseLineStationPairs()` - Parse station pair data (8 chars per number)
-- **Use these premade parsers when applicable** instead of reimplementing coordinate/station parsing logic
-
-**Specialized Parsers**: `/src/parsers/geometry/` - Component-specific parsers:
-
-- `culvertParser.ts` - Culvert connection parsing (modern implementation pattern)
-- `bridgeParser.ts` - Bridge connection parsing
-- `storageAreaParser.ts` - Storage area definitions
-- `connectionParser.ts` - General connection parsing utilities
-
-**Data Models**: `/src/models/` - TypeScript interfaces representing HEC-RAS geometry entities:
-
-**Core Models**:
-
-- `/src/models/geometry/geometryHeaders.ts` - Root geometry container and headers
-- `/src/models/geometry/storageArea.ts` - Storage area definitions
-- `/src/models/geometry/culvert.ts` - Comprehensive culvert connection interfaces with enums
-- `/src/models/geometry/bridge.ts` - Bridge connection interfaces and components
-- `/src/models/geometry/connection.ts` - General connection types
-- `/src/models/geometry/common.ts` - Common geometry interfaces and utilities
-
-### Parsing Strategy
-
-**Modern Parsing Pattern**: Follow the conventions established in `/src/parsers/geometry/culvertParser.ts`:
-
-- Use atomic parsing functions from `/src/parsers/atomic.ts`
-- **Use premade line parsers from `/src/parsers/lineParsers.ts`** for coordinate/station data when applicable
-- Implement structured parsing with clear data extraction phases
-- Return both parsed data and parsing metadata (lines consumed, etc.)
-- Use TypeScript interfaces for strong typing
-- Include comprehensive error handling
-
-**Atomic Parsing System**: The codebase uses a three-level parsing approach:
-
-1. **Atomic Level** (`/src/parsers/atomic.ts`) - Low-level line parsing, data type extraction
-2. **Line Level** (`/src/parsers/lineParsers.ts`) - Common line patterns (coordinates, station pairs) - **use these when applicable**
-3. **Component Level** (`/src/parsers/geometry/`) - Higher-level component assembly using atomic and line functions
-
-**Connection Types Supported**:
-
-- **Culvert Connections** - Full implementation with detailed flow characteristics
-- **Bridge Connections** - Comprehensive bridge geometry and hydraulic parameters
-- **Storage Area Connections** - Storage area definitions and connections
+- Prefer declarative schema items to encode sentinels, tuple arrays, and context-dependent lines.
+- Use recognizers (`startsWith('...')`) to bind sub-schemas; keep per-section non-strict until coverage is complete.
+- Encode optional and null/blank semantics at the Part level to preserve round-trip fidelity.
+- When custom handling is unavoidable, isolate it in `contextual` blocks backed by helpers in `src/schema/parsingUtils.ts`.
 
 ## HEC-RAS Format Gotchas
 
-**CRITICAL**: HEC-RAS files have strict but weird formatting that can break parsers if not handled carefully. Always use a combination of atomic or line parsers if possible. Do not duplicate functionality.
+**CRITICAL**: HEC-RAS files have strict formatting that can break parsers if not handled carefully. Rely on DSL parts/utilities instead of bespoke parsing.
 
 ### Parsing Challenges
 
-**Important Parsing Note**:
+**Important Parsing Notes**:
 
-- Always use `wc -c` or similar commands to measure actual line widths instead of making assumptions about HEC-RAS format field widths. Use `cut -c` to verify field boundaries in fixed-width data.
+- For fixed-width tables, ensure tuple widths (`width`, `maxWidth`) match actual line widths; tests should verify column boundaries.
+- **Coordinate formatting**: HEC-RAS uses 16-character fixed-width formatting for coordinates. Use `formatter: "coordinate"` with `tupleArrayField` or `countedFixedWidthArray`.
+- **Boolean encoding variations**: Different sections use different boolean encodings (`-1,0`, `TF`, `0,1`). Always set `booleanPart({ mode })` explicitly.
+- **Blank vs null**: Many numeric fields preserve blank→null semantics. Use `nullOnBlank: true` to maintain round-trip fidelity.
+- **String trimming**: Many string fields have trailing spaces that should be preserved or trimmed consistently. Use `trim: true` where appropriate.
 
 ### General Parsing Principles
 
-Always assume the format is wrong until proven right. Use comprehensive validation and provide meaningful error messages for format inconsistencies.
+Always assume the format is wrong until proven right. Use comprehensive validation and provide meaningful error messages for format inconsistencies. Test round-trip serialization to ensure format preservation.
 
 ## Core Philosophy
 
-**PRAGMATIC PARSING IS THE PRIORITY.** This library focuses on correctly parsing complex engineering file formats where clarity, maintainability, and correctness take precedence over abstract programming principles. The code should be readable by engineers familiar with HEC-RAS formats.
+PRAGMATIC PARSING IS THE PRIORITY. The schema-first DSL is designed for clarity, maintainability, and correctness while keeping the format specifics explicit and testable.
+
+## Shared Utilities
+
+- `src/schema/parsingUtils.ts` — contextual helpers such as `parseMultilineArray` and `splitIntoTuples`
+- `src/schema/serializationUtils.ts` — coordinate/station formatters and padding helpers
+- `docs/hecras-parsing-format-specification.md` — living log for tricky formatting, decisions, and open risks

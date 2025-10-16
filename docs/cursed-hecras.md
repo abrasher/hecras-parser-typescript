@@ -1,0 +1,3 @@
+- booleans are formatted where -1 is true and 0 is false. 0 is formatted with an extra space in front, except sometimes it is not
+- plan files have a unique format for some fields where it just says the value without any key
+- some key=value pairs are always generated, even if the value is undefined, some are not.
