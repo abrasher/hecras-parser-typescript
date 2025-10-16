@@ -470,3 +470,146 @@ describe("connectionSchema", () => {
     })
   })
 })
+
+describe("connectionSchema - Gate Support", () => {
+  describe("Simple gate with one opening", () => {
+    const gateLines = [
+      "Connection=Gate-Conn-1     ,0,0",
+      "Connection Line=2",
+      "    2006910.2868      321198.146     2007434.745       321614.75",
+      "Connection Centerline Profile=0",
+      "Connection Up SA=2D_Area_1       ",
+      "Connection Dn SA=2D_Area_2       ",
+      "",
+      "Conn Outlet Rating Curve= 0 ,False,,",
+      "Conn Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings",
+      "Gate #1     ,6,5,92,,0,1,0.5, 3 ,3.2, 0 ,,, 1 ,0,0.8, 0 ,,,-1,0,0, 0 ",
+      "      50",
+      "Conn Gate Opening=1,Opening #1,0",
+    ]
+
+    let gateData: ConnectionSchema
+    let serializedLines: string[]
+
+    beforeAll(() => {
+      const parsed = parseSectionWithSchema(connectionSchema, gateLines, 0)
+      gateData = parsed.value
+      serializedLines = serializeWithSchema(connectionSchema, gateData)
+    })
+
+    it("should parse gate header", () => {
+      expect(gateData.gate).toBeDefined()
+      expect(gateData.gate?.name).toBe("Gate #1")
+      expect(gateData.gate?.width).toBe(6)
+      expect(gateData.gate?.height).toBe(5)
+      expect(gateData.gate?.invert).toBe(92)
+      expect(gateData.gate?.gateCoefficient).toBe(null)
+      expect(gateData.gate?.expT).toBe(0)
+      expect(gateData.gate?.expO).toBe(1)
+      expect(gateData.gate?.expH).toBe(0.5)
+      expect(gateData.gate?.type).toBe(3)
+      expect(gateData.gate?.weirCoefficient).toBe(3.2)
+      expect(gateData.gate?.isOgee).toBe(0)
+      expect(gateData.gate?.spillHeight).toBe(null)
+      expect(gateData.gate?.designHead).toBe(null)
+      expect(gateData.gate?.numberOfOpenings).toBe(1)
+    })
+
+    it("should parse gate opening stations", () => {
+      expect(gateData.gate?.openingStations).toEqual([50])
+    })
+
+    it("should parse gate openings", () => {
+      expect(gateData.gate?.openings).toHaveLength(1)
+      expect(gateData.gate?.openings[0]).toEqual({
+        id: 1,
+        name: "Opening #1",
+        coordinateCount: 0,
+        coordinates: undefined,
+      })
+    })
+
+    it("should serialize gate back to original format", () => {
+      expect(serializedLines).toEqual(gateLines)
+    })
+
+    it("should round-trip parse and serialize", () => {
+      const reparsed = parseSectionWithSchema(connectionSchema, serializedLines, 0)
+      expect(reparsed.value).toEqual(gateData)
+    })
+  })
+
+  describe("Complex gate with two openings and coordinates", () => {
+    const gateLines = [
+      "Connection=Gate-Conn-2     ,0,0",
+      "Connection Line=2",
+      "    2006910.2868      321198.146     2007434.745       321614.75",
+      "Connection Centerline Profile=0",
+      "Connection Up SA=2D_Area_1       ",
+      "Connection Dn SA=2D_Area_2       ",
+      "",
+      "Conn Outlet Rating Curve= 0 ,False,,",
+      "Conn Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings",
+      "Gate #1     ,7,15,590,0.65,0,1,0.5, 0 ,3, 0 ,,, 2 ,0,0.8, 0 ,0.65,,0,0,0, 0 ",
+      "    5745    5765",
+      "Conn Gate Opening=1,Gate #1,2",
+      "      2006954.79       321175.53      2007417.28        321592.6",
+      "Conn Gate Opening=2,Gate #2,2",
+      "      2006969.24       321167.27      2007429.67       321582.28",
+    ]
+
+    let gateData: ConnectionSchema
+    let serializedLines: string[]
+
+    beforeAll(() => {
+      const parsed = parseSectionWithSchema(connectionSchema, gateLines, 0)
+      gateData = parsed.value
+      serializedLines = serializeWithSchema(connectionSchema, gateData)
+    })
+
+    it("should parse gate header with multiple openings", () => {
+      expect(gateData.gate).toBeDefined()
+      expect(gateData.gate?.name).toBe("Gate #1")
+      expect(gateData.gate?.width).toBe(7)
+      expect(gateData.gate?.height).toBe(15)
+      expect(gateData.gate?.invert).toBe(590)
+      expect(gateData.gate?.gateCoefficient).toBe(0.65)
+      expect(gateData.gate?.numberOfOpenings).toBe(2)
+    })
+
+    it("should parse multiple gate opening stations", () => {
+      expect(gateData.gate?.openingStations).toEqual([5745, 5765])
+    })
+
+    it("should parse gate openings with coordinates", () => {
+      expect(gateData.gate?.openings).toHaveLength(2)
+      expect(gateData.gate?.openings[0]).toEqual({
+        id: 1,
+        name: "Gate #1",
+        coordinateCount: 2,
+        coordinates: [
+          [2006954.79, 321175.53],
+          [2007417.28, 321592.6],
+        ],
+      })
+      expect(gateData.gate?.openings[1]).toEqual({
+        id: 2,
+        name: "Gate #2",
+        coordinateCount: 2,
+        coordinates: [
+          [2006969.24, 321167.27],
+          [2007429.67, 321582.28],
+        ],
+      })
+    })
+
+    it("should serialize gate back to original format", () => {
+      expect(serializedLines).toEqual(gateLines)
+    })
+
+    it("should round-trip parse and serialize", () => {
+      const reparsed = parseSectionWithSchema(connectionSchema, serializedLines, 0)
+      expect(reparsed.value).toEqual(gateData)
+    })
+  })
+})

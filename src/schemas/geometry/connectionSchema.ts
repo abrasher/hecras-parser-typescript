@@ -16,9 +16,11 @@ import {
   countedFixedWidthArray,
   repeat,
   blankLine,
+  include,
 } from "../../schema"
 import { bridgeSchema } from "./bridge/bridgeSchema"
 import { culvertSchema } from "./culvertSchema"
+import { gateSchema } from "./gateSchema"
 
 export interface OutletRatingCurveSchema {
   value: number
@@ -106,6 +108,7 @@ export const connectionSchema = schema([
     formatter: "station",
     optional: true,
   }),
+  include(gateSchema),
   section("bridge", startsWith("Conn BR: Bridge="), bridgeSchema),
 ])
 
