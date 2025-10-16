@@ -1,4 +1,7 @@
-export type Coordinate = [x: number, y: number]
+export interface Coordinate {
+  x: number
+  y: number
+}
 
 export interface StationElevationPoint {
   station: number
@@ -20,11 +23,3 @@ export interface UpstreamDownstreamPair {
   upstreamStation: number | null
   downstreamStation: number | null
 }
-export type UpstreamDownstreamValue = [
-  upstreamStn: number,
-  downstreamStn: number,
-  elevation: number,
-]
-
-export type StationElevation = [station: number, elevation: number]
-export type XY = [x: number, y: number]
