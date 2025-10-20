@@ -9,6 +9,7 @@ import {
   stringPart,
   opt,
   type Infer,
+  type Simplify,
   countedArrayLengthPart,
   booleanPart,
   countedFixedWidthArray,
@@ -196,4 +197,12 @@ export const crossSectionSchema = schema([
   blankLine(),
 ])
 
-export type CrossSectionSchema = Infer<typeof crossSectionSchema>
+type BaseCrossSectionSchema = Infer<typeof crossSectionSchema>
+
+export type CrossSectionSchema = Simplify<
+  Omit<BaseCrossSectionSchema, "description" | "multipleObstructions" | "obstructions"> & {
+    description?: BaseCrossSectionSchema["description"]
+    multipleObstructions?: BaseCrossSectionSchema["multipleObstructions"]
+    obstructions?: BaseCrossSectionSchema["obstructions"]
+  }
+>

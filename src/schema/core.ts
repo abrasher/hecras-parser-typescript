@@ -100,7 +100,7 @@ export interface MultiFieldItem<F extends FieldSpec> {
   kind: "multiField"
   label: string
   fields: F
-  optional?: boolean
+  optional?: true
 }
 
 export type InferTupleParts<Parts extends readonly Part<unknown>[]> = Simplify<{
@@ -112,7 +112,7 @@ export interface TupleFieldItem<Key extends string, Parts extends readonly Part<
   label: string
   key: Key
   parts: Parts
-  optional?: boolean
+  optional?: true
 }
 
 export interface TupleArrayFieldItem<
@@ -126,7 +126,7 @@ export interface TupleArrayFieldItem<
   width: number
   maxWidth: number
   tupleSize: Tuple
-  optional?: boolean
+  optional?: true
   pad?: boolean
   formatter?: "station" | "coordinate" | ((value: number) => string)
   nullable: Nullable
@@ -143,7 +143,7 @@ export interface CountedArrayFieldItem<
   width: number
   maxWidth: number
   tupleSize: Tuple
-  optional?: boolean
+  optional?: true
   pad?: boolean
   formatter?: "station" | "coordinate" | ((value: number) => string)
   nullable: Nullable
@@ -154,7 +154,7 @@ export interface TextBlockFieldItem<Key extends string> {
   kind: "textBlockField"
   key: Key
   label: string
-  optional?: boolean
+  optional?: true
 }
 
 export interface ContextualItem<Key extends string, Value> {

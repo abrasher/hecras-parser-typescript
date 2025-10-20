@@ -30,11 +30,19 @@ export function multiField<const Spec extends Record<string, Part<unknown>>>(
   options: MultiFieldOptions = {},
 ): MultiFieldItem<Spec> {
   const { optional } = options
+  if (optional) {
+    return {
+      kind: "multiField",
+      label,
+      fields: fieldSpec,
+      optional: true as const,
+    }
+  }
+
   return {
     kind: "multiField",
     label,
     fields: fieldSpec,
-    optional,
   }
 }
 
@@ -51,12 +59,21 @@ export function tupleField<
   parts: Parts,
   options: TupleFieldOptions = {},
 ): TupleFieldItem<Key, Parts> {
+  if (options.optional) {
+    return {
+      kind: "tupleField",
+      key,
+      label,
+      parts,
+      optional: true as const,
+    }
+  }
+
   return {
     kind: "tupleField",
     key,
     label,
     parts,
-    optional: options.optional,
   }
 }
 
@@ -86,6 +103,21 @@ export function tupleArrayField<const Key extends string, const Tuple extends nu
 ): TupleArrayFieldItem<Key, Tuple, boolean> {
   const { width, maxWidth, tuple, optional, pad, formatter } = config
   const nullable = formatter === "station"
+  if (optional) {
+    return {
+      kind: "tupleArrayField",
+      label,
+      key,
+      width,
+      maxWidth,
+      tupleSize: tuple,
+      optional: true as const,
+      pad,
+      formatter,
+      nullable,
+    }
+  }
+
   return {
     kind: "tupleArrayField",
     label,
@@ -93,7 +125,6 @@ export function tupleArrayField<const Key extends string, const Tuple extends nu
     width,
     maxWidth,
     tupleSize: tuple,
-    optional,
     pad,
     formatter,
     nullable,
@@ -125,6 +156,22 @@ export function countedFixedWidthArray<const Key extends string, const Tuple ext
 ): CountedArrayFieldItem<Key, Tuple, boolean> {
   const { width, maxWidth, tuple, countKey, optional, pad, formatter, parseValue } = config
   const nullable = formatter === "station"
+  if (optional) {
+    return {
+      kind: "countedArrayField",
+      key,
+      countKey: countKey ?? key,
+      width,
+      maxWidth,
+      tupleSize: tuple,
+      optional: true as const,
+      pad,
+      formatter,
+      nullable,
+      parseValue,
+    }
+  }
+
   return {
     kind: "countedArrayField",
     key,
@@ -132,7 +179,6 @@ export function countedFixedWidthArray<const Key extends string, const Tuple ext
     width,
     maxWidth,
     tupleSize: tuple,
-    optional,
     pad,
     formatter,
     nullable,
@@ -150,11 +196,19 @@ export function textBlockField<const Key extends string>(
   options: TextBlockFieldOptions = {},
 ): TextBlockFieldItem<Key> {
   const { optional = false } = options
+  if (optional) {
+    return {
+      kind: "textBlockField",
+      key,
+      label,
+      optional: true as const,
+    }
+  }
+
   return {
     kind: "textBlockField",
     key,
     label,
-    optional,
   }
 }
 

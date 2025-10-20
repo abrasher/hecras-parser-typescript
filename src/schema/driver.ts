@@ -35,6 +35,15 @@ interface ParseOptions {
 
 type ParseContext = Record<string, unknown> & { [INTERNAL_STATE]: InternalState }
 
+// Helper to drop the internal state symbol key from a context-like object in a
+// type-safe way without using `delete` (which complains on non-optional keys).
+function stripInternal<T extends Record<string, unknown>>(
+  obj: T & { [INTERNAL_STATE]: InternalState },
+): Omit<T, typeof INTERNAL_STATE> {
+  const { [INTERNAL_STATE]: _internal, ...rest } = obj
+  return rest as Omit<T, typeof INTERNAL_STATE>
+}
+
 function createContext(): ParseContext {
   const context = {} as ParseContext
   context[INTERNAL_STATE] = {}
@@ -131,10 +140,10 @@ export function parseWithSchema<const Def extends SchemaDef>(
   const context = createContext()
   try {
     const { nextIndex } = parseSchemaInternal(schema, context, lines, startIndex, { strict })
-    const result = { ...context }
-    delete (result as ParseContext)[INTERNAL_STATE]
+    const result = stripInternal(context)
     return {
-      value: result as Infer<Def>,
+      // Cast via unknown to decouple runtime shape from schema-level type.
+      value: result as unknown as Infer<Def>,
       nextIndex,
     }
   } catch (error) {
@@ -546,8 +555,7 @@ function parseSection(
     strict: options.strict ?? false,
   })
 
-  const result = { ...nestedContext }
-  delete result[INTERNAL_STATE]
+  const result = stripInternal(nestedContext)
   context[item.key] = result
   return { status: "success", nextIndex }
 }
@@ -568,8 +576,7 @@ function parseRepeat(
     const { nextIndex } = parseSchemaInternal(item.schema, nestedContext, lines, cursor, {
       strict: options.strict ?? false,
     })
-    const result = { ...nestedContext }
-    delete result[INTERNAL_STATE]
+    const result = stripInternal(nestedContext)
     items.push(result)
     if (nextIndex === cursor) {
       break
@@ -818,7 +825,8 @@ function serializeTupleArrayField(
       return (num: number | null) => formatHECRASCoordinateNumber(requireNumber(num))
     }
     if (typeof item.formatter === "function") {
-      return (num: number | null) => item.formatter(requireNumber(num))
+      const fmt: (value: number) => string = item.formatter
+      return (num: number | null) => fmt(requireNumber(num))
     }
     return (num: number | null) => String(requireNumber(num))
   })()
@@ -900,7 +908,8 @@ function serializeCountedArrayField(
       return (num: number | null) => formatHECRASCoordinateNumber(requireNumber(num))
     }
     if (typeof item.formatter === "function") {
-      return (num: number | null) => item.formatter(requireNumber(num))
+      const fmt: (value: number) => string = item.formatter
+      return (num: number | null) => fmt(requireNumber(num))
     }
     return (num: number | null) => String(requireNumber(num))
   })()
