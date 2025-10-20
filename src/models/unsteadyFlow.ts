@@ -1,4 +1,13 @@
-import type { DateTime } from "./common"
+export type DateTime = {
+  /**
+   * DDMMMYYYY
+   */
+  date: string
+  /**
+   * HHMM 24 hour
+   */
+  time: string
+}
 
 export interface InitialFlowLocation {
   river: string
