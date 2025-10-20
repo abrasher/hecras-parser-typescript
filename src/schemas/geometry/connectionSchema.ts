@@ -20,7 +20,7 @@ import {
 } from "../../schema"
 import { bridgeSchema } from "./bridge/bridgeSchema"
 import { culvertSchema } from "./culvertSchema"
-import { gateSchema } from "./gateSchema"
+import { gateSchema } from "./gate/gateSchema"
 
 export interface OutletRatingCurveSchema {
   value: number
