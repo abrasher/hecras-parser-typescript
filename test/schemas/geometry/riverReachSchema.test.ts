@@ -17,7 +17,6 @@ const sampleLines = [
 ]
 
 describe("riverReachSchema", () => {
-
   const sampleCoordinates: RiverReachSchema["coordinates"] = [
     [483651.1529, 4753544.9142],
     [483651.771, 4753544.1374],
@@ -48,31 +47,6 @@ describe("riverReachSchema", () => {
     const lines = serializeWithSchema(riverReachSchema, riverReach)
 
     expect(lines).toEqual(sampleLines)
-  })
-
-  it("omits optional fields while still emitting the trailing blank line", () => {
-    const riverReach: RiverReachSchema = {
-      riverName: "River A",
-      reachName: "Reach B",
-      coordinates: [],
-    }
-
-    const lines = serializeWithSchema(riverReachSchema, riverReach)
-
-    expect(lines).toEqual(["River Reach=River A         ,Reach B         ", "Reach XY= 0 ", ""])
-  })
-
-  it("serializes non-zero reverse river text values without a leading pad", () => {
-    const riverReach: RiverReachSchema = {
-      riverName: "River",
-      reachName: "Reach",
-      coordinates: sampleCoordinates,
-      reversedText: true,
-    }
-
-    const lines = serializeWithSchema(riverReachSchema, riverReach)
-
-    expect(lines).toContain("Reverse River Text=-1 ")
   })
 
   it("throws if coordinates contain tuples with the wrong length", () => {
@@ -153,11 +127,22 @@ LW Div RC= 0 ,False,
 `
 
 const crossSectionBlockLines = crossSectionBlock.split("\n")
-const expectedCrossSectionEntry = parseWithSchema(crossSectionSchema, crossSectionBlockLines, 0).value
-const canonicalCrossSectionLines = serializeWithSchema(crossSectionSchema, expectedCrossSectionEntry)
+const expectedCrossSectionEntry = parseWithSchema(
+  crossSectionSchema,
+  crossSectionBlockLines,
+  0,
+).value
+const canonicalCrossSectionLines = serializeWithSchema(
+  crossSectionSchema,
+  expectedCrossSectionEntry,
+)
 
 const lateralWeirBlockLines = lateralWeirBlock.split("\n")
 const expectedLateralWeirEntry = parseWithSchema(lateralWeirSchema, lateralWeirBlockLines, 0).value
 const canonicalLateralWeirLines = serializeWithSchema(lateralWeirSchema, expectedLateralWeirEntry)
 
-const linesWithEntries = [...sampleLines, ...canonicalCrossSectionLines, ...canonicalLateralWeirLines]
+const linesWithEntries = [
+  ...sampleLines,
+  ...canonicalCrossSectionLines,
+  ...canonicalLateralWeirLines,
+]

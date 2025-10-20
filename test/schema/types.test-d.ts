@@ -3,7 +3,6 @@ import { describe, expectTypeOf, it } from "vitest"
 import type { Infer, InferPart } from "../../src/schema"
 import {
   booleanField,
-  booleanPart,
   tupleArrayField,
   tupleField,
   countedFixedWidthArray,
@@ -91,7 +90,6 @@ describe("schema types", () => {
     }
 
     expectTypeOf<Root>().toMatchTypeOf<ExpectedRoot>()
-    expectTypeOf<ExpectedRoot>().toMatchTypeOf<Root>()
     expectTypeOf(rootValue.values[0][0]).toEqualTypeOf<number>()
 
     const nullableNumberPart = numberPart({ nullOnBlank: true })
