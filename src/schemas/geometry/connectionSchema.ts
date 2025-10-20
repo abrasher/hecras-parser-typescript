@@ -16,11 +16,10 @@ import {
   countedFixedWidthArray,
   repeat,
   blankLine,
-  include,
 } from "../../schema"
 import { bridgeSchema } from "./bridge/bridgeSchema"
 import { culvertSchema } from "./culvertSchema"
-import { gateSchema } from "./gate/gateSchema"
+import { userCurveSetContextual } from "./gate/userCurveSetSchema"
 
 export interface OutletRatingCurveSchema {
   value: number
@@ -82,6 +81,8 @@ export const connectionSchema = schema([
     pad: true,
     formatter: "station",
   }),
+  userCurveSetContextual,
+
   // culvertSection,
   repeat("culverts", startsWith("Connection Culv="), culvertSchema),
   numberField("hTabHWMax", "Conn HTab HWMax=", { nullOnBlank: true, optional: true }),
@@ -108,7 +109,6 @@ export const connectionSchema = schema([
     formatter: "station",
     optional: true,
   }),
-  include(gateSchema),
   section("bridge", startsWith("Conn BR: Bridge="), bridgeSchema),
 ])
 

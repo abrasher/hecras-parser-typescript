@@ -1,7 +1,6 @@
-import { schema, type Infer, contextual, repeat, startsWith } from "../../../schema"
+import { schema, type Infer, contextual } from "../../../schema"
 import { splitIntoTuples } from "../../../schema/parsingUtils"
 import { formatHECRASCoordinateNumber } from "../../../schema/serializationUtils"
-import { userCurveSetContextual } from "./userCurveSetSchema"
 
 export interface GateOpeningSchema {
   id: number
@@ -22,11 +21,6 @@ function chunkString(str: string, width: number): string[] {
 }
 
 export const gateSchema = schema([
-  repeat(
-    "userDefinedGateCurveSets",
-    startsWith("Connection Gate User Curve Set="),
-    schema([userCurveSetContextual]),
-  ),
   contextual(
     "gate",
     (lines, startIndex, _ctx) => {

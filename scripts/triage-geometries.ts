@@ -74,7 +74,11 @@ for (let index = 0; index < cliArgs.length; index += 1) {
     }
 
     if (!value) {
-      console.warn(colors.yellow(`Missing value for ${flag}. Using default minimum Program Version ${minSupportedProgramVersion}.`))
+      console.warn(
+        colors.yellow(
+          `Missing value for ${flag}. Using default minimum Program Version ${minSupportedProgramVersion}.`,
+        ),
+      )
       continue
     }
 
@@ -464,7 +468,7 @@ async function testGeometry(
   }
 }
 
-const exampleGeometriesDir = "test/data/example_geometries"
+const exampleGeometriesDir = "test/data/madawaska"
 const exampleGeometryFiles = existsSync(exampleGeometriesDir)
   ? readdirSync(exampleGeometriesDir)
       .filter((file) => file.match(/\.g\d+$/))

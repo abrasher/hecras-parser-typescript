@@ -1,4 +1,4 @@
-# HEC-RAS File Format Parsing Documentation
+# Schema Format Specification
 
 ## Schema-First Architecture
 

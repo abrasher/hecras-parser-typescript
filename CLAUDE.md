@@ -1,7 +1,7 @@
 ### Schema-First Overview
 
 - We build everything with a schema-first parser/serializer. Read:
-  - `docs/hecras-parsing-format-specification.md` — milestones, formatting constraints, decisions/risks
+  - `docs/schema-format-specification.md` — milestones, formatting constraints, decisions/risks
   - `.claude/prompts/dsl-refactor/schema-first.md` — DSL spec, typing, serialization rules
 - New work defines schemas under `src/schemas/**` using DSL items from `src/schema/**` and the drivers in `src/schema/driver.ts`.
 
@@ -9,7 +9,7 @@ Key directories
 
 - `src/schema/**` — DSL core: `core.ts` (types, Infer), `driver.ts` (parse/serialize), `combinators.ts`, `parts.ts`, `serializationUtils.ts`, `parsingUtils.ts`
 - `src/schemas/**` — Section schemas (e.g., `breakLineSchema.ts`, `junctionSchema.ts`, `geometrySchema.ts`)
-- `docs/hecras-parsing-format-specification.md` — tracker for schema coverage, format decisions, and risks
+- `docs/schema-format-specification.md` — tracker for schema coverage, format decisions, and risks
 
 DSL quick reference (see full spec for details)
 
@@ -35,7 +35,7 @@ Migration workflow (summary)
 2) Define a schema in `src/schemas/<name>Schema.ts` using DSL items; prefer `tupleArrayField` for fixed-width tables.
 3) Add adapters or recognizers where appropriate; keep top-level tolerant until the surrounding coverage is complete.
 4) Add tests for parser parity and serializer round-trip where possible.
-5) Update `docs/hecras-parsing-format-specification.md` with coverage status and any decisions/risks.
+5) Update `docs/schema-format-specification.md` with coverage status and any decisions/risks.
 
 ### Development
 
@@ -100,4 +100,4 @@ PRAGMATIC PARSING IS THE PRIORITY. The schema-first DSL is designed for clarity,
 
 - `src/schema/parsingUtils.ts` — contextual helpers such as `parseMultilineArray` and `splitIntoTuples`
 - `src/schema/serializationUtils.ts` — coordinate/station formatters and padding helpers
-- `docs/hecras-parsing-format-specification.md` — living log for tricky formatting, decisions, and open risks
+- `docs/schema-format-specification.md` — living log for tricky formatting, decisions, and open risks

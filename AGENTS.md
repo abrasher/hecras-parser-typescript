@@ -4,7 +4,7 @@ This repo now centers on a schema-first parser/serializer. The guidance below di
 
 Read these first:
 
-- `docs/hecras-parsing-format-specification.md` — architecture, formatting constraints, decisions/risks log
+- `docs/schema-format-specification.md` — architecture, formatting constraints, decisions/risks log
 - `.claude/prompts/dsl-refactor/schema-first.md` — DSL reference, typing, serialization rules
 - `CLAUDE.md` — architecture, gotchas, DSL quick reference, migration workflow
 
@@ -142,7 +142,7 @@ Utilities to know:
 
 - Keep new parsing/serialization logic inside `src/schemas/**`; add shared helpers in `src/schema/**` when needed.
 - Keep schemas tolerant (non-strict) at the edges while coverage grows; use recognizers and includes to integrate with partial sections safely.
-- If ordering or formatting in serializers forces compromises, document under “Decisions & Risks” in `docs/hecras-parsing-format-specification.md` and mention in PR notes.
+- If ordering or formatting in serializers forces compromises, document under “Decisions & Risks” in `docs/schema-format-specification.md` and mention in PR notes.
 
 ## Checklist: Adding A New Schema
 
@@ -154,7 +154,7 @@ Utilities to know:
    - Parse example lines; assert on values.
    - Serialize example values; assert exact output lines.
    - Round-trip parse→serialize→parse equality.
-6) Update `docs/hecras-parsing-format-specification.md` with coverage notes and any decisions/risks.
+6) Update `docs/schema-format-specification.md` with coverage notes and any decisions/risks.
 
 ## Quick Pointers (File References)
 
@@ -174,6 +174,6 @@ Utilities to know:
 
 ## If Blocked
 
-- Capture the issue under “Decisions & Risks” in `docs/hecras-parsing-format-specification.md` with a minimal reproducible snippet.
+- Capture the issue under “Decisions & Risks” in `docs/schema-format-specification.md` with a minimal reproducible snippet.
 - Prefer `contextual` hooks to bridge format edge cases without bypassing the schema DSL.
 - Ask for a quick design check in PR notes when introducing a new pattern or serializer rule.

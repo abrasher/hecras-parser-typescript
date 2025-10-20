@@ -66,10 +66,10 @@ The public entrypoint (`src/index.ts`) currently exposes geometry/plan/unsteady-
 - `src/schema/**` – DSL core (`core.ts`, `driver.ts`, `combinators.ts`, `parts.ts`, `serializationUtils.ts`, `parsingUtils.ts`)
 - `src/schemas/geometry/**` – Geometry section schemas
 - `test/schemas/geometry/**` – Round-trip tests per schema
-- `docs/hecras-parsing-format-specification.md` – Living documentation for tricky formatting, coverage, and risks
+- `docs/schema-format-specification.md` – Living documentation for tricky formatting, coverage, and risks
 
 ## Contributing
 
-- Read `AGENTS.md`, `CLAUDE.md`, and `docs/hecras-parsing-format-specification.md` before contributing.
+- Read `AGENTS.md`, `CLAUDE.md`, and `docs/schema-format-specification.md` before contributing.
 - New parsing/serialization work belongs in `src/schemas/**` using helpers from `src/schema/**`.
 - Add or update tests alongside schema changes and keep the documentation in sync.
