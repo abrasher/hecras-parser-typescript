@@ -1,0 +1,16 @@
+Geom Title=JUnction Hydraulics On
+Program Version=6.30
+Viewing Rectangle= 0.0229 , 0.7303 , 0.9152 , 0.0608 
+
+Junct Name=Sutter          
+Junct Desc=FLow confluence of Yolo and Butte Creek,0,0,0,-1
+Junct X Y & Text X Y=0.4030612,0.472973,0.2905983,0.4962687
+Up River,Reach=Fall River      ,Upper Reach
+Up River,Reach=Butte Cr.       ,Butte Cr.
+Dn River,Reach=Fall River      ,Lower Reach
+Junc L&A=100,
+Junc L&A=120,
+
+
+
+
