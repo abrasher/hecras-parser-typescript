@@ -13,8 +13,7 @@
     "noUnusedLocals": true,
     "noUnusedParameters": true,
     "noImplicitReturns": true,
-    "noFallthroughCasesInSwitch": true,
-    "verbatimModuleSyntax": true
+    "noFallthroughCasesInSwitch": true
   },
   "exclude": ["dist", "node_modules"] // Assuming your TS files are in an 'src' folder
 }

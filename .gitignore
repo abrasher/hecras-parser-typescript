@@ -27,7 +27,3 @@ geometry-roundtrip-report.txt
 *.njsproj
 *.sln
 *.sw?
-
-.chunkhound.json
-.chunkhound/
-test/data/example_geometries

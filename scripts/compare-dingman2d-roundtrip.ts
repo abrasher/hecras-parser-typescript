@@ -1,0 +1,78 @@
+#!/usr/bin/env tsx
+
+/**
+ * Script to compare Dingman 2D.g01 file with its round-trip serialized version
+ * line by line, stopping at the first difference.
+ *
+ * Note: This file may cause stack overflow issues due to parsing complexity.
+ */
+
+import { readFileSync, writeFileSync } from "fs"
+import { parseGeometry } from "../src/parseGeometry"
+import { serializeGeometryString } from "../src/serializers"
+
+function main() {
+  try {
+    // Read and parse the original file
+    const originalContent = readFileSync("test/data/Dingman 2D.g01", "utf-8")
+    const geometryData = parseGeometry(originalContent)
+
+    let _totalCrossSections = 0
+    for (let i = 0; i < Math.min(3, geometryData.riverReaches.length); i++) {
+      const reach = geometryData.riverReaches[i]
+      _totalCrossSections += reach.crossSections.length
+    }
+
+    const serializedContent = serializeGeometryString(geometryData)
+
+    // Save serialized output to file for examination
+    const serializedOutputPath = "test/data/Dingman 2D.serialized.g01"
+    writeFileSync(serializedOutputPath, serializedContent, "utf-8")
+
+    // Normalize line endings and split into lines
+    const originalLines = originalContent.replace(/\r\n/g, "\n").split("\n")
+    const serializedLines = serializedContent.split("\n")
+
+    // Compare line by line until first difference
+    const maxLines = Math.max(originalLines.length, serializedLines.length)
+
+    for (let i = 0; i < maxLines; i++) {
+      const originalLine = originalLines[i] || ""
+      const serializedLine = serializedLines[i] || ""
+
+      if (originalLine !== serializedLine) {
+        console.log(`First difference found at line ${i + 1}:`)
+        console.log(`  Original:   "test/data/Dingman 2D.g01":${i + 1}`)
+        console.log(`  Serialized: "test/data/Dingman 2D.serialized.g01":${i + 1}`)
+        console.log(`  Content: \n "${originalLine}" \n "${serializedLine}"`)
+        return
+      }
+    }
+
+    console.log("No differences found - files are identical!")
+  } catch (error) {
+    console.error("Error during comparison:", error)
+
+    if (error instanceof RangeError && error.message.includes("Maximum call stack size exceeded")) {
+      console.error("\n=== Stack Overflow Analysis ===")
+      console.error("This error indicates infinite recursion or extremely deep recursion.")
+      console.error("Possible causes:")
+      console.error("1. Circular references in parsed geometry data")
+      console.error("2. Infinite loop in parser logic")
+      console.error("3. Extremely deep nesting in 2D geometry structures")
+      console.error("4. Bug in serialization causing recursive processing")
+      console.error("\nRecommendations:")
+      console.error("- Add recursion depth limits to parsers")
+      console.error("- Check for circular references in data structures")
+      console.error("- Test with smaller portions of the file")
+      console.error("- Add debug logging to identify the problematic section")
+    }
+
+    process.exit(1)
+  }
+}
+
+// Run main function if this script is executed directly
+main()
+
+export { main }
