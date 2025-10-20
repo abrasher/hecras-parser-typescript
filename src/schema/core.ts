@@ -71,13 +71,12 @@ type ExternalFields<F extends FieldSpec> = {
 
 type ExternalFieldKeys<F extends FieldSpec> = keyof ExternalFields<F>
 
-type OptionalFieldKeys<F extends FieldSpec> = ExternalFieldKeys<F> extends never
-  ? never
-  : {
-      [K in ExternalFieldKeys<F>]: ExternalFields<F>[K] extends { isOptional: true }
-        ? K
-        : never
-    }[ExternalFieldKeys<F>]
+type OptionalFieldKeys<F extends FieldSpec> =
+  ExternalFieldKeys<F> extends never
+    ? never
+    : {
+        [K in ExternalFieldKeys<F>]: ExternalFields<F>[K] extends { isOptional: true } ? K : never
+      }[ExternalFieldKeys<F>]
 
 type RequiredFieldKeys<F extends FieldSpec> = Exclude<ExternalFieldKeys<F>, OptionalFieldKeys<F>>
 
@@ -233,31 +232,31 @@ type InferItemWithDepth<I, Depth extends number> =
         ? I["optional"] extends true
           ? { [K in Key]?: TupleOf<Tuple, Nullable extends true ? number | null : number>[] }
           : { [K in Key]: TupleOf<Tuple, Nullable extends true ? number | null : number>[] }
-      : I extends CountedArrayFieldItem<infer Key, infer Tuple, infer Nullable>
-        ? I["optional"] extends true
-          ? { [K in Key]?: TupleOf<Tuple, Nullable extends true ? number | null : number>[] }
-          : { [K in Key]: TupleOf<Tuple, Nullable extends true ? number | null : number>[] }
-        : I extends TextBlockFieldItem<infer Key>
+        : I extends CountedArrayFieldItem<infer Key, infer Tuple, infer Nullable>
           ? I["optional"] extends true
-            ? { [K in Key]?: string }
-            : { [K in Key]: string }
-        : I extends ContextualItem<infer Key, infer Value>
-          ? { [K in Key]?: Value }
-          : I extends SectionItem<infer Key, infer Schema>
-            ? Depth extends 0
-              ? { [K in Key]?: ExhaustiveInferFallback }
-              : { [K in Key]?: InferWithDepth<Schema, DecrementDepth<Depth>> }
-            : I extends RepeatItem<infer Key, infer Schema>
-              ? Depth extends 0
-                ? { [K in Key]: ExhaustiveInferFallback[] }
-                : { [K in Key]: InferWithDepth<Schema, DecrementDepth<Depth>>[] }
-              : I extends IncludeItem<infer Schema>
+            ? { [K in Key]?: TupleOf<Tuple, Nullable extends true ? number | null : number>[] }
+            : { [K in Key]: TupleOf<Tuple, Nullable extends true ? number | null : number>[] }
+          : I extends TextBlockFieldItem<infer Key>
+            ? I["optional"] extends true
+              ? { [K in Key]?: string }
+              : { [K in Key]: string }
+            : I extends ContextualItem<infer Key, infer Value>
+              ? { [K in Key]?: Value }
+              : I extends SectionItem<infer Key, infer Schema>
                 ? Depth extends 0
-                  ? ExhaustiveInferFallback
-                  : InferWithDepth<Schema, DecrementDepth<Depth>>
-                : I extends ConditionalBlankLineItem
-                  ? {}
-                  : object
+                  ? { [K in Key]?: ExhaustiveInferFallback }
+                  : { [K in Key]?: InferWithDepth<Schema, DecrementDepth<Depth>> }
+                : I extends RepeatItem<infer Key, infer Schema>
+                  ? Depth extends 0
+                    ? { [K in Key]: ExhaustiveInferFallback[] }
+                    : { [K in Key]: InferWithDepth<Schema, DecrementDepth<Depth>>[] }
+                  : I extends IncludeItem<infer Schema>
+                    ? Depth extends 0
+                      ? ExhaustiveInferFallback
+                      : InferWithDepth<Schema, DecrementDepth<Depth>>
+                    : I extends ConditionalBlankLineItem
+                      ? object
+                      : object
 
 export type InferItem<I> = InferItemWithDepth<I, SchemaDepthLimit>
 
