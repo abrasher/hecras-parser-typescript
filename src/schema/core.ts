@@ -95,29 +95,34 @@ export function fields<const Spec extends FieldSpec>(spec: Spec): Spec {
 export type InferPart<P extends Part<unknown>> = P extends Part<infer V> ? V : never
 export type InferFields<F extends FieldSpec> = Simplify<RequiredFields<F> & OptionalFields<F>>
 
-export interface MultiFieldItem<F extends FieldSpec> {
+export interface MultiFieldItem<F extends FieldSpec, Optional extends boolean = false> {
   kind: "multiField"
   label: string
   fields: F
-  optional?: true
+  optional?: Optional extends true ? true : never
 }
 
 export type InferTupleParts<Parts extends readonly Part<unknown>[]> = Simplify<{
   -readonly [Index in keyof Parts]: InferPart<Parts[Index]>
 }>
 
-export interface TupleFieldItem<Key extends string, Parts extends readonly Part<unknown>[]> {
+export interface TupleFieldItem<
+  Key extends string,
+  Parts extends readonly Part<unknown>[],
+  Optional extends boolean = false,
+> {
   kind: "tupleField"
   label: string
   key: Key
   parts: Parts
-  optional?: true
+  optional?: Optional extends true ? true : never
 }
 
 export interface TupleArrayFieldItem<
   Key extends string,
   Tuple extends number,
   Nullable extends boolean = false,
+  Optional extends boolean = false,
 > {
   kind: "tupleArrayField"
   label: string
@@ -125,7 +130,7 @@ export interface TupleArrayFieldItem<
   width: number
   maxWidth: number
   tupleSize: Tuple
-  optional?: true
+  optional?: Optional extends true ? true : never
   pad?: boolean
   formatter?: "station" | "coordinate" | ((value: number) => string)
   nullable: Nullable
@@ -135,6 +140,7 @@ export interface CountedArrayFieldItem<
   Key extends string,
   Tuple extends number,
   Nullable extends boolean = false,
+  Optional extends boolean = false,
 > {
   kind: "countedArrayField"
   key: Key
@@ -142,18 +148,18 @@ export interface CountedArrayFieldItem<
   width: number
   maxWidth: number
   tupleSize: Tuple
-  optional?: true
+  optional?: Optional extends true ? true : never
   pad?: boolean
   formatter?: "station" | "coordinate" | ((value: number) => string)
   nullable: Nullable
   parseValue?(segment: string): number | null
 }
 
-export interface TextBlockFieldItem<Key extends string> {
+export interface TextBlockFieldItem<Key extends string, Optional extends boolean = false> {
   kind: "textBlockField"
   key: Key
   label: string
-  optional?: true
+  optional?: Optional extends true ? true : never
 }
 
 export interface ContextualItem<Key extends string, Value> {
@@ -202,11 +208,11 @@ export interface ConditionalBlankLineItem {
 }
 
 export type SchemaItem =
-  | MultiFieldItem<FieldSpec>
-  | TupleFieldItem<string, readonly Part<unknown>[]>
-  | TupleArrayFieldItem<string, number, boolean>
-  | CountedArrayFieldItem<string, number, boolean>
-  | TextBlockFieldItem<string>
+  | MultiFieldItem<FieldSpec, boolean>
+  | TupleFieldItem<string, readonly Part<unknown>[], boolean>
+  | TupleArrayFieldItem<string, number, boolean, boolean>
+  | CountedArrayFieldItem<string, number, boolean, boolean>
+  | TextBlockFieldItem<string, boolean>
   | ContextualItem<string, unknown>
   | SectionItem<string, SchemaDef>
   | RepeatItem<string, SchemaDef>
@@ -222,22 +228,24 @@ export function schema<const Def extends SchemaDef>(def: Def): Def {
 }
 
 type InferItemWithDepth<I, Depth extends number> =
-  I extends MultiFieldItem<infer F>
-    ? Simplify<I["optional"] extends true ? Partial<InferFields<F>> : InferFields<F>>
-    : I extends TupleFieldItem<infer Key, infer Parts>
-      ? I["optional"] extends true
+  I extends MultiFieldItem<infer F, infer Optional>
+    ? Optional extends true
+      ? Simplify<Partial<InferFields<F>>>
+      : Simplify<InferFields<F>>
+    : I extends TupleFieldItem<infer Key, infer Parts, infer Optional>
+      ? Optional extends true
         ? { [K in Key]?: InferTupleParts<Parts> }
         : { [K in Key]: InferTupleParts<Parts> }
-      : I extends TupleArrayFieldItem<infer Key, infer Tuple, infer Nullable>
-        ? I["optional"] extends true
+      : I extends TupleArrayFieldItem<infer Key, infer Tuple, infer Nullable, infer Optional>
+        ? Optional extends true
           ? { [K in Key]?: TupleOf<Tuple, Nullable extends true ? number | null : number>[] }
           : { [K in Key]: TupleOf<Tuple, Nullable extends true ? number | null : number>[] }
-        : I extends CountedArrayFieldItem<infer Key, infer Tuple, infer Nullable>
-          ? I["optional"] extends true
+        : I extends CountedArrayFieldItem<infer Key, infer Tuple, infer Nullable, infer Optional>
+          ? Optional extends true
             ? { [K in Key]?: TupleOf<Tuple, Nullable extends true ? number | null : number>[] }
             : { [K in Key]: TupleOf<Tuple, Nullable extends true ? number | null : number>[] }
-          : I extends TextBlockFieldItem<infer Key>
-            ? I["optional"] extends true
+          : I extends TextBlockFieldItem<infer Key, infer Optional>
+            ? Optional extends true
               ? { [K in Key]?: string }
               : { [K in Key]: string }
             : I extends ContextualItem<infer Key, infer Value>

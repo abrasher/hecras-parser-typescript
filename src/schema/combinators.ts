@@ -24,26 +24,35 @@ interface MultiFieldOptions {
   optional?: boolean
 }
 
-export function multiField<const Spec extends Record<string, Part<unknown>>>(
+export function multiField<
+  const Spec extends Record<string, Part<unknown>>,
+  const Options extends MultiFieldOptions = object,
+>(
   label: string,
   fieldSpec: Spec,
-  options: MultiFieldOptions = {},
-): MultiFieldItem<Spec> {
-  const { optional } = options
+  options?: Options,
+): Options extends { optional: true }
+  ? MultiFieldItem<Spec, true>
+  : MultiFieldItem<Spec, false> {
+  const { optional } = options ?? {}
   if (optional) {
     return {
       kind: "multiField",
       label,
       fields: fieldSpec,
       optional: true as const,
-    }
+    } as Options extends { optional: true }
+      ? MultiFieldItem<Spec, true>
+      : MultiFieldItem<Spec, false>
   }
 
   return {
     kind: "multiField",
     label,
     fields: fieldSpec,
-  }
+  } as Options extends { optional: true }
+    ? MultiFieldItem<Spec, true>
+    : MultiFieldItem<Spec, false>
 }
 
 interface TupleFieldOptions {
@@ -53,20 +62,25 @@ interface TupleFieldOptions {
 export function tupleField<
   const Key extends string,
   const Parts extends readonly Part<unknown>[],
+  const Options extends TupleFieldOptions = object,
 >(
   key: Key,
   label: string,
   parts: Parts,
-  options: TupleFieldOptions = {},
-): TupleFieldItem<Key, Parts> {
-  if (options.optional) {
+  options?: Options,
+): Options extends { optional: true }
+  ? TupleFieldItem<Key, Parts, true>
+  : TupleFieldItem<Key, Parts, false> {
+  if (options?.optional) {
     return {
       kind: "tupleField",
       key,
       label,
       parts,
       optional: true as const,
-    }
+    } as Options extends { optional: true }
+      ? TupleFieldItem<Key, Parts, true>
+      : TupleFieldItem<Key, Parts, false>
   }
 
   return {
@@ -74,7 +88,9 @@ export function tupleField<
     key,
     label,
     parts,
-  }
+  } as Options extends { optional: true }
+    ? TupleFieldItem<Key, Parts, true>
+    : TupleFieldItem<Key, Parts, false>
 }
 
 interface TupleArrayFieldConfig<Tuple extends number> {
@@ -89,18 +105,28 @@ interface TupleArrayFieldConfig<Tuple extends number> {
 export function tupleArrayField<const Key extends string, const Tuple extends number>(
   label: string,
   key: Key,
+  config: TupleArrayFieldConfig<Tuple> & { formatter: "station"; optional: true },
+): TupleArrayFieldItem<Key, Tuple, true, true>
+export function tupleArrayField<const Key extends string, const Tuple extends number>(
+  label: string,
+  key: Key,
   config: TupleArrayFieldConfig<Tuple> & { formatter: "station" },
-): TupleArrayFieldItem<Key, Tuple, true>
+): TupleArrayFieldItem<Key, Tuple, true, false>
+export function tupleArrayField<const Key extends string, const Tuple extends number>(
+  label: string,
+  key: Key,
+  config: TupleArrayFieldConfig<Tuple> & { optional: true },
+): TupleArrayFieldItem<Key, Tuple, false, true>
 export function tupleArrayField<const Key extends string, const Tuple extends number>(
   label: string,
   key: Key,
   config: TupleArrayFieldConfig<Tuple>,
-): TupleArrayFieldItem<Key, Tuple, false>
+): TupleArrayFieldItem<Key, Tuple, false, false>
 export function tupleArrayField<const Key extends string, const Tuple extends number>(
   label: string,
   key: Key,
   config: TupleArrayFieldConfig<Tuple>,
-): TupleArrayFieldItem<Key, Tuple, boolean> {
+): TupleArrayFieldItem<Key, Tuple, boolean, boolean> {
   const { width, maxWidth, tuple, optional, pad, formatter } = config
   const nullable = formatter === "station"
   if (optional) {
@@ -144,16 +170,24 @@ interface CountedFixedWidthArrayConfig<Tuple extends number> {
 
 export function countedFixedWidthArray<const Key extends string, const Tuple extends number>(
   key: Key,
+  config: CountedFixedWidthArrayConfig<Tuple> & { formatter: "station"; optional: true },
+): CountedArrayFieldItem<Key, Tuple, true, true>
+export function countedFixedWidthArray<const Key extends string, const Tuple extends number>(
+  key: Key,
   config: CountedFixedWidthArrayConfig<Tuple> & { formatter: "station" },
-): CountedArrayFieldItem<Key, Tuple, true>
+): CountedArrayFieldItem<Key, Tuple, true, false>
+export function countedFixedWidthArray<const Key extends string, const Tuple extends number>(
+  key: Key,
+  config: CountedFixedWidthArrayConfig<Tuple> & { optional: true },
+): CountedArrayFieldItem<Key, Tuple, false, true>
 export function countedFixedWidthArray<const Key extends string, const Tuple extends number>(
   key: Key,
   config: CountedFixedWidthArrayConfig<Tuple>,
-): CountedArrayFieldItem<Key, Tuple, false>
+): CountedArrayFieldItem<Key, Tuple, false, false>
 export function countedFixedWidthArray<const Key extends string, const Tuple extends number>(
   key: Key,
   config: CountedFixedWidthArrayConfig<Tuple>,
-): CountedArrayFieldItem<Key, Tuple, boolean> {
+): CountedArrayFieldItem<Key, Tuple, boolean, boolean> {
   const { width, maxWidth, tuple, countKey, optional, pad, formatter, parseValue } = config
   const nullable = formatter === "station"
   if (optional) {
@@ -190,26 +224,35 @@ interface TextBlockFieldOptions {
   optional?: boolean
 }
 
-export function textBlockField<const Key extends string>(
+export function textBlockField<
+  const Key extends string,
+  const Options extends TextBlockFieldOptions = object,
+>(
   key: Key,
   label: string,
-  options: TextBlockFieldOptions = {},
-): TextBlockFieldItem<Key> {
-  const { optional = false } = options
+  options?: Options,
+): Options extends { optional: true }
+  ? TextBlockFieldItem<Key, true>
+  : TextBlockFieldItem<Key, false> {
+  const { optional = false } = options ?? {}
   if (optional) {
     return {
       kind: "textBlockField",
       key,
       label,
       optional: true as const,
-    }
+    } as Options extends { optional: true }
+      ? TextBlockFieldItem<Key, true>
+      : TextBlockFieldItem<Key, false>
   }
 
   return {
     kind: "textBlockField",
     key,
     label,
-  }
+  } as Options extends { optional: true }
+    ? TextBlockFieldItem<Key, true>
+    : TextBlockFieldItem<Key, false>
 }
 
 export function contextual<const Key extends string, Value>(
@@ -321,7 +364,7 @@ function buildSingleFieldItem<Key extends string, P extends Part<unknown>>(
   key: Key,
   label: string,
   part: P,
-): MultiFieldItem<Record<Key, P>> {
+): MultiFieldItem<Record<Key, P>, false> {
   const spec = buildFields({ [key]: part } as Record<Key, P>)
   return multiField(label, spec)
 }
@@ -355,20 +398,22 @@ export function stringField<const Key extends string, const Options extends Stri
   key: Key,
   label: string,
   options?: Options,
-): MultiFieldItem<Record<Key, WithOptional<string, Options>>> {
+): MultiFieldItem<Record<Key, WithOptional<string, Options>>, false> {
   const { optional, length, ...stringOptions } = (options ?? {}) as StringFieldOptions
   const basePart = stringPart(stringOptions)
 
   if (optional) {
     const finalPart = applyLength(opt(basePart), length, "left")
     return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
-      Record<Key, WithOptional<string, Options>>
+      Record<Key, WithOptional<string, Options>>,
+      false
     >
   }
 
   const finalPart = applyLength(basePart, length, "left")
   return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
-    Record<Key, WithOptional<string, Options>>
+    Record<Key, WithOptional<string, Options>>,
+    false
   >
 }
 
@@ -376,20 +421,22 @@ export function numberField<const Key extends string, const Options extends Numb
   key: Key,
   label: string,
   options?: Options,
-): MultiFieldItem<Record<Key, WithOptional<NumberFieldValue<Options>, Options>>> {
+): MultiFieldItem<Record<Key, WithOptional<NumberFieldValue<Options>, Options>>, false> {
   const { optional, length, ...numberOptions } = (options ?? {}) as NumberFieldOptions
   const basePart = numberPart(numberOptions)
 
   if (optional) {
     const finalPart = applyLength(opt(basePart), length, "right")
     return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
-      Record<Key, WithOptional<NumberFieldValue<Options>, Options>>
+      Record<Key, WithOptional<NumberFieldValue<Options>, Options>>,
+      false
     >
   }
 
   const finalPart = applyLength(basePart, length, "right")
   return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
-    Record<Key, WithOptional<NumberFieldValue<Options>, Options>>
+    Record<Key, WithOptional<NumberFieldValue<Options>, Options>>,
+    false
   >
 }
 
@@ -397,20 +444,22 @@ export function booleanField<const Key extends string, const Options extends Boo
   key: Key,
   label: string,
   options: Options,
-): MultiFieldItem<Record<Key, WithOptional<boolean, Options>>> {
+): MultiFieldItem<Record<Key, WithOptional<boolean, Options>>, false> {
   const { optional, length, ...booleanOptions } = options
   const basePart = booleanPart(booleanOptions)
 
   if (optional) {
     const finalPart = applyLength(opt(basePart), length, "left")
     return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
-      Record<Key, WithOptional<boolean, Options>>
+      Record<Key, WithOptional<boolean, Options>>,
+      false
     >
   }
 
   const finalPart = applyLength(basePart, length, "left")
   return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
-    Record<Key, WithOptional<boolean, Options>>
+    Record<Key, WithOptional<boolean, Options>>,
+    false
   >
 }
 
@@ -418,19 +467,21 @@ export function durationField<const Key extends string, const Options extends Du
   key: Key,
   label: string,
   options?: Options,
-): MultiFieldItem<Record<Key, WithOptional<number, Options>>> {
+): MultiFieldItem<Record<Key, WithOptional<number, Options>>, false> {
   const { optional, length } = (options ?? {}) as DurationFieldOptions
   const basePart = durationPart()
 
   if (optional) {
     const finalPart = applyLength(opt(basePart), length, "right")
     return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
-      Record<Key, WithOptional<number, Options>>
+      Record<Key, WithOptional<number, Options>>,
+      false
     >
   }
 
   const finalPart = applyLength(basePart, length, "right")
   return buildSingleFieldItem(key, label, finalPart) as MultiFieldItem<
-    Record<Key, WithOptional<number, Options>>
+    Record<Key, WithOptional<number, Options>>,
+    false
   >
 }

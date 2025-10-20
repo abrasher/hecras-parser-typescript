@@ -130,4 +130,32 @@ describe("schema types", () => {
     type Counted = Infer<typeof countedSchema>
     expectTypeOf<Counted["values"][number][number]>().toEqualTypeOf<number | null>()
   })
+
+  it("should handle optional tupleField, textBlockField, and tupleArrayField", () => {
+    const optionalFieldsSchema = schema([
+      tupleField("optTuple", "Tuple=", [numberPart(), numberPart()], { optional: true }),
+      tupleArrayField("Values=", "optArray", {
+        width: 8,
+        maxWidth: 16,
+        tuple: 2,
+        optional: true,
+      }),
+    ])
+
+    type OptionalFields = Infer<typeof optionalFieldsSchema>
+
+    // All fields should be optional
+    expectTypeOf<OptionalFields>().toMatchTypeOf<{
+      optTuple?: [number, number]
+      optArray?: Array<[number, number]>
+    }>()
+
+    // Should allow empty object
+    const empty: OptionalFields = {}
+    expectTypeOf(empty).toMatchTypeOf<OptionalFields>()
+
+    // Should allow partial objects
+    const partial: OptionalFields = { optTuple: [1, 2] }
+    expectTypeOf(partial).toMatchTypeOf<OptionalFields>()
+  })
 })

@@ -1,18 +1,17 @@
 import { describe, expect, it } from "vitest"
-import { parseWithSchema, schema, serializeWithSchema, textBlockField } from "../../src/schema"
+import {
+  parseWithSchema,
+  schema,
+  serializeWithSchema,
+  textBlockField,
+  tupleArrayField,
+} from "../../src/schema"
 
 describe("textBlockField", () => {
-  const blockSchema = schema([
-    textBlockField("description", "TEST DESCRIPTION"),
-  ])
+  const blockSchema = schema([textBlockField("description", "TEST DESCRIPTION")])
 
   it("parses block content into a newline-delimited string", () => {
-    const lines = [
-      "BEGIN TEST DESCRIPTION:",
-      "First line",
-      "Second line",
-      "END TEST DESCRIPTION:",
-    ]
+    const lines = ["BEGIN TEST DESCRIPTION:", "First line", "Second line", "END TEST DESCRIPTION:"]
 
     const { value, nextIndex } = parseWithSchema(blockSchema, lines, 0)
 
@@ -30,9 +29,7 @@ describe("textBlockField", () => {
   })
 
   it("skips optional block when not present", () => {
-    const optionalSchema = schema([
-      textBlockField("notes", "TEST NOTES", { optional: true }),
-    ])
+    const optionalSchema = schema([textBlockField("notes", "TEST NOTES", { optional: true })])
 
     const lines: string[] = []
     const { value, nextIndex } = parseWithSchema(optionalSchema, lines, 0)
@@ -57,9 +54,10 @@ describe("textBlockField", () => {
   it("omits optional block when value is undefined", () => {
     const optionalSchema = schema([
       textBlockField("notes", "TEST NOTES", { optional: true }),
+      tupleArrayField("Parts=", "parts", { maxWidth: 10, width: 10, tuple: 2 }),
     ])
 
-    const result = serializeWithSchema(optionalSchema, {})
+    const result = serializeWithSchema(optionalSchema, { parts: [] })
 
     expect(result).toEqual([])
   })
