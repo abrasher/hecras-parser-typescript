@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  parseWithSchema,
-  schema,
-  serializeWithSchema,
-  textBlockField,
-  tupleArrayField,
-} from "../../src/schema"
+import { parseWithSchema, schema, serializeWithSchema, textBlockField } from "../../src/schema"
 
 describe("textBlockField", () => {
   const blockSchema = schema([textBlockField("description", "TEST DESCRIPTION")])
@@ -52,12 +46,9 @@ describe("textBlockField", () => {
   })
 
   it("omits optional block when value is undefined", () => {
-    const optionalSchema = schema([
-      textBlockField("notes", "TEST NOTES", { optional: true }),
-      tupleArrayField("Parts=", "parts", { maxWidth: 10, width: 10, tuple: 2 }),
-    ])
+    const optionalSchema = schema([textBlockField("notes", "TEST NOTES", { optional: true })])
 
-    const result = serializeWithSchema(optionalSchema, { parts: [] })
+    const result = serializeWithSchema(optionalSchema, {})
 
     expect(result).toEqual([])
   })
