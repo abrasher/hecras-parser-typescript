@@ -1,8 +1,23 @@
 # HEC-RAS Parser TypeScript
 
-A work-in-progress TypeScript library for parsing HEC-RAS geometry files (.gXX).
+A schema-first TypeScript toolkit for reading and writing HEC-RAS geometry files (.gXX).
 
-Currently targetting HECRAS 6.6 as of August 2025.
+Currently targeting HEC-RAS 6.6 formats as of August 2025.
+
+## Project Status
+
+Implemented geometry schemas:
+- Boundary Conditions
+- Break Lines
+- Junctions
+- IC Points
+- Storage Areas
+- Land Cover regions
+- Connection components (bridges, culverts, general connections)
+
+Work in progress:
+- River reach details (cross sections, lateral structures)
+- 2D/SA connection refinements and integration glue
 
 ## Installation
 
@@ -10,90 +25,51 @@ Currently targetting HECRAS 6.6 as of August 2025.
 npm install hecras-parser
 ```
 
-## Quick Start
+## Working With Schemas
+
+The library revolves around the DSL in `src/schema/**`. Schema definitions live under `src/schemas/geometry/**`, and tests under `test/schemas/geometry/**` provide round-trip coverage.
+
+Example (from within this repo):
 
 ```typescript
-import { parseGeometry, loadGeometry } from "hecras-parser"
+import { parseWithSchema, serializeWithSchema } from "../src/schema/driver"
+import { geometrySchema } from "../src/schemas/geometry/geometrySchema"
 
-// Parse geometry file content
-const geometry = parseGeometry(fileContent)
-
-// Or load from file path (Node.js)
-const geometry = await loadGeometry("./path/to/file.g01")
+const lines = fileContent.split(/\r?\n/)
+const { result } = parseWithSchema(geometrySchema, lines)
+const roundTrip = serializeWithSchema(geometrySchema, result)
 ```
 
-## File Support Overview
+The public entrypoint (`src/index.ts`) currently exposes geometry/plan/unsteady-flow model types to support downstream typing while the schema-first pipeline firms up.
 
-### Currently Supported File Types
+## Scripts
 
-| File Type          | Extension            | Support Level  | Description                                |
-| ------------------ | -------------------- | -------------- | ------------------------------------------ |
-| **Geometry Files** | `.g01`, `.g02`, etc. | 🚧 **Partial** | Complete parsing and serialization support |
+### Development
 
-### Not Yet Supported File Types
+- `npm run build` – Build project (tsdown)
+- `npm run dev` – Build with watch mode
+- `tsc` – Run TypeScript compiler for type checking
 
-| File Type         | Extension            | Status               | Description                      |
-| ----------------- | -------------------- | -------------------- | -------------------------------- |
-| **Flow Files**    | `.f0x`, `.u0x`, etc. | ❌ **Not Supported** | Steady/unsteady flow data files  |
-| **Plan Files**    | `.p01`, `.p02`, etc. | ❌ **Not Supported** | Project plan definition files    |
-| **Project Files** | `.prj`               | ❌ **Not Supported** | HEC-RAS project files            |
-| **Results Files** | `.hdf`               | ❌ **Out of Scope**  | Simulation results in HDF format |
+### Testing
 
-## Geometry File Parsing Support
+- `npm test` – Run Vitest test suite
+- `npm run test:typecheck` – Run Vitest in type-checking mode
 
-### Core Geometry Elements
+### Code Quality
 
-| Element                 | Support Level     | Parser | Serializer | Description                                    |
-| ----------------------- | ----------------- | ------ | ---------- | ---------------------------------------------- |
-| **File Headers**        | ✅ **Complete**   | ✅     | ✅         | Title, version, viewing rectangle, description |
-| **Storage Areas**       | ✅ **Complete**   | ✅     | ✅         | 2D flow areas, elevation data, Manning's n     |
-| **Connections**         | ✅ **Complete**   | ✅     | ✅         | All connection types between storage areas     |
-| **Boundary Conditions** | ✅ **Complete**   | ✅     | ✅         | Flow boundary condition lines                  |
-| **Break Lines**         | ✅ **Complete**   | ✅     | ✅         | Terrain modification lines                     |
-| **Junctions**           | ✅ **Complete**   | ✅     | ✅         | Flow junctions and splits                      |
-| **Pipes**               | ❌**Not Started** | ✅     | ✅         | Flow junctions and splits                      |
-| **Global Settings**     | ❌**Partial**     | ✅     | ✅         | LCMann time, channel cuts, GIS settings        |
-| **River Reaches**       | ❌**Incomplete**  | ❌     | ❌         | 1D river centerlines, cross-sections, stations |
+- `npm run format` – Format code with Prettier
+- `npm run lint` – Run ESLint
+- `npm run lint:fix` – Run ESLint with automatic fixes
 
-### Connection Types
+## Repository Layout
 
-| Connection Type         | Support Level   | Features Supported                                              |
-| ----------------------- | --------------- | --------------------------------------------------------------- |
-| **General Connections** | ✅ **Complete** | Connection lines, centerline profiles, hydraulic tables         |
-| **Weir Connections**    | ✅ **Complete** | Weir coefficients, station-elevation data, ogee settings        |
-| **Bridge Connections**  | ✅ **Complete** | Bridge geometry, deck data, piers, approach sections            |
-| **Culvert Connections** | ✅ **Complete** | All culvert shapes, barrel configurations, flow characteristics |
-
-## API Reference
-
-### Main Functions
-
-```typescript
-// Parse geometry file content (string)
-function parseGeometry(content: string): HECRASGeometry
-
-// Load and parse from file path (Node.js)
-function loadGeometry(filePath: string): Promise<HECRASGeometry>
-function loadGeometrySync(filePath: string): HECRASGeometry
-
-// Serialize geometry back to HEC-RAS format
-function serializeGeometry(geometry: HECRASGeometry): string
-```
-
-### Serialization
-
-```typescript
-import { serializeGeometry } from "hecras-parser"
-
-// Parse and modify geometry
-const geometry = parseGeometry(content)
-geometry.geomTitle = "Modified Model"
-
-// Serialize back to HEC-RAS format
-const output = serializeGeometry(geometry)
-fs.writeFileSync("modified.g01", output)
-```
+- `src/schema/**` – DSL core (`core.ts`, `driver.ts`, `combinators.ts`, `parts.ts`, `serializationUtils.ts`, `parsingUtils.ts`)
+- `src/schemas/geometry/**` – Geometry section schemas
+- `test/schemas/geometry/**` – Round-trip tests per schema
+- `docs/hecras-parsing-format-specification.md` – Living documentation for tricky formatting, coverage, and risks
 
 ## Contributing
 
-This library focuses on HEC-RAS geometry file parsing. For other file types (flow, plan, results), please open an issue to discuss implementation priorities.
+- Read `AGENTS.md`, `CLAUDE.md`, and `docs/hecras-parsing-format-specification.md` before contributing.
+- New parsing/serialization work belongs in `src/schemas/**` using helpers from `src/schema/**`.
+- Add or update tests alongside schema changes and keep the documentation in sync.
