@@ -116,7 +116,13 @@ const multipleBarrelCulvertSchema = schema([
       }
 
       // Number of entries is 2 * numberOfBarrels (upstream and downstream station for each barrel)
-      const numberOfBarrels = context.numberOfBarrels ?? 2
+      const numberOfBarrels = context.numberOfBarrels
+      if (numberOfBarrels === undefined) {
+        throw new Error(
+          "numberOfBarrels not found in context - header parse may have failed at line " +
+            startIndex,
+        )
+      }
       const numOfEntries = numberOfBarrels * 2
 
       // Parse the station values (typically 2 * numberOfBarrels values)
