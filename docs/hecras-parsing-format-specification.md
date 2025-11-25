@@ -95,5 +95,6 @@ Format:   [NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.N
 
 Document new formatting discoveries, schema limitations, or trade-offs here. Include the relevant schema/test path and a short summary so future contributors understand the current state and open work.
 
-- _[Add entries as the migration progresses]_ 
+- _[Add entries as the migration progresses]_
 - _2025-10-06_ — River reaches represent cross sections and lateral weirs as a single `riverStationEntries` union keyed by `type`. This mirrors the HEC-RAS interleaving (e.g., XS/XSLW/XS…) and keeps serialization stable. Callers that previously expected `crossSections` must filter by `entry.type === 1`.
+- _2025-11-24_ — Cross sections now support `Levee=` lines with format `Levee=<enabled>,<leftStation>,<leftElevation>,<leftSide>,<rightStation>,<rightElevation>,<rightSide>,<additionalParam>`. All numeric fields use `nullOnBlank: true` to preserve blank values (empty CSV segments). The boolean `enabled` field uses `-1,0` encoding. **Note: Field names are inferred from a single example (`Levee=-1,182.83,254,0,,,0,0`) and need verification against HEC-RAS documentation.** See `src/schemas/geometry/crossSectionSchema.ts:66-82`.
