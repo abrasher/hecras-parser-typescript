@@ -188,6 +188,14 @@ export const crossSectionSchema = schema([
   ),
   numberField("skewAngle", "Skew Angle=", { optional: true, pad: true }),
   multiField(
+    "Exp/Cntr(USF)=",
+    fields({
+      expansionCoefficientUSF: numberPart(),
+      contractionCoefficientUSF: numberPart(),
+    }),
+    { optional: true },
+  ),
+  multiField(
     "Exp/Cntr=",
     fields({
       expansionCoefficient: numberPart(),

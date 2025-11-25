@@ -68,7 +68,7 @@ export const junctionSchema = schema([
         "Up River,Reach=",
         fields({
           river: stringPart({ trim: true, width: 16 }),
-          reach: stringPart({ trim: true, width: 12 }),
+          reach: stringPart({ trim: true }),
         }),
       ),
     ]),
@@ -78,7 +78,7 @@ export const junctionSchema = schema([
     "Dn River,Reach=",
     fields({
       downstreamRiver: stringPart({ trim: true, width: 16 }),
-      downstreamReach: stringPart({ trim: true, width: 12 }),
+      downstreamReach: stringPart({ trim: true }),
     }),
   ),
 

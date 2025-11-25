@@ -64,7 +64,7 @@ export const inlineWeirSchema = schema([
       return {
         value: {
           distance: parseMaybeInt(parts[0]) ?? 0,
-          weirWidth: parseMaybeInt(parts[1]) ?? 0,
+          weirWidth: parseMaybeFloat(parts[1]) ?? 0,
           weirCoefficient: parseMaybeFloat(parts[2]) ?? 0,
           skew: parseMaybeInt(parts[3]) ?? 0,
           maxSubmergence: parseMaybeFloat(parts[4]) ?? 0,
