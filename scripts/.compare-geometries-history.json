@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2025-11-24T22:06:40.779Z",
+    "timestamp": "2025-11-25T01:46:16.082Z",
     "results": [
       {
         "file": "test/data/Dingman 2D.g01",
@@ -100,7 +100,7 @@
         "linesMatched": 61795,
         "originalLines": 212264,
         "serializedLines": 61800,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1764022000669-4239e503cf29c.json"
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1764035175979-11d7edcc36438.json"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_BSTEM - Simple Example_SimplifiedBSTEM.g01",
@@ -729,7 +729,7 @@
     }
   },
   {
-    "timestamp": "2025-11-25T01:46:16.082Z",
+    "timestamp": "2025-11-25T02:00:01.541Z",
     "results": [
       {
         "file": "test/data/Dingman 2D.g01",
@@ -829,7 +829,7 @@
         "linesMatched": 61795,
         "originalLines": 212264,
         "serializedLines": 61800,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1764035175979-11d7edcc36438.json"
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1764036001432-52b6944ab0cd4.json"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_BSTEM - Simple Example_SimplifiedBSTEM.g01",
