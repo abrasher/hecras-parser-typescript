@@ -2,6 +2,7 @@ import { chunk } from "es-toolkit"
 
 import {
   type Infer,
+  type Part,
   numberPart,
   schema,
   fields,
@@ -17,6 +18,8 @@ import {
   startsWith,
   tupleArrayField,
   tupleField,
+  countedArrayLengthPart,
+  countedFixedWidthArray,
 } from "../../schema"
 import { formatFixedWidth, formatHECRASStationNumber } from "../../schema/serializationUtils"
 import type { NTuple } from "../../schema/parsingUtils"
@@ -36,7 +39,7 @@ const MAX_VALUES_PER_LINE = 80 / WIDTH_FIELD_WIDTH
  *
  * Format:
  * BC Culvert Barrel=<index>,<name>,<numberOfCoordinates>
- * <coordinate data in fixed-width format>
+ * <coordinate data in 16-char fixed-width format, 2 coordinates per line>
  */
 const culvertBarrelSchema = schema([
   multiField(
@@ -44,12 +47,131 @@ const culvertBarrelSchema = schema([
     fields({
       index: numberPart({ integer: true }),
       name: stringPart({ trim: true }),
-      numberOfCoordinates: numberPart({ integer: true }),
+      numberOfCoordinates: countedArrayLengthPart("coordinates"),
     }),
   ),
+  countedFixedWidthArray("coordinates", {
+    width: 16,
+    maxWidth: 64,
+    tuple: 2 as const,
+    formatter: "coordinate",
+  }),
 ])
 
 export type CulvertBarrelSchema = Infer<typeof culvertBarrelSchema>
+
+/**
+ * Schema for multiple barrel culvert within a bridge/culvert structure
+ *
+ * Format:
+ * Multiple Barrel Culv=<shape>,<rise>,<span>,<length>,<nValue>,<entranceLoss>,<exitLoss>,<chart>,<scale>,<upstreamInvert>,<downstreamInvert>,<numberOfBarrels>,<name>,<flag>,<additionalParam>
+ * <barrel station data>
+ * BC Culvert Barrel=... (repeated for each barrel)
+ * Culvert Bottom n=<nBottom> (optional)
+ */
+const multipleBarrelCulvertSchema = schema([
+  multiField(
+    "Multiple Barrel Culv=",
+    fields({
+      shape: numberPart({ integer: true }),
+      rise: numberPart(),
+      span: numberPart(),
+      length: numberPart(),
+      nValue: numberPart(),
+      entranceLoss: numberPart(),
+      exitLoss: numberPart(),
+      chart: numberPart({ integer: true }),
+      scale: numberPart({ integer: true }),
+      upstreamInvert: numberPart(),
+      downstreamInvert: numberPart(),
+      // numberOfBarrels has a leading space but no trailing space in HEC-RAS format
+      numberOfBarrels: {
+        parse: (segment: string) => {
+          const trimmed = segment.trim()
+          const value = parseInt(trimmed, 10)
+          if (Number.isNaN(value)) {
+            throw new Error(`Invalid numberOfBarrels: ${segment}`)
+          }
+          return value
+        },
+        serialize: (value: number) => ` ${value}`,
+      } as Part<number>,
+      name: stringPart({ trim: true, width: 12 }),
+      flag: booleanPart({ mode: "-1,0", pad: true }),
+      additionalParam: numberPart({ nullOnBlank: true }),
+    }),
+  ),
+  contextual(
+    "barrelStations",
+    (lines, startIndex, context) => {
+      const line = lines[startIndex]
+      if (!line || line.trim() === "") {
+        return null
+      }
+
+      // Check if this line looks like it contains station data (numeric values)
+      const trimmed = line.trim()
+      if (trimmed.startsWith("BC Culvert Barrel=") || trimmed.startsWith("Culvert Bottom")) {
+        return null
+      }
+
+      // Number of entries is 2 * numberOfBarrels (upstream and downstream station for each barrel)
+      const numberOfBarrels = context.numberOfBarrels
+      if (numberOfBarrels === undefined) {
+        throw new Error(
+          "numberOfBarrels not found in context - header parse may have failed at line " +
+            startIndex,
+        )
+      }
+      const numOfEntries = numberOfBarrels * 2
+
+      // Parse the station values (typically 2 * numberOfBarrels values)
+      const { data, nextIndex } = parseMultilineArray({
+        lines,
+        currentIndex: startIndex,
+        width: WIDTH_FIELD_WIDTH,
+        maxWidth: 80,
+        numOfEntries,
+      })
+
+      const stations = data
+        .filter((value) => value !== "")
+        .map((value) => {
+          const parsed = parseFloat(value)
+          if (Number.isNaN(parsed)) {
+            throw new Error(`Error parsing barrel station: ${value}`)
+          }
+          return parsed
+        })
+
+      return {
+        value: stations,
+        nextIndex,
+      }
+    },
+    (stations) => {
+      if (!stations || stations.length === 0) {
+        return []
+      }
+
+      const lines: string[] = []
+      for (let i = 0; i < stations.length; i += MAX_VALUES_PER_LINE) {
+        const slice = stations.slice(i, i + MAX_VALUES_PER_LINE)
+        const formatted = slice
+          .map((value) => formatFixedWidth(formatHECRASStationNumber(value), WIDTH_FIELD_WIDTH))
+          .join("")
+        lines.push(formatted)
+      }
+      return lines
+    },
+  ),
+  repeat("barrels", startsWith("BC Culvert Barrel="), culvertBarrelSchema),
+  numberField("nBottom", "Culvert Bottom n=", { optional: true }),
+  numberField("culvertBottomDepth", "Culvert Bottom Depth=", { optional: true }),
+  numberField("culvertDepthBlocked", "Culvert Depth Blocked=", { optional: true }),
+])
+
+export type MultipleBarrelCulvertSchema = Infer<typeof multipleBarrelCulvertSchema>
 
 /**
  * Schema for culvert within a bridge/culvert structure
@@ -330,6 +452,7 @@ export const oneDimStructureWithCulvertSchema = schema([
     { optional: true },
   ),
   repeat("culverts", startsWith("Culvert="), culvertSchema),
+  repeat("multipleBarrelCulverts", startsWith("Multiple Barrel Culv="), multipleBarrelCulvertSchema),
   tupleArrayField("BR U #Sta/Elev=", "upstreamInternalStationElevations", {
     width: 8,
     maxWidth: 80,

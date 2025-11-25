@@ -52,6 +52,40 @@ describe("crossSectionSchema", () => {
       canonicalCrossSectionLines.some((line) => line.startsWith("#Block Obstruct=")),
     ).toBe(false)
   })
+
+  it("parses and serializes Exp/Cntr(USF) field", () => {
+    const linesWithUSF = [
+      "Type RM Length L Ch R = 1 ,2630    ,,,",
+      "#Sta/Elev= 2 ",
+      "       0  260.00       1  260.00",
+      "#Mann= 1 ,-1,0",
+      "       0     .035       0",
+      "Bank Sta=0,1",
+      "XS Rating Curve= 0 ,0",
+      "XS HTab Starting El and Incr=259.495,0.06, 20 ",
+      "XS HTab Horizontal Distribution= 5 , 5 , 5 ",
+      "Exp/Cntr(USF)=0,0",
+      "Exp/Cntr=0.5,0.3",
+      "",
+    ]
+
+    const parsed = parseWithSchema(crossSectionSchema, linesWithUSF, 0)
+    expect(parsed.value.expansionCoefficientUSF).toBe(0)
+    expect(parsed.value.contractionCoefficientUSF).toBe(0)
+    expect(parsed.value.expansionCoefficient).toBe(0.5)
+    expect(parsed.value.contractionCoefficient).toBe(0.3)
+
+    const serialized = serializeWithSchema(crossSectionSchema, parsed.value)
+    expect(serialized).toContain("Exp/Cntr(USF)=0,0")
+    expect(serialized).toContain("Exp/Cntr=0.5,0.3")
+
+    // Round-trip test
+    const reparsed = parseWithSchema(crossSectionSchema, serialized, 0)
+    expect(reparsed.value.expansionCoefficientUSF).toBe(0)
+    expect(reparsed.value.contractionCoefficientUSF).toBe(0)
+    expect(reparsed.value.expansionCoefficient).toBe(0.5)
+    expect(reparsed.value.contractionCoefficient).toBe(0.3)
+  })
 })
 
 const expectedCrossSection: CrossSectionSchema = {
