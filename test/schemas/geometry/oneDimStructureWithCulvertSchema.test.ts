@@ -1,13 +1,6 @@
 import { describe, expect, it } from "vitest"
-import {
-  parseSectionWithSchema,
-  parseWithSchema,
-  serializeWithSchema,
-} from "../../../src/schema"
-import {
-  oneDimStructureWithCulvertSchema,
-  type OneDimStructureWithCulvertSchema,
-} from "../../../src/schemas/geometry/oneDimStructureWithCulvertSchema"
+import { parseSectionWithSchema, serializeWithSchema } from "../../../src/schema"
+import { oneDimStructureWithCulvertSchema } from "../../../src/schemas/geometry/oneDimStructureWithCulvertSchema"
 
 describe("oneDimStructureWithCulvertSchema", () => {
   describe("multipleBarrelCulvert", () => {
