@@ -317,9 +317,11 @@ export const oneDimBridgeSchema = schema([
   multiField(
     "BR Coef=",
     fields({
+      // HEC-RAS sometimes uses 1 instead of -1 for true in these coefficient fields
+      // Use stringPart to preserve the exact value without boolean validation
       bridgeCoefficient1: stringPart({ trim: false }),
-      bridgeCoefficient2: booleanPart({ mode: "-1,0", pad: true }),
-      bridgeCoefficient3: booleanPart({ mode: "-1,0", pad: true }),
+      bridgeCoefficient2: stringPart({ trim: false }),
+      bridgeCoefficient3: stringPart({ trim: false }),
       bridgeCoefficient4: numberPart({ nullOnBlank: true }),
       bridgeCoefficient5: booleanPart({ mode: "-1,0", pad: true }),
       bridgeCoefficient6: numberPart({ nullOnBlank: true }),
@@ -379,9 +381,10 @@ export const oneDimBridgeSchema = schema([
     }),
     { optional: true },
   ),
+  numberField("bcHTabHWMax", "BC HTab HWMax=", { optional: true }),
+  numberField("bcHTabTWMax", "BC HTab TWMax=", { optional: true }),
   numberField("bcUseUserHTables", "BC Use User HTab Curves=", { integer: true }),
   numberField("bcUserHTabFreeFlow", "BC User HTab FreeFlow(D)=", { integer: true, pad: true }),
-  numberField("bcHTabHWMax", "BC HTab HWMax=", { optional: true }),
   blankLine(),
 ])
 
