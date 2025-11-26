@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2025-11-25T02:12:26.728Z",
+    "timestamp": "2025-11-25T03:28:11.947Z",
     "results": [
       {
         "file": "test/data/Dingman 2D.g01",
@@ -297,8 +297,13 @@
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g02",
-        "status": "error",
-        "message": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 110, content: \"BR Coef= 1 , 1 , 1 ,1.05, 0 ,,,0.8,0,1.33,0,\""
+        "status": "diff",
+        "diffLine": 114,
+        "diffIndex": 0,
+        "linesMatched": 113,
+        "originalLines": 570,
+        "serializedLines": 118,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1764041291946-78e46ad05ebc7.json"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g03",
@@ -764,11 +769,15 @@
     "metrics": {
       "filesMatched": 17,
       "totalFiles": 139,
-      "status": "error"
+      "status": "failed",
+      "failureFile": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g02",
+      "failureLine": 114,
+      "linesMatchedInFailure": 113,
+      "diffIndex": 0
     }
   },
   {
-    "timestamp": "2025-11-25T02:14:42.800Z",
+    "timestamp": "2025-11-25T03:28:34.764Z",
     "results": [
       {
         "file": "test/data/Dingman 2D.g01",
@@ -1066,7 +1075,7 @@
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g02",
         "status": "error",
-        "message": "Invalid boolean segment for mode -1,0:  1 \n[ParseContext] Last parsed line index: 110, content: \"BR Coef= 1 , 1 , 1 ,1.05, 0 ,,,0.8,0,1.33,0,\""
+        "message": "Expected number but found blank segment\n[ParseContext] Last parsed line index: 291, content: \"Culvert=1,8,,100,0.013,0.5,1,1,1,70.5,213,70.25,213,Circular    , 0 ,5\""
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g03",
@@ -1075,6 +1084,11 @@
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g04",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.serialized.g02",
         "status": "skipped",
         "skipReason": "previous_failure"
       },
@@ -1531,7 +1545,7 @@
     ],
     "metrics": {
       "filesMatched": 17,
-      "totalFiles": 139,
+      "totalFiles": 140,
       "status": "error"
     }
   }
