@@ -207,6 +207,139 @@ describe("oneDimStructureWithCulvertSchema", () => {
     })
   })
 
+  describe("culvert with blank rise and span values", () => {
+    const culvertWithBlankValuesLines = [
+      "Type RM Length L Ch R = 2 ,10.28   ,250,250,250",
+      "Node Last Edited Time=Feb/01/2000 12:21:04",
+      "Bridge Culvert--1,0,-1,-1, 0 ",
+      "BR Coef=-1 , 0 , 0 ,, 0 ,,,0.8,0,1.2,0,",
+      "Culvert=1,8,,100,0.013,0.5,1,1,1,70.5,213,70.25,213,Circular    , 0 ,5",
+      "     213     213",
+      "BC Culvert Barrel=1,,0",
+      "Culvert Bottom n=0.013",
+      "BC Design=,, 0 ,, 0 ,,,,,,",
+      "BC HTab HWMax=90",
+      "BC Use User HTab Curves=0",
+      "BC User HTab FreeFlow(D)= 0 ",
+      "",
+    ]
+
+    it("parses culvert with blank span value (null)", () => {
+      const result = parseSectionWithSchema(
+        oneDimStructureWithCulvertSchema,
+        culvertWithBlankValuesLines,
+        0,
+      )
+
+      expect(result.value.culverts).toHaveLength(1)
+      const culvert = result.value.culverts![0]
+
+      // rise is 8, span is blank (should be null)
+      expect(culvert.shape).toBe(1)
+      expect(culvert.rise).toBe(8)
+      expect(culvert.span).toBe(null)
+      expect(culvert.length).toBe(100)
+      expect(culvert.nValue).toBe(0.013)
+    })
+
+    it("parses BC HTab HWMax field", () => {
+      const result = parseSectionWithSchema(
+        oneDimStructureWithCulvertSchema,
+        culvertWithBlankValuesLines,
+        0,
+      )
+
+      expect(result.value.bcHTabHWMax).toBe(90)
+      expect(result.value.bcUseUserHTables).toBe(0)
+      expect(result.value.bcUserHTabFreeFlow).toBe(0)
+    })
+
+    it("round-trips culvert with blank span value", () => {
+      const parsed = parseSectionWithSchema(
+        oneDimStructureWithCulvertSchema,
+        culvertWithBlankValuesLines,
+        0,
+      )
+      const serialized = serializeWithSchema(oneDimStructureWithCulvertSchema, parsed.value)
+      const reparsed = parseSectionWithSchema(oneDimStructureWithCulvertSchema, serialized, 0)
+
+      expect(reparsed.value.culverts?.[0]?.rise).toBe(8)
+      expect(reparsed.value.culverts?.[0]?.span).toBe(null)
+      expect(reparsed.value.bcHTabHWMax).toBe(90)
+    })
+
+    it("serializes blank span value correctly", () => {
+      const parsed = parseSectionWithSchema(
+        oneDimStructureWithCulvertSchema,
+        culvertWithBlankValuesLines,
+        0,
+      )
+      const serialized = serializeWithSchema(oneDimStructureWithCulvertSchema, parsed.value)
+
+      const culvertLine = serialized.find((line) => line.startsWith("Culvert="))
+      expect(culvertLine).toBeDefined()
+      // Should have "8,," for rise=8 and span=null (blank)
+      expect(culvertLine).toContain("1,8,,100")
+    })
+
+    it("serializes BC HTab HWMax field when present", () => {
+      const parsed = parseSectionWithSchema(
+        oneDimStructureWithCulvertSchema,
+        culvertWithBlankValuesLines,
+        0,
+      )
+      const serialized = serializeWithSchema(oneDimStructureWithCulvertSchema, parsed.value)
+
+      const htabLine = serialized.find((line) => line.startsWith("BC HTab HWMax="))
+      expect(htabLine).toBe("BC HTab HWMax=90")
+    })
+  })
+
+  describe("multiple barrel culvert with blank rise and span values", () => {
+    const multipleBarrelWithBlankLines = [
+      "Type RM Length L Ch R = 2 ,2630    ,,,",
+      "Node Last Edited Time=May-28-2024 10:56:01",
+      "Bridge Culvert--1,0,-1,-1, 0 ",
+      "BR Coef=-1 , 0 , 0 ,, 0 ,,,0.8,0,1.2,0,",
+      "Multiple Barrel Culv=2,,2.42,49.54,0.017,0.5,1,58,1,261.2,261.1, 2,Culvert #1  , 0 ,3.79",
+      "  465.39  479.57  468.29  482.47",
+      "BC Culvert Barrel=1,Barrel #01,0",
+      "BC Culvert Barrel=2,Barrel #02,0",
+      "BC Design=,, 0 ,, 0 ,,,,,,",
+      "BC Use User HTab Curves=0",
+      "BC User HTab FreeFlow(D)= 0 ",
+      "",
+    ]
+
+    it("parses multiple barrel culvert with blank rise value", () => {
+      const result = parseSectionWithSchema(
+        oneDimStructureWithCulvertSchema,
+        multipleBarrelWithBlankLines,
+        0,
+      )
+
+      expect(result.value.multipleBarrelCulverts).toHaveLength(1)
+      const culvert = result.value.multipleBarrelCulverts![0]
+
+      expect(culvert.shape).toBe(2)
+      expect(culvert.rise).toBe(null)
+      expect(culvert.span).toBe(2.42)
+    })
+
+    it("round-trips multiple barrel culvert with blank rise value", () => {
+      const parsed = parseSectionWithSchema(
+        oneDimStructureWithCulvertSchema,
+        multipleBarrelWithBlankLines,
+        0,
+      )
+      const serialized = serializeWithSchema(oneDimStructureWithCulvertSchema, parsed.value)
+      const reparsed = parseSectionWithSchema(oneDimStructureWithCulvertSchema, serialized, 0)
+
+      expect(reparsed.value.multipleBarrelCulverts?.[0]?.rise).toBe(null)
+      expect(reparsed.value.multipleBarrelCulverts?.[0]?.span).toBe(2.42)
+    })
+  })
+
   describe("regular culvert vs multiple barrel culvert", () => {
     it("distinguishes between Culvert= and Multiple Barrel Culv=", () => {
       const regularCulvertLines = [
