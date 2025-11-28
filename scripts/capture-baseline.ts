@@ -73,7 +73,7 @@ async function captureBaseline(targetBranch: string = "main") {
     try {
       console.log(colors.dim("Pulling latest changes..."))
       execSync("git pull --ff-only", { stdio: "pipe" })
-    } catch (error) {
+    } catch {
       console.log(colors.yellow("⚠️  Could not pull latest changes (continuing anyway)"))
     }
 
@@ -140,8 +140,8 @@ const args = process.argv.slice(2)
 const branchIndex = args.indexOf("--branch")
 const targetBranch = branchIndex >= 0 ? args[branchIndex + 1] : "main"
 
-captureBaseline(targetBranch).catch((error) => {
+captureBaseline(targetBranch).catch((err) => {
   console.error(colors.red("\n❌ Failed to capture baseline:"))
-  console.error(colors.red(error instanceof Error ? error.message : String(error)))
+  console.error(colors.red(err instanceof Error ? err.message : String(err)))
   process.exit(1)
 })

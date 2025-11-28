@@ -219,7 +219,7 @@ async function checkRegression(strict: boolean = false): Promise<number> {
   console.log(colors.cyan("\nRunning compare-geometries...\n"))
   try {
     execSync("tsx scripts/compare-geometries.ts", { stdio: "inherit" })
-  } catch (error) {
+  } catch {
     console.log(
       colors.red(
         "\n❌ compare-geometries script failed. This may indicate a parsing error.",
