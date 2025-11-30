@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2025-11-28T01:57:50.663Z",
+    "timestamp": "2025-11-27T00:30:54.771Z",
     "results": [
       {
         "file": "test/data/Dingman 2D.g01",
@@ -378,12 +378,12 @@
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.g02",
         "status": "diff",
-        "diffLine": 1181,
+        "diffLine": 2350,
         "diffIndex": 0,
-        "linesMatched": 1180,
+        "linesMatched": 2349,
         "originalLines": 4592,
-        "serializedLines": 1185,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1764295070661-aab4de84c0011.json"
+        "serializedLines": 2354,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1764203454768-47edf7feeea4e.json"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.serialized.g02",
@@ -796,13 +796,13 @@
       "totalFiles": 141,
       "status": "failed",
       "failureFile": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.g02",
-      "failureLine": 1181,
-      "linesMatchedInFailure": 1180,
+      "failureLine": 2350,
+      "linesMatchedInFailure": 2349,
       "diffIndex": 0
     }
   },
   {
-    "timestamp": "2025-11-28T01:58:24.669Z",
+    "timestamp": "2025-11-27T00:33:54.579Z",
     "results": [
       {
         "file": "test/data/Dingman 2D.g01",
@@ -1180,12 +1180,12 @@
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.g02",
         "status": "diff",
-        "diffLine": 1181,
+        "diffLine": 2350,
         "diffIndex": 0,
-        "linesMatched": 1180,
+        "linesMatched": 2349,
         "originalLines": 4592,
-        "serializedLines": 1185,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1764295104668-38dda5e436e7f.json"
+        "serializedLines": 2354,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1764203634575-e6dea8f9bb6a2.json"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.serialized.g02",
@@ -1598,8 +1598,8 @@
       "totalFiles": 141,
       "status": "failed",
       "failureFile": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.g02",
-      "failureLine": 1181,
-      "linesMatchedInFailure": 1180,
+      "failureLine": 2350,
+      "linesMatchedInFailure": 2349,
       "diffIndex": 0
     }
   }
