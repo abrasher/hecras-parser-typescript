@@ -1,0 +1,15 @@
+{
+  "branch": "main",
+  "commit": "75b059c0d25100804514218f1fa1f2b0e117ce51",
+  "timestamp": "2025-11-28T01:57:50.708Z",
+  "metrics": {
+    "filesMatched": 19,
+    "totalFiles": 141,
+    "status": "failed",
+    "failureFile": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.g02",
+    "failureLine": 1181,
+    "linesMatchedInFailure": 1180,
+    "diffIndex": 0
+  },
+  "capturedBy": "manual"
+}

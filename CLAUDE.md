@@ -47,6 +47,27 @@ Migration workflow (summary)
 - `npm test` - Run tests with Vitest
 - `npm run test:run` - Run tests once (CI mode)
 
+### Regression Testing
+
+The project includes a regression prevention system to ensure parser/serializer changes don't make geometry parsing worse. See `scripts/README-regression-testing.md` for full documentation.
+
+**Quick reference:**
+- `npm run baseline:capture` - Capture baseline metrics from main branch
+- `npm run check:regression` - Check current changes against baseline
+- `npm run compare:geometries` - Run full geometry comparison
+
+**How it works:**
+- Compares against `main` branch baseline (not previous commits)
+- Tracks: files matched, lines matched, character position of differences
+- CI automatically checks on PRs and blocks merge if regression detected
+- Allows improvements and no-change scenarios
+- Blocks if fewer files match or failures occur earlier
+
+**Exit codes:**
+- `0` - No regression (same or better than baseline)
+- `1` - Regression detected (worse than baseline)
+- `2` - No baseline found (only with `--strict` flag)
+
 ### Code Quality
 
 - `npm run format` - Format code with Prettier
