@@ -304,7 +304,7 @@ function testGeometry(testFilePath: string): FileRunResult {
 const exampleGeometriesDir = "test/data/example_geometries"
 const exampleGeometryFiles = existsSync(exampleGeometriesDir)
   ? readdirSync(exampleGeometriesDir)
-      .filter((file) => file.match(/\.g\d+$/))
+      .filter((file) => file.match(/\.g\d+$/) && !file.includes("serialized"))
       .map((file) => join(exampleGeometriesDir, file))
       .sort()
   : []
