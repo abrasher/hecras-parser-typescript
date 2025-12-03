@@ -1,0 +1,180 @@
+[
+  {
+    "timestamp": "2025-12-03T20:53:58.868Z",
+    "results": [
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p01",
+        "status": "diff",
+        "diffLine": 1,
+        "diffIndex": 0,
+        "linesMatched": 0,
+        "originalLines": 252,
+        "serializedLines": 0,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1764795238867-e2bbeae63a80c.json"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p02",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p03",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p04",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p05",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p06",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p13",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p15",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p17",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p18",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p19",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/Muncie.p01",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/Muncie.p03",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/Muncie.p04",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      }
+    ],
+    "metrics": {
+      "filesMatched": 0,
+      "totalFiles": 14,
+      "status": "failed",
+      "failureFile": "test/data/plans/BaldEagleDamBrk.p01",
+      "failureLine": 1,
+      "linesMatchedInFailure": 0,
+      "diffIndex": 0
+    }
+  },
+  {
+    "timestamp": "2025-12-03T20:54:03.879Z",
+    "results": [
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p01",
+        "status": "diff",
+        "diffLine": 1,
+        "diffIndex": 0,
+        "linesMatched": 0,
+        "originalLines": 252,
+        "serializedLines": 0,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1764795243878-83876193965a2.json"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p02",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p03",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p04",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p05",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p06",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p13",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p15",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p17",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p18",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p19",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/Muncie.p01",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/Muncie.p03",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/Muncie.p04",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      }
+    ],
+    "metrics": {
+      "filesMatched": 0,
+      "totalFiles": 14,
+      "status": "failed",
+      "failureFile": "test/data/plans/BaldEagleDamBrk.p01",
+      "failureLine": 1,
+      "linesMatchedInFailure": 0,
+      "diffIndex": 0
+    }
+  }
+]

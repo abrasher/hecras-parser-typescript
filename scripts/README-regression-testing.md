@@ -199,6 +199,16 @@ npm run check:regression
 git push origin feature/improve-parsing
 ```
 
+## Plan Regression Testing
+
+Plan files under `test/data/plans` use the exact same workflow with their own helper scripts. This keeps geometry and plan progress isolated while we bring the plan schema online.
+
+- `npm run compare:plans` – round-trip all sample plan files and stop at the first difference.
+- `npm run baseline:capture:plans` – capture the best-known plan metrics from `main`.
+- `npm run check:regression:plans` – ensure current plan changes do not regress the captured baseline (`--strict` is also supported).
+
+These commands read/write `.compare-plans-history.json` and `.plan-baseline-metrics.json` inside `scripts/`, mirroring the geometry tooling.
+
 ### Working Without Baseline
 
 If you don't capture a baseline, the check will pass with a warning:

@@ -52,7 +52,10 @@
     "version:major": "npm version major",
     "baseline:capture": "tsx scripts/capture-baseline.ts",
     "check:regression": "tsx scripts/check-regression.ts",
-    "compare:geometries": "tsx scripts/compare-geometries.ts"
+    "compare:geometries": "tsx scripts/compare-geometries.ts",
+    "compare:plans": "tsx scripts/compare-plans.ts",
+    "baseline:capture:plans": "tsx scripts/capture-plan-baseline.ts",
+    "check:regression:plans": "tsx scripts/check-plan-regression.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",
