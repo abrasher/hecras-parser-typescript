@@ -185,13 +185,13 @@ const planFiles = existsSync(planDir)
 
 function testPlan(testFilePath: string): FileRunResult {
   try {
-    console.log(`${divider}\n${colors.cyan(`Comparing \"${testFilePath}\"`)}`)
+    console.log(`${divider}\n${colors.cyan(`Comparing "${testFilePath}"`)}`)
     const linesToLog: string[] = []
     const originalContent = readFileSync(testFilePath, "utf-8")
     const normalizedOriginal = originalContent.replace(/\r\n/g, "\n")
 
     if (/^Version\s*=\s*/m.test(normalizedOriginal)) {
-      const message = `Skipping \"${testFilePath}\" due to legacy Version header`
+      const message = `Skipping "${testFilePath}" due to legacy Version header`
       console.log(colors.yellow(message))
       return {
         file: testFilePath,
@@ -267,7 +267,7 @@ function testPlan(testFilePath: string): FileRunResult {
       }
     }
 
-    linesToLog.push(colors.green(`No differences for \"${testFilePath}\"`))
+    linesToLog.push(colors.green(`No differences for "${testFilePath}"`))
     console.log(linesToLog.join("\n"))
     return {
       file: testFilePath,
