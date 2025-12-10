@@ -31,7 +31,7 @@ export const planSchema = schema([
   // FlowRegimeAndDefaults section
   stringField("flowRegime", "", { trim: true }), // "Subcritical Flow", "Supercritical Flow", or "Mixed Flow Regime"
 
-  numberField("kSumByGR", "K Sum by GR=", { integer: true }),
+  booleanField("kSumByGR", "K Sum by GR=", { pad: true, mode: "-1,0" }),
   numberField("stdStepTol", "Std Step Tol="),
   numberField("criticalTol", "Critical Tol="),
   numberField("numOfStdStepTrials", "Num of Std Step Trials=", { integer: true }),
