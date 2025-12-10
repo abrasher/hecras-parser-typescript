@@ -1,4 +1,16 @@
-import { contextual, fields, multiField, schema, stringField, stringPart } from "../schema"
+import {
+  booleanField,
+  durationField,
+  fields,
+  multiField,
+  numberField,
+  numberPart,
+  schema,
+  stringField,
+  stringPart,
+  textBlockField,
+  tupleField,
+} from "../schema"
 
 export const planSchema = schema([
   stringField("planTitle", "Plan Title=", { trim: true }),
@@ -15,12 +27,45 @@ export const planSchema = schema([
   ),
   stringField("geometryFile", "Geom File=", { trim: true }),
   stringField("flowFile", "Flow File=", { trim: true, optional: true }),
-  contextual(
-    "remainingLines",
-    (lines, startIndex) => ({
-      value: lines.slice(startIndex),
-      nextIndex: lines.length,
-    }),
-    (value) => (Array.isArray(value) ? value : []),
-  ),
+
+  // FlowRegimeAndDefaults section
+  stringField("flowRegime", "", { trim: true }), // "Subcritical Flow", "Supercritical Flow", or "Mixed Flow Regime"
+
+  booleanField("kSumByGR", "K Sum by GR=", { pad: true, mode: "-1,0" }),
+  numberField("stdStepTol", "Std Step Tol="),
+  numberField("criticalTol", "Critical Tol="),
+  numberField("numOfStdStepTrials", "Num of Std Step Trials=", { integer: true }),
+  numberField("maxErrorTol", "Max Error Tol="),
+  numberField("flowTolRatio", "Flow Tol Ratio="),
+  numberField("splitFlowNTrial", "Split Flow NTrial=", { integer: true }),
+  numberField("splitFlowTol", "Split Flow Tol="),
+  numberField("splitFlowRatio", "Split Flow Ratio="),
+  numberField("logOutputLevel", "Log Output Level=", { integer: true }),
+  numberField("frictionSlopeMethod", "Friction Slope Method=", { integer: true }),
+  numberField("unsteadyFrictionSlopeMethod", "Unsteady Friction Slope Method=", { integer: true }),
+  numberField("unsteadyBridgesFrictionSlopeMethod", "Unsteady Bridges Friction Slope Method=", {
+    integer: true,
+  }),
+
+  stringField("parabolicCriticalDepth", "", { trim: true, optional: true }), // "Parabolic Critical Depth" if present
+
+  // GlobalFlagsAndEncroachment section
+  tupleField("globalVelDist", "Global Vel Dist=", [numberPart(), numberPart(), numberPart()]),
+  numberField("globalLogLevel", "Global Log Level=", { integer: true }),
+  booleanField("checkData", "CheckData=", { mode: "trueFalse" }),
+  tupleField("encroachParam", "Encroach Param=", [
+    numberPart(),
+    numberPart(),
+    numberPart(),
+    numberPart(),
+  ]),
+
+  // DescriptionBlock section (optional)
+  textBlockField("description", "DESCRIPTION", { optional: true }),
+
+  // IntervalsAndAdaptiveTimeStep section
+  durationField("computationInterval", "Computation Interval="),
+  durationField("outputInterval", "Output Interval="),
+  durationField("instantaneousInterval", "Instantaneous Interval=", { optional: true }),
+  durationField("mappingInterval", "Mapping Interval=", { optional: true }),
 ])
