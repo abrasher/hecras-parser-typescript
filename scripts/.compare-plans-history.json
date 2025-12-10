@@ -1,16 +1,16 @@
 [
   {
-    "timestamp": "2025-12-08T20:14:52.737Z",
+    "timestamp": "2025-12-10T22:47:30.395Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",
         "status": "diff",
-        "diffLine": 8,
-        "diffIndex": 12,
-        "linesMatched": 7,
+        "diffLine": 20,
+        "diffIndex": 39,
+        "linesMatched": 19,
         "originalLines": 252,
         "serializedLines": 32,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765224892737-c498ec8f3634a.json"
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765406850394-c8132324f310b.json"
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p02",
@@ -83,23 +83,23 @@
       "totalFiles": 14,
       "status": "failed",
       "failureFile": "test/data/plans/BaldEagleDamBrk.p01",
-      "failureLine": 8,
-      "linesMatchedInFailure": 7,
-      "diffIndex": 12
+      "failureLine": 20,
+      "linesMatchedInFailure": 19,
+      "diffIndex": 39
     }
   },
   {
-    "timestamp": "2025-12-10T20:34:15.742Z",
+    "timestamp": "2025-12-10T22:47:49.554Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",
         "status": "diff",
-        "diffLine": 9,
-        "diffIndex": 13,
-        "linesMatched": 8,
+        "diffLine": 33,
+        "diffIndex": 0,
+        "linesMatched": 32,
         "originalLines": 252,
         "serializedLines": 32,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765398855741-d3fe5277cfb62.json"
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765406869553-e1c2fc972ded3.json"
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p02",
@@ -172,9 +172,9 @@
       "totalFiles": 14,
       "status": "failed",
       "failureFile": "test/data/plans/BaldEagleDamBrk.p01",
-      "failureLine": 9,
-      "linesMatchedInFailure": 8,
-      "diffIndex": 13
+      "failureLine": 33,
+      "linesMatchedInFailure": 32,
+      "diffIndex": 0
     }
   }
 ]
