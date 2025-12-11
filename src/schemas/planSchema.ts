@@ -136,4 +136,33 @@ export const planSchema = schema([
   numberField("unetD2Theta2", "UNET D2 Theta=", { pad: true }),
   numberField("unetD2ThetaWarmup2", "UNET D2 Theta Warmup=", { pad: true }),
   numberField("unetD2ZTol2", "UNET D2 Z Tol=", { pad: true }),
+  numberField("unetD2VolumeTol2", "UNET D2 Volume Tol=", { pad: true }),
+  numberField("unetD2MaxIterations2", "UNET D2 Max Iterations=", { integer: true, pad: true }),
+  numberField("unetD2Equation2", "UNET D2 Equation=", { integer: true, pad: true }),
+  numberField("unetD2TotalICTime2", "UNET D2 TotalICTime=", {}),
+  numberField("unetD2RampUpFraction2", "UNET D2 RampUpFraction=", {}),
+  numberField("unetD2TimeSlices2", "UNET D2 TimeSlices=", { integer: true, pad: true }),
+  numberField("unetD2EddyViscosity2", "UNET D2 Eddy Viscosity=", { nullOnBlank: true }),
+  numberField("unetD2BCVolumeCheck2", "UNET D2 BCVolumeCheck=", { integer: true }),
+  numberField("unetD2Latitude2", "UNET D2 Latitude=", { nullOnBlank: true }),
+
+  // UNET D1D2 coupling parameters
+  numberField("unetD1D2MaxIter", "UNET D1D2 MaxIter=", { integer: true, pad: true }),
+  numberField("unetD1D2ZTol", "UNET D1D2 ZTol=", {}),
+  numberField("unetD1D2QTol", "UNET D1D2 QTol=", {}),
+  numberField("unetD1D2MinQTol", "UNET D1D2 MinQTol=", { nullOnBlank: true }),
+
+  // File and output settings
+  stringField("dssFile", "DSS File=", { trim: true }),
+  numberField("writeICFile", "Write IC File=", { integer: true, pad: true }),
+  numberField("writeICFileAtFixedDateTime", "Write IC File at Fixed DateTime=", { integer: true }),
+  multiField("IC Time=", fields({ icTime1: stringPart(), icTime2: stringPart(), icTime3: stringPart() })),
+  numberField("writeICFileReoccurance", "Write IC File Reoccurance=", { nullOnBlank: true }),
+  numberField("writeICFileAtSimEnd", "Write IC File at Sim End=", { integer: true }),
+  booleanField("echoInput", "Echo Input=", { mode: "trueFalse" }),
+  booleanField("echoParameters", "Echo Parameters=", { mode: "trueFalse" }),
+  booleanField("echoOutput", "Echo Output=", { mode: "trueFalse" }),
+  numberField("writeDetailed", "Write Detailed=", { integer: true, pad: true }),
+  numberField("hdfWriteWarmup", "HDF Write Warmup=", { integer: true }),
+  numberField("hdfWriteTimeSlices", "HDF Write Time Slices=", { integer: true }),
 ])
