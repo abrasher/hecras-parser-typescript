@@ -1,4 +1,5 @@
 import {
+  blankLine,
   booleanField,
   contextual,
   durationField,
@@ -427,4 +428,7 @@ export const planSchema = schema([
     startsWith("Extra Computation Commands="),
     schema([stringField("command", "Extra Computation Commands=", { trim: true })]),
   ),
+
+  // Blank line at end of file
+  blankLine(),
 ])
