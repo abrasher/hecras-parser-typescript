@@ -73,15 +73,32 @@ export const breachSchema = schema([
     formatter: "station",
     pad: true,
   }),
-  numberField("startingNotchDepth", "Starting Notch Depth=", { pad: true }),
-  numberField("initialPipingDiameter", "Initial Piping Diameter=", { pad: true }),
+  numberField("startingNotchDepth", "Starting Notch Depth=", { pad: true, optional: true }),
+  numberField("initialPipingDiameter", "Initial Piping Diameter=", { pad: true, optional: true }),
   numberField("massWastingOptions", "Mass Wasting Options=", { integer: true, pad: true }),
-  numberField("massWastingWidth", "Mass Wasting Width=", { pad: true }),
-  numberField("massWastingDuration", "Mass Wasting Duration=", { pad: true }),
-  numberField("massWastingFinalBottomElevation", "Mass Wasting Final Bottom Elevation=", { pad: true }),
+  numberField("massWastingWidth", "Mass Wasting Width=", { pad: true, optional: true }),
+  numberField("massWastingDuration", "Mass Wasting Duration=", { pad: true, optional: true }),
+  numberField("massWastingFinalBottomElevation", "Mass Wasting Final Bottom Elevation=", {
+    pad: true,
+    optional: true,
+  }),
   numberField("breachUseUserDefinedGrowthRatio", "Breach Use User Defined Growth Ratio=", {
     integer: true,
     optional: true,
   }),
   numberField("breachUserDefinedGrowthRatio", "Breach User Defined Growth Ratio=", { optional: true }),
+
+  // DL (Dam & Levee) Breach parameters (optional)
+  multiField(
+    "DLBreach Methods=",
+    fields({
+      dlBreachMethod1: numberPart(),
+      dlBreachMethod2: numberPart(),
+    }),
+    { optional: true },
+  ),
+  numberField("dlBreachSoilType", "DLBreach SoilType=", { integer: true, optional: true }),
+  numberField("dlBreachCoreSoilType", "DLBreach Core SoilType=", { integer: true, optional: true }),
+  numberField("dlBreachCoverOption", "DLBreach Cover Option=", { integer: true, optional: true }),
+  numberField("dlBreachBreachDirection", "DLBreach Breach Direction=", { integer: true, optional: true }),
 ])

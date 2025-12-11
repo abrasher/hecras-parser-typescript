@@ -14,6 +14,7 @@ import {
   tupleField,
 } from "../schema"
 import { breachSchema } from "./plan/breachSchema"
+import { unetD2AreaSchema } from "./plan/unetD2AreaSchema"
 
 export const planSchema = schema([
   stringField("planTitle", "Plan Title=", { trim: true }),
@@ -76,6 +77,42 @@ export const planSchema = schema([
   durationField("instantaneousInterval", "Instantaneous Interval=", { optional: true }),
   durationField("mappingInterval", "Mapping Interval=", { optional: true }),
 
+  // Computation Time Step (optional adaptive time stepping)
+  numberField("computationTimeStepUseCourant", "Computation Time Step Use Courant=", {
+    integer: true,
+    width: 9,
+    optional: true,
+  }),
+  numberField("computationTimeStepUseTimeSeries", "Computation Time Step Use Time Series=", {
+    integer: true,
+    width: 5,
+    optional: true,
+  }),
+  numberField("computationTimeStepMaxCourant", "Computation Time Step Max Courant=", {
+    nullOnBlank: true,
+    optional: true,
+  }),
+  numberField("computationTimeStepMinCourant", "Computation Time Step Min Courant=", {
+    nullOnBlank: true,
+    optional: true,
+  }),
+  numberField("computationTimeStepCountToDouble", "Computation Time Step Count To Double=", {
+    integer: true,
+    optional: true,
+  }),
+  numberField("computationTimeStepMaxDoubling", "Computation Time Step Max Doubling=", {
+    integer: true,
+    optional: true,
+  }),
+  numberField("computationTimeStepMaxHalving", "Computation Time Step Max Halving=", {
+    integer: true,
+    optional: true,
+  }),
+  numberField("computationTimeStepResidenceCourant", "Computation Time Step Residence Courant=", {
+    integer: true,
+    optional: true,
+  }),
+
   // Run flags
   numberField("runHTab", "Run HTab=", { integer: true, pad: true }),
   numberField("runUNet", "Run UNet=", { integer: true, pad: true }),
@@ -103,6 +140,7 @@ export const planSchema = schema([
   numberField("unetSFStab", "UNET SFStab=", { integer: true, pad: true }),
   numberField("unetWFX", "UNET WFX=", { integer: true, pad: true }),
   numberField("unetSFX", "UNET SFX=", { integer: true, pad: true }),
+  stringField("unet1DMethodology", "UNET 1D Methodology=", { trim: true, optional: true }),
   numberField("unetDSSMLevel", "UNET DSS MLevel=", { integer: true, pad: true }),
   numberField("unetPardiso", "UNET Pardiso=", { integer: true }),
   numberField("unetDZMaxAbort", "UNET DZMax Abort=", { pad: true }),
@@ -113,12 +151,14 @@ export const planSchema = schema([
   booleanField("unetFroudeReduction", "UNET Froude Reduction=", { mode: "trueFalse" }),
   numberField("unetFroudeLimit", "UNET Froude Limit=", { pad: true }),
   numberField("unetFroudePower", "UNET Froude Power=", { pad: true }),
-  tupleField("unetTimeSlicing", "UNET Time Slicing=", [
-    numberPart(),
-    numberPart(),
-    numberPart({ pad: true }),
-  ]),
+  tupleField("unetTimeSlicing", "UNET Time Slicing=", [numberPart(), numberPart(), numberPart({ pad: true })], {
+    optional: true,
+  }),
   numberField("unetD1Cores", "UNET D1 Cores=", { integer: true, pad: true }),
+  stringField("unetWindReference", "UNET WindReference=", { trim: true, optional: true }),
+  stringField("unetWindDragFormulation", "UNET WindDragFormulation=", { trim: true, optional: true }),
+
+  // UNET D2 Global Settings
   numberField("unetD2Coriolis", "UNET D2 Coriolis=", { integer: true }),
   numberField("unetD2Cores", "UNET D2 Cores=", { integer: true, pad: true }),
   numberField("unetD2Theta", "UNET D2 Theta=", { pad: true }),
@@ -131,23 +171,18 @@ export const planSchema = schema([
   numberField("unetD2RampUpFraction", "UNET D2 RampUpFraction=", {}),
   numberField("unetD2TimeSlices", "UNET D2 TimeSlices=", { integer: true, pad: true }),
   numberField("unetD2EddyViscosity", "UNET D2 Eddy Viscosity=", { nullOnBlank: true }),
+  numberField("unetD2TransverseEddyViscosity", "UNET D2 Transverse Eddy Viscosity=", {
+    nullOnBlank: true,
+    optional: true,
+  }),
+  numberField("unetD2SmagorinskyMixing", "UNET D2 Smagorinsky Mixing=", { nullOnBlank: true, optional: true }),
   numberField("unetD2BCVolumeCheck", "UNET D2 BCVolumeCheck=", { integer: true }),
   numberField("unetD2Latitude", "UNET D2 Latitude=", { nullOnBlank: true }),
-  stringField("unetD2Name", "UNET D2 Name=", { length: 16, trim: true }),
+  numberField("unetD2Cores2", "UNET D2 Cores=", { integer: true, optional: true }),
+  stringField("unetD2SolverType", "UNET D2 SolverType=", { trim: true, optional: true }),
 
-  // Second UNET D2 area (repeating fields)
-  numberField("unetD2Theta2", "UNET D2 Theta=", { pad: true }),
-  numberField("unetD2ThetaWarmup2", "UNET D2 Theta Warmup=", { pad: true }),
-  numberField("unetD2ZTol2", "UNET D2 Z Tol=", { pad: true }),
-  numberField("unetD2VolumeTol2", "UNET D2 Volume Tol=", { pad: true }),
-  numberField("unetD2MaxIterations2", "UNET D2 Max Iterations=", { integer: true, pad: true }),
-  numberField("unetD2Equation2", "UNET D2 Equation=", { integer: true, pad: true }),
-  numberField("unetD2TotalICTime2", "UNET D2 TotalICTime=", {}),
-  numberField("unetD2RampUpFraction2", "UNET D2 RampUpFraction=", {}),
-  numberField("unetD2TimeSlices2", "UNET D2 TimeSlices=", { integer: true, pad: true }),
-  numberField("unetD2EddyViscosity2", "UNET D2 Eddy Viscosity=", { nullOnBlank: true }),
-  numberField("unetD2BCVolumeCheck2", "UNET D2 BCVolumeCheck=", { integer: true }),
-  numberField("unetD2Latitude2", "UNET D2 Latitude=", { nullOnBlank: true }),
+  // UNET D2 Flow Areas (repeating, area-specific settings)
+  repeat("unetD2FlowAreas", startsWith("UNET D2 Name="), unetD2AreaSchema),
 
   // UNET D1D2 coupling parameters
   numberField("unetD1D2MaxIter", "UNET D1D2 MaxIter=", { integer: true, pad: true }),
@@ -169,6 +204,14 @@ export const planSchema = schema([
   numberField("hdfWriteWarmup", "HDF Write Warmup=", { integer: true }),
   numberField("hdfWriteTimeSlices", "HDF Write Time Slices=", { integer: true }),
   numberField("hdfFlush", "HDF Flush=", { integer: true }),
+  numberField("hdfCellDepths", "HDF Cell Depths=", { integer: true, optional: true }),
+  numberField("hdfCellVelocity", "HDF Cell Velocity=", { integer: true, optional: true }),
+  numberField("hdfCellNetInflow", "HDF Cell Net Inflow=", { integer: true, optional: true }),
+  numberField("hdfEddyViscosity", "HDF Eddy Viscosity=", { integer: true, optional: true }),
+  numberField("hdfFaceFlow", "HDF Face Flow=", { integer: true, optional: true }),
+  numberField("hdfFaceWSEL", "HDF Face WSEL=", { integer: true, optional: true }),
+  numberField("hdfFaceTangentialVelocity", "HDF Face Tangential Velocity=", { integer: true, optional: true }),
+  numberField("hdfFaceShearStress", "HDF Face Shear Stress=", { integer: true, optional: true }),
   numberField("hdfFaceNodeVelocities", "HDF Face Node Velocities=", { integer: true }),
   numberField("hdfCompression", "HDF Compression=", { integer: true, pad: true }),
   numberField("hdfChunkSize", "HDF Chunk Size=", { integer: true, pad: true }),
@@ -221,10 +264,10 @@ export const planSchema = schema([
   numberField("wqOutputCellSourceSinkTemp", "WQ Output cell source sink temp=", { integer: true }),
   numberField("wqOutputNsmPathways", "WQ Output nsm pathways=", { integer: true }),
   numberField("wqOutputNsmDerivedPathways", "WQ Output nsm derived pathways=", { integer: true }),
-  numberField("wqOutputMaxMinRange", "WQ Output MaxMinRange=", { integer: true }),
-  numberField("wqDailyMaxMinMean", "WQ Daily Max Min Mean=", { integer: true }),
-  numberField("wqDailyRange", "WQ Daily Range=", { integer: true }),
-  numberField("wqDailyTime", "WQ Daily Time=", { integer: true }),
+  numberField("wqOutputMaxMinRange", "WQ Output MaxMinRange=", { integer: true, optional: true }),
+  numberField("wqDailyMaxMinMean", "WQ Daily Max Min Mean=", { integer: true, optional: true }),
+  numberField("wqDailyRange", "WQ Daily Range=", { integer: true, optional: true }),
+  numberField("wqDailyTime", "WQ Daily Time=", { integer: true, optional: true }),
 
   // WQ Restart and Temperature
   numberField("wqCreateRestart", "WQ Create Restart=", { integer: true }),
@@ -234,8 +277,8 @@ export const planSchema = schema([
   numberField("wqRestartHour", "WQ Restart Hour=", { nullOnBlank: true }),
   numberField("wqSystemSummary", "WQ System Summary=", { integer: true }),
   numberField("wqWriteToDSS", "WQ Write To DSS=", { integer: true }),
-  numberField("wqUseFixedTemperature", "WQ Use Fixed Temperature=", { integer: true }),
-  numberField("wqFixedTemperature", "WQ Fixed Temperature=", { nullOnBlank: true }),
+  numberField("wqUseFixedTemperature", "WQ Use Fixed Temperature=", { integer: true, optional: true }),
+  numberField("wqFixedTemperature", "WQ Fixed Temperature=", { nullOnBlank: true, optional: true }),
 
   // Sediment Sorting and Armoring
   numberField("sortingAndArmoringIterations", "Sorting and Armoring Iterations=", { integer: true, pad: true }),

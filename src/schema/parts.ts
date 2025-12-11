@@ -40,6 +40,7 @@ export interface NumberPartOptions {
   integer?: boolean
   nullOnBlank?: boolean
   pad?: boolean
+  width?: number
 }
 
 export function numberPart(): Part<number>
@@ -47,7 +48,7 @@ export function numberPart<const Opts extends NumberPartOptions>(
   options: Opts,
 ): Part<Opts extends { nullOnBlank: true } ? number | null : number>
 export function numberPart(options?: NumberPartOptions): Part<number> | Part<number | null> {
-  const { integer = false, nullOnBlank = false, pad = false } = options ?? {}
+  const { integer = false, nullOnBlank = false, pad = false, width } = options ?? {}
 
   const part: Part<number | null> = {
     parse(segment) {
@@ -105,6 +106,11 @@ export function numberPart(options?: NumberPartOptions): Part<number> | Part<num
         if (serialized.includes("e")) {
           serialized = serialized.replace("e", "E")
         }
+      }
+
+      if (width !== undefined) {
+        // Right-align number within the specified width
+        return serialized.padStart(width, " ")
       }
 
       if (pad) {
