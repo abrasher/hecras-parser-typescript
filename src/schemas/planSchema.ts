@@ -80,7 +80,7 @@ export const planSchema = schema([
   // Computation Time Step (optional adaptive time stepping)
   numberField("computationTimeStepUseCourant", "Computation Time Step Use Courant=", {
     integer: true,
-    width: 9,
+    width: 10,
     optional: true,
   }),
   numberField("computationTimeStepUseTimeSeries", "Computation Time Step Use Time Series=", {
@@ -154,6 +154,7 @@ export const planSchema = schema([
   tupleField("unetTimeSlicing", "UNET Time Slicing=", [numberPart(), numberPart(), numberPart({ pad: true })], {
     optional: true,
   }),
+  numberField("unetJunctionLosses", "UNET Junction Losses=", { integer: true, optional: true }),
   numberField("unetD1Cores", "UNET D1 Cores=", { integer: true, pad: true }),
   stringField("unetWindReference", "UNET WindReference=", { trim: true, optional: true }),
   stringField("unetWindDragFormulation", "UNET WindDragFormulation=", { trim: true, optional: true }),
@@ -164,7 +165,7 @@ export const planSchema = schema([
   numberField("unetD2Theta", "UNET D2 Theta=", { pad: true }),
   numberField("unetD2ThetaWarmup", "UNET D2 Theta Warmup=", { pad: true }),
   numberField("unetD2ZTol", "UNET D2 Z Tol=", { pad: true }),
-  numberField("unetD2VolumeTol", "UNET D2 Volume Tol=", { pad: true }),
+  numberField("unetD2VolumeTol", "UNET D2 Volume Tol=", { pad: true, optional: true }),
   numberField("unetD2MaxIterations", "UNET D2 Max Iterations=", { integer: true, pad: true }),
   numberField("unetD2Equation", "UNET D2 Equation=", { integer: true, pad: true }),
   numberField("unetD2TotalICTime", "UNET D2 TotalICTime=", { nullOnBlank: true }),
@@ -212,7 +213,7 @@ export const planSchema = schema([
   numberField("hdfFaceWSEL", "HDF Face WSEL=", { integer: true, optional: true }),
   numberField("hdfFaceTangentialVelocity", "HDF Face Tangential Velocity=", { integer: true, optional: true }),
   numberField("hdfFaceShearStress", "HDF Face Shear Stress=", { integer: true, optional: true }),
-  numberField("hdfFaceNodeVelocities", "HDF Face Node Velocities=", { integer: true }),
+  numberField("hdfFaceNodeVelocities", "HDF Face Node Velocities=", { integer: true, optional: true }),
   numberField("hdfCompression", "HDF Compression=", { integer: true, pad: true }),
   numberField("hdfChunkSize", "HDF Chunk Size=", { integer: true, pad: true }),
   numberField("hdfSpatialParts", "HDF Spatial Parts=", { integer: true, pad: true }),

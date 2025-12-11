@@ -45,7 +45,7 @@ export const breachSchema = schema([
       breachStart5: stringPart({ trim: true }),
       breachStart6: stringPart({ trim: true }),
       breachStart7: stringPart({ trim: true }),
-      breachStart8: numberPart(),
+      breachStart8: numberPart({ nullOnBlank: true }),
     }),
   ),
   tupleArrayField("Breach Progression=", "breachProgression", {
@@ -86,7 +86,9 @@ export const breachSchema = schema([
     integer: true,
     optional: true,
   }),
-  numberField("breachUserDefinedGrowthRatio", "Breach User Defined Growth Ratio=", { optional: true }),
+  numberField("breachUserDefinedGrowthRatio", "Breach User Defined Growth Ratio=", {
+    optional: true,
+  }),
 
   // DL (Dam & Levee) Breach parameters (optional)
   multiField(
@@ -100,5 +102,8 @@ export const breachSchema = schema([
   numberField("dlBreachSoilType", "DLBreach SoilType=", { integer: true, optional: true }),
   numberField("dlBreachCoreSoilType", "DLBreach Core SoilType=", { integer: true, optional: true }),
   numberField("dlBreachCoverOption", "DLBreach Cover Option=", { integer: true, optional: true }),
-  numberField("dlBreachBreachDirection", "DLBreach Breach Direction=", { integer: true, optional: true }),
+  numberField("dlBreachBreachDirection", "DLBreach Breach Direction=", {
+    integer: true,
+    optional: true,
+  }),
 ])

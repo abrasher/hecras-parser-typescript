@@ -201,6 +201,22 @@ function testPlan(testFilePath: string): FileRunResult {
       }
     }
 
+    // Skip files with Program Version < 6.0
+    const versionMatch = normalizedOriginal.match(/^Program Version\s*=\s*(\d+(?:\.\d+)?)/m)
+    if (versionMatch) {
+      const version = parseFloat(versionMatch[1])
+      if (version < 6.0) {
+        const message = `Skipping "${testFilePath}" - Program Version ${versionMatch[1]} (< 6.0)`
+        console.log(colors.yellow(message))
+        return {
+          file: testFilePath,
+          status: "skipped",
+          message,
+          skipReason: "version_too_old",
+        }
+      }
+    }
+
     const extIndex = testFilePath.lastIndexOf(".")
     const baseName = extIndex >= 0 ? testFilePath.slice(0, extIndex) : testFilePath
     const extension = extIndex >= 0 ? testFilePath.slice(extIndex + 1) : "p"
