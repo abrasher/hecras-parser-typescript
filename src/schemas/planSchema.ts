@@ -330,6 +330,18 @@ export const planSchema = schema([
   numberField("sedimentTSMultiplier", "Sediment TS Multiplier=", { pad: true, optional: true }),
   numberField("warmUpMethod", "Warm Up Method=", { integer: true, pad: true, optional: true }),
   numberField("warmUpDuration", "Warm Up Duration=", { nullOnBlank: true, optional: true }),
+  numberField("warmUpDurationConcentration", "Warm Up Duration - Concentration=", {
+    nullOnBlank: true,
+    optional: true,
+  }),
+  numberField("warmUpDurationGradation", "Warm Up Duration - Gradation=", {
+    nullOnBlank: true,
+    optional: true,
+  }),
+  numberField("warmUpDurationBathymetry", "Warm Up Duration - Bathymetry=", {
+    nullOnBlank: true,
+    optional: true,
+  }),
   numberField("xsWeightingMethod", "XS Weighting Method=", { integer: true, pad: true }),
   numberField("numberOfUSWeightedCrossSections", "Number of US Weighted Cross Sections=", {
     integer: true,
@@ -366,6 +378,7 @@ export const planSchema = schema([
   numberField("massOrVolumeOutput", "Mass or Volume Output=", { integer: true, pad: true }),
   numberField("outputIncrementType", "Output Increment Type=", { integer: true, pad: true }),
   numberField("profileAndTSOutputIncrement", "Profile and TS Output Increment=", { integer: true, pad: true }),
+  stringField("transportOutputIncrement", "Transport Output Increment", { trim: false, optional: true }),
   numberField("xsOutputFlag", "XS Output Flag=", { integer: true, pad: true }),
   numberField("xsOutputIncrement", "XS Output Increment=", { integer: true, pad: true }),
   numberField("readHDF5SedimentHotstart", "Read HDF5 Sediment Hotstart=", {
@@ -384,6 +397,8 @@ export const planSchema = schema([
   numberField("writeBinaryOutput", "Write Binary Output=", { integer: true, pad: true, optional: true }),
   numberField("writeDSSSedimentFile", "Write DSS Sediment File=", { integer: true, pad: true }),
   numberField("dssSedimentOutputType", "DSS Sediment Output Type=", { integer: true, pad: true, optional: true }),
+  stringField("dssLocation", "DSS Location=", { trim: true, optional: true }),
+  stringField("summaryReach", "Summary Reach=", { trim: true, optional: true }),
   numberField("svCurve", "SV Curve=", { integer: true, pad: true }),
   numberField("specificGageFlag", "Specific Gage Flag=", { integer: true, pad: true }),
   numberField("subcellErosionMethods", "Subcell Erosion Methods=", { integer: true, pad: true, optional: true }),
@@ -391,8 +406,20 @@ export const planSchema = schema([
   numberField("advectionScheme", "Advection Scheme=", { integer: true, pad: true, optional: true }),
   numberField("matrixSolver", "Matrix Solver=", { integer: true, pad: true, optional: true }),
   numberField("implicitWeightingFactor", "Implicit Weighting Factor=", { pad: true, optional: true }),
+  numberField("maximumOuterLoopConvergenceIterations", "Maximum Outer Loop Convergence Iterations=", {
+    integer: true,
+    pad: true,
+    optional: true,
+  }),
   numberField("convergenceMaximumAbsolute", "Convergence Maximum Absolute=", { pad: true, optional: true }),
   numberField("convergenceRMSE", "Convergence RMSE=", { pad: true, optional: true }),
+  numberField("grainFractionsMaxAbsError", "Grain Fractions Max Abs Error=", { pad: true, optional: true }),
+  numberField("maxSubgridRegions", "Max Subgrid Regions=", { integer: true, pad: true, optional: true }),
+  numberField("maxSubgridLengthScale", "Max Subgrid Length Scale=", { pad: true, optional: true }),
+  numberField("initialLayerThickness", "Initial Layer Thickness=", { pad: true, optional: true }),
+  numberField("minLayerThickness", "Min Layer Thickness=", { pad: true, optional: true }),
+  numberField("maxLayerThickness", "Max Layer Thickness=", { pad: true, optional: true }),
+  numberField("numberOfLayers", "Number of Layers=", { integer: true, pad: true, optional: true }),
 
   // Extra Computation Commands (repeating, optional)
   repeat(
