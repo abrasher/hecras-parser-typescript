@@ -354,4 +354,11 @@ export const planSchema = schema([
   numberField("implicitWeightingFactor", "Implicit Weighting Factor=", { pad: true, optional: true }),
   numberField("convergenceMaximumAbsolute", "Convergence Maximum Absolute=", { pad: true, optional: true }),
   numberField("convergenceRMSE", "Convergence RMSE=", { pad: true, optional: true }),
+
+  // Extra Computation Commands (repeating, optional)
+  repeat(
+    "extraComputationCommands",
+    startsWith("Extra Computation Commands="),
+    schema([stringField("command", "Extra Computation Commands=", { trim: true })]),
+  ),
 ])

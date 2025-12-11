@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2025-11-27T00:33:54.579Z",
+    "timestamp": "2025-12-11T02:22:14.153Z",
     "results": [
       {
         "file": "test/data/Dingman 2D.g01",
@@ -161,13 +161,6 @@
         "serializedLines": 885
       },
       {
-        "file": "test/data/example_geometries/1D Sediment Transport_Unsteady Sediment with Concentration Rules_SedRuleLat.serialized.g03",
-        "status": "match",
-        "linesMatched": 885,
-        "originalLines": 885,
-        "serializedLines": 885
-      },
-      {
         "file": "test/data/example_geometries/1D Sediment Transport_Video Tutorial (Sediment Intro)_Data Files_OverbankDeposition.g01",
         "status": "skipped",
         "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Video Tutorial (Sediment Intro)_Data Files_OverbankDeposition.g01\" due to unsupported Program Version=5.07",
@@ -199,13 +192,6 @@
       },
       {
         "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Mixed Flow Regime Channel_MIXED.g01",
-        "status": "match",
-        "linesMatched": 288,
-        "originalLines": 288,
-        "serializedLines": 288
-      },
-      {
-        "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Mixed Flow Regime Channel_MIXED.serialized.g01",
         "status": "match",
         "linesMatched": 288,
         "originalLines": 288,
@@ -315,13 +301,6 @@
         "skipReason": "version"
       },
       {
-        "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.serialized.g02",
-        "status": "match",
-        "linesMatched": 570,
-        "originalLines": 570,
-        "serializedLines": 570
-      },
-      {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Strcuture with Gates_TwoGateGrps.g01",
         "status": "skipped",
         "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Strcuture with Gates_TwoGateGrps.g01\" due to unsupported Program Version=4.00",
@@ -383,12 +362,7 @@
         "linesMatched": 2349,
         "originalLines": 4592,
         "serializedLines": 2354,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1764203634575-e6dea8f9bb6a2.json"
-      },
-      {
-        "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.serialized.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1765419734151-d26f890bf2ed3.json"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_StPaul.g02",
@@ -792,8 +766,8 @@
       }
     ],
     "metrics": {
-      "filesMatched": 19,
-      "totalFiles": 141,
+      "filesMatched": 16,
+      "totalFiles": 137,
       "status": "failed",
       "failureFile": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.g02",
       "failureLine": 2350,
@@ -802,7 +776,7 @@
     }
   },
   {
-    "timestamp": "2025-12-04T16:00:45.817Z",
+    "timestamp": "2025-12-11T02:23:07.769Z",
     "results": [
       {
         "file": "test/data/Dingman 2D.g01",
@@ -1164,7 +1138,7 @@
         "linesMatched": 2349,
         "originalLines": 4592,
         "serializedLines": 2354,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1764864045814-940b161fbc5f3.json"
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1765419787766-e61874ea1e6a8.json"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_StPaul.g02",

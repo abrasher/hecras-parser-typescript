@@ -1,26 +1,30 @@
 [
   {
-    "timestamp": "2025-12-10T22:47:30.395Z",
+    "timestamp": "2025-12-11T15:47:22.668Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",
-        "status": "diff",
-        "diffLine": 20,
-        "diffIndex": 39,
-        "linesMatched": 19,
+        "status": "match",
+        "linesMatched": 252,
         "originalLines": 252,
-        "serializedLines": 32,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765406850394-c8132324f310b.json"
+        "serializedLines": 251
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "match",
+        "linesMatched": 289,
+        "originalLines": 289,
+        "serializedLines": 288
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p03",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "diff",
+        "diffLine": 267,
+        "diffIndex": 0,
+        "linesMatched": 266,
+        "originalLines": 270,
+        "serializedLines": 266,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765468042668-6d45133045e81.json"
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p04",
@@ -79,42 +83,48 @@
       }
     ],
     "metrics": {
-      "filesMatched": 0,
+      "filesMatched": 2,
       "totalFiles": 14,
       "status": "failed",
-      "failureFile": "test/data/plans/BaldEagleDamBrk.p01",
-      "failureLine": 20,
-      "linesMatchedInFailure": 19,
-      "diffIndex": 39
+      "failureFile": "test/data/plans/BaldEagleDamBrk.p03",
+      "failureLine": 267,
+      "linesMatchedInFailure": 266,
+      "diffIndex": 0
     }
   },
   {
-    "timestamp": "2025-12-10T22:47:49.554Z",
+    "timestamp": "2025-12-11T15:48:05.697Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",
-        "status": "diff",
-        "diffLine": 33,
-        "diffIndex": 0,
-        "linesMatched": 32,
+        "status": "match",
+        "linesMatched": 252,
         "originalLines": 252,
-        "serializedLines": 32,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765406869553-e1c2fc972ded3.json"
+        "serializedLines": 251
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "match",
+        "linesMatched": 289,
+        "originalLines": 289,
+        "serializedLines": 288
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p03",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "match",
+        "linesMatched": 270,
+        "originalLines": 270,
+        "serializedLines": 269
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p04",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "diff",
+        "diffLine": 62,
+        "diffIndex": 0,
+        "linesMatched": 61,
+        "originalLines": 231,
+        "serializedLines": 61,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765468085697-5d33fcbb0b759.json"
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p05",
@@ -168,12 +178,12 @@
       }
     ],
     "metrics": {
-      "filesMatched": 0,
+      "filesMatched": 3,
       "totalFiles": 14,
       "status": "failed",
-      "failureFile": "test/data/plans/BaldEagleDamBrk.p01",
-      "failureLine": 33,
-      "linesMatchedInFailure": 32,
+      "failureFile": "test/data/plans/BaldEagleDamBrk.p04",
+      "failureLine": 62,
+      "linesMatchedInFailure": 61,
       "diffIndex": 0
     }
   }
