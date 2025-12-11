@@ -89,6 +89,23 @@ export const breachSchema = schema([
   numberField("breachUserDefinedGrowthRatio", "Breach User Defined Growth Ratio=", {
     optional: true,
   }),
+  multiField(
+    "Breach Calculator Data=",
+    fields({
+      breachCalc1: numberPart(),
+      breachCalc2: numberPart(),
+      breachCalc3: numberPart(),
+      breachCalc4: numberPart(),
+      breachCalc5: numberPart(),
+      breachCalc6: numberPart(),
+      breachCalc7: numberPart(),
+      breachCalc8: numberPart({ integer: true, width: 2 }),
+      breachCalc9: numberPart({ integer: true, width: 2 }),
+      breachCalc10: numberPart({ integer: true, width: 2 }),
+      breachCalc11: numberPart({ integer: true, width: 2 }),
+    }),
+    { optional: true },
+  ),
 
   // DL (Dam & Levee) Breach parameters (optional)
   multiField(
@@ -100,8 +117,37 @@ export const breachSchema = schema([
     { optional: true },
   ),
   numberField("dlBreachSoilType", "DLBreach SoilType=", { integer: true, optional: true }),
+  multiField(
+    "DLBreach Soil Properties=",
+    fields({
+      dlBreachSoilProp1: stringPart({ trim: true }),
+      dlBreachSoilProp2: stringPart({ trim: true }),
+      dlBreachSoilProp3: numberPart({ nullOnBlank: true }),
+      dlBreachSoilProp4: stringPart({ trim: true }),
+      dlBreachSoilProp5: stringPart({ trim: true }),
+      dlBreachSoilProp6: stringPart({ trim: true }),
+      dlBreachSoilProp7: numberPart({ integer: true, nullOnBlank: true, width: 2 }),
+      dlBreachSoilProp8: numberPart({ nullOnBlank: true, pad: true }),
+      dlBreachSoilProp9: numberPart({ nullOnBlank: true, pad: true }),
+    }),
+    { optional: true },
+  ),
   numberField("dlBreachCoreSoilType", "DLBreach Core SoilType=", { integer: true, optional: true }),
   numberField("dlBreachCoverOption", "DLBreach Cover Option=", { integer: true, optional: true }),
+  multiField(
+    "DLBreach Cover Soil Properties=",
+    fields({
+      dlBreachCoverProp1: stringPart({ trim: true }),
+      dlBreachCoverProp2: stringPart({ trim: true }),
+      dlBreachCoverProp3: numberPart({ nullOnBlank: true }),
+      dlBreachCoverProp4: stringPart({ trim: true }),
+      dlBreachCoverProp5: stringPart({ trim: true }),
+      dlBreachCoverProp6: stringPart({ trim: true }),
+      dlBreachCoverProp7: numberPart({ nullOnBlank: true, pad: true }),
+      dlBreachCoverProp8: numberPart({ nullOnBlank: true, pad: true }),
+    }),
+    { optional: true },
+  ),
   numberField("dlBreachBreachDirection", "DLBreach Breach Direction=", {
     integer: true,
     optional: true,

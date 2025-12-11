@@ -1,5 +1,6 @@
 import {
   booleanField,
+  contextual,
   durationField,
   fields,
   multiField,
@@ -78,11 +79,30 @@ export const planSchema = schema([
   durationField("mappingInterval", "Mapping Interval=", { optional: true }),
 
   // Computation Time Step (optional adaptive time stepping)
-  numberField("computationTimeStepUseCourant", "Computation Time Step Use Courant=", {
-    integer: true,
-    width: 10,
-    optional: true,
-  }),
+  contextual(
+    "computationTimeStepUseCourant",
+    (lines, i) => {
+      const line = lines[i]
+      const label = "Computation Time Step Use Courant="
+      if (!line.startsWith(label)) {
+        return null
+      }
+      const valueStr = line.slice(label.length).trim()
+      if (valueStr === "") {
+        return null
+      }
+      const value = parseInt(valueStr, 10)
+      if (Number.isNaN(value)) {
+        throw new Error(`Invalid integer value for Computation Time Step Use Courant: ${valueStr}`)
+      }
+      return { value, nextIndex: i + 1 }
+    },
+    (value) => {
+      if (value === undefined) return []
+      // Always use 8 spaces before the value, regardless of sign
+      return [`Computation Time Step Use Courant=        ${value}`]
+    },
+  ),
   numberField("computationTimeStepUseTimeSeries", "Computation Time Step Use Time Series=", {
     integer: true,
     width: 5,
@@ -140,6 +160,7 @@ export const planSchema = schema([
   numberField("unetSFStab", "UNET SFStab=", { integer: true, pad: true }),
   numberField("unetWFX", "UNET WFX=", { integer: true, pad: true }),
   numberField("unetSFX", "UNET SFX=", { integer: true, pad: true }),
+  numberField("unetGravity", "UNET Gravity=", { optional: true }),
   stringField("unet1DMethodology", "UNET 1D Methodology=", { trim: true, optional: true }),
   numberField("unetDSSMLevel", "UNET DSS MLevel=", { integer: true, pad: true }),
   numberField("unetPardiso", "UNET Pardiso=", { integer: true }),
@@ -171,6 +192,7 @@ export const planSchema = schema([
   numberField("unetD2TotalICTime", "UNET D2 TotalICTime=", { nullOnBlank: true }),
   numberField("unetD2RampUpFraction", "UNET D2 RampUpFraction=", {}),
   numberField("unetD2TimeSlices", "UNET D2 TimeSlices=", { integer: true, pad: true }),
+  stringField("unetD2TurbulenceFormulation", "UNET D2 Turbulence Formulation=", { trim: true }),
   numberField("unetD2EddyViscosity", "UNET D2 Eddy Viscosity=", { nullOnBlank: true }),
   numberField("unetD2TransverseEddyViscosity", "UNET D2 Transverse Eddy Viscosity=", {
     nullOnBlank: true,
@@ -181,6 +203,17 @@ export const planSchema = schema([
   numberField("unetD2Latitude", "UNET D2 Latitude=", { nullOnBlank: true }),
   numberField("unetD2Cores2", "UNET D2 Cores=", { integer: true, optional: true }),
   stringField("unetD2SolverType", "UNET D2 SolverType=", { trim: true, optional: true }),
+  numberField("unetD2MinimumIterations", "UNET D2 Minimum Iterations=", { integer: true, pad: true }),
+  numberField("unetD2MaximumIterations", "UNET D2 Maximum Iterations=", { integer: true, pad: true }),
+  numberField("unetD2RestartNumber", "UNET D2 Restart Number=", { integer: true, pad: true }),
+  numberField("unetD2RelaxationCoeff", "UNET D2 Relaxation Coeff=", {}),
+  numberField("unetD2SORPreconditionIterations", "UNET D2 SOR Precondition Iterations=", {
+    integer: true,
+    pad: true,
+  }),
+  numberField("unetD2ILUTMaximumFill", "UNET D2 ILUT Maximum Fill=", { integer: true, pad: true }),
+  numberField("unetD2ILUTTolerance", "UNET D2 ILUT Tolerance=", {}),
+  numberField("unetD2ConvergenceTolerance", "UNET D2 Convergence Tolerance=", { nullOnBlank: true }),
 
   // UNET D2 Flow Areas (repeating, area-specific settings)
   repeat("unetD2FlowAreas", startsWith("UNET D2 Name="), unetD2AreaSchema),
@@ -205,6 +238,11 @@ export const planSchema = schema([
   numberField("hdfWriteWarmup", "HDF Write Warmup=", { integer: true }),
   numberField("hdfWriteTimeSlices", "HDF Write Time Slices=", { integer: true }),
   numberField("hdfFlush", "HDF Flush=", { integer: true }),
+  repeat(
+    "hdfAdditionalOutputVariables",
+    startsWith("HDF Additional Output Variable="),
+    schema([stringField("variable", "HDF Additional Output Variable=", { trim: true })]),
+  ),
   numberField("hdfCellDepths", "HDF Cell Depths=", { integer: true, optional: true }),
   numberField("hdfCellVelocity", "HDF Cell Velocity=", { integer: true, optional: true }),
   numberField("hdfCellNetInflow", "HDF Cell Net Inflow=", { integer: true, optional: true }),
