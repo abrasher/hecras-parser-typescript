@@ -5,12 +5,15 @@ import {
   multiField,
   numberField,
   numberPart,
+  repeat,
   schema,
+  startsWith,
   stringField,
   stringPart,
   textBlockField,
   tupleField,
 } from "../schema"
+import { breachSchema } from "./plan/breachSchema"
 
 export const planSchema = schema([
   stringField("planTitle", "Plan Title=", { trim: true }),
@@ -165,4 +168,126 @@ export const planSchema = schema([
   numberField("writeDetailed", "Write Detailed=", { integer: true, pad: true }),
   numberField("hdfWriteWarmup", "HDF Write Warmup=", { integer: true }),
   numberField("hdfWriteTimeSlices", "HDF Write Time Slices=", { integer: true }),
+  numberField("hdfFlush", "HDF Flush=", { integer: true }),
+  numberField("hdfFaceNodeVelocities", "HDF Face Node Velocities=", { integer: true }),
+  numberField("hdfCompression", "HDF Compression=", { integer: true, pad: true }),
+  numberField("hdfChunkSize", "HDF Chunk Size=", { integer: true, pad: true }),
+  numberField("hdfSpatialParts", "HDF Spatial Parts=", { integer: true, pad: true }),
+  numberField("hdfUseMaxRows", "HDF Use Max Rows=", { integer: true }),
+  numberField("hdfFixedRows", "HDF Fixed Rows=", { integer: true, pad: true }),
+
+  // Breach parameters (repeating)
+  repeat("breaches", startsWith("Breach Loc="), breachSchema),
+
+  // Calibration parameters
+  numberField("calibrationMethod", "Calibration Method=", { integer: true, pad: true }),
+  numberField("calibrationIterations", "Calibration Iterations=", { integer: true, pad: true }),
+  numberField("calibrationMaxChange", "Calibration Max Change=", {}),
+  numberField("calibrationTolerance", "Calibration Tolerance=", {}),
+  numberField("calibrationMaximum", "Calibration Maximum=", {}),
+  numberField("calibrationMinimum", "Calibration Minimum=", {}),
+  numberField("calibrationOptimizationMethod", "Calibration Optimization Method=", { integer: true, pad: true }),
+  multiField(
+    "Calibration Window=",
+    fields({
+      calibrationWindow1: stringPart({ trim: true }),
+      calibrationWindow2: stringPart({ trim: true }),
+      calibrationWindow3: stringPart({ trim: true }),
+      calibrationWindow4: stringPart({ trim: true }),
+    }),
+  ),
+
+  // Water Quality parameters
+  stringField("wqADNonConservative", "WQ AD Non Conservative", { trim: true }),
+  numberField("wqULTIMATE", "WQ ULTIMATE=", { integer: true }),
+  durationField("wqMaxCompStep", "WQ Max Comp Step="),
+  durationField("wqOutputInterval", "WQ Output Interval="),
+  numberField("wqOutputSelectedIncrements", "WQ Output Selected Increments=", { integer: true, pad: true }),
+  numberField("wqOutputFaceFlow", "WQ Output face flow=", { integer: true }),
+  numberField("wqOutputFaceVelocity", "WQ Output face velocity=", { integer: true }),
+  numberField("wqOutputFaceArea", "WQ Output face area=", { integer: true }),
+  numberField("wqOutputFaceDispersion", "WQ Output face dispersion=", { integer: true }),
+  numberField("wqOutputCellVolume", "WQ Output cell volume=", { integer: true }),
+  numberField("wqOutputCellSurfaceArea", "WQ Output cell surface area=", { integer: true }),
+  numberField("wqOutputCellContinuity", "WQ Output cell continuity=", { integer: true }),
+  numberField("wqOutputCumulativeCellContinuity", "WQ Output cumulative cell continuity=", { integer: true }),
+  numberField("wqOutputFaceConc", "WQ Output face conc=", { integer: true }),
+  numberField("wqOutputFaceDconcDx", "WQ Output face dconc_dx=", { integer: true }),
+  numberField("wqOutputFaceCourant", "WQ Output face courant=", { integer: true }),
+  numberField("wqOutputFacePeclet", "WQ Output face peclet=", { integer: true }),
+  numberField("wqOutputFaceAdvMass", "WQ Output face adv mass=", { integer: true }),
+  numberField("wqOutputFaceDispMass", "WQ Output face disp mass=", { integer: true }),
+  numberField("wqOutputCellMass", "WQ Output cell mass=", { integer: true }),
+  numberField("wqOutputCellSourceSinkTemp", "WQ Output cell source sink temp=", { integer: true }),
+  numberField("wqOutputNsmPathways", "WQ Output nsm pathways=", { integer: true }),
+  numberField("wqOutputNsmDerivedPathways", "WQ Output nsm derived pathways=", { integer: true }),
+  numberField("wqOutputMaxMinRange", "WQ Output MaxMinRange=", { integer: true }),
+  numberField("wqDailyMaxMinMean", "WQ Daily Max Min Mean=", { integer: true }),
+  numberField("wqDailyRange", "WQ Daily Range=", { integer: true }),
+  numberField("wqDailyTime", "WQ Daily Time=", { integer: true }),
+
+  // WQ Restart and Temperature
+  numberField("wqCreateRestart", "WQ Create Restart=", { integer: true }),
+  numberField("wqFixedRestart", "WQ Fixed Restart=", { integer: true }),
+  numberField("wqRestartSimtime", "WQ Restart Simtime=", { nullOnBlank: true }),
+  numberField("wqRestartDate", "WQ Restart Date=", { nullOnBlank: true }),
+  numberField("wqRestartHour", "WQ Restart Hour=", { nullOnBlank: true }),
+  numberField("wqSystemSummary", "WQ System Summary=", { integer: true }),
+  numberField("wqWriteToDSS", "WQ Write To DSS=", { integer: true }),
+  numberField("wqUseFixedTemperature", "WQ Use Fixed Temperature=", { integer: true }),
+  numberField("wqFixedTemperature", "WQ Fixed Temperature=", { nullOnBlank: true }),
+
+  // Sediment Sorting and Armoring
+  numberField("sortingAndArmoringIterations", "Sorting and Armoring Iterations=", { integer: true, pad: true }),
+  numberField("xsUpdateThreshold", "XS Update Threshold=", { pad: true }),
+  numberField("bedRoughnessPredictor", "Bed Roughness Predictor=", { integer: true, pad: true }),
+  numberField("hydraulicsUpdateThreshold", "Hydraulics Update Threshold=", { pad: true }),
+  numberField("energySlopeMethod", "Energy Slope Method=", { integer: true, pad: true }),
+  numberField("volumeChangeMethod", "Volume Change Method=", { integer: true, pad: true }),
+  numberField("sedimentRetentionMethod", "Sediment Retention Method=", { integer: true, pad: true }),
+  numberField("xsWeightingMethod", "XS Weighting Method=", { integer: true, pad: true }),
+  numberField("numberOfUSWeightedCrossSections", "Number of US Weighted Cross Sections=", {
+    integer: true,
+    pad: true,
+  }),
+  numberField("numberOfDSWeightedCrossSections", "Number of DS Weighted Cross Sections=", {
+    integer: true,
+    pad: true,
+  }),
+
+  // Sediment Weighting
+  numberField("upstreamXSWeight", "Upstream XS Weight=", {}),
+  numberField("mainXSWeight", "Main XS Weight=", {}),
+  numberField("downstreamXSWeight", "Downstream XS Weight=", {}),
+  numberField("numberOfDSXSsWeightedWithUSBoundary", "Number of DS XS's Weighted with US Boundary=", {
+    integer: true,
+    pad: true,
+  }),
+  numberField("upstreamBoundaryWeight", "Upstream Boundary Weight=", { pad: true }),
+  numberField("weightOfXSsAssociatedWithUSBoundary", "Weight of XSs Associated with US Boundary=", {
+    integer: true,
+    pad: true,
+  }),
+  numberField("numberOfUSXSsWeightedWithDSBoundary", "Number of US XS's Weighted with DS Boundary=", {
+    integer: true,
+    pad: true,
+  }),
+  numberField("downstreamBoundaryWeight", "Downstream Boundary Weight=", { pad: true }),
+  numberField("weightOfXSsAssociatedWithDSBoundary", "Weight of XSs Associated with DS Boundary=", { pad: true }),
+
+  // Sediment Output and File Settings
+  numberField("percentileMethod", "Percentile Method=", { integer: true, pad: true }),
+  numberField("sedimentOutputLevel", "Sediment Output Level=", { integer: true, pad: true }),
+  numberField("massOrVolumeOutput", "Mass or Volume Output=", { integer: true, pad: true }),
+  numberField("outputIncrementType", "Output Increment Type=", { integer: true, pad: true }),
+  numberField("profileAndTSOutputIncrement", "Profile and TS Output Increment=", { integer: true, pad: true }),
+  numberField("xsOutputFlag", "XS Output Flag=", { integer: true, pad: true }),
+  numberField("xsOutputIncrement", "XS Output Increment=", { integer: true, pad: true }),
+  numberField("writeGradationFile", "Write Gradation File=", { integer: true, pad: true }),
+  numberField("readGradationHotstart", "Read Gradation Hotstart=", { integer: true, pad: true }),
+  stringField("gradationFileName", "Gradation File Name=", { trim: true }),
+  numberField("writeHDF5File", "Write HDF5 File=", { integer: true, pad: true }),
+  numberField("writeDSSSedimentFile", "Write DSS Sediment File=", { integer: true, pad: true }),
+  numberField("svCurve", "SV Curve=", { integer: true, pad: true }),
+  numberField("specificGageFlag", "Specific Gage Flag=", { integer: true, pad: true }),
 ])

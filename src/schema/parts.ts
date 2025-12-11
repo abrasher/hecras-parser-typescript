@@ -100,6 +100,11 @@ export function numberPart(options?: NumberPartOptions): Part<number> | Part<num
           // Use scientific notation with appropriate precision
           serialized = numeric.toExponential()
         }
+
+        // Convert lowercase 'e' to uppercase 'E' to match HEC-RAS format
+        if (serialized.includes("e")) {
+          serialized = serialized.replace("e", "E")
+        }
       }
 
       if (pad) {
