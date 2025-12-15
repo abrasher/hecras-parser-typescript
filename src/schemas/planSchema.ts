@@ -94,7 +94,7 @@ export const planSchema = schema([
     booleanPart({ pad: true, mode: "-1,0" }),
     numberPart(),
     numberPart(),
-    booleanPart({ pad: true, mode: "-1,0" }),
+    numberPart({ pad: true }),
   ]),
 
   // Flow Ratio parameters (optional, for unsteady flow)

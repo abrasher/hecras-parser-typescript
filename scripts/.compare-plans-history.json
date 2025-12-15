@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2025-12-15T00:29:06.495Z",
+    "timestamp": "2025-12-15T00:29:14.157Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",
@@ -150,7 +150,7 @@
     }
   },
   {
-    "timestamp": "2025-12-15T00:29:14.157Z",
+    "timestamp": "2025-12-15T00:30:02.394Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",
@@ -274,8 +274,13 @@
       },
       {
         "file": "test/data/plans/UnsteadyEncroachment.p02",
-        "status": "error",
-        "message": "Invalid boolean segment for mode -1,0:  2 \n[ParseContext] Last parsed line index: 25, content: \"Encroach Param=-1 ,10,10, 2 \""
+        "status": "diff",
+        "diffLine": 27,
+        "diffIndex": 0,
+        "linesMatched": 26,
+        "originalLines": 288,
+        "serializedLines": 27,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765758602394-581f452994124.json"
       },
       {
         "file": "test/data/plans/UnsteadyEncroachment.p03",
@@ -296,7 +301,11 @@
     "metrics": {
       "filesMatched": 6,
       "totalFiles": 23,
-      "status": "error"
+      "status": "failed",
+      "failureFile": "test/data/plans/UnsteadyEncroachment.p02",
+      "failureLine": 27,
+      "linesMatchedInFailure": 26,
+      "diffIndex": 0
     }
   }
 ]
