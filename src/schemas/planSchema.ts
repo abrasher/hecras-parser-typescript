@@ -509,6 +509,14 @@ export const planSchema = schema([
   // Sediment Output and File Settings
   numberField("percentileMethod", "Percentile Method=", { integer: true, pad: true }),
   numberField("sedimentOutputLevel", "Sediment Output Level=", { integer: true, pad: true }),
+
+  // Sediment Output Variables (repeating, optional)
+  repeat(
+    "sedimentOutputVariables",
+    startsWith("Sediment Output Variables="),
+    schema([stringField("variable", "Sediment Output Variables=", { trim: true })]),
+  ),
+
   numberField("massOrVolumeOutput", "Mass or Volume Output=", { integer: true, pad: true }),
   numberField("outputIncrementType", "Output Increment Type=", { integer: true, pad: true }),
   numberField("profileAndTSOutputIncrement", "Profile and TS Output Increment=", {
