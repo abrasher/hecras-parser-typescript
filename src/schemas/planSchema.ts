@@ -37,6 +37,7 @@ export const planSchema = schema([
   stringField("geometryFile", "Geom File=", { trim: true }),
   stringField("flowFile", "Flow File=", { trim: true, optional: true }),
   stringField("sedimentFile", "Sediment File=", { trim: true, optional: true }),
+  stringField("waterQualityFile", "Water Quality File=", { trim: true, optional: true }),
 
   // FlowRegimeAndDefaults section
   stringField("flowRegime", "", { trim: true }), // "Subcritical Flow", "Supercritical Flow", or "Mixed Flow Regime"
@@ -422,7 +423,7 @@ export const planSchema = schema([
   numberField("unetD1D2MinQTol", "UNET D1D2 MinQTol=", { nullOnBlank: true }),
 
   // File and output settings
-  stringField("dssFile", "DSS File=", { trim: true }),
+  stringField("dssFile", "DSS File=", { trim: true, optional: true }),
   numberField("writeICFile", "Write IC File=", { integer: true, pad: true }),
   numberField("writeICFileAtFixedDateTime", "Write IC File at Fixed DateTime=", { integer: true }),
   multiField(
