@@ -61,7 +61,26 @@ export const planSchema = schema([
     pad: true,
   }),
 
-  stringField("parabolicCriticalDepth", "", { trim: true, optional: true }), // "Parabolic Critical Depth" if present
+  contextual(
+    "calcCriticalAtEveryXS",
+    (lines, i) => {
+      if (lines[i] === "Calc Critical at every XS") {
+        return { value: true, nextIndex: i + 1 }
+      }
+      return null
+    },
+    (value) => (value ? ["Calc Critical at every XS"] : []),
+  ),
+  contextual(
+    "parabolicCriticalDepth",
+    (lines, i) => {
+      if (lines[i] === "Parabolic Critical Depth") {
+        return { value: true, nextIndex: i + 1 }
+      }
+      return null
+    },
+    (value) => (value ? ["Parabolic Critical Depth"] : []),
+  ),
 
   // GlobalFlagsAndEncroachment section
   tupleField("globalVelDist", "Global Vel Dist=", [
