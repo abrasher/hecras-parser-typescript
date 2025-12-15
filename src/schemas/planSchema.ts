@@ -476,6 +476,10 @@ export const planSchema = schema([
   }),
   numberField("xsUpdateThreshold", "XS Update Threshold=", { pad: true }),
   numberField("bedRoughnessPredictor", "Bed Roughness Predictor=", { integer: true, pad: true }),
+  stringField("processesAffectedByPredictor", "Processes Affected by Predictor=", {
+    trim: true,
+    optional: true,
+  }),
   numberField("hydraulicsUpdateThreshold", "Hydraulics Update Threshold=", { pad: true }),
   numberField("energySlopeMethod", "Energy Slope Method=", { integer: true, pad: true }),
   numberField("volumeChangeMethod", "Volume Change Method=", { integer: true, pad: true }),
