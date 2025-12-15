@@ -18,6 +18,7 @@ import {
 } from "../schema"
 import { breachSchema } from "./plan/breachSchema"
 import { dredgeEventSchema } from "./plan/dredgeEventSchema"
+import { psAreaSchema } from "./plan/psAreaSchema"
 import { unetD2AreaSchema } from "./plan/unetD2AreaSchema"
 
 export const planSchema = schema([
@@ -282,6 +283,29 @@ export const planSchema = schema([
 
   // UNET D2 Flow Areas (repeating, area-specific settings)
   repeat("unetD2FlowAreas", startsWith("UNET D2 Name="), unetD2AreaSchema),
+
+  // PS (Precipitation Spatial) Global Settings
+  numberField("psTheta", "PS Theta=", { pad: true, optional: true }),
+  numberField("psWSTol", "PS WS Tol=", { pad: true, optional: true }),
+  numberField("psVolumeTol", "PS Volume Tol=", { pad: true, optional: true }),
+  numberField("psMaxIterations", "PS Max Iterations=", { integer: true, pad: true, optional: true }),
+  numberField("psEquation", "PS Equation=", { integer: true, pad: true, optional: true }),
+  numberField("psAdvanceTimeStep", "PS Advance Time Step=", { integer: true, optional: true }),
+  numberField("psTargetCourant", "PS Target Courant=", { optional: true }),
+  numberField("psTimeSlices", "PS Time Slices=", { integer: true, pad: true, optional: true }),
+  numberField("psIterateWith2D", "PS Iterate With 2D=", { integer: true, optional: true }),
+  numberField("psProjectInitialWSEFromDS", "PS Project Initial WSE from DS=", {
+    integer: true,
+    optional: true,
+  }),
+  numberField("psRampUpInitialWSEFromUS", "PS Ramp Up Initial WSE from US=", {
+    integer: true,
+    optional: true,
+  }),
+  numberField("psCores", "PS Cores=", { integer: true, optional: true }),
+
+  // PS Areas (repeating, area-specific settings)
+  repeat("psAreas", startsWith("PS Name="), psAreaSchema),
 
   // UNET D1D2 coupling parameters
   numberField("unetD1D2MaxIter", "UNET D1D2 MaxIter=", { integer: true, pad: true }),
