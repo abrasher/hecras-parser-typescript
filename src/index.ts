@@ -16,7 +16,8 @@ import type { Infer } from "./schema/core"
 export type Plan = Infer<typeof planSchema>
 
 export function parsePlan(content: string): Plan {
-  const lines = content.split("\n")
+  const normalized = content.replace(/\r\n/g, "\n")
+  const lines = normalized.split("\n")
   const { value } = parseWithSchema(planSchema, lines, 0)
   return value
 }

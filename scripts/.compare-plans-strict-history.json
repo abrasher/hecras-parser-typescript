@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2025-12-11T20:25:01.685Z",
+    "timestamp": "2025-12-11T20:47:57.120Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",
@@ -34,67 +34,68 @@
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p06",
-        "status": "diff",
-        "diffLine": 25,
-        "diffIndex": 23,
-        "linesMatched": 24,
+        "status": "match",
+        "linesMatched": 309,
         "originalLines": 309,
-        "serializedLines": 309,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765484701685-ff51933d21b4f.json"
+        "serializedLines": 309
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p13",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p13\" - Program Version 5.10 (< 6.0)",
+        "skipReason": "version_too_old"
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p15",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p15\" - Program Version 5.10 (< 6.0)",
+        "skipReason": "version_too_old"
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p17",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p17\" - Program Version 5.00 (< 6.0)",
+        "skipReason": "version_too_old"
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p18",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p18\" - Program Version 5.00 (< 6.0)",
+        "skipReason": "version_too_old"
       },
       {
         "file": "test/data/plans/BaldEagleDamBrk.p19",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p19\" - Program Version 5.00 (< 6.0)",
+        "skipReason": "version_too_old"
       },
       {
         "file": "test/data/plans/Muncie.p01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/plans/Muncie.p01\" - Program Version 5.00 (< 6.0)",
+        "skipReason": "version_too_old"
       },
       {
         "file": "test/data/plans/Muncie.p03",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/plans/Muncie.p03\" - Program Version 5.10 (< 6.0)",
+        "skipReason": "version_too_old"
       },
       {
         "file": "test/data/plans/Muncie.p04",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/plans/Muncie.p04\" - Program Version 5.10 (< 6.0)",
+        "skipReason": "version_too_old"
       }
     ],
     "metrics": {
-      "filesMatched": 0,
+      "filesMatched": 1,
       "totalFiles": 14,
-      "status": "failed",
-      "failureFile": "test/data/plans/BaldEagleDamBrk.p06",
-      "failureLine": 25,
-      "linesMatchedInFailure": 24,
-      "diffIndex": 23
+      "status": "all_matched"
     }
   },
   {
-    "timestamp": "2025-12-11T20:25:12.144Z",
+    "timestamp": "2025-12-11T21:01:45.717Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",

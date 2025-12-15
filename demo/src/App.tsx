@@ -140,11 +140,13 @@ function App() {
           return
         }
 
-        console.groupCollapsed(
+        console.group(
           `[compare-example] ${example.name}: first diff at line ${firstDiff.line}`,
         )
         console.log('Original:', firstDiff.original)
+        console.log('Original length:', firstDiff.original.length)
         console.log('Serialized:', firstDiff.serialized)
+        console.log('Serialized length:', firstDiff.serialized.length)
         if (firstDiff.index >= 0) {
           console.log('Diff index:', firstDiff.index)
         }
