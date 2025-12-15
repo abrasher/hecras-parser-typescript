@@ -153,6 +153,39 @@ export const planSchema = schema([
     },
   ),
 
+  // Unsteady Encroachment parameters (optional)
+  stringField("unsteadyEncroachBasePlanFile", "Unsteady Encroach Base Plan File=", {
+    trim: true,
+    optional: true,
+  }),
+  numberField("unsteadyEncroachMaximumIterations", "Unsteady Encroach Maximum Iterations=", {
+    integer: true,
+    optional: true,
+  }),
+  numberField("unsteadyEncroachMaximumRise", "Unsteady Encroach Maximum Rise=", {
+    optional: true,
+  }),
+  numberField("unsteadyEncroachMinimumBankOffset", "Unsteady Encroach Minimum Bank Offset=", {
+    optional: true,
+  }),
+  stringField("unsteadyEncroachRiver", "Unsteady Encroach River=", {
+    width: 16,
+    trim: true,
+    optional: true,
+  }),
+  stringField("unsteadyEncroachReach", "Unsteady Encroach Reach=", {
+    width: 16,
+    trim: true,
+    optional: true,
+  }),
+
+  // Unsteady Encroach RS entries (repeating, optional)
+  repeat(
+    "unsteadyEncroachRS",
+    startsWith("Unsteady Encroach RS="),
+    schema([stringField("data", "Unsteady Encroach RS=", { trim: false })]),
+  ),
+
   // Flow Ratio parameters (optional, for unsteady flow)
   numberField("flowRatioTarget", "Flow Ratio Target=", { nullOnBlank: true, optional: true }),
   numberField("flowRatioTolerance", "Flow Ratio Tolerance=", { nullOnBlank: true, optional: true }),
@@ -474,7 +507,7 @@ export const planSchema = schema([
   // Water Quality parameters
   stringField("wqADNonConservative", "WQ AD Non Conservative", { trim: true }),
   numberField("wqULTIMATE", "WQ ULTIMATE=", { integer: true }),
-  durationField("wqMaxCompStep", "WQ Max Comp Step="),
+  stringField("wqMaxCompStep", "WQ Max Comp Step=", { trim: true }),
   durationField("wqOutputInterval", "WQ Output Interval="),
   numberField("wqOutputSelectedIncrements", "WQ Output Selected Increments=", {
     integer: true,
