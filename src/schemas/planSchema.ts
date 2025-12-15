@@ -1,6 +1,7 @@
 import {
   blankLine,
   booleanField,
+  booleanPart,
   contextual,
   durationField,
   fields,
@@ -60,14 +61,18 @@ export const planSchema = schema([
   stringField("parabolicCriticalDepth", "", { trim: true, optional: true }), // "Parabolic Critical Depth" if present
 
   // GlobalFlagsAndEncroachment section
-  tupleField("globalVelDist", "Global Vel Dist=", [numberPart(), numberPart(), numberPart()]),
+  tupleField("globalVelDist", "Global Vel Dist=", [
+    numberPart({ pad: true }),
+    numberPart({ pad: true }),
+    numberPart({ pad: true }),
+  ]),
   numberField("globalLogLevel", "Global Log Level=", { integer: true, pad: true }),
   booleanField("checkData", "CheckData=", { mode: "trueFalse" }),
   tupleField("encroachParam", "Encroach Param=", [
+    booleanPart({ pad: true, mode: "-1,0" }),
     numberPart(),
     numberPart(),
-    numberPart(),
-    numberPart(),
+    booleanPart({ pad: true, mode: "-1,0" }),
   ]),
 
   // DescriptionBlock section (optional)
@@ -173,13 +178,21 @@ export const planSchema = schema([
   booleanField("unetFroudeReduction", "UNET Froude Reduction=", { mode: "trueFalse" }),
   numberField("unetFroudeLimit", "UNET Froude Limit=", { pad: true }),
   numberField("unetFroudePower", "UNET Froude Power=", { pad: true }),
-  tupleField("unetTimeSlicing", "UNET Time Slicing=", [numberPart(), numberPart(), numberPart({ pad: true })], {
-    optional: true,
-  }),
+  tupleField(
+    "unetTimeSlicing",
+    "UNET Time Slicing=",
+    [numberPart(), numberPart(), numberPart({ pad: true })],
+    {
+      optional: true,
+    },
+  ),
   numberField("unetJunctionLosses", "UNET Junction Losses=", { integer: true, optional: true }),
   numberField("unetD1Cores", "UNET D1 Cores=", { integer: true, pad: true }),
   stringField("unetWindReference", "UNET WindReference=", { trim: true, optional: true }),
-  stringField("unetWindDragFormulation", "UNET WindDragFormulation=", { trim: true, optional: true }),
+  stringField("unetWindDragFormulation", "UNET WindDragFormulation=", {
+    trim: true,
+    optional: true,
+  }),
 
   // UNET D2 Global Settings
   numberField("unetD2Coriolis", "UNET D2 Coriolis=", { integer: true }),
@@ -199,13 +212,22 @@ export const planSchema = schema([
     nullOnBlank: true,
     optional: true,
   }),
-  numberField("unetD2SmagorinskyMixing", "UNET D2 Smagorinsky Mixing=", { nullOnBlank: true, optional: true }),
+  numberField("unetD2SmagorinskyMixing", "UNET D2 Smagorinsky Mixing=", {
+    nullOnBlank: true,
+    optional: true,
+  }),
   numberField("unetD2BCVolumeCheck", "UNET D2 BCVolumeCheck=", { integer: true }),
   numberField("unetD2Latitude", "UNET D2 Latitude=", { nullOnBlank: true }),
   numberField("unetD2Cores2", "UNET D2 Cores=", { integer: true, optional: true }),
   stringField("unetD2SolverType", "UNET D2 SolverType=", { trim: true, optional: true }),
-  numberField("unetD2MinimumIterations", "UNET D2 Minimum Iterations=", { integer: true, pad: true }),
-  numberField("unetD2MaximumIterations", "UNET D2 Maximum Iterations=", { integer: true, pad: true }),
+  numberField("unetD2MinimumIterations", "UNET D2 Minimum Iterations=", {
+    integer: true,
+    pad: true,
+  }),
+  numberField("unetD2MaximumIterations", "UNET D2 Maximum Iterations=", {
+    integer: true,
+    pad: true,
+  }),
   numberField("unetD2RestartNumber", "UNET D2 Restart Number=", { integer: true, pad: true }),
   numberField("unetD2RelaxationCoeff", "UNET D2 Relaxation Coeff=", {}),
   numberField("unetD2SORPreconditionIterations", "UNET D2 SOR Precondition Iterations=", {
@@ -214,7 +236,9 @@ export const planSchema = schema([
   }),
   numberField("unetD2ILUTMaximumFill", "UNET D2 ILUT Maximum Fill=", { integer: true, pad: true }),
   numberField("unetD2ILUTTolerance", "UNET D2 ILUT Tolerance=", {}),
-  numberField("unetD2ConvergenceTolerance", "UNET D2 Convergence Tolerance=", { nullOnBlank: true }),
+  numberField("unetD2ConvergenceTolerance", "UNET D2 Convergence Tolerance=", {
+    nullOnBlank: true,
+  }),
 
   // UNET D2 Flow Areas (repeating, area-specific settings)
   repeat("unetD2FlowAreas", startsWith("UNET D2 Name="), unetD2AreaSchema),
@@ -229,7 +253,10 @@ export const planSchema = schema([
   stringField("dssFile", "DSS File=", { trim: true }),
   numberField("writeICFile", "Write IC File=", { integer: true, pad: true }),
   numberField("writeICFileAtFixedDateTime", "Write IC File at Fixed DateTime=", { integer: true }),
-  multiField("IC Time=", fields({ icTime1: stringPart(), icTime2: stringPart(), icTime3: stringPart() })),
+  multiField(
+    "IC Time=",
+    fields({ icTime1: stringPart(), icTime2: stringPart(), icTime3: stringPart() }),
+  ),
   numberField("writeICFileReoccurance", "Write IC File Reoccurance=", { nullOnBlank: true }),
   numberField("writeICFileAtSimEnd", "Write IC File at Sim End=", { integer: true }),
   booleanField("echoInput", "Echo Input=", { mode: "trueFalse" }),
@@ -250,9 +277,15 @@ export const planSchema = schema([
   numberField("hdfEddyViscosity", "HDF Eddy Viscosity=", { integer: true, optional: true }),
   numberField("hdfFaceFlow", "HDF Face Flow=", { integer: true, optional: true }),
   numberField("hdfFaceWSEL", "HDF Face WSEL=", { integer: true, optional: true }),
-  numberField("hdfFaceTangentialVelocity", "HDF Face Tangential Velocity=", { integer: true, optional: true }),
+  numberField("hdfFaceTangentialVelocity", "HDF Face Tangential Velocity=", {
+    integer: true,
+    optional: true,
+  }),
   numberField("hdfFaceShearStress", "HDF Face Shear Stress=", { integer: true, optional: true }),
-  numberField("hdfFaceNodeVelocities", "HDF Face Node Velocities=", { integer: true, optional: true }),
+  numberField("hdfFaceNodeVelocities", "HDF Face Node Velocities=", {
+    integer: true,
+    optional: true,
+  }),
   numberField("hdfCompression", "HDF Compression=", { integer: true, pad: true }),
   numberField("hdfChunkSize", "HDF Chunk Size=", { integer: true, pad: true }),
   numberField("hdfSpatialParts", "HDF Spatial Parts=", { integer: true, pad: true }),
@@ -269,7 +302,10 @@ export const planSchema = schema([
   numberField("calibrationTolerance", "Calibration Tolerance=", {}),
   numberField("calibrationMaximum", "Calibration Maximum=", {}),
   numberField("calibrationMinimum", "Calibration Minimum=", {}),
-  numberField("calibrationOptimizationMethod", "Calibration Optimization Method=", { integer: true, pad: true }),
+  numberField("calibrationOptimizationMethod", "Calibration Optimization Method=", {
+    integer: true,
+    pad: true,
+  }),
   multiField(
     "Calibration Window=",
     fields({
@@ -285,7 +321,10 @@ export const planSchema = schema([
   numberField("wqULTIMATE", "WQ ULTIMATE=", { integer: true }),
   durationField("wqMaxCompStep", "WQ Max Comp Step="),
   durationField("wqOutputInterval", "WQ Output Interval="),
-  numberField("wqOutputSelectedIncrements", "WQ Output Selected Increments=", { integer: true, pad: true }),
+  numberField("wqOutputSelectedIncrements", "WQ Output Selected Increments=", {
+    integer: true,
+    pad: true,
+  }),
   numberField("wqOutputFaceFlow", "WQ Output face flow=", { integer: true }),
   numberField("wqOutputFaceVelocity", "WQ Output face velocity=", { integer: true }),
   numberField("wqOutputFaceArea", "WQ Output face area=", { integer: true }),
@@ -293,7 +332,9 @@ export const planSchema = schema([
   numberField("wqOutputCellVolume", "WQ Output cell volume=", { integer: true }),
   numberField("wqOutputCellSurfaceArea", "WQ Output cell surface area=", { integer: true }),
   numberField("wqOutputCellContinuity", "WQ Output cell continuity=", { integer: true }),
-  numberField("wqOutputCumulativeCellContinuity", "WQ Output cumulative cell continuity=", { integer: true }),
+  numberField("wqOutputCumulativeCellContinuity", "WQ Output cumulative cell continuity=", {
+    integer: true,
+  }),
   numberField("wqOutputFaceConc", "WQ Output face conc=", { integer: true }),
   numberField("wqOutputFaceDconcDx", "WQ Output face dconc_dx=", { integer: true }),
   numberField("wqOutputFaceCourant", "WQ Output face courant=", { integer: true }),
@@ -317,17 +358,26 @@ export const planSchema = schema([
   numberField("wqRestartHour", "WQ Restart Hour=", { nullOnBlank: true }),
   numberField("wqSystemSummary", "WQ System Summary=", { integer: true }),
   numberField("wqWriteToDSS", "WQ Write To DSS=", { integer: true }),
-  numberField("wqUseFixedTemperature", "WQ Use Fixed Temperature=", { integer: true, optional: true }),
+  numberField("wqUseFixedTemperature", "WQ Use Fixed Temperature=", {
+    integer: true,
+    optional: true,
+  }),
   numberField("wqFixedTemperature", "WQ Fixed Temperature=", { nullOnBlank: true, optional: true }),
 
   // Sediment Sorting and Armoring
-  numberField("sortingAndArmoringIterations", "Sorting and Armoring Iterations=", { integer: true, pad: true }),
+  numberField("sortingAndArmoringIterations", "Sorting and Armoring Iterations=", {
+    integer: true,
+    pad: true,
+  }),
   numberField("xsUpdateThreshold", "XS Update Threshold=", { pad: true }),
   numberField("bedRoughnessPredictor", "Bed Roughness Predictor=", { integer: true, pad: true }),
   numberField("hydraulicsUpdateThreshold", "Hydraulics Update Threshold=", { pad: true }),
   numberField("energySlopeMethod", "Energy Slope Method=", { integer: true, pad: true }),
   numberField("volumeChangeMethod", "Volume Change Method=", { integer: true, pad: true }),
-  numberField("sedimentRetentionMethod", "Sediment Retention Method=", { integer: true, pad: true }),
+  numberField("sedimentRetentionMethod", "Sediment Retention Method=", {
+    integer: true,
+    pad: true,
+  }),
   numberField("sedimentTSMultiplier", "Sediment TS Multiplier=", { pad: true, optional: true }),
   numberField("warmUpMethod", "Warm Up Method=", { integer: true, pad: true, optional: true }),
   numberField("warmUpDuration", "Warm Up Duration=", { nullOnBlank: true, optional: true }),
@@ -357,29 +407,45 @@ export const planSchema = schema([
   numberField("upstreamXSWeight", "Upstream XS Weight=", {}),
   numberField("mainXSWeight", "Main XS Weight=", {}),
   numberField("downstreamXSWeight", "Downstream XS Weight=", {}),
-  numberField("numberOfDSXSsWeightedWithUSBoundary", "Number of DS XS's Weighted with US Boundary=", {
-    integer: true,
-    pad: true,
-  }),
+  numberField(
+    "numberOfDSXSsWeightedWithUSBoundary",
+    "Number of DS XS's Weighted with US Boundary=",
+    {
+      integer: true,
+      pad: true,
+    },
+  ),
   numberField("upstreamBoundaryWeight", "Upstream Boundary Weight=", { pad: true }),
   numberField("weightOfXSsAssociatedWithUSBoundary", "Weight of XSs Associated with US Boundary=", {
     integer: true,
     pad: true,
   }),
-  numberField("numberOfUSXSsWeightedWithDSBoundary", "Number of US XS's Weighted with DS Boundary=", {
-    integer: true,
+  numberField(
+    "numberOfUSXSsWeightedWithDSBoundary",
+    "Number of US XS's Weighted with DS Boundary=",
+    {
+      integer: true,
+      pad: true,
+    },
+  ),
+  numberField("downstreamBoundaryWeight", "Downstream Boundary Weight=", { pad: true }),
+  numberField("weightOfXSsAssociatedWithDSBoundary", "Weight of XSs Associated with DS Boundary=", {
     pad: true,
   }),
-  numberField("downstreamBoundaryWeight", "Downstream Boundary Weight=", { pad: true }),
-  numberField("weightOfXSsAssociatedWithDSBoundary", "Weight of XSs Associated with DS Boundary=", { pad: true }),
 
   // Sediment Output and File Settings
   numberField("percentileMethod", "Percentile Method=", { integer: true, pad: true }),
   numberField("sedimentOutputLevel", "Sediment Output Level=", { integer: true, pad: true }),
   numberField("massOrVolumeOutput", "Mass or Volume Output=", { integer: true, pad: true }),
   numberField("outputIncrementType", "Output Increment Type=", { integer: true, pad: true }),
-  numberField("profileAndTSOutputIncrement", "Profile and TS Output Increment=", { integer: true, pad: true }),
-  stringField("transportOutputIncrement", "Transport Output Increment", { trim: false, optional: true }),
+  numberField("profileAndTSOutputIncrement", "Profile and TS Output Increment=", {
+    integer: true,
+    pad: true,
+  }),
+  stringField("transportOutputIncrement", "Transport Output Increment", {
+    trim: false,
+    optional: true,
+  }),
   numberField("xsOutputFlag", "XS Output Flag=", { integer: true, pad: true }),
   numberField("xsOutputIncrement", "XS Output Increment=", { integer: true, pad: true }),
   numberField("readHDF5SedimentHotstart", "Read HDF5 Sediment Hotstart=", {
@@ -387,7 +453,11 @@ export const planSchema = schema([
     pad: true,
     optional: true,
   }),
-  numberField("sedimentHotstartType", "Sediment Hotstart Type=", { integer: true, pad: true, optional: true }),
+  numberField("sedimentHotstartType", "Sediment Hotstart Type=", {
+    integer: true,
+    pad: true,
+    optional: true,
+  }),
   stringField("sedimentHotstartFile", "Sediment Hotstart File=", { trim: true, optional: true }),
   stringField("sedimentHotstartDate", "Sediment Hotstart Date=", { trim: true, optional: true }),
   stringField("sedimentHotstartTime", "Sediment Hotstart Time=", { trim: true, optional: true }),
@@ -395,27 +465,60 @@ export const planSchema = schema([
   numberField("readGradationHotstart", "Read Gradation Hotstart=", { integer: true, pad: true }),
   stringField("gradationFileName", "Gradation File Name=", { trim: true }),
   numberField("writeHDF5File", "Write HDF5 File=", { integer: true, pad: true }),
-  numberField("writeBinaryOutput", "Write Binary Output=", { integer: true, pad: true, optional: true }),
-  numberField("writeDSSSedimentFile", "Write DSS Sediment File=", { integer: true, pad: true }),
-  numberField("dssSedimentOutputType", "DSS Sediment Output Type=", { integer: true, pad: true, optional: true }),
-  stringField("dssLocation", "DSS Location=", { trim: true, optional: true }),
-  stringField("summaryReach", "Summary Reach=", { trim: true, optional: true }),
-  numberField("svCurve", "SV Curve=", { integer: true, pad: true }),
-  numberField("specificGageFlag", "Specific Gage Flag=", { integer: true, pad: true }),
-  numberField("subcellErosionMethods", "Subcell Erosion Methods=", { integer: true, pad: true, optional: true }),
-  numberField("subcellDepositionMethods", "Subcell Deposition Methods=", { integer: true, pad: true, optional: true }),
-  numberField("advectionScheme", "Advection Scheme=", { integer: true, pad: true, optional: true }),
-  numberField("matrixSolver", "Matrix Solver=", { integer: true, pad: true, optional: true }),
-  numberField("implicitWeightingFactor", "Implicit Weighting Factor=", { pad: true, optional: true }),
-  numberField("maximumOuterLoopConvergenceIterations", "Maximum Outer Loop Convergence Iterations=", {
+  numberField("writeBinaryOutput", "Write Binary Output=", {
     integer: true,
     pad: true,
     optional: true,
   }),
-  numberField("convergenceMaximumAbsolute", "Convergence Maximum Absolute=", { pad: true, optional: true }),
+  numberField("writeDSSSedimentFile", "Write DSS Sediment File=", { integer: true, pad: true }),
+  numberField("dssSedimentOutputType", "DSS Sediment Output Type=", {
+    integer: true,
+    pad: true,
+    optional: true,
+  }),
+  stringField("dssLocation", "DSS Location=", { trim: true, optional: true }),
+  stringField("summaryReach", "Summary Reach=", { trim: true, optional: true }),
+  numberField("svCurve", "SV Curve=", { integer: true, pad: true }),
+  numberField("specificGageFlag", "Specific Gage Flag=", { integer: true, pad: true }),
+  numberField("subcellErosionMethods", "Subcell Erosion Methods=", {
+    integer: true,
+    pad: true,
+    optional: true,
+  }),
+  numberField("subcellDepositionMethods", "Subcell Deposition Methods=", {
+    integer: true,
+    pad: true,
+    optional: true,
+  }),
+  numberField("advectionScheme", "Advection Scheme=", { integer: true, pad: true, optional: true }),
+  numberField("matrixSolver", "Matrix Solver=", { integer: true, pad: true, optional: true }),
+  numberField("implicitWeightingFactor", "Implicit Weighting Factor=", {
+    pad: true,
+    optional: true,
+  }),
+  numberField(
+    "maximumOuterLoopConvergenceIterations",
+    "Maximum Outer Loop Convergence Iterations=",
+    {
+      integer: true,
+      pad: true,
+      optional: true,
+    },
+  ),
+  numberField("convergenceMaximumAbsolute", "Convergence Maximum Absolute=", {
+    pad: true,
+    optional: true,
+  }),
   numberField("convergenceRMSE", "Convergence RMSE=", { pad: true, optional: true }),
-  numberField("grainFractionsMaxAbsError", "Grain Fractions Max Abs Error=", { pad: true, optional: true }),
-  numberField("maxSubgridRegions", "Max Subgrid Regions=", { integer: true, pad: true, optional: true }),
+  numberField("grainFractionsMaxAbsError", "Grain Fractions Max Abs Error=", {
+    pad: true,
+    optional: true,
+  }),
+  numberField("maxSubgridRegions", "Max Subgrid Regions=", {
+    integer: true,
+    pad: true,
+    optional: true,
+  }),
   numberField("maxSubgridLengthScale", "Max Subgrid Length Scale=", { pad: true, optional: true }),
   numberField("initialLayerThickness", "Initial Layer Thickness=", { pad: true, optional: true }),
   numberField("minLayerThickness", "Min Layer Thickness=", { pad: true, optional: true }),
