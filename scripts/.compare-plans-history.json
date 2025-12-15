@@ -1,156 +1,6 @@
 [
   {
-    "timestamp": "2025-12-15T00:29:14.157Z",
-    "results": [
-      {
-        "file": "test/data/plans/BaldEagleDamBrk.p01",
-        "status": "skipped",
-        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p01\" - Program Version 5.03 (< 6.0)",
-        "skipReason": "version_too_old"
-      },
-      {
-        "file": "test/data/plans/BaldEagleDamBrk.p02",
-        "status": "skipped",
-        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p02\" - Program Version 5.10 (< 6.0)",
-        "skipReason": "version_too_old"
-      },
-      {
-        "file": "test/data/plans/BaldEagleDamBrk.p03",
-        "status": "skipped",
-        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p03\" - Program Version 5.04 (< 6.0)",
-        "skipReason": "version_too_old"
-      },
-      {
-        "file": "test/data/plans/BaldEagleDamBrk.p04",
-        "status": "skipped",
-        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p04\" - Program Version 5.00 (< 6.0)",
-        "skipReason": "version_too_old"
-      },
-      {
-        "file": "test/data/plans/BaldEagleDamBrk.p05",
-        "status": "skipped",
-        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p05\" - Program Version 5.10 (< 6.0)",
-        "skipReason": "version_too_old"
-      },
-      {
-        "file": "test/data/plans/BaldEagleDamBrk.p06",
-        "status": "match",
-        "linesMatched": 309,
-        "originalLines": 309,
-        "serializedLines": 309
-      },
-      {
-        "file": "test/data/plans/BaldEagleDamBrk.p13",
-        "status": "skipped",
-        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p13\" - Program Version 5.10 (< 6.0)",
-        "skipReason": "version_too_old"
-      },
-      {
-        "file": "test/data/plans/BaldEagleDamBrk.p15",
-        "status": "skipped",
-        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p15\" - Program Version 5.10 (< 6.0)",
-        "skipReason": "version_too_old"
-      },
-      {
-        "file": "test/data/plans/BaldEagleDamBrk.p17",
-        "status": "skipped",
-        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p17\" - Program Version 5.00 (< 6.0)",
-        "skipReason": "version_too_old"
-      },
-      {
-        "file": "test/data/plans/BaldEagleDamBrk.p18",
-        "status": "skipped",
-        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p18\" - Program Version 5.00 (< 6.0)",
-        "skipReason": "version_too_old"
-      },
-      {
-        "file": "test/data/plans/BaldEagleDamBrk.p19",
-        "status": "skipped",
-        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p19\" - Program Version 5.00 (< 6.0)",
-        "skipReason": "version_too_old"
-      },
-      {
-        "file": "test/data/plans/Chippewa_2D.p02",
-        "status": "match",
-        "linesMatched": 4379,
-        "originalLines": 4379,
-        "serializedLines": 4379
-      },
-      {
-        "file": "test/data/plans/DavisStormSystem.p02",
-        "status": "match",
-        "linesMatched": 353,
-        "originalLines": 353,
-        "serializedLines": 353
-      },
-      {
-        "file": "test/data/plans/Muncie.p01",
-        "status": "skipped",
-        "message": "Skipping \"test/data/plans/Muncie.p01\" - Program Version 5.00 (< 6.0)",
-        "skipReason": "version_too_old"
-      },
-      {
-        "file": "test/data/plans/Muncie.p03",
-        "status": "skipped",
-        "message": "Skipping \"test/data/plans/Muncie.p03\" - Program Version 5.10 (< 6.0)",
-        "skipReason": "version_too_old"
-      },
-      {
-        "file": "test/data/plans/Muncie.p04",
-        "status": "skipped",
-        "message": "Skipping \"test/data/plans/Muncie.p04\" - Program Version 5.10 (< 6.0)",
-        "skipReason": "version_too_old"
-      },
-      {
-        "file": "test/data/plans/SedRuleLat.p05",
-        "status": "match",
-        "linesMatched": 281,
-        "originalLines": 281,
-        "serializedLines": 281
-      },
-      {
-        "file": "test/data/plans/SyntheticReservoir.p01",
-        "status": "match",
-        "linesMatched": 232,
-        "originalLines": 232,
-        "serializedLines": 232
-      },
-      {
-        "file": "test/data/plans/SyntheticReservoir.p02",
-        "status": "match",
-        "linesMatched": 232,
-        "originalLines": 232,
-        "serializedLines": 232
-      },
-      {
-        "file": "test/data/plans/UnsteadyEncroachment.p02",
-        "status": "error",
-        "message": "Invalid boolean segment for mode -1,0:  2 \n[ParseContext] Last parsed line index: 25, content: \"Encroach Param=-1 ,10,10, 2 \""
-      },
-      {
-        "file": "test/data/plans/UnsteadyEncroachment.p03",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/plans/WaterQualityExamp.p01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/plans/Weise.p01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      }
-    ],
-    "metrics": {
-      "filesMatched": 6,
-      "totalFiles": 23,
-      "status": "error"
-    }
-  },
-  {
-    "timestamp": "2025-12-15T00:30:02.394Z",
+    "timestamp": "2025-12-15T00:31:06.568Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",
@@ -275,12 +125,12 @@
       {
         "file": "test/data/plans/UnsteadyEncroachment.p02",
         "status": "diff",
-        "diffLine": 27,
-        "diffIndex": 0,
-        "linesMatched": 26,
+        "diffLine": 29,
+        "diffIndex": 18,
+        "linesMatched": 28,
         "originalLines": 288,
-        "serializedLines": 27,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765758602394-581f452994124.json"
+        "serializedLines": 288,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765758666567-a781050bc44a7.json"
       },
       {
         "file": "test/data/plans/UnsteadyEncroachment.p03",
@@ -303,8 +153,169 @@
       "totalFiles": 23,
       "status": "failed",
       "failureFile": "test/data/plans/UnsteadyEncroachment.p02",
-      "failureLine": 27,
-      "linesMatchedInFailure": 26,
+      "failureLine": 29,
+      "linesMatchedInFailure": 28,
+      "diffIndex": 18
+    }
+  },
+  {
+    "timestamp": "2025-12-15T00:31:35.411Z",
+    "results": [
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p01",
+        "status": "skipped",
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p01\" - Program Version 5.03 (< 6.0)",
+        "skipReason": "version_too_old"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p02",
+        "status": "skipped",
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p02\" - Program Version 5.10 (< 6.0)",
+        "skipReason": "version_too_old"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p03",
+        "status": "skipped",
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p03\" - Program Version 5.04 (< 6.0)",
+        "skipReason": "version_too_old"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p04",
+        "status": "skipped",
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p04\" - Program Version 5.00 (< 6.0)",
+        "skipReason": "version_too_old"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p05",
+        "status": "skipped",
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p05\" - Program Version 5.10 (< 6.0)",
+        "skipReason": "version_too_old"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p06",
+        "status": "match",
+        "linesMatched": 309,
+        "originalLines": 309,
+        "serializedLines": 309
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p13",
+        "status": "skipped",
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p13\" - Program Version 5.10 (< 6.0)",
+        "skipReason": "version_too_old"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p15",
+        "status": "skipped",
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p15\" - Program Version 5.10 (< 6.0)",
+        "skipReason": "version_too_old"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p17",
+        "status": "skipped",
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p17\" - Program Version 5.00 (< 6.0)",
+        "skipReason": "version_too_old"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p18",
+        "status": "skipped",
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p18\" - Program Version 5.00 (< 6.0)",
+        "skipReason": "version_too_old"
+      },
+      {
+        "file": "test/data/plans/BaldEagleDamBrk.p19",
+        "status": "skipped",
+        "message": "Skipping \"test/data/plans/BaldEagleDamBrk.p19\" - Program Version 5.00 (< 6.0)",
+        "skipReason": "version_too_old"
+      },
+      {
+        "file": "test/data/plans/Chippewa_2D.p02",
+        "status": "match",
+        "linesMatched": 4379,
+        "originalLines": 4379,
+        "serializedLines": 4379
+      },
+      {
+        "file": "test/data/plans/DavisStormSystem.p02",
+        "status": "match",
+        "linesMatched": 353,
+        "originalLines": 353,
+        "serializedLines": 353
+      },
+      {
+        "file": "test/data/plans/Muncie.p01",
+        "status": "skipped",
+        "message": "Skipping \"test/data/plans/Muncie.p01\" - Program Version 5.00 (< 6.0)",
+        "skipReason": "version_too_old"
+      },
+      {
+        "file": "test/data/plans/Muncie.p03",
+        "status": "skipped",
+        "message": "Skipping \"test/data/plans/Muncie.p03\" - Program Version 5.10 (< 6.0)",
+        "skipReason": "version_too_old"
+      },
+      {
+        "file": "test/data/plans/Muncie.p04",
+        "status": "skipped",
+        "message": "Skipping \"test/data/plans/Muncie.p04\" - Program Version 5.10 (< 6.0)",
+        "skipReason": "version_too_old"
+      },
+      {
+        "file": "test/data/plans/SedRuleLat.p05",
+        "status": "match",
+        "linesMatched": 281,
+        "originalLines": 281,
+        "serializedLines": 281
+      },
+      {
+        "file": "test/data/plans/SyntheticReservoir.p01",
+        "status": "match",
+        "linesMatched": 232,
+        "originalLines": 232,
+        "serializedLines": 232
+      },
+      {
+        "file": "test/data/plans/SyntheticReservoir.p02",
+        "status": "match",
+        "linesMatched": 232,
+        "originalLines": 232,
+        "serializedLines": 232
+      },
+      {
+        "file": "test/data/plans/UnsteadyEncroachment.p02",
+        "status": "match",
+        "linesMatched": 288,
+        "originalLines": 288,
+        "serializedLines": 288
+      },
+      {
+        "file": "test/data/plans/UnsteadyEncroachment.p03",
+        "status": "diff",
+        "diffLine": 55,
+        "diffIndex": 0,
+        "linesMatched": 54,
+        "originalLines": 326,
+        "serializedLines": 55,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765758695410-dd72f5b8c4689.json"
+      },
+      {
+        "file": "test/data/plans/WaterQualityExamp.p01",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      },
+      {
+        "file": "test/data/plans/Weise.p01",
+        "status": "skipped",
+        "skipReason": "previous_failure"
+      }
+    ],
+    "metrics": {
+      "filesMatched": 7,
+      "totalFiles": 23,
+      "status": "failed",
+      "failureFile": "test/data/plans/UnsteadyEncroachment.p03",
+      "failureLine": 55,
+      "linesMatchedInFailure": 54,
       "diffIndex": 0
     }
   }

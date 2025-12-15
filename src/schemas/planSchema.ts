@@ -97,6 +97,62 @@ export const planSchema = schema([
     numberPart({ pad: true }),
   ]),
 
+  // Encroachment settings (optional)
+  stringField("encroachRiver", "Encroach River=", { width: 16, trim: true, optional: true }),
+  stringField("encroachReach", "Encroach Reach=", { width: 16, trim: true, optional: true }),
+
+  // Encroach Node entries (repeating, optional)
+  contextual(
+    "encroachNodes",
+    (lines, i) => {
+      const nodes: Array<{ node: string; values: [number, number, number] }> = []
+
+      while (i < lines.length) {
+        const line = lines[i]
+
+        if (!line.startsWith("Encroach Node=")) {
+          break
+        }
+
+        const node = line.slice("Encroach Node=".length) // Keep original formatting
+        i++
+
+        // Next line should have 3 numbers
+        if (i < lines.length) {
+          const valueLine = lines[i].trim()
+          const parts = valueLine.split(/\s+/)
+          if (parts.length >= 3) {
+            nodes.push({
+              node,
+              values: [parseFloat(parts[0]), parseFloat(parts[1]), parseFloat(parts[2])],
+            })
+            i++
+          }
+        }
+      }
+
+      if (nodes.length === 0) {
+        return null
+      }
+
+      return { value: nodes, nextIndex: i }
+    },
+    (value) => {
+      if (!value || value.length === 0) {
+        return []
+      }
+
+      const lines: string[] = []
+      for (const node of value) {
+        lines.push(`Encroach Node=${node.node}`)
+        lines.push(
+          `${node.values[0].toString().padStart(8)}${node.values[1].toString().padStart(8)}${node.values[2].toString().padStart(8)}`,
+        )
+      }
+      return lines
+    },
+  ),
+
   // Flow Ratio parameters (optional, for unsteady flow)
   numberField("flowRatioTarget", "Flow Ratio Target=", { nullOnBlank: true, optional: true }),
   numberField("flowRatioTolerance", "Flow Ratio Tolerance=", { nullOnBlank: true, optional: true }),
