@@ -324,6 +324,22 @@ export const planSchema = schema([
   numberField("hdfUseMaxRows", "HDF Use Max Rows=", { integer: true }),
   numberField("hdfFixedRows", "HDF Fixed Rows=", { integer: true, pad: true }),
 
+  // Stage Flow Hydrograph entries (repeating, optional)
+  repeat(
+    "stageFlowHydrographs",
+    startsWith("Stage Flow Hydrograph="),
+    schema([
+      multiField(
+        "Stage Flow Hydrograph=",
+        fields({
+          river: stringPart({ width: 16, trim: true }),
+          reach: stringPart({ width: 16, trim: true }),
+          stage: numberPart(),
+        }),
+      ),
+    ]),
+  ),
+
   // Breach parameters (repeating)
   repeat("breaches", startsWith("Breach Loc="), breachSchema),
 
