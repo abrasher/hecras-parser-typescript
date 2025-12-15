@@ -76,6 +76,22 @@ export const planSchema = schema([
     booleanPart({ pad: true, mode: "-1,0" }),
   ]),
 
+  // Flow Ratio parameters (optional, for unsteady flow)
+  numberField("flowRatioTarget", "Flow Ratio Target=", { nullOnBlank: true, optional: true }),
+  numberField("flowRatioTolerance", "Flow Ratio Tolerance=", { nullOnBlank: true, optional: true }),
+  numberField("flowRatioInitialRatio", "Flow Ratio Initial Ratio=", {
+    nullOnBlank: true,
+    optional: true,
+  }),
+  numberField("flowRatioMinRatio", "Flow Ratio Min Ratio=", { nullOnBlank: true, optional: true }),
+  numberField("flowRatioMaxRatio", "Flow Ratio Max Ratio=", { nullOnBlank: true, optional: true }),
+  numberField("flowRatioMaxIterations", "Flow Ratio Max Iterations=", {
+    integer: true,
+    pad: true,
+    optional: true,
+  }),
+  numberField("flowRatioReference", "Flow Ratio Reference=", { nullOnBlank: true, optional: true }),
+
   // DescriptionBlock section (optional)
   textBlockField("description", "DESCRIPTION", { optional: true }),
 
@@ -139,6 +155,21 @@ export const planSchema = schema([
     integer: true,
     optional: true,
   }),
+
+  // Computation Time Step schedule (repeating, optional)
+  repeat(
+    "computationTimeStepSchedule",
+    startsWith("Computation Time Step TS="),
+    schema([
+      multiField(
+        "Computation Time Step TS=",
+        fields({
+          datetime: stringPart({ trim: true }),
+          value: numberPart({ pad: true }),
+        }),
+      ),
+    ]),
+  ),
 
   // Run flags
   numberField("runHTab", "Run HTab=", { integer: true, pad: true }),

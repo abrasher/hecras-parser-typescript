@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2025-12-15T00:02:29.422Z",
+    "timestamp": "2025-12-15T00:04:34.493Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",
@@ -72,12 +72,12 @@
       {
         "file": "test/data/plans/Chippewa_2D.p02",
         "status": "diff",
-        "diffLine": 8,
+        "diffLine": 46,
         "diffIndex": 0,
-        "linesMatched": 7,
+        "linesMatched": 45,
         "originalLines": 4379,
-        "serializedLines": 8,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765756949422-be027f562a00f.json"
+        "serializedLines": 46,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765757074492-bf2a8a74c2efc.json"
       },
       {
         "file": "test/data/plans/DavisStormSystem.p02",
@@ -140,13 +140,13 @@
       "totalFiles": 23,
       "status": "failed",
       "failureFile": "test/data/plans/Chippewa_2D.p02",
-      "failureLine": 8,
-      "linesMatchedInFailure": 7,
+      "failureLine": 46,
+      "linesMatchedInFailure": 45,
       "diffIndex": 0
     }
   },
   {
-    "timestamp": "2025-12-15T00:02:57.491Z",
+    "timestamp": "2025-12-15T00:05:07.157Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",
@@ -218,12 +218,12 @@
       {
         "file": "test/data/plans/Chippewa_2D.p02",
         "status": "diff",
-        "diffLine": 27,
+        "diffLine": 156,
         "diffIndex": 0,
-        "linesMatched": 26,
+        "linesMatched": 155,
         "originalLines": 4379,
-        "serializedLines": 27,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765756977491-f49e303adb463.json"
+        "serializedLines": 156,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765757107157-d6f9d74bd5505.json"
       },
       {
         "file": "test/data/plans/DavisStormSystem.p02",
@@ -286,8 +286,8 @@
       "totalFiles": 23,
       "status": "failed",
       "failureFile": "test/data/plans/Chippewa_2D.p02",
-      "failureLine": 27,
-      "linesMatchedInFailure": 26,
+      "failureLine": 156,
+      "linesMatchedInFailure": 155,
       "diffIndex": 0
     }
   }
