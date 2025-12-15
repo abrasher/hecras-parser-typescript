@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2025-12-15T00:22:34.733Z",
+    "timestamp": "2025-12-15T00:22:41.075Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",
@@ -139,7 +139,7 @@
     }
   },
   {
-    "timestamp": "2025-12-15T00:22:41.075Z",
+    "timestamp": "2025-12-15T00:23:23.326Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",
@@ -217,8 +217,13 @@
       },
       {
         "file": "test/data/plans/DavisStormSystem.p02",
-        "status": "error",
-        "message": "Invalid duration format: Max Profile\n[ParseContext] Last parsed line index: 34, content: \"Instantaneous Interval=Max Profile\""
+        "status": "diff",
+        "diffLine": 135,
+        "diffIndex": 0,
+        "linesMatched": 134,
+        "originalLines": 353,
+        "serializedLines": 135,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765758203326-1359deb239206.json"
       },
       {
         "file": "test/data/plans/Muncie.p01",
@@ -274,7 +279,11 @@
     "metrics": {
       "filesMatched": 2,
       "totalFiles": 23,
-      "status": "error"
+      "status": "failed",
+      "failureFile": "test/data/plans/DavisStormSystem.p02",
+      "failureLine": 135,
+      "linesMatchedInFailure": 134,
+      "diffIndex": 0
     }
   }
 ]

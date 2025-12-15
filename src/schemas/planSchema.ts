@@ -99,7 +99,7 @@ export const planSchema = schema([
   // IntervalsAndAdaptiveTimeStep section
   durationField("computationInterval", "Computation Interval="),
   durationField("outputInterval", "Output Interval="),
-  durationField("instantaneousInterval", "Instantaneous Interval=", { optional: true }),
+  stringField("instantaneousInterval", "Instantaneous Interval=", { trim: true, optional: true }),
   durationField("mappingInterval", "Mapping Interval=", { optional: true }),
 
   // Computation Time Step (optional adaptive time stepping)
