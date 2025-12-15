@@ -572,6 +572,11 @@ export const planSchema = schema([
   numberField("wqRestartHour", "WQ Restart Hour=", { nullOnBlank: true }),
   numberField("wqSystemSummary", "WQ System Summary=", { integer: true }),
   numberField("wqWriteToDSS", "WQ Write To DSS=", { integer: true }),
+  numberField("wqProfile", "WQ Profile=", { integer: true, pad: true, optional: true }),
+  stringField("wqStartDate", "WQ StartDate=", { trim: true, optional: true }),
+  stringField("wqStartTime", "WQ StartTime=", { trim: true, optional: true }),
+  stringField("wqEndDate", "WQ EndDate=", { trim: true, optional: true }),
+  stringField("wqEndTime", "WQ EndTime=", { trim: true, optional: true }),
   numberField("wqUseFixedTemperature", "WQ Use Fixed Temperature=", {
     integer: true,
     optional: true,
