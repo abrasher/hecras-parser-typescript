@@ -7,6 +7,13 @@ export const unetD2AreaSchema = schema([
   numberField("zTol", "UNET D2 Z Tol=", { pad: true }),
   numberField("volumeTol", "UNET D2 Volume Tol=", { pad: true, optional: true }),
   numberField("maxIterations", "UNET D2 Max Iterations=", { integer: true, pad: true }),
+  numberField("advancedConvergence", "UNET D2 Advanced Convergence=", {
+    integer: true,
+    optional: true,
+  }),
+  numberField("wsMaxTol", "UNET D2 WS Max Tol=", { optional: true }),
+  numberField("wsRMSTol", "UNET D2 WS RMS Tol=", { optional: true }),
+  numberField("wsStallTol", "UNET D2 WS Stall Tol=", { optional: true }),
   numberField("equation", "UNET D2 Equation=", { integer: true, pad: true }),
   numberField("totalICTime", "UNET D2 TotalICTime=", { nullOnBlank: true }),
   numberField("rampUpFraction", "UNET D2 RampUpFraction=", {}),

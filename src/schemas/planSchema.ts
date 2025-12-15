@@ -235,6 +235,13 @@ export const planSchema = schema([
   numberField("unetD2ZTol", "UNET D2 Z Tol=", { pad: true }),
   numberField("unetD2VolumeTol", "UNET D2 Volume Tol=", { pad: true, optional: true }),
   numberField("unetD2MaxIterations", "UNET D2 Max Iterations=", { integer: true, pad: true }),
+  numberField("unetD2AdvancedConvergence", "UNET D2 Advanced Convergence=", {
+    integer: true,
+    optional: true,
+  }),
+  numberField("unetD2WSMaxTol", "UNET D2 WS Max Tol=", { optional: true }),
+  numberField("unetD2WSRMSTol", "UNET D2 WS RMS Tol=", { optional: true }),
+  numberField("unetD2WSStallTol", "UNET D2 WS Stall Tol=", { optional: true }),
   numberField("unetD2Equation", "UNET D2 Equation=", { integer: true, pad: true }),
   numberField("unetD2TotalICTime", "UNET D2 TotalICTime=", { nullOnBlank: true }),
   numberField("unetD2RampUpFraction", "UNET D2 RampUpFraction=", {}),
