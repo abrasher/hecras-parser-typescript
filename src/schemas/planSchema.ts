@@ -334,7 +334,7 @@ export const planSchema = schema([
         fields({
           river: stringPart({ width: 16, trim: true }),
           reach: stringPart({ width: 16, trim: true }),
-          stage: numberPart(),
+          stage: stringPart({ trim: true }),
         }),
       ),
     ]),
