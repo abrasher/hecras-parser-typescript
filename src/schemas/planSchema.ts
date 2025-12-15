@@ -34,6 +34,7 @@ export const planSchema = schema([
   ),
   stringField("geometryFile", "Geom File=", { trim: true }),
   stringField("flowFile", "Flow File=", { trim: true, optional: true }),
+  stringField("sedimentFile", "Sediment File=", { trim: true, optional: true }),
 
   // FlowRegimeAndDefaults section
   stringField("flowRegime", "", { trim: true }), // "Subcritical Flow", "Supercritical Flow", or "Mixed Flow Regime"
