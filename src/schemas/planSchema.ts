@@ -17,6 +17,7 @@ import {
   tupleField,
 } from "../schema"
 import { breachSchema } from "./plan/breachSchema"
+import { dredgeEventSchema } from "./plan/dredgeEventSchema"
 import { unetD2AreaSchema } from "./plan/unetD2AreaSchema"
 
 export const planSchema = schema([
@@ -605,6 +606,9 @@ export const planSchema = schema([
   numberField("minLayerThickness", "Min Layer Thickness=", { pad: true, optional: true }),
   numberField("maxLayerThickness", "Max Layer Thickness=", { pad: true, optional: true }),
   numberField("numberOfLayers", "Number of Layers=", { integer: true, pad: true, optional: true }),
+
+  // Dredge Events (repeating, optional)
+  repeat("dredgeEvents", startsWith("Dredge Event="), dredgeEventSchema),
 
   // Extra Computation Commands (repeating, optional)
   repeat(

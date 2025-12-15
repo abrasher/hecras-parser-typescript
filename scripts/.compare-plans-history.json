@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2025-12-15T00:19:59.366Z",
+    "timestamp": "2025-12-15T00:22:34.733Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",
@@ -71,18 +71,15 @@
       },
       {
         "file": "test/data/plans/Chippewa_2D.p02",
-        "status": "diff",
-        "diffLine": 325,
-        "diffIndex": 0,
-        "linesMatched": 324,
+        "status": "match",
+        "linesMatched": 4379,
         "originalLines": 4379,
-        "serializedLines": 325,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765757999366-2d9606ebbd47.json"
+        "serializedLines": 4379
       },
       {
         "file": "test/data/plans/DavisStormSystem.p02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "error",
+        "message": "Invalid duration format: Max Profile\n[ParseContext] Last parsed line index: 34, content: \"Instantaneous Interval=Max Profile\""
       },
       {
         "file": "test/data/plans/Muncie.p01",
@@ -136,17 +133,13 @@
       }
     ],
     "metrics": {
-      "filesMatched": 1,
+      "filesMatched": 2,
       "totalFiles": 23,
-      "status": "failed",
-      "failureFile": "test/data/plans/Chippewa_2D.p02",
-      "failureLine": 325,
-      "linesMatchedInFailure": 324,
-      "diffIndex": 0
+      "status": "error"
     }
   },
   {
-    "timestamp": "2025-12-15T00:20:26.574Z",
+    "timestamp": "2025-12-15T00:22:41.075Z",
     "results": [
       {
         "file": "test/data/plans/BaldEagleDamBrk.p01",
@@ -217,18 +210,15 @@
       },
       {
         "file": "test/data/plans/Chippewa_2D.p02",
-        "status": "diff",
-        "diffLine": 371,
-        "diffIndex": 0,
-        "linesMatched": 370,
+        "status": "match",
+        "linesMatched": 4379,
         "originalLines": 4379,
-        "serializedLines": 371,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/plan-parsed-1765758026573-483fd746e89a9.json"
+        "serializedLines": 4379
       },
       {
         "file": "test/data/plans/DavisStormSystem.p02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "error",
+        "message": "Invalid duration format: Max Profile\n[ParseContext] Last parsed line index: 34, content: \"Instantaneous Interval=Max Profile\""
       },
       {
         "file": "test/data/plans/Muncie.p01",
@@ -282,13 +272,9 @@
       }
     ],
     "metrics": {
-      "filesMatched": 1,
+      "filesMatched": 2,
       "totalFiles": 23,
-      "status": "failed",
-      "failureFile": "test/data/plans/Chippewa_2D.p02",
-      "failureLine": 371,
-      "linesMatchedInFailure": 370,
-      "diffIndex": 0
+      "status": "error"
     }
   }
 ]
