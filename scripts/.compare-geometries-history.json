@@ -1,6 +1,6 @@
 [
   {
-    "timestamp": "2025-10-09T18:18:58.623Z",
+    "timestamp": "2025-12-11T02:22:14.153Z",
     "results": [
       {
         "file": "test/data/Dingman 2D.g01",
@@ -94,303 +94,275 @@
       },
       {
         "file": "test/data/Dingman-1D.g06",
-        "status": "diff",
-        "diffLine": 9380,
-        "diffIndex": 72,
-        "linesMatched": 9379,
+        "status": "match",
+        "linesMatched": 212264,
         "originalLines": 212264,
-        "serializedLines": 9387,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760033938612-6cb9abcf67f74.json"
+        "serializedLines": 212264
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_BSTEM - Simple Example_SimplifiedBSTEM.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_BSTEM - Simple Example_SimplifiedBSTEM.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_BSTEM - Simple Example_SimplifiedBSTEM.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Dredging Example_DredgeChannel.g02",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Dredging Example_DredgeChannel.serialized.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Dredging Example_DredgeChannel.g02\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Initial Data_SyntheticReservoir.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Initial Data_SyntheticReservoir.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Initial Data_SyntheticReservoir.g01\" due to unsupported Program Version=5.07",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.g01\" due to unsupported Program Version=5.07",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.g02",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.g02\" due to unsupported Program Version=5.07",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.g03",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.serialized.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.serialized.g03",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.g03\" due to unsupported Program Version=5.07",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_SIAM Example_hick85.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_SIAM Example_hick85.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_SIAM Example_hick85.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.g02",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.serialized.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.g02\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Unsteady Sediment with Concentration Rules_SedRuleLat.g03",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Unsteady Sediment with Concentration Rules_SedRuleLat.serialized.g03",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "match",
+        "linesMatched": 885,
+        "originalLines": 885,
+        "serializedLines": 885
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Video Tutorial (Sediment Intro)_Data Files_OverbankDeposition.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Video Tutorial (Sediment Intro)_Data Files_OverbankDeposition.g01\" due to unsupported Program Version=5.07",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Video Tutorial (Sediment Intro)_Solution Files_OverbankDeposition.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Video Tutorial (Sediment Intro)_Solution Files_OverbankDeposition.g01\" due to unsupported Program Version=5.07",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Baxter RAS Mapper_RAS Model_Baxter.g02",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Steady Flow Hydraulics_Baxter RAS Mapper_RAS Model_Baxter.g02\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Chapter 4 Example Data_EX1.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Steady Flow Hydraulics_Chapter 4 Example Data_EX1.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Steady Flow Hydraulics_ConSpan Culvert_ConSpan.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Steady Flow Hydraulics_ConSpan Culvert_ConSpan.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Mixed Flow Regime Channel_MIXED.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Mixed Flow Regime Channel_MIXED.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Wailupe GeoRAS_WAILUPE.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Wailupe GeoRAS_WAILUPE.serialized.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "match",
+        "linesMatched": 288,
+        "originalLines": 288,
+        "serializedLines": 288
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Balde Eagle Creek_BaldEagle.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Balde Eagle Creek_BaldEagle.g01\" due to unsupported Program Version=3.10",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Bridge Hydraulics_beaver.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Bridge Hydraulics_beaver.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_ContractionExpansionMinorLosses_ContExp.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_ContractionExpansionMinorLosses_ContExp.g01\" due to unsupported Program Version=4.01",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_ContractionExpansionMinorLosses_ContExp.g02",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_ContractionExpansionMinorLosses_ContExp.g02\" due to unsupported Program Version=4.01",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_ContractionExpansionMinorLosses_ContExp.g03",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_ContractionExpansionMinorLosses_ContExp.g03\" due to unsupported Program Version=4.01",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Culvert Hydraulics_Beav_Culvert.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Culvert Hydraulics_Beav_Culvert.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Culverts with Flap Gates_CulvertFlap.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Culverts with Flap Gates_CulvertFlap.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Dam Breaching_BaldEagleDamBrk.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Dam Breaching_BaldEagleDamBrk.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Dam Breaching_BaldEagleDamBrk.g02",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Dam Breaching_BaldEagleDamBrk.g02\" due to unsupported Program Version=4.20",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Dam Breaching_BaldEagleDamBrk.g03",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Dam Breaching_BaldEagleDamBrk.g03\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Elevation Controled Gates_ElevControledGates.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Elevation Controled Gates_ElevControledGates.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Elevation Controled Gates_ElevControledGates.g01\" due to legacy Version header",
+        "skipReason": "legacy_version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Inline Structure with Gated Spillways_Inline_3Gates.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Inline Structure with Gated Spillways_Inline_3Gates.g01\" due to legacy Version header",
+        "skipReason": "legacy_version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Internal Stage and Flow Boundary Condition_IBStageFlowTest.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Internal Stage and Flow Boundary Condition_IBStageFlowTest.g01\" due to legacy Version header",
+        "skipReason": "legacy_version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "match",
+        "linesMatched": 570,
+        "originalLines": 570,
+        "serializedLines": 570
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g03",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g03\" due to unsupported Program Version=4.01",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g04",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.serialized.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g04\" due to unsupported Program Version=4.01",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Strcuture with Gates_TwoGateGrps.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Strcuture with Gates_TwoGateGrps.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure Overflow Weir_LatMultXS.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure Overflow Weir_LatMultXS.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure connected to a River Reach_3Reach_with_Lat.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure connected to a River Reach_3Reach_with_Lat.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure with Culverts and Gates_Beav_Lateral.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure with Culverts and Gates_Beav_Lateral.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure with Culverts_LatWeirCulverts.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure with Culverts_LatWeirCulverts.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Levee Breaching_LeveeBreach.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Levee Breaching_LeveeBreach.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Mixed Flow Regime_MixedFlow.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Mixed Flow Regime_MixedFlow.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Multiple Reaches with Hydraulic Structures_3ReachUnsteady.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Multiple Reaches with Hydraulic Structures_3ReachUnsteady.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Multiple Reaches with Hydraulic Structures_3ReachUnsteady.g02",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Multiple Reaches with Hydraulic Structures_3ReachUnsteady.g02\" due to unsupported Program Version=4.20",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "diff",
+        "diffLine": 2350,
+        "diffIndex": 0,
+        "linesMatched": 2349,
+        "originalLines": 4592,
+        "serializedLines": 2354,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1765419734151-d26f890bf2ed3.json"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_StPaul.g02",
@@ -794,17 +766,17 @@
       }
     ],
     "metrics": {
-      "filesMatched": 12,
-      "totalFiles": 152,
+      "filesMatched": 16,
+      "totalFiles": 137,
       "status": "failed",
-      "failureFile": "test/data/Dingman-1D.g06",
-      "failureLine": 9380,
-      "linesMatchedInFailure": 9379,
-      "diffIndex": 72
+      "failureFile": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.g02",
+      "failureLine": 2350,
+      "linesMatchedInFailure": 2349,
+      "diffIndex": 0
     }
   },
   {
-    "timestamp": "2025-10-09T18:20:20.974Z",
+    "timestamp": "2025-12-11T02:23:07.769Z",
     "results": [
       {
         "file": "test/data/Dingman 2D.g01",
@@ -898,303 +870,275 @@
       },
       {
         "file": "test/data/Dingman-1D.g06",
-        "status": "diff",
-        "diffLine": 25175,
-        "diffIndex": 0,
-        "linesMatched": 25174,
+        "status": "match",
+        "linesMatched": 212264,
         "originalLines": 212264,
-        "serializedLines": 25179,
-        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1760034020945-03393d99fb9dc.json"
+        "serializedLines": 212264
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_BSTEM - Simple Example_SimplifiedBSTEM.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_BSTEM - Simple Example_SimplifiedBSTEM.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_BSTEM - Simple Example_SimplifiedBSTEM.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Dredging Example_DredgeChannel.g02",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Dredging Example_DredgeChannel.serialized.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Dredging Example_DredgeChannel.g02\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Initial Data_SyntheticReservoir.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Initial Data_SyntheticReservoir.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Initial Data_SyntheticReservoir.g01\" due to unsupported Program Version=5.07",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.g01\" due to unsupported Program Version=5.07",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.g02",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.g02\" due to unsupported Program Version=5.07",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.g03",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.serialized.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.serialized.g03",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Reservoir Video Tutorial_Solution_SyntheticReservoir.g03\" due to unsupported Program Version=5.07",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_SIAM Example_hick85.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_SIAM Example_hick85.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_SIAM Example_hick85.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.g02",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.serialized.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Simple Sediment Transport Example_MBex.g02\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Unsteady Sediment with Concentration Rules_SedRuleLat.g03",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Sediment Transport_Unsteady Sediment with Concentration Rules_SedRuleLat.serialized.g03",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "match",
+        "linesMatched": 885,
+        "originalLines": 885,
+        "serializedLines": 885
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Video Tutorial (Sediment Intro)_Data Files_OverbankDeposition.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Video Tutorial (Sediment Intro)_Data Files_OverbankDeposition.g01\" due to unsupported Program Version=5.07",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Sediment Transport_Video Tutorial (Sediment Intro)_Solution Files_OverbankDeposition.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Sediment Transport_Video Tutorial (Sediment Intro)_Solution Files_OverbankDeposition.g01\" due to unsupported Program Version=5.07",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Baxter RAS Mapper_RAS Model_Baxter.g02",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Steady Flow Hydraulics_Baxter RAS Mapper_RAS Model_Baxter.g02\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Chapter 4 Example Data_EX1.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Steady Flow Hydraulics_Chapter 4 Example Data_EX1.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Steady Flow Hydraulics_ConSpan Culvert_ConSpan.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Steady Flow Hydraulics_ConSpan Culvert_ConSpan.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Mixed Flow Regime Channel_MIXED.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Mixed Flow Regime Channel_MIXED.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Wailupe GeoRAS_WAILUPE.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Steady Flow Hydraulics_Wailupe GeoRAS_WAILUPE.serialized.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "match",
+        "linesMatched": 288,
+        "originalLines": 288,
+        "serializedLines": 288
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Balde Eagle Creek_BaldEagle.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Balde Eagle Creek_BaldEagle.g01\" due to unsupported Program Version=3.10",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Bridge Hydraulics_beaver.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Bridge Hydraulics_beaver.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_ContractionExpansionMinorLosses_ContExp.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_ContractionExpansionMinorLosses_ContExp.g01\" due to unsupported Program Version=4.01",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_ContractionExpansionMinorLosses_ContExp.g02",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_ContractionExpansionMinorLosses_ContExp.g02\" due to unsupported Program Version=4.01",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_ContractionExpansionMinorLosses_ContExp.g03",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_ContractionExpansionMinorLosses_ContExp.g03\" due to unsupported Program Version=4.01",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Culvert Hydraulics_Beav_Culvert.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Culvert Hydraulics_Beav_Culvert.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Culverts with Flap Gates_CulvertFlap.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Culverts with Flap Gates_CulvertFlap.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Dam Breaching_BaldEagleDamBrk.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Dam Breaching_BaldEagleDamBrk.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Dam Breaching_BaldEagleDamBrk.g02",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Dam Breaching_BaldEagleDamBrk.g02\" due to unsupported Program Version=4.20",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Dam Breaching_BaldEagleDamBrk.g03",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Dam Breaching_BaldEagleDamBrk.g03\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Elevation Controled Gates_ElevControledGates.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Elevation Controled Gates_ElevControledGates.serialized.g01",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Elevation Controled Gates_ElevControledGates.g01\" due to legacy Version header",
+        "skipReason": "legacy_version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Inline Structure with Gated Spillways_Inline_3Gates.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Inline Structure with Gated Spillways_Inline_3Gates.g01\" due to legacy Version header",
+        "skipReason": "legacy_version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Internal Stage and Flow Boundary Condition_IBStageFlowTest.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Internal Stage and Flow Boundary Condition_IBStageFlowTest.g01\" due to legacy Version header",
+        "skipReason": "legacy_version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "match",
+        "linesMatched": 570,
+        "originalLines": 570,
+        "serializedLines": 570
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g03",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g03\" due to unsupported Program Version=4.01",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g04",
         "status": "skipped",
-        "skipReason": "previous_failure"
-      },
-      {
-        "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.serialized.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_JunctionHydraulics_JunctionHydraulics.g04\" due to unsupported Program Version=4.01",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Strcuture with Gates_TwoGateGrps.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Strcuture with Gates_TwoGateGrps.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure Overflow Weir_LatMultXS.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure Overflow Weir_LatMultXS.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure connected to a River Reach_3Reach_with_Lat.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure connected to a River Reach_3Reach_with_Lat.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure with Culverts and Gates_Beav_Lateral.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure with Culverts and Gates_Beav_Lateral.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure with Culverts_LatWeirCulverts.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Lateral Structure with Culverts_LatWeirCulverts.g01\" due to unsupported Program Version=4.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Levee Breaching_LeveeBreach.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Levee Breaching_LeveeBreach.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Mixed Flow Regime_MixedFlow.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Mixed Flow Regime_MixedFlow.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Multiple Reaches with Hydraulic Structures_3ReachUnsteady.g01",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Multiple Reaches with Hydraulic Structures_3ReachUnsteady.g01\" due to unsupported Program Version=5.00",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_Multiple Reaches with Hydraulic Structures_3ReachUnsteady.g02",
         "status": "skipped",
-        "skipReason": "previous_failure"
+        "message": "Skipping \"test/data/example_geometries/1D Unsteady Flow Hydraulics_Multiple Reaches with Hydraulic Structures_3ReachUnsteady.g02\" due to unsupported Program Version=4.20",
+        "skipReason": "version"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.g02",
-        "status": "skipped",
-        "skipReason": "previous_failure"
+        "status": "diff",
+        "diffLine": 2350,
+        "diffIndex": 0,
+        "linesMatched": 2349,
+        "originalLines": 4592,
+        "serializedLines": 2354,
+        "parsedOutputPath": "/var/folders/nr/52hg4k515jx61hgg5k_csl9r0000gn/T/geometry-parsed-1765419787766-e61874ea1e6a8.json"
       },
       {
         "file": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_StPaul.g02",
@@ -1598,12 +1542,12 @@
       }
     ],
     "metrics": {
-      "filesMatched": 12,
-      "totalFiles": 152,
+      "filesMatched": 16,
+      "totalFiles": 137,
       "status": "failed",
-      "failureFile": "test/data/Dingman-1D.g06",
-      "failureLine": 25175,
-      "linesMatchedInFailure": 25174,
+      "failureFile": "test/data/example_geometries/1D Unsteady Flow Hydraulics_NavigationDam_ROCK_TEST.g02",
+      "failureLine": 2350,
+      "linesMatchedInFailure": 2349,
       "diffIndex": 0
     }
   }

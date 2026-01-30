@@ -257,10 +257,10 @@ export const bridgeSchema = schema([
     fields({
       // this is set as a string part even thought it a boolean.
       // this is because hecras sometimes initially uses -1 as true, but then after it is set to 0, and then back, it for some reason changes to 1 instead of -1
-      //bridgeCoefficient1: booleanPart({ mode: "-1,0", pad: true }),
+      // bridgeCoefficient2 and bridgeCoefficient3 also suffer from this issue, so they are also stringPart
       bridgeCoefficient1: stringPart({ trim: false }),
-      bridgeCoefficient2: booleanPart({ mode: "-1,0", pad: true }),
-      bridgeCoefficient3: booleanPart({ mode: "-1,0", pad: true }),
+      bridgeCoefficient2: stringPart({ trim: false }),
+      bridgeCoefficient3: stringPart({ trim: false }),
       bridgeCoefficient4: numberPart({ nullOnBlank: true }),
       bridgeCoefficient5: numberPart({ nullOnBlank: true }),
       bridgeCoefficient6: numberPart({ nullOnBlank: true }),

@@ -34,7 +34,10 @@
     }
   },
   "files": [
-    "dist"
+    "dist",
+    "docs",
+    "llms.txt",
+    "llms-full.txt"
   ],
   "scripts": {
     "dev": "tsdown --watch",
@@ -49,7 +52,16 @@
     "publish:dry": "npm publish --dry-run",
     "version:patch": "npm version patch",
     "version:minor": "npm version minor",
-    "version:major": "npm version major"
+    "version:major": "npm version major",
+    "baseline:capture": "tsx scripts/capture-baseline.ts",
+    "check:regression": "tsx scripts/check-regression.ts",
+    "compare:geometries": "tsx scripts/compare-geometries.ts",
+    "compare:plans": "tsx scripts/compare-plans.ts",
+    "baseline:capture:plans": "tsx scripts/capture-plan-baseline.ts",
+    "check:regression:plans": "tsx scripts/check-plan-regression.ts",
+    "docs:types": "typedoc",
+    "docs:llms": "tsx scripts/generate-llms-full.ts",
+    "docs": "npm run docs:types && npm run docs:llms"
   },
   "devDependencies": {
     "@eslint/js": "^9.34.0",
@@ -67,6 +79,8 @@
     "prettier": "^3.6.2",
     "tsdown": "^0.14.2",
     "tsx": "^4.20.5",
+    "typedoc": "^0.28.16",
+    "typedoc-plugin-markdown": "^4.9.0",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.40.0",
     "vite": "^7.1.3",

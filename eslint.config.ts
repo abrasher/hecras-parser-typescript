@@ -68,6 +68,6 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ["node_modules/**", "dist/**", "*.backup.*"],
+    ignores: ["node_modules/**", "dist/**", "*.backup.*", ".claude/**"],
   },
 )

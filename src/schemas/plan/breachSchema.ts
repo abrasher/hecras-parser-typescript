@@ -1,0 +1,165 @@
+import {
+  fields,
+  multiField,
+  numberField,
+  numberPart,
+  schema,
+  stringField,
+  stringPart,
+  tupleArrayField,
+} from "../../schema"
+
+export const breachSchema = schema([
+  multiField(
+    "Breach Loc=",
+    fields({
+      breachLoc1: stringPart({ trim: true, width: 16 }),
+      breachLoc2: stringPart({ trim: true, width: 16 }),
+      breachLoc3: stringPart({ trim: true, width: 8 }),
+      breachLoc4: stringPart({ trim: true }),
+      breachLoc5: stringPart({ trim: true, width: 16 }),
+    }),
+  ),
+  numberField("breachMethod", "Breach Method=", { integer: true, pad: true }),
+  multiField(
+    "Breach Geom=",
+    fields({
+      breachGeom1: numberPart(),
+      breachGeom2: numberPart(),
+      breachGeom3: numberPart(),
+      breachGeom4: numberPart(),
+      breachGeom5: numberPart(),
+      breachGeom6: stringPart({ trim: true }),
+      breachGeom7: numberPart(),
+      breachGeom8: numberPart(),
+      breachGeom9: numberPart(),
+      breachGeom10: numberPart(),
+    }),
+  ),
+  multiField(
+    "Breach Start=",
+    fields({
+      breachStart1: stringPart({ trim: true }),
+      breachStart2: numberPart({ nullOnBlank: true }),
+      breachStart3: stringPart({ trim: true }),
+      breachStart4: stringPart({ trim: true }),
+      breachStart5: stringPart({ trim: true }),
+      breachStart6: stringPart({ trim: true }),
+      breachStart7: stringPart({ trim: true }),
+      breachStart8: numberPart({ nullOnBlank: true }),
+    }),
+  ),
+  tupleArrayField("Breach Progression=", "breachProgression", {
+    width: 8,
+    maxWidth: 80,
+    tuple: 2,
+    formatter: "station",
+    pad: true,
+  }),
+  tupleArrayField(
+    "Simplified Physical Breach Downcutting=",
+    "simplifiedPhysicalBreachDowncutting",
+    {
+      width: 8,
+      maxWidth: 80,
+      tuple: 2,
+      formatter: "station",
+      pad: true,
+    },
+  ),
+  tupleArrayField("Simplified Physical Breach Widening=", "simplifiedPhysicalBreachWidening", {
+    width: 8,
+    maxWidth: 80,
+    tuple: 2,
+    formatter: "station",
+    pad: true,
+  }),
+  numberField("startingNotchDepth", "Starting Notch Depth=", { pad: true, optional: true }),
+  numberField("initialPipingDiameter", "Initial Piping Diameter=", { pad: true, optional: true }),
+  numberField("massWastingOptions", "Mass Wasting Options=", { integer: true, pad: true }),
+  numberField("massWastingWidth", "Mass Wasting Width=", { pad: true, optional: true }),
+  numberField("massWastingDuration", "Mass Wasting Duration=", { pad: true, optional: true }),
+  numberField("massWastingFinalBottomElevation", "Mass Wasting Final Bottom Elevation=", {
+    pad: true,
+    optional: true,
+  }),
+  numberField("breachUseUserDefinedGrowthRatio", "Breach Use User Defined Growth Ratio=", {
+    integer: true,
+    optional: true,
+  }),
+  numberField("breachUserDefinedGrowthRatio", "Breach User Defined Growth Ratio=", {
+    optional: true,
+  }),
+  stringField("breachCalculatorData", "Breach Calculator Data=", { trim: true, optional: true }),
+  // TODO: Parse as structured data when spacing requirements are clear
+  // multiField(
+  //   "Breach Calculator Data=",
+  //   fields({
+  //     breachCalc1: numberPart(),
+  //     breachCalc2: numberPart(),
+  //     breachCalc3: numberPart(),
+  //     breachCalc4: numberPart(),
+  //     breachCalc5: numberPart(),
+  //     breachCalc6: numberPart(),
+  //     breachCalc7: numberPart(),
+  //     breachCalc8: numberPart({ integer: true, width: 2 }),
+  //     breachCalc9: numberPart({ integer: true, width: 2 }),
+  //     breachCalc10: numberPart({ integer: true, width: 2 }),
+  //     breachCalc11: numberPart({ integer: true, width: 2 }),
+  //   }),
+  //   { optional: true },
+  // ),
+
+  // DL (Dam & Levee) Breach parameters (optional)
+  multiField(
+    "DLBreach Methods=",
+    fields({
+      dlBreachMethod1: numberPart(),
+      dlBreachMethod2: numberPart(),
+    }),
+    { optional: true },
+  ),
+  numberField("dlBreachSoilType", "DLBreach SoilType=", { integer: true, optional: true }),
+  stringField("dlBreachSoilProperties", "DLBreach Soil Properties=", { trim: true, optional: true }),
+  // TODO: Parse as structured data when spacing requirements are clear
+  // multiField(
+  //   "DLBreach Soil Properties=",
+  //   fields({
+  //     dlBreachSoilProp1: stringPart({ trim: true }),
+  //     dlBreachSoilProp2: stringPart({ trim: true }),
+  //     dlBreachSoilProp3: numberPart({ nullOnBlank: true }),
+  //     dlBreachSoilProp4: stringPart({ trim: true }),
+  //     dlBreachSoilProp5: stringPart({ trim: true }),
+  //     dlBreachSoilProp6: stringPart({ trim: true }),
+  //     dlBreachSoilProp7: numberPart({ integer: true, nullOnBlank: true, width: 2 }),
+  //     dlBreachSoilProp8: numberPart({ nullOnBlank: true, pad: true }),
+  //     dlBreachSoilProp9: numberPart({ nullOnBlank: true, pad: true }),
+  //   }),
+  //   { optional: true },
+  // ),
+  numberField("dlBreachCoreSoilType", "DLBreach Core SoilType=", { integer: true, optional: true }),
+  numberField("dlBreachCoverOption", "DLBreach Cover Option=", { integer: true, optional: true }),
+  stringField("dlBreachCoverSoilProperties", "DLBreach Cover Soil Properties=", {
+    trim: true,
+    optional: true,
+  }),
+  // TODO: Parse as structured data when spacing requirements are clear
+  // multiField(
+  //   "DLBreach Cover Soil Properties=",
+  //   fields({
+  //     dlBreachCoverProp1: stringPart({ trim: true }),
+  //     dlBreachCoverProp2: stringPart({ trim: true }),
+  //     dlBreachCoverProp3: numberPart({ nullOnBlank: true }),
+  //     dlBreachCoverProp4: stringPart({ trim: true }),
+  //     dlBreachCoverProp5: stringPart({ trim: true }),
+  //     dlBreachCoverProp6: stringPart({ trim: true }),
+  //     dlBreachCoverProp7: numberPart({ nullOnBlank: true, pad: true }),
+  //     dlBreachCoverProp8: numberPart({ nullOnBlank: true, pad: true }),
+  //   }),
+  //   { optional: true },
+  // ),
+  numberField("dlBreachBreachDirection", "DLBreach Breach Direction=", {
+    integer: true,
+    optional: true,
+  }),
+])

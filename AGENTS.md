@@ -172,8 +172,47 @@ Utilities to know:
 - Stream node: `src/schemas/geometry/streamNodeSchema.ts`
 - DSL core: `src/schema/core.ts`, `src/schema/combinators.ts`, `src/schema/driver.ts`, `src/schema/parts.ts`, `src/schema/serializationUtils.ts`
 
+## Regression Testing
+
+**IMPORTANT:** All changes to parsing/serialization must not regress geometry comparison results.
+
+The project includes an automated regression prevention system. See `scripts/README-regression-testing.md` for full details.
+
+**Commands:**
+- `npm run baseline:capture` - Capture baseline from main branch
+- `npm run check:regression` - Check for regression vs baseline
+- `npm run compare:geometries` - Run full geometry comparison
+
+**CI Integration:**
+- Every PR automatically captures baseline from `origin/main`
+- Runs regression check in `--strict` mode
+- Blocks merge if regression detected
+
+**What counts as regression:**
+- Fewer geometry files matched
+- Fewer lines matched before first difference
+- Difference occurs earlier in a failing line
+- New parsing errors introduced
+
+**What's allowed:**
+- ✅ Improvements (more files/lines matched)
+- ✅ No change (same result as baseline)
+- ✅ Unrelated refactoring that doesn't affect parsing
+
+**Key insight:** The system always compares to `main` branch baseline, not just the previous commit. This prevents the scenario where:
+1. Commit A regresses
+2. Commit B improves over A but is still worse than baseline
+3. Without baseline comparison, B would incorrectly appear as progress
+
+**When making changes:**
+1. Capture baseline before starting: `npm run baseline:capture`
+2. Make your changes
+3. Check for regression: `npm run check:regression`
+4. If regression detected, fix it before creating PR
+5. CI will verify on PR creation
+
 ## If Blocked
 
-- Capture the issue under “Decisions & Risks” in `docs/hecras-parsing-format-specification.md` with a minimal reproducible snippet.
+- Capture the issue under "Decisions & Risks" in `docs/hecras-parsing-format-specification.md` with a minimal reproducible snippet.
 - Prefer `contextual` hooks to bridge format edge cases without bypassing the schema DSL.
 - Ask for a quick design check in PR notes when introducing a new pattern or serializer rule.

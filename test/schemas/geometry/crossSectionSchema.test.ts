@@ -52,6 +52,98 @@ describe("crossSectionSchema", () => {
       canonicalCrossSectionLines.some((line) => line.startsWith("#Block Obstruct=")),
     ).toBe(false)
   })
+
+  it("parses and serializes Exp/Cntr(USF) field", () => {
+    const linesWithUSF = [
+      "Type RM Length L Ch R = 1 ,2630    ,,,",
+      "#Sta/Elev= 2 ",
+      "       0  260.00       1  260.00",
+      "#Mann= 1 ,-1,0",
+      "       0     .035       0",
+      "Bank Sta=0,1",
+      "XS Rating Curve= 0 ,0",
+      "XS HTab Starting El and Incr=259.495,0.06, 20 ",
+      "XS HTab Horizontal Distribution= 5 , 5 , 5 ",
+      "Exp/Cntr(USF)=0,0",
+      "Exp/Cntr=0.5,0.3",
+      "",
+    ]
+
+    const parsed = parseWithSchema(crossSectionSchema, linesWithUSF, 0)
+    expect(parsed.value.expansionCoefficientUSF).toBe(0)
+    expect(parsed.value.contractionCoefficientUSF).toBe(0)
+    expect(parsed.value.expansionCoefficient).toBe(0.5)
+    expect(parsed.value.contractionCoefficient).toBe(0.3)
+
+    const serialized = serializeWithSchema(crossSectionSchema, parsed.value)
+    expect(serialized).toContain("Exp/Cntr(USF)=0,0")
+    expect(serialized).toContain("Exp/Cntr=0.5,0.3")
+
+    // Round-trip test
+    const reparsed = parseWithSchema(crossSectionSchema, serialized, 0)
+    expect(reparsed.value.expansionCoefficientUSF).toBe(0)
+    expect(reparsed.value.contractionCoefficientUSF).toBe(0)
+    expect(reparsed.value.expansionCoefficient).toBe(0.5)
+    expect(reparsed.value.contractionCoefficient).toBe(0.3)
+  })
+
+  it("parses and serializes Levee field with blank values", () => {
+    // Actual example from Dingman-1D.g06:61710-61806
+    const linesWithLevee = [
+      "Type RM Length L Ch R = 1 ,228     ,72.3,72.3,72.3",
+      "#Sta/Elev= 5 ",
+      "       0  254.95    10.1  254.97   126.3  253.87 182.831 254.001   199.6 252.972",
+      "#Mann= 3 ,0,0",
+      "       0    .045       0 187.766    .035       0   199.6    .045       0",
+      "Levee=-1,182.83,254,0,,,0,0",
+      "#XS Ineff= 1 ,-1 ",
+      "   126.3  182.83     254",
+      "Permanent Ineff=",
+      "       F",
+      "Bank Sta=187.766,199.6",
+      "XS Rating Curve= 0 ,0",
+      "XS HTab Starting El and Incr=252.448,0.3, 27 ",
+      "XS HTab Horizontal Distribution= 5 , 5 , 5 ",
+      "Exp/Cntr=0.3,0.1",
+      "",
+    ]
+
+    const parsed = parseWithSchema(crossSectionSchema, linesWithLevee, 0)
+
+    // Verify levee field is parsed correctly
+    // Format: Levee=-1,182.83,254,0,,,0,0
+    // Segments: enabled, leftStation, leftElevation, leftSide, rightStation(blank), rightElevation(blank), rightSide, additionalParam
+    expect(parsed.value.leveeEnabled).toBe(true) // -1 = true in -1,0 mode
+    expect(parsed.value.leftStation).toBe(182.83)
+    expect(parsed.value.leftElevation).toBe(254)
+    expect(parsed.value.leftSide).toBe(0)
+    expect(parsed.value.rightStation).toBe(null) // blank value
+    expect(parsed.value.rightElevation).toBe(null) // blank value
+    expect(parsed.value.rightSide).toBe(0)
+    expect(parsed.value.additionalParam).toBe(0)
+
+    // Verify other fields
+    expect(parsed.value.type).toBe(1)
+    expect(parsed.value.riverMile).toBe("228")
+    expect(parsed.value.leftBankStation).toBe(187.766)
+    expect(parsed.value.rightBankStation).toBe(199.6)
+
+    const serialized = serializeWithSchema(crossSectionSchema, parsed.value)
+
+    // Verify the Levee line is serialized with exact format including blank values
+    expect(serialized).toContain("Levee=-1,182.83,254,0,,,0,0")
+
+    // Round-trip test
+    const reparsed = parseWithSchema(crossSectionSchema, serialized, 0)
+    expect(reparsed.value.leveeEnabled).toBe(true)
+    expect(reparsed.value.leftStation).toBe(182.83)
+    expect(reparsed.value.leftElevation).toBe(254)
+    expect(reparsed.value.leftSide).toBe(0)
+    expect(reparsed.value.rightStation).toBe(null)
+    expect(reparsed.value.rightElevation).toBe(null)
+    expect(reparsed.value.rightSide).toBe(0)
+    expect(reparsed.value.additionalParam).toBe(0)
+  })
 })
 
 const expectedCrossSection: CrossSectionSchema = {

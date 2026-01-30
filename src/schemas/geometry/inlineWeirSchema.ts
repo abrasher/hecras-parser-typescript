@@ -9,15 +9,117 @@ import {
   stringPart,
   booleanPart,
   type Infer,
+  type Part,
   stringField,
   blankLine,
   textBlockField,
   contextual,
+  repeat,
+  startsWith,
 } from "../../schema"
 import { parseCommaSeparated, parseMaybeFloat, parseMaybeInt } from "../../schema/parsingUtils"
 import { formatBoolean, formatCommaSeparated } from "../../schema/serializationUtils"
 
 const typePart = numberPart({ integer: true, pad: true })
+
+// Custom part for integers with space padding: " 3 " or " 15 "
+const spacePaddedIntPart = (): Part<number> => ({
+  parse: (segment) => {
+    const trimmed = segment.trim()
+    return trimmed === "" ? 0 : parseInt(trimmed, 10)
+  },
+  serialize: (value) => ` ${value} `,
+})
+
+// Gate opening schema - each gate has multiple openings
+const gateOpeningSchema = schema([
+  multiField(
+    "IW Gate Opening=",
+    fields({
+      openingNumber: numberPart({ integer: true }),
+      openingName: stringPart({ trim: true }),
+      openingValue: numberPart(),
+    }),
+  ),
+])
+
+// Gate schema - uses multiField for the data line
+const gateSchema = schema([
+  // Header line (implicit - recognized by repeat's startsWith)
+  contextual(
+    "gateHeader",
+    (lines, startIndex) => {
+      const headerLine = lines[startIndex]
+      if (!headerLine?.startsWith("IW Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings")) {
+        return null
+      }
+      return {
+        value: null,
+        nextIndex: startIndex + 1,
+      }
+    },
+    () => ["IW Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings"],
+  ),
+
+  // Gate data line with comma-separated fields
+  multiField(
+    "",
+    fields({
+      gateName: stringPart({ trim: true, width: 12 }),
+      width: numberPart(),
+      height: numberPart(),
+      invert: numberPart(),
+      gateCoefficient: numberPart(),
+      expT: numberPart(),
+      expO: numberPart(),
+      expH: numberPart(),
+      type: spacePaddedIntPart(),
+      weirCoefficient: numberPart(),
+      isOgee: spacePaddedIntPart(),
+      spillHeight: numberPart({ nullOnBlank: true }),
+      designHead: numberPart({ nullOnBlank: true }),
+      numberOfOpenings: spacePaddedIntPart(),
+      param14: numberPart(),
+      param15: numberPart(),
+      param16: spacePaddedIntPart(),
+      param17: numberPart(),
+      param18: numberPart({ nullOnBlank: true }),
+      param19: numberPart(),
+      param20: numberPart(),
+      param21: numberPart(),
+      param22: spacePaddedIntPart(),
+    }),
+  ),
+
+  // Station positions (count determined by numberOfOpenings)
+  contextual(
+    "stations",
+    (lines, startIndex) => {
+      const stationLine = lines[startIndex]
+      if (!stationLine || stationLine.trim() === "") {
+        return null
+      }
+
+      const stations: number[] = []
+      const stationParts = stationLine.trim().split(/\s+/)
+      for (const part of stationParts) {
+        const val = parseMaybeFloat(part)
+        if (val !== null) stations.push(val)
+      }
+
+      return {
+        value: stations,
+        nextIndex: startIndex + 1,
+      }
+    },
+    (stations) => {
+      if (!stations || stations.length === 0) return []
+      return [stations.map(s => s.toString().padStart(8)).join("")]
+    },
+  ),
+
+  repeat("openings", startsWith("IW Gate Opening="), gateOpeningSchema),
+])
 
 export const inlineWeirSchema = schema([
   multiField(
@@ -64,7 +166,7 @@ export const inlineWeirSchema = schema([
       return {
         value: {
           distance: parseMaybeInt(parts[0]) ?? 0,
-          weirWidth: parseMaybeInt(parts[1]) ?? 0,
+          weirWidth: parseMaybeFloat(parts[1]) ?? 0,
           weirCoefficient: parseMaybeFloat(parts[2]) ?? 0,
           skew: parseMaybeInt(parts[3]) ?? 0,
           maxSubmergence: parseMaybeFloat(parts[4]) ?? 0,
@@ -103,6 +205,7 @@ export const inlineWeirSchema = schema([
       ]
     },
   ),
+  repeat("gates", startsWith("IW Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings"), gateSchema),
   numberField("flapGateCount", "Inline Weir Flap Gates=", { integer: true, pad: true }),
   multiField(
     "IW Outlet Rating Curve=",

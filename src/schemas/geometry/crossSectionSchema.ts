@@ -63,6 +63,23 @@ export const crossSectionSchema = schema([
     tuple: 3 as const,
     formatter: "station",
   }),
+  // TODO: Levee field names are inferred and need manual verification against HEC-RAS documentation
+  // Format example from Dingman-1D.g06: Levee=-1,182.83,254,0,,,0,0
+  // Current interpretation: enabled, leftStation, leftElevation, leftSide, rightStation(blank), rightElevation(blank), rightSide, additionalParam
+  multiField(
+    "Levee=",
+    fields({
+      leveeEnabled: booleanPart({ mode: "-1,0" }), // -1 = enabled
+      leftStation: numberPart({ nullOnBlank: true }), // 182.83
+      leftElevation: numberPart({ integer: true, nullOnBlank: true }), // 254
+      leftSide: numberPart({ integer: true, nullOnBlank: true }), // 0 - purpose unknown
+      rightStation: numberPart({ nullOnBlank: true }), // blank in example
+      rightElevation: numberPart({ integer: true, nullOnBlank: true }), // blank in example
+      rightSide: numberPart({ integer: true, nullOnBlank: true }), // 0 - purpose unknown
+      additionalParam: numberPart({ integer: true, nullOnBlank: true }), // 0 - purpose unknown
+    }),
+    { optional: true },
+  ),
 
   multiField(
     "#XS Ineff=",
@@ -187,6 +204,14 @@ export const crossSectionSchema = schema([
     { optional: true },
   ),
   numberField("skewAngle", "Skew Angle=", { optional: true, pad: true }),
+  multiField(
+    "Exp/Cntr(USF)=",
+    fields({
+      expansionCoefficientUSF: numberPart(),
+      contractionCoefficientUSF: numberPart(),
+    }),
+    { optional: true },
+  ),
   multiField(
     "Exp/Cntr=",
     fields({
