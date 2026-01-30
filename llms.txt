@@ -1,0 +1,21 @@
+# hecras-parser
+
+> TypeScript library for parsing and serializing HEC-RAS geometry (.gXX) and plan (.pXX) files with round-trip fidelity. Targets HEC-RAS 6.6 format.
+
+Key characteristics:
+- Schema-first architecture: parse then serialize produces identical output
+- Full TypeScript inference from schema definitions
+- Preserves formatting, spacing, and blank values exactly
+- AGPL-3.0-or-later licensed
+
+## Docs
+
+- [API Reference](./docs/api/index.md): Installation, quick start, and core functions
+- [Geometry Guide](./docs/api/geometry.md): Working with geometry files (rivers, cross sections, storage areas)
+- [Plan Guide](./docs/api/plan.md): Working with plan files (simulation settings, solver configuration)
+- [Type Reference](./docs/api/generated/types.md): Complete TypeScript type definitions (auto-generated)
+
+## Optional
+
+- [Schema DSL](./docs/internal/schema-dsl.md): For contributors extending the parser with new HEC-RAS sections
+- [Extending Guide](./docs/internal/extending.md): Step-by-step guide to adding new schemas

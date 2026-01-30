@@ -102,11 +102,8 @@ export function numberPart(options?: NumberPartOptions): Part<number> | Part<num
           serialized = numeric.toExponential()
         }
 
-        // Convert lowercase 'e' to uppercase 'E' and pad exponent to match HEC-RAS format
-        if (serialized.includes("e")) {
-          serialized = serialized.replace(/e([+-])(\d)$/, "E$10$2")
-          serialized = serialized.replace("e", "E")
-        }
+        // Keep JavaScript's scientific notation formatting for non-Infinity values.
+        // (Infinity uses the explicit HEC-RAS sentinel string above.)
       }
 
       if (width !== undefined) {
