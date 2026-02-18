@@ -1,11 +1,5 @@
 import { describe, expect, it } from "vitest"
-import {
-  booleanPart,
-  durationPart,
-  numberPart,
-  opt,
-  stringPart,
-} from "../../src/schema"
+import { booleanPart, durationPart, numberPart, opt, stringPart } from "../../src/schema"
 
 describe("schema parts", () => {
   it("parses and serializes string parts with trimming and width", () => {
@@ -40,7 +34,10 @@ describe("schema parts", () => {
     const part = numberPart()
 
     // Test automatic scientific notation for numbers with 16+ digits before decimal
-    expect(part.serialize(1234567890123456)).toBe("1.234567890123456e+15")
+    expect(part.serialize(1234567890123456)).toBe("1.234567890123456E+15")
+
+    // Small numbers should also keep HEC-RAS-style scientific notation
+    expect(part.serialize(1e-8)).toBe("1E-08")
 
     // Test normal formatting for numbers with <16 digits before decimal
     expect(part.serialize(123456789012345)).toBe("123456789012345")

@@ -287,19 +287,19 @@ export const lateralWeirSchema = schema([
         gate.expH?.toString() ?? "",
         ` ${gate.type?.toString() ?? ""} `,
         gate.wCoef?.toString() ?? "",
-        formatBoolean(gate.isOgee, "10", true),
+        formatBoolean(gate.isOgee, "-1,0", true),
         gate.spillwayHeight?.toString() ?? "",
         gate.designHead?.toString() ?? "",
         ` ${gate.gateOpenings?.length?.toString() ?? ""} `,
         gate.unknown1?.toString() ?? "",
         gate.unknown2?.toString() ?? "",
-        formatBoolean(gate.unknown3, "10", true),
+        formatBoolean(gate.unknown3, "-1,0", true),
         gate.unknown4?.toString() ?? "",
         gate.unknown5?.toString() ?? "",
         gate.unknown6?.toString() ?? "",
         gate.unknown7?.toString() ?? "",
         gate.unknown8?.toString() ?? "",
-        formatBoolean(gate.unknown9, "10", true),
+        formatBoolean(gate.unknown9, "-1,0", true),
       ]
 
       const lines: string[] = [gateHeader, formatCommaSeparated([...baseSegments])]
@@ -329,7 +329,7 @@ export const lateralWeirSchema = schema([
 
       openings.forEach((opening) => {
         lines.push(
-          `${gateOpeningPrefix}${opening.id},${opening.name},${formatBoolean(opening.gateFlag, "10", false)}`,
+          `${gateOpeningPrefix}${opening.id},${opening.name},${formatBoolean(opening.gateFlag, "-1,0", false)}`,
         )
       })
 

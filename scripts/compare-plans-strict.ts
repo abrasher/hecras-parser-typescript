@@ -56,7 +56,7 @@ function pointerLine(diffIndex: number) {
   return `  ${colors.yellow(" ".repeat(diffIndex) + "^")}`
 }
 
-type SkipReason = "legacy_version" | "previous_failure"
+type SkipReason = "legacy_version" | "version_too_old" | "previous_failure"
 
 type FileRunResult = {
   file: string

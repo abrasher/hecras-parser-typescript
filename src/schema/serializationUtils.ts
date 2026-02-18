@@ -40,21 +40,28 @@ export function formatCommaSeparated(values: readonly (string | number)[]): stri
 /**
  * Format boolean values using HEC-RAS conventions
  * @param value Boolean value to format
- * @param mode Format mode: "TF" | "10" | "trueFalse" | "enableDisable"
- * @param extraSpaceBeforeZero For "10" mode, adds extra space before "0" (default: true)
+ * @param mode Format mode: "TF" | "10" | "-1,0" | "trueFalse" | "enableDisable"
+ * @param padNumericMode For numeric modes, pad as " <value> " (default: true)
  * @returns Formatted boolean string
  */
 export function formatBoolean(
   value: boolean,
-  mode: "TF" | "10" | "trueFalse" | "enableDisable" = "10",
-  extraSpaceBeforeZero: boolean = true,
+  mode: "TF" | "10" | "-1,0" | "trueFalse" | "enableDisable" = "10",
+  padNumericMode: boolean = true,
 ): string {
   switch (mode) {
     case "TF":
       return value ? "T" : "F"
     case "10":
-      if (value) return "-1 "
-      return extraSpaceBeforeZero ? " 0 " : "0"
+      if (padNumericMode) {
+        return value ? " 1 " : " 0 "
+      }
+      return value ? "1" : "0"
+    case "-1,0":
+      if (padNumericMode) {
+        return value ? "-1 " : " 0 "
+      }
+      return value ? "-1" : "0"
     case "trueFalse":
       return value ? "True" : "False"
     case "enableDisable":

@@ -1,13 +1,4 @@
-import {
-  contextual,
-  fields,
-  multiField,
-  numberField,
-  numberPart,
-  schema,
-  stringField,
-  stringPart,
-} from "../../schema"
+import { contextual, numberField, schema, stringField } from "../../schema"
 
 export const dredgeEventSchema = schema([
   stringField("year", "Dredge Event=", { trim: true }),
@@ -93,7 +84,9 @@ export const dredgeEventSchema = schema([
       for (const reach of value) {
         lines.push(`Dredge River Reach=${reach.river},${reach.reach}`)
         for (const station of reach.stations) {
-          lines.push(`Dredge RS=${station.rs},${station.value1},${station.value2},${station.value3}`)
+          lines.push(
+            `Dredge RS=${station.rs},${station.value1},${station.value2},${station.value3}`,
+          )
         }
       }
       return lines

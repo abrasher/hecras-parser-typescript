@@ -42,6 +42,9 @@
   "scripts": {
     "dev": "tsdown --watch",
     "build": "tsdown",
+    "typecheck": "npm run typecheck:lib && npm run typecheck:scripts",
+    "typecheck:lib": "tsc --noEmit -p tsconfig.json",
+    "typecheck:scripts": "tsc --noEmit -p tsconfig.scripts.json",
     "test": "vitest run",
     "test:typecheck": "vitest --typecheck",
     "format": "prettier --write .",

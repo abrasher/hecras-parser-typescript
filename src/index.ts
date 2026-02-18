@@ -4,7 +4,7 @@
  * @packageDocumentation
  *
  * @remarks
- * This library provides functions to parse and serialize HEC-RAS geometry (.gXX) and plan (.pXX) files.
+ * This library provides functions to parse and serialize HEC-RAS geometry (.gXX), plan (.pXX), steady flow (.fXX), and unsteady flow (.uXX) files.
  * It uses a schema-first architecture that ensures round-trip fidelity: parsing a file and serializing
  * it back produces identical output, preserving formatting, spacing, and blank values exactly.
  *
@@ -36,13 +36,17 @@ export type * from "./models/unsteadyFlow"
 export { parseWithSchema, serializeWithSchema } from "./schema/driver"
 export { planSchema } from "./schemas/planSchema"
 export { geometrySchema } from "./schemas/geometrySchema"
+export { steadyFlowSchema } from "./schemas/steadyFlowSchema"
+export { unsteadyFlowSchema } from "./schemas/unsteadyFlowSchema"
 export type { Infer } from "./schema/core"
 
 // Types
 import { parseWithSchema, serializeWithSchema } from "./schema/driver"
 import { planSchema } from "./schemas/planSchema"
 import { geometrySchema } from "./schemas/geometrySchema"
-import type { Infer } from "./schema/core"
+import { steadyFlowSchema } from "./schemas/steadyFlowSchema"
+import { unsteadyFlowSchema } from "./schemas/unsteadyFlowSchema"
+import type { Infer, SchemaDef } from "./schema/core"
 
 /**
  * Parsed HEC-RAS plan file data structure.
@@ -69,6 +73,22 @@ export type Plan = Infer<typeof planSchema>
 export type Geometry = Infer<typeof geometrySchema>
 
 /**
+ * Parsed HEC-RAS steady flow file data structure.
+ *
+ * @see {@link parseSteadyFlow} to parse a steady flow file into this type
+ * @see {@link serializeSteadyFlow} to serialize this type back to a string
+ */
+export type SteadyFlow = Infer<typeof steadyFlowSchema>
+
+/**
+ * Parsed HEC-RAS unsteady flow file data structure.
+ *
+ * @see {@link parseUnsteadyFlow} to parse an unsteady flow file into this type
+ * @see {@link serializeUnsteadyFlow} to serialize this type back to a string
+ */
+export type UnsteadyFlow = Infer<typeof unsteadyFlowSchema>
+
+/**
  * Line ending style for serialized output.
  *
  * @remarks
@@ -93,7 +113,55 @@ export interface SerializeOptions {
   lineEndings?: LineEndings
 }
 
+/**
+ * Options for parsing HEC-RAS file content.
+ */
+export interface ParseOptions {
+  /**
+   * Enables strict schema parsing behavior.
+   *
+   * @defaultValue `false`
+   */
+  strict?: boolean
+
+  /**
+   * Requires parsing to consume all non-blank trailing lines.
+   *
+   * @defaultValue `true`
+   */
+  requireFullParse?: boolean
+}
+
 const DEFAULT_LINE_ENDINGS: LineEndings = "\r\n"
+const DEFAULT_REQUIRE_FULL_PARSE = true
+
+function parseWithFullConsumption<const Def extends SchemaDef>(
+  schema: Def,
+  content: string,
+  fileType: string,
+  options?: ParseOptions,
+): Infer<Def> {
+  const normalized = content.replace(/\r\n/g, "\n")
+  const lines = normalized.split("\n")
+  const { value, nextIndex } = parseWithSchema(schema, lines, 0, {
+    strict: options?.strict,
+  })
+
+  const requireFullParse = options?.requireFullParse ?? DEFAULT_REQUIRE_FULL_PARSE
+  if (requireFullParse) {
+    for (let i = nextIndex; i < lines.length; i++) {
+      const line = lines[i]
+      if (line.trim() === "") {
+        continue
+      }
+      throw new Error(
+        `Unparsed trailing content in ${fileType} file at line ${i + 1}: ${JSON.stringify(line)}`,
+      )
+    }
+  }
+
+  return value
+}
 
 // ============================================================================
 // Plan Files (.pXX)
@@ -145,11 +213,8 @@ const DEFAULT_LINE_ENDINGS: LineEndings = "\r\n"
  * // serialized will match original (with \r\n line endings)
  * ```
  */
-export function parsePlan(content: string): Plan {
-  const normalized = content.replace(/\r\n/g, "\n")
-  const lines = normalized.split("\n")
-  const { value } = parseWithSchema(planSchema, lines, 0)
-  return value
+export function parsePlan(content: string, options?: ParseOptions): Plan {
+  return parseWithFullConsumption(planSchema, content, "plan", options)
 }
 
 /**
@@ -255,11 +320,8 @@ export function serializePlan(plan: Plan, options?: SerializeOptions): string {
  * }
  * ```
  */
-export function parseGeometry(content: string): Geometry {
-  const normalized = content.replace(/\r\n/g, "\n")
-  const lines = normalized.split("\n")
-  const { value } = parseWithSchema(geometrySchema, lines, 0)
-  return value
+export function parseGeometry(content: string, options?: ParseOptions): Geometry {
+  return parseWithFullConsumption(geometrySchema, content, "geometry", options)
 }
 
 /**
@@ -309,5 +371,62 @@ export function parseGeometry(content: string): Geometry {
 export function serializeGeometry(geometry: Geometry, options?: SerializeOptions): string {
   const lineEndings = options?.lineEndings ?? DEFAULT_LINE_ENDINGS
   const lines = serializeWithSchema(geometrySchema, geometry)
+  return lines.join(lineEndings)
+}
+
+// ============================================================================
+// Steady Flow Files (.fXX)
+// ============================================================================
+
+/**
+ * Parses a HEC-RAS steady flow file (.fXX) into a structured object.
+ *
+ * @param content - The raw text content of the steady flow file
+ * @returns The parsed steady flow data structure
+ */
+export function parseSteadyFlow(content: string, options?: ParseOptions): SteadyFlow {
+  return parseWithFullConsumption(steadyFlowSchema, content, "steady flow", options)
+}
+
+/**
+ * Serializes a steady flow data structure back to HEC-RAS steady flow format.
+ *
+ * @param steadyFlow - The steady flow data structure to serialize
+ * @param options - Serialization options (line endings, etc.)
+ * @returns The serialized steady flow file content as a string
+ */
+export function serializeSteadyFlow(steadyFlow: SteadyFlow, options?: SerializeOptions): string {
+  const lineEndings = options?.lineEndings ?? DEFAULT_LINE_ENDINGS
+  const lines = serializeWithSchema(steadyFlowSchema, steadyFlow)
+  return lines.join(lineEndings)
+}
+
+// ============================================================================
+// Unsteady Flow Files (.uXX)
+// ============================================================================
+
+/**
+ * Parses a HEC-RAS unsteady flow file (.uXX) into a structured object.
+ *
+ * @param content - The raw text content of the unsteady flow file
+ * @returns The parsed unsteady flow data structure
+ */
+export function parseUnsteadyFlow(content: string, options?: ParseOptions): UnsteadyFlow {
+  return parseWithFullConsumption(unsteadyFlowSchema, content, "unsteady flow", options)
+}
+
+/**
+ * Serializes an unsteady flow data structure back to HEC-RAS unsteady flow format.
+ *
+ * @param unsteadyFlow - The unsteady flow data structure to serialize
+ * @param options - Serialization options (line endings, etc.)
+ * @returns The serialized unsteady flow file content as a string
+ */
+export function serializeUnsteadyFlow(
+  unsteadyFlow: UnsteadyFlow,
+  options?: SerializeOptions,
+): string {
+  const lineEndings = options?.lineEndings ?? DEFAULT_LINE_ENDINGS
+  const lines = serializeWithSchema(unsteadyFlowSchema, unsteadyFlow)
   return lines.join(lineEndings)
 }

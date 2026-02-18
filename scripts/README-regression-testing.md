@@ -17,70 +17,86 @@ The regression testing system ensures that changes to the parser/serializer don'
 The baseline represents the "good" state from the `main` branch that we compare against.
 
 **Capture baseline manually:**
+
 ```bash
 npm run baseline:capture
 ```
 
 **What it does:**
+
 1. Stashes your current changes
 2. Checks out `main` branch
 3. Runs `compare-geometries.ts`
-4. Saves the metrics to `.baseline-metrics.json`
+4. Saves the metrics to `scripts/.baseline-metrics.json`
 5. Returns to your original branch
 6. Restores your stashed changes
 
 **When to capture:**
-- When starting work on a new feature branch
-- CI automatically captures it on every PR
+
+- When starting parser/serializer work on a feature branch
+- When `main` has moved and your local baseline is stale
 
 ### 2. Regression Check
 
 Compares your current branch against the baseline.
 
 **Run regression check:**
+
 ```bash
 npm run check:regression
 ```
 
 **Exit codes:**
+
 - `0` - ✅ No regression (same or better than baseline)
 - `1` - ❌ Regression detected (worse than baseline)
-- `2` - ⚠️  No baseline found (only with `--strict` flag)
+- `2` - ⚠️ No baseline found (only with `--strict` flag)
 
 **With strict mode (fail if no baseline):**
+
 ```bash
 npm run check:regression -- --strict
 ```
 
 ### 3. CI/CD Integration
 
-On pull requests, GitHub Actions:
-1. Captures baseline from `origin/main`
-2. Runs regression check in strict mode
-3. Blocks merge if regression detected
+Current GitHub Actions CI (`.github/workflows/ci.yml`) runs:
+
+1. `npm run lint`
+2. `npm run typecheck`
+3. `npm run test`
+4. `npm run build`
+
+Regression scripts are currently **not** executed automatically in CI. Run `npm run baseline:capture` and `npm run check:regression` locally (or in a dedicated workflow) when parser/serializer changes need regression protection.
 
 ## Comparison Logic
 
 The system compares in order of priority:
 
 ### 1. Files Matched Count
+
 - **Better**: More files matched
 - **Worse**: Fewer files matched
 - **Same**: Move to next comparison
 
 ### 2. All Files Matched Status
+
 - **Better**: All files now match (from partial match)
 - **Worse**: New parsing error introduced
 - **Same**: Move to next comparison
 
 ### 3. Lines Matched in Failure
+
 If both fail on the same file:
+
 - **Better**: More lines matched before divergence
 - **Worse**: Fewer lines matched before divergence
 - **Same**: Move to next comparison
 
 ### 4. Character Position in Failure
+
 If both fail on the same line:
+
 - **Better**: Difference occurs later in the line
 - **Worse**: Difference occurs earlier in the line
 - **Same**: No regression (allowed)
@@ -88,6 +104,7 @@ If both fail on the same line:
 ## Examples
 
 ### Example 1: Improvement
+
 ```bash
 $ npm run check:regression
 
@@ -104,6 +121,7 @@ Current: 19/137 files matched (failed)
 ```
 
 ### Example 2: Regression
+
 ```bash
 $ npm run check:regression
 
@@ -123,6 +141,7 @@ Current: 14/137 files matched (failed)
 ```
 
 ### Example 3: No Change (Still Passes)
+
 ```bash
 $ npm run check:regression
 
@@ -168,8 +187,13 @@ The key insight: **Always compares to baseline, not previous commit**.
 - `capture-baseline.ts` - Captures baseline metrics from main branch
 - `check-regression.ts` - Checks current branch against baseline
 - `compare-geometries.ts` - Core comparison script (existing)
-- `.baseline-metrics.json` - Stored baseline (git-ignored, branch-local)
-- `.compare-geometries-history.json` - Run history (git-ignored)
+- `scripts/.baseline-metrics.json` - Stored geometry baseline (currently tracked in this repo)
+- `scripts/.compare-geometries-history.json` - Geometry comparison history (currently tracked in this repo)
+- `scripts/.compare-plans-history.json` - Plan comparison history (currently tracked in this repo)
+- `scripts/.compare-plans-strict-history.json` - Strict plan comparison history (currently tracked in this repo)
+- `scripts/.plan-baseline-metrics.json` - Plan baseline file written by `npm run baseline:capture:plans` (generated when needed)
+
+These files are not gitignored in this repository. If they change, `git status` will report them.
 
 ## Development Workflow
 
@@ -195,7 +219,7 @@ npm run check:regression
 npm run check:regression
 # ✅ NO REGRESSION
 
-# 7. Create PR (CI will verify)
+# 7. Create PR
 git push origin feature/improve-parsing
 ```
 
@@ -207,7 +231,7 @@ Plan files under `test/data/plans` use the exact same workflow with their own he
 - `npm run baseline:capture:plans` – capture the best-known plan metrics from `main`.
 - `npm run check:regression:plans` – ensure current plan changes do not regress the captured baseline (`--strict` is also supported).
 
-These commands read/write `.compare-plans-history.json` and `.plan-baseline-metrics.json` inside `scripts/`, mirroring the geometry tooling.
+These commands read/write `scripts/.compare-plans-history.json` and `scripts/.plan-baseline-metrics.json`, mirroring the geometry tooling.
 
 ### Working Without Baseline
 
@@ -222,13 +246,14 @@ $ npm run check:regression
    Allowing this run to pass (use --strict to fail)
 ```
 
-This allows local development without strict enforcement, but CI uses `--strict` mode.
+This allows local development without strict enforcement. CI currently does not run regression scripts by default.
 
 ## Troubleshooting
 
 ### Baseline seems wrong
 
 Re-capture the baseline:
+
 ```bash
 npm run baseline:capture
 ```
@@ -246,6 +271,7 @@ This is expected! The regression check ensures that **any** changes don't make p
 ### Want to see detailed comparison
 
 Run the compare script directly:
+
 ```bash
 npm run compare:geometries
 ```

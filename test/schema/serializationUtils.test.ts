@@ -34,9 +34,22 @@ describe("serializationUtils", () => {
 
   describe("formatBoolean", () => {
     it("should format boolean in 10 mode (default)", () => {
-      expect(formatBoolean(true)).toBe("-1 ")
+      expect(formatBoolean(true)).toBe(" 1 ")
       expect(formatBoolean(false)).toBe(" 0 ")
       expect(formatBoolean(false, "10", false)).toBe("0")
+      expect(formatBoolean(true, "10", false)).toBe("1")
+    })
+
+    it("should format boolean in -1,0 mode", () => {
+      expect(formatBoolean(true, "-1,0")).toBe("-1 ")
+      expect(formatBoolean(false, "-1,0")).toBe(" 0 ")
+      expect(formatBoolean(true, "-1,0", false)).toBe("-1")
+      expect(formatBoolean(false, "-1,0", false)).toBe("0")
+    })
+
+    it("should keep numeric modes distinct", () => {
+      expect(formatBoolean(true, "10", false)).toBe("1")
+      expect(formatBoolean(true, "-1,0", false)).toBe("-1")
     })
 
     it("should format boolean in TF mode", () => {

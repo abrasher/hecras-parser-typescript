@@ -16,5 +16,6 @@
     "noFallthroughCasesInSwitch": true,
     "verbatimModuleSyntax": true
   },
-  "exclude": ["dist", "node_modules"] // Assuming your TS files are in an 'src' folder
+  "include": ["src/**/*.ts"],
+  "exclude": ["dist", "node_modules", "demo"]
 }

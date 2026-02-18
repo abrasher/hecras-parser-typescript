@@ -50,7 +50,11 @@ const gateSchema = schema([
     "gateHeader",
     (lines, startIndex) => {
       const headerLine = lines[startIndex]
-      if (!headerLine?.startsWith("IW Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings")) {
+      if (
+        !headerLine?.startsWith(
+          "IW Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings",
+        )
+      ) {
         return null
       }
       return {
@@ -58,7 +62,9 @@ const gateSchema = schema([
         nextIndex: startIndex + 1,
       }
     },
-    () => ["IW Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings"],
+    () => [
+      "IW Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings",
+    ],
   ),
 
   // Gate data line with comma-separated fields
@@ -114,7 +120,7 @@ const gateSchema = schema([
     },
     (stations) => {
       if (!stations || stations.length === 0) return []
-      return [stations.map(s => s.toString().padStart(8)).join("")]
+      return [stations.map((s) => s.toString().padStart(8)).join("")]
     },
   ),
 
@@ -191,7 +197,7 @@ export const inlineWeirSchema = schema([
         value.skew.toString(),
         value.maxSubmergence.toString(),
         value.minimumElevation?.toString() ?? "",
-        formatBoolean(value.isOgee, "10", true),
+        formatBoolean(value.isOgee, "-1,0", true),
         value.spillHeight?.toString() ?? "",
         value.designHead?.toString() ?? "",
         value.additionalParam1.toString(),
@@ -205,7 +211,13 @@ export const inlineWeirSchema = schema([
       ]
     },
   ),
-  repeat("gates", startsWith("IW Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings"), gateSchema),
+  repeat(
+    "gates",
+    startsWith(
+      "IW Gate Name Wd,H,Inv,GCoef,Exp_T,Exp_O,Exp_H,Type,WCoef,Is_Ogee,SpillHt,DesHd,#Openings",
+    ),
+    gateSchema,
+  ),
   numberField("flapGateCount", "Inline Weir Flap Gates=", { integer: true, pad: true }),
   multiField(
     "IW Outlet Rating Curve=",

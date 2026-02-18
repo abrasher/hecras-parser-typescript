@@ -31,31 +31,31 @@ Optional/blank semantics to preserve round-trip fidelity:
 
 Below are concrete patterns we’ve adopted across real sections. Use these as reference for new work.
 
-1) Boundary Condition Lines (`src/schemas/boundaryConditionSchema.ts`)
+1. Boundary Condition Lines (`src/schemas/boundaryConditionSchema.ts`)
 
 - Use `tupleField` for single coordinate pairs and `tupleArrayField` for polyline/arc lists.
 - Coordinate formatting: fixed-width 16 chars per number; set `formatter: "coordinate"`, `width: 16`, `maxWidth: 64`, `tuple: 2`, and `pad: true` to emit exact widths and whitespace padding.
 - Some headers require a space-padded count (e.g., `"BC Line Arc= 2 "`). Honor this in serializer; `tupleArrayField` + `pad: true` matches current files/tests.
 - Fixed-length strings: specify `length` on `stringField` to pad/truncate exactly (e.g., name length 32).
 
-2) BreakLine (`src/schemas/breakLineSchema.ts`)
+2. BreakLine (`src/schemas/breakLineSchema.ts`)
 
 - Simple field lines via `stringField`/`numberField`; preserve blank→null with `numberField(..., { nullOnBlank: true })` for `CellSize Max`.
 - Polyline points: `tupleArrayField("BreakLine Polyline=", "polylinePoints", { width: 16, maxWidth: 64, tuple: 2, formatter: "coordinate", pad: true })` to write 4 numbers per line (two XY pairs).
 - Tests verify blank `CellSize Max` serializes back to a blank segment, not `0` or omission.
 
-3) IC Point (`src/schemas/icPointSchema.ts`)
+3. IC Point (`src/schemas/icPointSchema.ts`)
 
 - Use `multiField("IC Point Position=", fields({ x: numberPart(), y: numberPart() }))` for compact CSV pairs.
 - Names often have fixed width; use `stringField("name", "IC Point Name=", { length: 32 })` to pad correctly.
 
-4) Junction (`src/schemas/junctionSchema.ts`)
+4. Junction (`src/schemas/junctionSchema.ts`)
 
 - Mixed CSV and repeats: `multiField` for description + four booleans; encode booleans with `booleanPart({ mode: "-1,0" })` to match HEC-RAS format.
 - Repeats: `repeat("upstreamConnections", startsWith("Up River,Reach="), schema([...]))` to consume contiguous upstream lines. Use `startsWith` recognizers for each repeating sub-block.
 - CSV trimming: use `stringPart({ trim: true })` for river/reach names to tolerate padded input.
 
-5) Land Cover (`src/schemas/landCoverSchema.ts`)
+5. Land Cover (`src/schemas/landCoverSchema.ts`)
 
 - Use `contextual` when headers embed a row count followed by that many lines. See `parseLandCoverTable` / `serializeLandCoverTable` for a compact pattern:
   - Parse: read `Label=<count>` header, then exact `count` CSV rows.
@@ -63,7 +63,7 @@ Below are concrete patterns we’ve adopted across real sections. Use these as r
 - Region polygons: `tupleArrayField("LCMann Region Polygon=", "polygon", { width: 16, maxWidth: 64, tuple: 2, formatter: "coordinate" }).`
 - Keep top-level and per-region tables separated; use `repeat("regions", startsWith("LCMann Region Name="), landCoverRegionSchema)`.
 
-6) Storage Area (`src/schemas/storageAreaSchema.ts`)
+6. Storage Area (`src/schemas/storageAreaSchema.ts`)
 
 - Header line with optional blanks: `multiField("Storage Area=", fields({ id: stringPart({ trim: true }), centroidX: numberPart({ nullOnBlank: true }), centroidY: numberPart({ nullOnBlank: true }) })).`
 - Custom fixed-width blocks with trailing padding are best handled with `contextual`:
@@ -73,32 +73,32 @@ Below are concrete patterns we’ve adopted across real sections. Use these as r
 - Boolean encoding: `booleanField("is2D", "Storage Area Is2D=", { mode: "-1,0" })`.
 - Station/elevation pairs: for two-column tables use `tupleArrayField(..., { width: 8, maxWidth: 80, tuple: 2, formatter: "station" })` to match the 8-char, 10-values-per-line convention.
 
-7) River Reach (`src/schemas/geometry/riverReachSchema.ts`)
+7. River Reach (`src/schemas/geometry/riverReachSchema.ts`)
 
 - Use `tupleArrayField("Reach XY=", ...)` with `formatter: "coordinate"` and `pad: true` for planform coordinates.
 - River-station entries follow `Type RM Length L Ch R =`; map the type code to the correct sub-schema and stream the block with a `contextual` parser that delegates to `parseSectionWithSchema` / `serializeWithSchema`.
 - Supported types today: `1` → cross section, `3` → one-dimensional bridge, `5` → inline weir, `6` → lateral weir. Extend `schemaByType` when new station types appear.
 
-8) Cross Section (`src/schemas/geometry/crossSectionSchema.ts`)
+8. Cross Section (`src/schemas/geometry/crossSectionSchema.ts`)
 
 - Station/elevation tables: `tupleArrayField("#Sta/Elev=", ..., { formatter: "station", pad: true })`.
 - Counted CSV blocks (`#Mann=`, `#Block Obstruct=`, `#XS Ineff=`, `XS Rating Curve=`) pair `countedArrayLengthPart` with `countedFixedWidthArray(..., { width: 8, maxWidth: 80, formatter: "station" })`.
 - Persistent flags like `Permanent Ineff=` rely on `contextual` plus `parseMultilineArray` to honor the count and convert `"T"/"F"` segments.
 
-9) Inline & Lateral Weirs (`src/schemas/geometry/inlineWeirSchema.ts`, `src/schemas/geometry/lateralWeirSchema.ts`)
+9. Inline & Lateral Weirs (`src/schemas/geometry/inlineWeirSchema.ts`, `src/schemas/geometry/lateralWeirSchema.ts`)
 
 - Share the `Type RM Length L Ch R =` header and stage/elevation count handled by `countedArrayLengthPart` + `countedFixedWidthArray("stageElevationPairs", { width: 8, maxWidth: 80, formatter: "station", pad: true })`.
 - Keep weir metadata lines (`Lateral Weir End`, `IW Outlet Rating Curve=`, etc.) with `multiField` so blanks remain explicit via `{ nullOnBlank: true }` where needed.
 - Inline weirs include a comma-separated parameter block (`IW Dist,WD,...`). Parse/serialize it through a `contextual` item with `parseCommaSeparated` / `formatCommaSeparated` and use `formatBoolean(..., "10")` for the embedded boolean.
 - Lateral weirs expose repeated headwater/tailwater connections; model them with `repeat(..., startsWith("Lateral Weir HW/TW RS Station="), schema([...]))`.
 
-10) One-Dimensional Bridge (`src/schemas/geometry/oneDimBridgeSchema.ts`)
+10. One-Dimensional Bridge (`src/schemas/geometry/oneDimBridgeSchema.ts`)
 
 - Bridge decks and piers interleave counts with fixed-width numeric grids. Use `contextual` helpers that call `parseMultilineArray` to read values and `formatFixedWidth` + `formatHECRASStationNumber` to write them back.
 - Preserve blank skew strings by wrapping `stringPart` in a custom serializer that emits two spaces when the source value is absent.
 - Boolean switches within numbered sequences (e.g., `wsproParam17`) stay in sync by using `booleanPart({ mode: "-1,0", pad: true })` and reusing the same ordering in serialization.
 
-11) Stream Node (`src/schemas/geometry/streamNodeSchema.ts`)
+11. Stream Node (`src/schemas/geometry/streamNodeSchema.ts`)
 
 - Compact CSV line: `multiField("Stream Node=", fields({ river: stringPart({ width: 16, trim: true }), reach: stringPart({ width: 16, trim: true }), index1: numberPart({ pad: true }), index2: numberPart({ pad: true }), description: stringPart({ width: 64, trim: true }) }))`.
 - Finish the block with `blankLine()` to mirror the trailing spacer in geometry files.
@@ -146,15 +146,15 @@ Utilities to know:
 
 ## Checklist: Adding A New Schema
 
-1) Review existing models, schema tests, and representative HEC-RAS snippets to catalog fields and formats.
-2) Define a `*Schema.ts` under `src/schemas/` using the smallest set of DSL items that match the format.
-3) Use `stringField`/`numberField`/`booleanField` for simple lines; `tupleField`/`tupleArrayField` for tuples and fixed-width tables; `contextual` as a rare exception.
-4) Encode optional/blank/null semantics explicitly with `opt(...)` and `numberPart({ nullOnBlank: true })`.
-5) Write tests:
+1. Review existing models, schema tests, and representative HEC-RAS snippets to catalog fields and formats.
+2. Define a `*Schema.ts` under `src/schemas/` using the smallest set of DSL items that match the format.
+3. Use `stringField`/`numberField`/`booleanField` for simple lines; `tupleField`/`tupleArrayField` for tuples and fixed-width tables; `contextual` as a rare exception.
+4. Encode optional/blank/null semantics explicitly with `opt(...)` and `numberPart({ nullOnBlank: true })`.
+5. Write tests:
    - Parse example lines; assert on values.
    - Serialize example values; assert exact output lines.
    - Round-trip parse→serialize→parse equality.
-6) Update `docs/hecras-parsing-format-specification.md` with coverage notes and any decisions/risks.
+6. Update `docs/hecras-parsing-format-specification.md` with coverage notes and any decisions/risks.
 
 ## Quick Pointers (File References)
 
@@ -176,40 +176,45 @@ Utilities to know:
 
 **IMPORTANT:** All changes to parsing/serialization must not regress geometry comparison results.
 
-The project includes an automated regression prevention system. See `scripts/README-regression-testing.md` for full details.
+The project includes regression-checking tooling for parser/serializer changes. See `scripts/README-regression-testing.md` for full details.
 
 **Commands:**
+
 - `npm run baseline:capture` - Capture baseline from main branch
 - `npm run check:regression` - Check for regression vs baseline
 - `npm run compare:geometries` - Run full geometry comparison
 
-**CI Integration:**
-- Every PR automatically captures baseline from `origin/main`
-- Runs regression check in `--strict` mode
-- Blocks merge if regression detected
+**CI Integration (current state):**
+
+- CI runs `lint`, `typecheck`, `test`, and `build` from `.github/workflows/ci.yml`
+- Regression scripts are not run automatically in CI
 
 **What counts as regression:**
+
 - Fewer geometry files matched
 - Fewer lines matched before first difference
 - Difference occurs earlier in a failing line
 - New parsing errors introduced
 
 **What's allowed:**
+
 - ✅ Improvements (more files/lines matched)
 - ✅ No change (same result as baseline)
 - ✅ Unrelated refactoring that doesn't affect parsing
 
 **Key insight:** The system always compares to `main` branch baseline, not just the previous commit. This prevents the scenario where:
+
 1. Commit A regresses
 2. Commit B improves over A but is still worse than baseline
 3. Without baseline comparison, B would incorrectly appear as progress
 
 **When making changes:**
+
 1. Capture baseline before starting: `npm run baseline:capture`
 2. Make your changes
 3. Check for regression: `npm run check:regression`
 4. If regression detected, fix it before creating PR
-5. CI will verify on PR creation
+5. CI will still verify lint/typecheck/test/build on PR creation
 
 ## If Blocked
 

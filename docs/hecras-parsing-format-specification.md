@@ -2,7 +2,7 @@
 
 ## Schema-First Architecture
 
-The codebase is entirely schema-first. Parsing and serialization are defined via the DSL in `src/schema/**`, and concrete section schemas live under `src/schemas/geometry/**`. The drivers in `src/schema/driver.ts` power `parseWithSchema`, `parseSectionWithSchema`, and `serializeWithSchema`, so every data transformation flows through a schema definition. Tests in `test/schemas/geometry/**` exercise round-trip parity for each section.
+The codebase is entirely schema-first. Parsing and serialization are defined via the DSL in `src/schema/**`, and concrete section schemas live under `src/schemas/**` (geometry, plan, project, steady flow). The drivers in `src/schema/driver.ts` power `parseWithSchema`, `parseSectionWithSchema`, and `serializeWithSchema`, so every data transformation flows through a schema definition. Tests in `test/schemas/**` exercise round-trip parity for each section.
 
 ### Key Modules
 
@@ -11,7 +11,7 @@ The codebase is entirely schema-first. Parsing and serialization are defined via
 - `src/schema/parts.ts` — atomic parts such as `stringPart`, `numberPart`, `booleanPart`, and `opt`
 - `src/schema/serializationUtils.ts` — coordinate/station formatting helpers and fixed-width padding utilities
 - `src/schema/parsingUtils.ts` — contextual helpers (`parseKeyValue`, `parseMultilineArray`, `splitIntoTuples`)
-- `src/schemas/geometry/**` — section-specific schemas composed from the DSL
+- `src/schemas/**` — section/file schemas composed from the DSL
 
 ## DSL Building Blocks
 
@@ -87,7 +87,7 @@ Format:   [NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.NN][NNNN.N
 
 ## Testing Expectations
 
-- Every schema change should add or update tests in `test/schemas/geometry/**` covering parse → serialize → parse round-trips.
+- Every schema change should add or update tests in `test/schemas/**` covering parse → serialize → parse round-trips.
 - Tests must assert line-for-line parity (including whitespace) for critical sections such as coordinates, station tables, and boolean encodings.
 - Include focused cases for blank/null propagation, boolean mode output, and count headers when they affect serialization.
 
@@ -98,4 +98,6 @@ Document new formatting discoveries, schema limitations, or trade-offs here. Inc
 - _[Add entries as the migration progresses]_
 - _2025-10-06_ — River reaches represent cross sections and lateral weirs as a single `riverStationEntries` union keyed by `type`. This mirrors the HEC-RAS interleaving (e.g., XS/XSLW/XS…) and keeps serialization stable. Callers that previously expected `crossSections` must filter by `entry.type === 1`.
 - _2025-11-24_ — Cross sections now support `Levee=` lines with format `Levee=<enabled>,<leftStation>,<leftElevation>,<leftSide>,<rightStation>,<rightElevation>,<rightSide>,<additionalParam>`. All numeric fields use `nullOnBlank: true` to preserve blank values (empty CSV segments). The boolean `enabled` field uses `-1,0` encoding. **Note: Field names are inferred from a single example (`Levee=-1,182.83,254,0,,,0,0`) and need verification against HEC-RAS documentation.** See `src/schemas/geometry/crossSectionSchema.ts:66-82`.
-- _2025-12-03_ — Plan files now parse the header (title, program version, short identifier, simulation dates, geometry/flow refs) and keep the remainder of the file verbatim via a contextual passthrough to preserve spacing. Extend `src/schemas/planSchema.ts` with structured items as we migrate more plan settings.
+- _2026-02-18_ — `planSchema` is now a large structured schema (typed fields plus nested repeats/sections such as UNET D2 areas, PS areas, breaches, and dredge events) rather than a header-plus-passthrough parser. Current plan risks are focused on edge-case formatting/coverage parity, not wholesale raw-line passthrough. See `src/schemas/planSchema.ts` and `test/schemas/planSchema.test.ts`.
+- _2026-02-17_ — Added `steadyFlowSchema` for `.fXX` steady flow files covering headers, river flow blocks, boundary blocks, observed water surface lines, DSS import lines, and storage area elevation blocks. To preserve exact round-trip spacing in current sample files, per-profile flow/elevation value rows are currently stored as single raw lines via `contextual` rather than parsed into numeric arrays. See `src/schemas/steadyFlowSchema.ts` and `test/schemas/steadyFlowSchema.test.ts`.
+- _2026-02-17_ — Added `unsteadyFlowSchema` for `.uXX` files with structured parsing for core header and initial-condition lines (`Flow Title`, `Program Version`, `Use Restart`, optional `Restart Filename`, and repeating initial location/elevation lines). All remaining lines are currently captured and serialized verbatim via a contextual passthrough to preserve exact round-trip fidelity while deeper unsteady migration continues. See `src/schemas/unsteadyFlowSchema.ts` and `test/schemas/unsteadyFlowSchema.test.ts`.

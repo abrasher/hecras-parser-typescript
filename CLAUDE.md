@@ -38,11 +38,11 @@ Common schema patterns from implemented schemas:
 
 Migration workflow (summary)
 
-1) Identify the target section; review existing models, schema tests, and representative HEC-RAS samples to understand requirements.
-2) Define a schema in `src/schemas/<name>Schema.ts` using DSL items; prefer `tupleArrayField` for fixed-width tables.
-3) Add adapters or recognizers where appropriate; keep top-level tolerant until the surrounding coverage is complete.
-4) Add tests for parser parity and serializer round-trip where possible.
-5) Update `docs/hecras-parsing-format-specification.md` with coverage status and any decisions/risks.
+1. Identify the target section; review existing models, schema tests, and representative HEC-RAS samples to understand requirements.
+2. Define a schema in `src/schemas/<name>Schema.ts` using DSL items; prefer `tupleArrayField` for fixed-width tables.
+3. Add adapters or recognizers where appropriate; keep top-level tolerant until the surrounding coverage is complete.
+4. Add tests for parser parity and serializer round-trip where possible.
+5. Update `docs/hecras-parsing-format-specification.md` with coverage status and any decisions/risks.
 
 ### Development
 
@@ -59,18 +59,21 @@ Migration workflow (summary)
 The project includes a regression prevention system to ensure parser/serializer changes don't make geometry parsing worse. See `scripts/README-regression-testing.md` for full documentation.
 
 **Quick reference:**
+
 - `npm run baseline:capture` - Capture baseline metrics from main branch
 - `npm run check:regression` - Check current changes against baseline
 - `npm run compare:geometries` - Run full geometry comparison
 
 **How it works:**
+
 - Compares against `main` branch baseline (not previous commits)
 - Tracks: files matched, lines matched, character position of differences
-- CI automatically checks on PRs and blocks merge if regression detected
+- Regression scripts are local/manual by default (not currently part of `.github/workflows/ci.yml`)
 - Allows improvements and no-change scenarios
 - Blocks if fewer files match or failures occur earlier
 
 **Exit codes:**
+
 - `0` - No regression (same or better than baseline)
 - `1` - Regression detected (worse than baseline)
 - `2` - No baseline found (only with `--strict` flag)

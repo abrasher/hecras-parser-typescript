@@ -11,7 +11,7 @@ export default tseslint.config(
     files: ["**/*.ts", "**/*.tsx"],
     languageOptions: {
       parserOptions: {
-        projectService: true,
+        project: ["./tsconfig.eslint.json"],
         tsconfigRootDir: import.meta.dirname,
       },
       globals: {
@@ -56,6 +56,14 @@ export default tseslint.config(
     },
   },
   {
+    files: ["demo/**/*.ts", "demo/**/*.tsx"],
+    languageOptions: {
+      parserOptions: {
+        project: false,
+      },
+    },
+  },
+  {
     files: ["**/*.js"],
     rules: {
       "no-unused-vars": [
@@ -68,6 +76,13 @@ export default tseslint.config(
     },
   },
   {
-    ignores: ["node_modules/**", "dist/**", "*.backup.*", ".claude/**"],
+    ignores: [
+      "node_modules/**",
+      "dist/**",
+      "*.backup.*",
+      ".claude/**",
+      ".worktree/**",
+      ".conductor/**",
+    ],
   },
 )

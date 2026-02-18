@@ -117,7 +117,7 @@ const multipleBarrelCulvertSchema = schema([
 
       // Number of entries is 2 * numberOfBarrels (upstream and downstream station for each barrel)
       const numberOfBarrels = context.numberOfBarrels
-      if (numberOfBarrels === undefined) {
+      if (typeof numberOfBarrels !== "number" || !Number.isFinite(numberOfBarrels)) {
         throw new Error(
           "numberOfBarrels not found in context - header parse may have failed at line " +
             startIndex,
@@ -452,7 +452,11 @@ export const oneDimStructureWithCulvertSchema = schema([
     { optional: true },
   ),
   repeat("culverts", startsWith("Culvert="), culvertSchema),
-  repeat("multipleBarrelCulverts", startsWith("Multiple Barrel Culv="), multipleBarrelCulvertSchema),
+  repeat(
+    "multipleBarrelCulverts",
+    startsWith("Multiple Barrel Culv="),
+    multipleBarrelCulvertSchema,
+  ),
   tupleArrayField("BR U #Sta/Elev=", "upstreamInternalStationElevations", {
     width: 8,
     maxWidth: 80,

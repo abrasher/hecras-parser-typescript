@@ -102,8 +102,7 @@ export function numberPart(options?: NumberPartOptions): Part<number> | Part<num
           serialized = numeric.toExponential()
         }
 
-        // Keep JavaScript's scientific notation formatting for non-Infinity values.
-        // (Infinity uses the explicit HEC-RAS sentinel string above.)
+        serialized = normalizeScientificNotation(serialized)
       }
 
       if (width !== undefined) {
@@ -126,6 +125,18 @@ export function numberPart(options?: NumberPartOptions): Part<number> | Part<num
   }
 
   return part as Part<number>
+}
+
+function normalizeScientificNotation(value: string): string {
+  const scientificMatch = value.match(/^([+-]?(?:\d+(?:\.\d+)?|\.\d+))[eE]([+-]?)(\d+)$/)
+  if (!scientificMatch) {
+    return value
+  }
+
+  const [, mantissa, rawSign, rawExponent] = scientificMatch
+  const sign = rawSign === "-" ? "-" : "+"
+  const exponent = rawExponent.padStart(2, "0")
+  return `${mantissa}E${sign}${exponent}`
 }
 type CountedArrayLengthPartOptions = NumberPartOptions
 

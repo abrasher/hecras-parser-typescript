@@ -35,3 +35,6 @@ test/data/example_geometries
 
 # Local git worktrees
 .worktree/
+
+# Local scratch data
+tmp/
