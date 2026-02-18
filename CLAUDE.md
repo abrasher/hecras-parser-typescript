@@ -28,6 +28,13 @@ Common schema patterns from implemented schemas:
 - **Typed river station entries**: When headers such as `Type RM Length L Ch R =` determine the downstream schema, map the numeric type to a schema and use a `contextual` block with `parseSectionWithSchema` / `serializeWithSchema` to stream each entry (see `src/schemas/geometry/riverReachSchema.ts`).
 - **Stage/elevation tables**: Pair `countedArrayLengthPart` with `countedFixedWidthArray(..., { formatter: "station", pad: true })` to respect the recorded count and 8-character fixed-width formatting common to weir and cross-section data.
 - **String constraints**: Use `stringField(key, label, { length: 32, trim: true })` for fixed-length fields
+- **Bare flag lines** (no `=` sign, e.g. `English Units`, `Mixed Flow Regime`): Use `stringField(key, "", { trim: true })` — empty label reads the entire line. Same pattern as `planSchema.ts`'s `flowRegime`.
+- **Count-then-numeric-data** (`Label= N` header + N fixed-width number lines): Use `tupleArrayField("Label=", key, { width, maxWidth, tuple: N, pad: true, optional: true })`. Count is derived from array length on serialization — never stored separately.
+- **Count-then-string-data** (`Label= N` header + N raw text lines, non-numeric): Use `section` + `multiField` + `countedArrayLengthPart` + `repeat`. The `countedArrayLengthPart` handles serialization (derives count from array length via `derive(data)`); the `repeat` handles parsing (reads until the next known field label). See `.claude/skills/implement-hecras-schema/SKILL.md` for full pattern.
+- **Typed file references** (Geom File=, Flow File=, Plan File=, etc.): Use one named `repeat` per type (`geometries`, `steadyFlows`, `plans`, etc.), ordered to match how HEC-RAS writes them in the file. Do NOT use a single generic `files` array.
+- **CRLF files**: Always end the schema with `blankLine()` to handle the trailing `""` produced by `.replace(/\r\n/g, "\n").split("\n")`.
+
+**`contextual` is a last resort.** Use it only when the parsing logic genuinely cannot be expressed with existing combinators — e.g., when an earlier type-integer field selects the structure of subsequent lines. Never use `contextual` for flag lines, count-then-data, optional fields, or repeated same-type entries. See `.claude/skills/implement-hecras-schema/SKILL.md` for the full decision tree.
 
 Migration workflow (summary)
 
@@ -94,6 +101,7 @@ Parsing strategy
 - Use recognizers (`startsWith('...')`) to bind sub-schemas; keep per-section non-strict until coverage is complete.
 - Encode optional and null/blank semantics at the Part level to preserve round-trip fidelity.
 - When custom handling is unavoidable, isolate it in `contextual` blocks backed by helpers in `src/schema/parsingUtils.ts`.
+- `contextual` is a last resort — see "Common schema patterns" and `.claude/skills/implement-hecras-schema/SKILL.md` for preferred alternatives covering all common HEC-RAS patterns.
 
 ## HEC-RAS Format Gotchas
 
