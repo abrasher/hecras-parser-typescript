@@ -25,6 +25,14 @@ Work in progress:
 npm install hecras-parser
 ```
 
+## Node Version
+
+Development in this repo follows `.nvmrc`, which tracks the latest Node.js LTS release. With `fnm` or `nvm`, run:
+
+```bash
+fnm use
+```
+
 ## Working With Schemas
 
 The library revolves around the DSL in `src/schema/**`. Schema definitions live under `src/schemas/geometry/**`, and tests under `test/schemas/geometry/**` provide round-trip coverage.
