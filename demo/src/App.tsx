@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react'
 import ReactJson from '@microlink/react-json-view'
+import type { InteractionProps } from '@microlink/react-json-view'
 import ReactDiffViewer from 'react-diff-viewer-continued'
 import { parsePlan, serializePlan } from 'hecras-parser'
 import { CollapsibleSection } from './components/CollapsibleSection'
@@ -8,6 +9,8 @@ import './App.css'
 const EXAMPLES = [
   { name: 'BaldEagleDamBrk.p06', path: '/examples/BaldEagleDamBrk.p06' },
 ]
+
+type ParsedPlan = ReturnType<typeof parsePlan>
 
 function usePrefersDarkMode() {
   const [isDark, setIsDark] = useState(() => {
@@ -96,8 +99,8 @@ function findDiffIndex(a: string, b: string) {
 
 function App() {
   const [originalContent, setOriginalContent] = useState<string>('')
-  const [parsedData, setParsedData] = useState<any>(null)
-  const [editedData, setEditedData] = useState<any>(null)
+  const [parsedData, setParsedData] = useState<ParsedPlan | null>(null)
+  const [editedData, setEditedData] = useState<ParsedPlan | null>(null)
   const [title, setTitle] = useState<string>('')
   const fileInputRef = useRef<HTMLInputElement>(null)
   const prefersDarkMode = usePrefersDarkMode()
@@ -179,8 +182,8 @@ function App() {
         console.warn('Serialized content does not match original')
       }
       setParsedData(parsed)
-      setEditedData(JSON.parse(JSON.stringify(parsed))) // Deep clone
-      setTitle(parsed.simulationTitle || '')
+      setEditedData(JSON.parse(JSON.stringify(parsed)) as ParsedPlan)
+      setTitle(parsed.planTitle || '')
     } catch (error) {
       console.error('Parse error:', error)
       alert('Failed to parse file: ' + (error instanceof Error ? error.message : String(error)))
@@ -202,18 +205,23 @@ function App() {
   const handleTitleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const newTitle = e.target.value
     setTitle(newTitle)
-    setEditedData({ ...editedData, simulationTitle: newTitle })
+    setEditedData((current) => (current ? { ...current, planTitle: newTitle } : current))
   }
 
-  const handleJsonEdit = (edit: any) => {
-    setEditedData(edit.updated_src)
+  const handleJsonEdit = (edit: InteractionProps) => {
+    const updatedPlan = edit.updated_src as ParsedPlan
+    setEditedData(updatedPlan)
     // Update title if it was changed via JSON editor
-    if (edit.updated_src.simulationTitle !== title) {
-      setTitle(edit.updated_src.simulationTitle || '')
+    if (updatedPlan.planTitle !== title) {
+      setTitle(updatedPlan.planTitle || '')
     }
   }
 
   const exportFile = () => {
+    if (!editedData) {
+      return
+    }
+
     try {
       const serialized = serializePlan(editedData)
       const blob = new Blob([serialized], { type: 'text/plain' })
@@ -232,6 +240,10 @@ function App() {
   }
 
   const getSerializedOutput = () => {
+    if (!editedData) {
+      return ''
+    }
+
     try {
       return serializePlan(editedData)
     } catch (error) {
@@ -300,7 +312,7 @@ function App() {
                 <div className="json-editor">
                   <h3>JSON Editor</h3>
                   <ReactJson
-                    src={editedData}
+                    src={editedData ?? parsedData}
                     onEdit={handleJsonEdit}
                     onAdd={handleJsonEdit}
                     onDelete={handleJsonEdit}

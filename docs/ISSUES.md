@@ -93,7 +93,7 @@ Add gate definition support to `lateralWeirSchema.ts` similar to connection gate
 
 ### 4. Missing `Multiple Barrel Culv=` Support
 **Status:** 🟠 High
-**Affected Files:** 4 occurrences
+**Affected Files:** 2 occurrences
 **Schema Impact:** 1D culverts
 
 **Description:**
@@ -105,7 +105,6 @@ Multiple Barrel Culv=2,1.88,2.42,49.54,0.017,0.5,1,58,1,261.2,261.1, 2,Culvert #
 ```
 
 **Affected Files:**
-- test/data/Dingman-1D.g06 (2 occurrences)
 - Applications Guide_Example 22 - Groundwater Interflow_BeaverSALeak.g01 (2 occurrences)
 
 **Recommendation:**

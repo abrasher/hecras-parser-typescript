@@ -13,7 +13,7 @@ function readFixture(relativePath: string): string {
   return readFileSync(resolve(__dirname, relativePath), "utf-8")
 }
 
-const geometryContent = readFixture("./data/Dingman.g01")
+const geometryContent = readFixture("./data/BurntIslands.g01")
 const steadyFlowContent = readFixture("./data/steady_flows/Mixed_Flow_Regime_Channel__MIXED.f01")
 const unsteadyFlowContent = readFixture("./data/unsteady_flows/Muncie.u01")
 const fullPlanContent = readFixture("./data/plans/Muncie.p01")

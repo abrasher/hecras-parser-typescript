@@ -8,8 +8,8 @@ import { geometrySchema } from "../../src/schemas/geometrySchema"
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = dirname(__filename)
 
-it("round trips Dingman geometry", () => {
-  const filePath = resolve(__dirname, "../data/Dingman.g01")
+it("round trips Burnt Islands geometry", () => {
+  const filePath = resolve(__dirname, "../data/BurntIslands.g01")
   const fileContent = readFileSync(filePath, "utf-8")
   const lines = fileContent.replace(/\r\n/g, "\n").split("\n")
 

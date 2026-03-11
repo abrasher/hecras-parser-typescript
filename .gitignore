@@ -29,8 +29,6 @@ geometry-roundtrip-report.txt
 *.sln
 *.sw?
 
-.chunkhound.json
-.chunkhound/
 test/data/example_geometries
 
 # Local git worktrees

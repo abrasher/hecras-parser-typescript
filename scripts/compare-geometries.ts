@@ -1,10 +1,10 @@
 #!/usr/bin/env tsx
 
 /**
- * Script to compare Dingman 2D.g01 file with its round-trip serialized version
+ * Script to compare tracked geometry files with their round-trip serialized versions
  * line by line, stopping at the first difference.
  *
- * Note: This file may cause stack overflow issues due to parsing complexity.
+ * Note: Some large geometry files may still cause stack overflow issues due to parsing complexity.
  */
 
 import { existsSync, readdirSync, readFileSync, writeFileSync } from "fs"
@@ -310,8 +310,6 @@ const exampleGeometryFiles = existsSync(exampleGeometriesDir)
   : []
 
 const geometryFiles = [
-  // "test/data/Dingman.g01",
-  "test/data/Dingman 2D.g01",
   "scripts/geometries/Mitigation1.g01",
   "scripts/geometries/Mitigation2.g02",
   "scripts/geometries/Mitigation3.g03",
@@ -324,7 +322,6 @@ const geometryFiles = [
   "scripts/geometries/Mitigation10.g10",
   "test/data/BurntIslands.g01",
   "test/data/Muncie.g01",
-  "test/data/Dingman-1D.g06",
   ...exampleGeometryFiles,
 ]
 

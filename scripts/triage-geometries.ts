@@ -473,7 +473,6 @@ const exampleGeometryFiles = existsSync(exampleGeometriesDir)
   : []
 
 const geometryFiles = [
-  "test/data/Dingman 2D.g01",
   "scripts/geometries/Mitigation1.g01",
   "scripts/geometries/Mitigation2.g02",
   "scripts/geometries/Mitigation3.g03",
@@ -486,7 +485,6 @@ const geometryFiles = [
   "scripts/geometries/Mitigation10.g10",
   "test/data/BurntIslands.g01",
   "test/data/Muncie.g01",
-  "test/data/Dingman-1D.g06",
   ...exampleGeometryFiles,
 ]
 
